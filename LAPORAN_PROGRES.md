@@ -28,6 +28,8 @@ Aplikasi telah berhasil disinkronkan sepenuhnya antara lingkungan lokal dan serv
 | 13 | Customer Display Queue | Membuat fitur antrian pelanggan (3 kolom: Masuk, Proses, Siap) dengan auto-refresh dan Voice Announcement. | ✅ Selesai |
 | 14 | Sinkronisasi Dapur-Queue | Mengintegrasikan status `tableorderheader` (kitchen_order_status) agar update di Dapur otomatis merubah status di Queue. | ✅ Selesai |
 | 15 | Auto-Status Siap | Menambahkan logika di Dapur: Jika semua item FNB selesai, status pesanan otomatis pindah ke "Siap Diambil". | ✅ Selesai |
+| 16 | Fix Filter Billing | Menambahkan sinkronisasi `namakelompok` pada UI billing baru agar filter tetap aktif setelah auto-refresh. | ✅ Selesai |
+| 17 | Robust Theme JS | Menambahkan pemeriksaan null pada `script.bundle.js` untuk mencegah error `innerHTML of null` pada calculator dan editor. | ✅ Selesai |
 
 ---
 

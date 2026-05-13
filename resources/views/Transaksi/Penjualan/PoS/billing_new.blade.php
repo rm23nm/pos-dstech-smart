@@ -1023,6 +1023,7 @@
                 el.dataset.totalPembayaran = item.TotalPembayaran || 0;
                 el.dataset.rawjammulai = item.JamMulai || '';
                 el.dataset.rawjamselesai = item.JamSelesai || '';
+                el.dataset.namakelompok = item.NamaKelompok || '';
 
                 // Update classes
                 el.className = 'titik-box';

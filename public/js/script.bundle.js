@@ -774,6 +774,8 @@ var input = document.getElementById('input'), // input/output button
   clear = document.getElementById('clear'), // clear button
   resultDisplayed = false; // flag to keep an eye on what output is displayed
 
+if (input) {
+
 // adding click handlers to number buttons
 for (var i = 0; i < number.length; i++) {
   number[i].addEventListener("click", function(e) {
@@ -890,6 +892,7 @@ if(clear){
     input.innerHTML = "";
   });
 }
+} // end if input
 
 jQuery(document).ready(function() {
   // Create two variables with names of months and days of the week in the array
@@ -951,11 +954,14 @@ jQuery(document).ready(function() {
 //     console.error( error );
 // });
 
-InlineEditor
-.create( document.querySelector( '#editor2' ) )
-.catch( error => {
-    console.error( error );
-} );
+var editor2 = document.querySelector( '#editor2' );
+if (editor2 && typeof InlineEditor !== 'undefined') {
+    InlineEditor
+    .create( editor2 )
+    .catch( error => {
+        console.error( error );
+    } );
+}
 
 // for data tables
 jQuery(document).ready( function () {

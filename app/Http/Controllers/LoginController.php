@@ -36,7 +36,7 @@ class LoginController extends Controller
     {
 
     }
-    public function landingpage() {
+    public function landing_page() {
         $subscriptionheader = SubscriptionHeader::all();
         return view("welcome",[
             'subscriptionheader' => $subscriptionheader

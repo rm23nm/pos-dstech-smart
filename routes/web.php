@@ -86,7 +86,7 @@ use App\Http\Controllers\SerialNumberController;
 |
 */
 
-Route::get('/', [LoginController::class, 'landingpage'])->name('landingpage');
+Route::get('/', [LoginController::class, 'landing_page'])->name('landingpage');
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::get('/daftar', [LoginController::class,'Register'])->name('daftar');
 Route::post('/action-login', [LoginController::class, 'action_login'])->name('action-login');
