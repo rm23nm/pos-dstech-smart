@@ -3607,17 +3607,6 @@ class FakturPenjualanController extends Controller
             ->where('tableorderheader.RecordOwnerID', $RecordOwnerID)
             ->whereDate('tableorderheader.TglTransaksi', $today)
             ->whereIn('tableorderheader.kitchen_order_status', [0, 1, 2]) // 0: Masuk, 1: Proses, 2: Siap
-            ->whereExists(function ($query) use ($RecordOwnerID) {
-                $query->select(DB::raw(1))
-                    ->from('tableorderfnb')
-                    ->join('itemmaster', function($join) {
-                        $join->on('tableorderfnb.KodeItem', '=', 'itemmaster.KodeItem')
-                             ->on('tableorderfnb.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
-                    })
-                    ->whereColumn('tableorderfnb.NoTransaksi', 'tableorderheader.NoTransaksi')
-                    ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID)
-                    ->where('itemmaster.TypeItem', '<>', 4);
-            })
             ->get();
 
         $masuk = $data->where('status', 0)->values();

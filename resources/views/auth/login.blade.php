@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Login | DSMS POS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
@@ -20,8 +20,8 @@
         body, html {
             height: 100%;
             margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--primary-red);
+            font-family: 'Outfit', sans-serif;
+            background-color: #020617;
             overflow: hidden;
         }
 
@@ -30,11 +30,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, rgba(208, 9, 4, 0.85) 0%, rgba(0, 86, 179, 0.85) 100%);
+            background: linear-gradient(135deg, rgba(208, 9, 4, 0.8) 0%, rgba(0, 86, 179, 0.8) 100%);
             position: relative;
+            overflow: hidden;
         }
 
-        /* Decorative Background Elements */
+        /* Restore Old Background Image */
         .login-wrapper::before {
             content: "";
             position: absolute;
@@ -45,10 +46,12 @@
             background-image: url("{{ asset('images/misc/bg-login3.jpg') }}");
             background-size: cover;
             background-position: center;
-            opacity: 0.7;
+            opacity: 0.8;
             z-index: 0;
             filter: saturate(1.2);
         }
+
+        /* Decorative Background Elements */
 
         .login-card {
             background: rgba(255, 255, 255, 0.95);
@@ -118,19 +121,22 @@
         }
 
         .btn-login {
-            background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+            background: linear-gradient(135deg, var(--primary-blue), #002f5c);
             border: none;
             color: white;
-            padding: 12px;
-            font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.3s;
+            padding: 14px;
+            font-weight: 700;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-top: 10px;
+            box-shadow: 0 8px 15px rgba(0, 86, 179, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(29, 140, 248, 0.4);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 25px rgba(0, 86, 179, 0.3);
             color: white;
         }
 

@@ -712,7 +712,7 @@
             @if(!empty($company[0]['icon']))
                 <img src="{{ $company[0]['icon'] }}" alt="Logo" style="height: 40px; width: auto; border-radius: 4px; background: white; padding: 2px;">
             @else
-                <img src="{{ asset('images/misc/LogoFront.png') }}" alt="Logo" style="height: 40px; width: auto;">
+                <i class="fas fa-bolt"></i>
             @endif
             <span>{{ $company[0]['NamaPartner'] }}</span>
         </div>
@@ -834,7 +834,7 @@
 
                 <!-- Image -->
                 <div class="detail-img-wrap">
-                    <img id="detailGambar" src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg" alt="Titik Lampu" style="opacity: 0.5;" />
+                    <img id="detailGambar" src="" alt="Titik Lampu" />
                 </div>
 
                 <!-- Info list -->
@@ -1122,11 +1122,6 @@
 
         selectedTitik = data;
         renderRightPanel(data);
-
-        // Jika meja kosong (Status 0), langsung buka modal Pilih Paket (Menu)
-        if (data.status === 0) {
-            onPilihPaket();
-        }
     }
 
     function isAnyModalOpen() {
@@ -1275,7 +1270,7 @@
 
     function syncCustomerDisplayFromSelected(data) {
         // If there's a transaction, fetch full details for accurate item list and totals
-        if (data.notransaksi && typeof data.notransaksi === 'string' && data.notransaksi.trim() !== '') {
+        if (data.notransaksi && data.notransaksi.trim() !== '') {
             fetchAndSyncCustomerDisplay(data.notransaksi);
             return;
         }
@@ -1314,10 +1309,6 @@
         document.getElementById('ppDurasi').value = '1';
         document.getElementById('ppMemberSearch').value = '';
         document.getElementById('ppKodeSales').value = '';
-
-        // Reset FnB Cart
-        ppFnbCart = [];
-        updatePpFnbCartTable();
 
         // Auto-select first available packet if filtered
         const selPaket = $('#ppPaketId');
@@ -2310,113 +2301,16 @@
             $('#fnbKembalian').css('color', 'green');
         }
 
+        // Sync with Customer Display (with tax)
+        const syncData = {
+            data: fnbCart.map(item => ({ NamaItem: item.NamaItem, Qty: item.Qty, Harga: item.Harga })),
+            Total: totalPesanan,
+            Discount: 0,
+            Tax: ppnRp + serviceRp + adminFee,
+            Net: grandTotal
+        };
+        syncCustomerDisplay(syncData);
     }
-
-    /* Logic for FnB Ordering inside Pilih Paket Modal */
-    let ppFnbCart = [];
-
-    function searchPpFnbItems(query) {
-        let $results = $('#ppFnbSearchResults');
-        if (query.length < 2) {
-            $results.hide();
-            return;
-        }
-
-        $.ajax({
-            url: "{{ route('itemmaster-ViewJson') }}",
-            method: 'POST',
-            data: {
-                Scan: query,
-                Active: 'Y',
-                TipeItemIN: '1,2,3,5'
-            },
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            success: function(res) {
-                if (res.data && res.data.length > 0) {
-                    let html = res.data.map(item => `
-                        <div class="fnb-search-item" onclick="addPpFnbToCart(${JSON.stringify(item).replace(/"/g, '&quot;')})" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div style="font-weight:600;">${item.NamaItem}</div>
-                                <div style="font-size:0.8rem; color:#666;">${item.KodeItem} | Stok: ${item.Stock}</div>
-                            </div>
-                            <div style="font-weight:700; color:#2e7d32;">${formatRp(item.HargaJual)}</div>
-                        </div>
-                    `).join('');
-                    $results.html(html).show();
-                } else {
-                    $results.html('<div style="padding:10px; color:#999;">Tidak ditemukan item.</div>').show();
-                }
-            }
-        });
-    }
-
-    function addPpFnbToCart(item) {
-        let existing = ppFnbCart.find(c => c.KodeItem === item.KodeItem);
-        if (existing) {
-            existing.Qty += 1;
-        } else {
-            ppFnbCart.push({
-                KodeItem: item.KodeItem,
-                NamaItem: item.NamaItem,
-                Harga: item.HargaJual,
-                Qty: 1
-            });
-        }
-        $('#ppFnbSearchInput').val('');
-        $('#ppFnbSearchResults').hide();
-        updatePpFnbCartTable();
-    }
-
-    function updatePpFnbCartTable() {
-        let $body = $('#ppFnbCartItems');
-        if (ppFnbCart.length === 0) {
-            $body.html('<tr><td colspan="5" style="text-align:center; padding:15px; color:#90a4ae;">Belum ada pesanan FnB.</td></tr>');
-            calculateTotal(); // Trigger total refresh even when empty
-            return;
-        }
-
-        let html = ppFnbCart.map((item, index) => {
-            let subtotal = item.Qty * item.Harga;
-            return `
-                <tr>
-                    <td style="padding: 5px 10px;">${item.NamaItem}</td>
-                    <td style="padding: 5px 10px;">
-                        <div style="display:flex; align-items:center; gap:3px;">
-                            <button type="button" class="pp-dur-btn" style="padding:1px 6px; font-size:0.7rem;" onclick="changePpFnbQty(${index}, -1)">-</button>
-                            <input type="number" class="pp-input" style="width:40px; text-align:center; padding:2px; font-size:0.8rem;" value="${item.Qty}" onchange="setPpFnbQty(${index}, this.value)">
-                            <button type="button" class="pp-dur-btn" style="padding:1px 6px; font-size:0.7rem;" onclick="changePpFnbQty(${index}, 1)">+</button>
-                        </div>
-                    </td>
-                    <td style="padding: 5px 10px; text-align:right;">${formatRp(item.Harga)}</td>
-                    <td style="padding: 5px 10px; text-align:right;">${formatRp(subtotal)}</td>
-                    <td style="padding: 5px 10px; text-align:center;">
-                        <button type="button" onclick="removePpFnbFromCart(${index})" style="background:none; border:none; color:#e53935; cursor:pointer; font-size:0.8rem;"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-        $body.html(html);
-        calculateTotal(); // Recalculate everything
-    }
-
-    function changePpFnbQty(index, delta) {
-        ppFnbCart[index].Qty += delta;
-        if (ppFnbCart[index].Qty < 1) ppFnbCart.splice(index, 1);
-        updatePpFnbCartTable();
-    }
-
-    function setPpFnbQty(index, val) {
-        ppFnbCart[index].Qty = parseFloat(val) || 1;
-        if (ppFnbCart[index].Qty < 1) ppFnbCart.splice(index, 1);
-        updatePpFnbCartTable();
-    }
-
-    function removePpFnbFromCart(index) {
-        ppFnbCart.splice(index, 1);
-        updatePpFnbCartTable();
-    }
-
-
 
     function syncSnapToken(token) {
         if (!token) return;
@@ -2982,42 +2876,6 @@
                         </div>
                     </div>
 
-                    <!-- Row: FnB Ordering (New) -->
-                    <div class="pp-row" style="margin-top: 15px; border-top: 1px dashed #cfd8dc; padding-top: 15px;">
-                        <div class="pp-field">
-                            <label class="pp-label"><i class="fas fa-utensils"></i> Tambahkan Pesanan FnB (Opsional)</label>
-                            <div style="position:relative;">
-                                <input type="text" class="pp-input" id="ppFnbSearchInput" placeholder="Cari makanan/minuman..." onkeyup="searchPpFnbItems(this.value)">
-                                <div id="ppFnbSearchResults" style="position:absolute; width:100%; z-index:1100; background:white; border:1px solid #ccc; border-top:none; display:none; max-height:200px; overflow-y:auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                    <!-- Results populate here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pp-row" style="margin-top:10px;">
-                        <div class="pp-field">
-                            <div style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; max-height: 200px; overflow-y: auto; background: #fafafa;">
-                                <table class="fnb-table" style="margin-bottom:0; width:100%; font-size: 0.8rem;">
-                                    <thead style="background: #eceff1; position: sticky; top: 0; z-index: 10;">
-                                        <tr>
-                                            <th>Item</th>
-                                            <th style="width:80px;">Qty</th>
-                                            <th style="width:100px; text-align:right;">Harga</th>
-                                            <th style="width:100px; text-align:right;">Subtotal</th>
-                                            <th style="width:40px; text-align:center;">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="ppFnbCartItems">
-                                        <tr>
-                                            <td colspan="5" style="text-align:center; padding:15px; color:#90a4ae;">Belum ada pesanan FnB.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Row: Opsi Bayar -->
                     <div class="pp-row" style="margin-top: 20px; border-top: 1px dashed #cfd8dc; padding-top: 15px;">
                         <div class="pp-field">
@@ -3039,11 +2897,6 @@
                         <div class="detail-calc-row">
                             <span>Subtotal Paket (x<span id="calcQty">1</span>):</span>
                             <span id="calcSubtotal">Rp 0</span>
-                        </div>
-                        
-                        <div class="detail-calc-row">
-                            <span>Subtotal FnB:</span>
-                            <span id="ppSumFnb">Rp 0</span>
                         </div>
                         
                         <div class="detail-calc-row">
@@ -4310,23 +4163,20 @@
     }
 
     function calculateTotal(isFromInput = false) {
-        // 1. Base Data (Paket)
+        // Base Data
         var durasi = parseInt(document.getElementById('ppDurasi').value) || 1;
-        var baseDurasi = window.activePaketDurasi || 1; 
+        var baseDurasi = window.activePaketDurasi || 1; // Kelipatan durasi paket asli
         var hargaInp = document.getElementById('ppHargaNormal').value;
         var harga = parseFormattedRp(hargaInp);
         
-        var subtotalPaket = (durasi / baseDurasi) * harga;
-        $('#calcSubtotal').text(formatRp(subtotalPaket));
-        $('#calcQty').text(durasi);
-
-        // 2. FnB Data
-        var fnbTotal = ppFnbCart.reduce((acc, item) => acc + (item.Qty * item.Harga), 0);
-        $('#ppSumFnb').text(formatRp(fnbTotal));
+        // Harga adalah per baseDurasi. Jadi Subtotal = (durasi / baseDurasi) * harga
+        var subtotal = (durasi / baseDurasi) * harga;
         
-        var subtotalCombined = subtotalPaket + fnbTotal;
+        // Settings Company
+        var ppnPer = confCompany ? parseFloat(confCompany.PPN) || 0 : 0;
+        var pb1Per = confCompany ? parseFloat(confCompany.PajakHiburan) || 0 : 0;
 
-        // 3. Discounts
+        // Diskon Member
         var discPer = 0;
         var custId = document.getElementById('ppKodePelanggan').value;
         if(custId) {
@@ -4336,44 +4186,38 @@
                 if(grp && grp.DiskonPersen) discPer = parseFloat(grp.DiskonPersen);
             }
         }
-        var diskonRp = subtotalPaket * (discPer / 100);
-        $('#calcDiskonPersen').text(discPer);
-        $('#calcDiskonRp').text('- ' + formatRp(diskonRp));
+        
+        // Apply Diskon %
+        var diskonRp = subtotal * (discPer / 100);
+        var subtotalAfterDisc = subtotal - diskonRp;
 
+        // Apply Voucher
+        // voucherRp di kalkulasi secra asinkron, tapi kita panggil nilai yang tersimpan sementara
         var voucherRp = window.activeVoucherRp || 0; 
-        $('#calcVoucherRp').text('- ' + formatRp(voucherRp));
+        var dtpp = subtotalAfterDisc - voucherRp;
+        if (dtpp < 0) dtpp = 0;
 
-        // 4. DPP & Taxes
-        var ppnPer = confCompany ? parseFloat(confCompany.PPN) || 0 : 0;
-        var pb1Per = confCompany ? parseFloat(confCompany.PajakHiburan) || 0 : 0;
-        
-        var dpp = subtotalCombined - diskonRp - voucherRp;
-        if (dpp < 0) dpp = 0;
+        // Pajak dari DPP
+        var ppnRp = dtpp * (ppnPer / 100);
+        var pb1Rp = dtpp * (pb1Per / 100);
 
-        var ppnRp = dpp * (ppnPer / 100);
-        var pb1Rp = dpp * (pb1Per / 100);
-        
-        $('#calcPpnPersen').text(ppnPer);
-        $('#calcPpnRp').text(formatRp(ppnRp));
-        $('#calcPb1Persen').text(pb1Per);
-        $('#calcPb1Rp').text(formatRp(pb1Rp));
+        var grandTotal = dtpp + ppnRp + pb1Rp;
 
-        var grandTotal = dpp + ppnRp + pb1Rp;
-
-        // 5. Admin Fee (based on Payment Method)
+        // Cek Tipe Pembayaran & Biaya Admin
         var nominalInp = document.getElementById('ppNominalBayar');
         var selMp = document.getElementById('ppMetodePembayaran');
         var tipePembayaran = '';
         var adminPercent = 0;
         var adminRupiah = 0;
 
-        if (selMp && selMp.options.length > 0 && selMp.selectedIndex >= 0) {
+        if (selMp.options.length > 0 && selMp.selectedIndex >= 0) {
             var opt = selMp.options[selMp.selectedIndex];
             tipePembayaran = opt.getAttribute('data-tipe');
             adminPercent = parseFloat(opt.getAttribute('data-percent')) || 0;
             adminRupiah = parseFloat(opt.getAttribute('data-rupiah')) || 0;
         }
 
+        // Hitung Biaya Admin
         var adminFeeRp = 0;
         if (adminPercent > 0) {
             adminFeeRp = (adminPercent / 100) * grandTotal;
@@ -4381,54 +4225,74 @@
             adminFeeRp = adminRupiah;
         }
 
-        if (adminFeeRp > 0) {
-            $('#rowBiayaAdmin').show();
-            $('#calcAdminRp').text(formatRp(adminFeeRp));
-        } else {
-            $('#rowBiayaAdmin').hide();
-        }
-
+        // Add Admin Fee to Grand Total
         grandTotal += adminFeeRp;
-        $('#calcGrandTotal').text(formatRp(grandTotal));
 
-        // 6. Payment Logic
-        if (tipePembayaran === 'NON TUNAI' || tipePembayaran === 'NONTUNAI') {
-            nominalInp.value = formatRupiahVal(grandTotal);
-            nominalInp.readOnly = true;
-            nominalInp.style.backgroundColor = '#f5f5f5';
-        } else {
-            nominalInp.readOnly = false;
-            nominalInp.style.backgroundColor = '';
-            if (!isFromInput) {
-                nominalInp.value = formatRupiahVal(grandTotal);
-            }
-        }
-
-        // 7. Change (Kembalian)
-        let pay = parseFormattedRp(nominalInp.value || '0');
-        let change = pay - grandTotal;
-        let kembalianEl = document.getElementById('ppKembalian');
-        if (change < 0) {
-            $('#ppKembalian').text('Kurang: ' + formatRp(Math.abs(change))).css('color', '#e53935');
-        } else {
-            $('#ppKembalian').text(formatRp(change)).css('color', '#2e7d32');
-        }
-
-        // 8. Sync Customer Display
+        // Sync with Customer Display (Estimation)
+        var paketIdSel = document.getElementById('ppPaketId');
+        var selectedPaketText = (paketIdSel && paketIdSel.selectedIndex >= 0) ? paketIdSel.options[paketIdSel.selectedIndex].text : "-";
+        
         const syncData = {
-            data: [{ NamaItem: "Paket (" + durasi + ")", Qty: 1, Harga: subtotalPaket }],
-            Total: subtotalCombined,
+            data: [{ NamaItem: selectedPaketText, Qty: durasi, Harga: harga }],
+            Total: subtotal,
             Discount: diskonRp + voucherRp,
             Tax: ppnRp + pb1Rp + adminFeeRp,
             Net: grandTotal
         };
-        ppFnbCart.forEach(item => {
-            syncData.data.push({ NamaItem: item.NamaItem, Qty: item.Qty, Harga: item.Harga });
-        });
         syncCustomerDisplay(syncData);
+
+        // UI Panel - Langsung only
+        if(document.querySelector('input[name="OpsiBayar"]:checked').value !== 'LANGSUNG') return;
+
+        // Tampilkan/Sembunyikan Row Biaya Admin
+        var rowAdmin = document.getElementById('rowBiayaAdmin');
+        var calcAdminRp = document.getElementById('calcAdminRp');
+        if (adminFeeRp > 0) {
+            rowAdmin.style.display = 'flex';
+            calcAdminRp.textContent = toRupiah(adminFeeRp);
+        } else {
+            rowAdmin.style.display = 'none';
+        }
+
+        // Jika NON TUNAI, paksa nominal sama dengan grand total dan kunci inputnya
+        if (tipePembayaran === 'NON TUNAI' || tipePembayaran === 'NONTUNAI') {
+            nominalInp.value = new Intl.NumberFormat('id-ID').format(grandTotal);
+            nominalInp.readOnly = true;
+            nominalInp.style.backgroundColor = '#f3f6f9';
+        } else {
+            nominalInp.readOnly = false;
+            nominalInp.style.backgroundColor = '';
+            // Default ke total tagihan jika bukan sedang diketik
+            if (!isFromInput) {
+                nominalInp.value = new Intl.NumberFormat('id-ID').format(grandTotal);
+            }
+        }
+
+        // Bayar & Kembali
+        var nominalBayar = parseFormattedRp(nominalInp.value);
+        var kembalian = nominalBayar - grandTotal;
+
+        // Render UI
+        document.getElementById('calcQty').textContent = durasi;
+        document.getElementById('calcSubtotal').textContent = toRupiah(subtotal);
+        
+        document.getElementById('calcDiskonPersen').textContent = discPer;
+        document.getElementById('calcDiskonRp').textContent = '- ' + toRupiah(diskonRp);
+        
+        document.getElementById('calcVoucherRp').textContent = '- ' + toRupiah(voucherRp);
+
+        document.getElementById('calcPpnPersen').textContent = ppnPer;
+        document.getElementById('calcPpnRp').textContent = toRupiah(ppnRp);
+
+        document.getElementById('calcPb1Persen').textContent = pb1Per;
+        document.getElementById('calcPb1Rp').textContent = toRupiah(pb1Rp);
+
+        document.getElementById('calcGrandTotal').textContent = toRupiah(grandTotal);
+
+        document.getElementById('ppKembalian').value = (kembalian < 0 ? "Kurang " : "") + toRupiah(Math.abs(kembalian));
+
         validateForm();
     }
-
 
     function validateForm() {
         var btn = document.getElementById('ppBtnConfirm');
@@ -4551,8 +4415,7 @@
             OpsiBayar: document.querySelector('input[name="OpsiBayar"]:checked').value,
             MetodePembayaran: document.getElementById('ppMetodePembayaran').value,
             NominalBayar: parseFormattedRp(document.getElementById('ppNominalBayar').value),
-            KodeVoucher: document.getElementById('ppKodeVoucher').value.trim(),
-            fnbItems: ppFnbCart
+            KodeVoucher: document.getElementById('ppKodeVoucher').value.trim()
         };
 
         // Basic validation

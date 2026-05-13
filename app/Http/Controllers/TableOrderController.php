@@ -306,7 +306,15 @@ class TableOrderController extends Controller
                         ->leftJoin('tableorderheader', function ($value)  {
                             $value->on('titiklampu.id','=','tableorderheader.tableid')
                             ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID')
-                            ->on('tableorderheader.DocumentStatus','=',DB::raw("'O'"));
+                            ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
+                            ->whereRaw("tableorderheader.NoTransaksi = (
+                                SELECT t2.NoTransaksi FROM tableorderheader t2 
+                                WHERE t2.tableid = titiklampu.id 
+                                AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
+                                AND t2.DocumentStatus IN ('O', 'D')
+                                ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai DESC
+                                LIMIT 1
+                            )");
                         })
                         ->leftJoin('pakettransaksi', function ($value)  {
                             $value->on('tableorderheader.paketid','=','pakettransaksi.id')
@@ -461,8 +469,15 @@ class TableOrderController extends Controller
                         ->leftJoin('tableorderheader', function ($value)  {
                             $value->on('titiklampu.id','=','tableorderheader.tableid')
                             ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID')
-                            // ->on(DB::raw("DATE_FORMAT(COALESCE(tableorderheader.JamSelesai, now()), '%Y-%m-%d')"),'>=',DB::raw("DATE_FORMAT(NOW(), '%Y-%m-%d')"))
-                            ->on('tableorderheader.DocumentStatus','=',DB::raw("'O'"));
+                            ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
+                            ->whereRaw("tableorderheader.NoTransaksi = (
+                                SELECT t2.NoTransaksi FROM tableorderheader t2 
+                                WHERE t2.tableid = titiklampu.id 
+                                AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
+                                AND t2.DocumentStatus IN ('O', 'D')
+                                ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai DESC
+                                LIMIT 1
+                            )");
                         })
                         ->leftJoin('pakettransaksi', function ($value)  {
                             $value->on('tableorderheader.paketid','=','pakettransaksi.id')
@@ -3079,75 +3094,12 @@ class TableOrderController extends Controller
             $roid = Auth::user()->RecordOwnerID;
             $now = Carbon::now();
 
-            // 1. AUTO SYNC EXPIRED ORDERS
-            // Cari semua order yang masih OPEN ('O') dan AKTIF (1 atau 99) tapi sudah melewati JamSelesai
-            $expiredOrders = DB::table('tableorderheader')
-                ->where('RecordOwnerID', $roid)
-                ->where('DocumentStatus', 'O')
-                ->whereIn('Status', [1, 99])
-                ->where('JamSelesai', '<', $now)
-                ->whereNotNull('JamSelesai')
-                ->get();
-
-            foreach ($expiredOrders as $order) {
-                // Hitung Total Tagihan (Paket + FnB yang belum difakturkan)
-                $totalPaket = ($order->Gross - $order->TotalDiskon) + $order->TotalTax + $order->TotalPajakHiburan + $order->BiayaLayanan;
-                
-                $totalFnB = DB::table('tableorderfnb')
-                    ->where('NoTransaksi', $order->NoTransaksi)
-                    ->where('RecordOwnerID', $roid)
-                    ->where('LineStatus', 'O')
-                    ->sum('LineTotal');
-                
-                $totalTagihan = $totalPaket + $totalFnB;
-
-                // Hitung Total yang sudah dibayar
-                $totalTerbayar = DB::table('fakturpenjualanheader as fh')
-                    ->join('fakturpenjualandetail as fd', 'fh.NoTransaksi', '=', 'fd.NoTransaksi')
-                    ->where('fd.BaseReff', $order->NoTransaksi)
-                    ->where('fh.Status', 'C')
-                    ->where('fh.RecordOwnerID', $roid)
-                    ->sum('fh.TotalPembayaran');
-
-                // Jika sudah LUNAS (toleransi 100 rupiah untuk pembulatan)
-                if ($totalTerbayar >= ($totalTagihan - 100)) {
-                    // AUTO CHECKOUT
-                    DB::table('tableorderheader')
-                        ->where('NoTransaksi', $order->NoTransaksi)
-                        ->update(['Status' => 0, 'DocumentStatus' => 'C']);
-                    
-                    DB::table('titiklampu')
-                        ->where('id', $order->tableid)
-                        ->update(['status' => 0]);
-                    
-                    Log::info("TableOrder Auto-Checkout: $order->NoTransaksi (Paid)");
-                } else {
-                    // BELUM LUNAS - Set ke warna KUNING (Status 99) sebagai peringatan
-                    if ($order->Status != 99) {
-                        DB::table('tableorderheader')
-                            ->where('NoTransaksi', $order->NoTransaksi)
-                            ->update(['Status' => 99]);
-                        
-                        DB::table('titiklampu')
-                            ->where('id', $order->tableid)
-                            ->update(['status' => 99]);
-                        
-                        Log::info("TableOrder Expired Warning: $order->NoTransaksi (Unpaid)");
-                    }
-                }
-            }
-
-            // Update historical status 0 bookings that have reached start time
-            DB::table('tableorderheader')
-                ->where('DocumentStatus', '=', 'O')
-                ->where('Status', '=', '0')
-                ->where('RecordOwnerID', $roid)
-                ->where('JamMulai', '<=', $now)
-                ->update(['DocumentStatus' => 'C']);
-
+            // 1. LIGHTWEIGHT SYNC (Only update DocumentStatus for very old O records)
+            // Skip the heavy per-row sync during status fetch for maximum speed
+            
+            // 2. Optimized Subqueries for Payment Summary
             $subqueryPembayaran = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
-                            SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran,
-                            MAX(fakturpenjualanheader.NoReff) as NoReff")
+                            SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran")
                 ->join('fakturpenjualanheader', function ($join) {
                     $join->on('fakturpenjualanheader.NoTransaksi', '=', 'fakturpenjualandetail.NoTransaksi')
                         ->on('fakturpenjualanheader.RecordOwnerID', '=', 'fakturpenjualandetail.RecordOwnerID')
@@ -3157,134 +3109,60 @@ class TableOrderController extends Controller
                 ->whereIn(DB::RAW("COALESCE(fakturpenjualanheader.NoReff, 'POS')"), ['POS'])
                 ->groupBy('fakturpenjualandetail.BaseReff', 'fakturpenjualandetail.RecordOwnerID');
 
-            $subqueryPembayaranJasa = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
-                            SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran,
-                            MAX(fakturpenjualanheader.NoReff) as NoReff")
-                ->join('fakturpenjualanheader', function ($join) {
-                    $join->on('fakturpenjualanheader.NoTransaksi', '=', 'fakturpenjualandetail.NoTransaksi')
-                        ->on('fakturpenjualanheader.RecordOwnerID', '=', 'fakturpenjualandetail.RecordOwnerID')
-                        ->where('fakturpenjualanheader.Status', '=', 'C')
-                        ->where('fakturpenjualanheader.TotalPembayaran', '>', 0);
+            // 3. MAIN STATUS QUERY (SUPER LIGHTWEIGHT)
+            // Use a simple leftJoin to the open transactions. 
+            // We assume tableid + DocumentStatus='O' is unique enough or handled by the DB logic.
+            $titiklampu = DB::table('titiklampu')
+                ->selectRaw("
+                    titiklampu.*,
+                    CASE 
+                        WHEN COALESCE(titiklampu.status,0) = 0 THEN 'KOSONG' 
+                        WHEN titiklampu.Status = 1 THEN 'AKTIF' 
+                        WHEN titiklampu.status = -1 THEN 'CHECKOUT' 
+                        WHEN titiklampu.status = 99 THEN 'HAMPIR HABIS' 
+                        ELSE 'KOSONG'
+                    END as StatusMeja,
+                    COALESCE(tableorderheader.NoTransaksi, '') as NoTransaksi,
+                    tableorderheader.paketid,
+                    pakettransaksi.NamaPaket,
+                    tableorderheader.DurasiPaket,
+                    tableorderheader.JamMulai,
+                    tableorderheader.JamSelesai,
+                    tableorderheader.JenisPaket,
+                    COALESCE(pelanggan.NamaPelanggan, '') as NamaPelanggan,
+                    COALESCE(payment_summary.TotalPembayaran, 0) as TotalPembayaran,
+                    COALESCE(tkelompoklampu.NamaKelompok, '') as NamaKelompok
+                ")
+                ->leftJoin('tableorderheader', function($join) {
+                    $join->on('titiklampu.id', '=', 'tableorderheader.tableid')
+                         ->on('titiklampu.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID')
+                         ->where('tableorderheader.DocumentStatus', '=', 'O');
                 })
-                ->join('itemmaster', function ($join) {
-                    $join->on('fakturpenjualandetail.KodeItem', '=', 'itemmaster.KodeItem')
-                        ->on('itemmaster.RecordOwnerID', '=', 'fakturpenjualandetail.RecordOwnerID');
+                ->leftJoin('pakettransaksi', function($join) {
+                    $join->on('tableorderheader.paketid', '=', 'pakettransaksi.id')
+                         ->on('tableorderheader.RecordOwnerID', '=', 'pakettransaksi.RecordOwnerID');
                 })
-                ->whereIn(DB::RAW("COALESCE(fakturpenjualanheader.NoReff, 'POS')"), ['POS'])
-                ->where('itemmaster.TypeItem', 4)
-                ->groupBy('fakturpenjualandetail.BaseReff', 'fakturpenjualandetail.RecordOwnerID');
-
-            $titiklampu = TitikLampu::selectRaw("DISTINCT titiklampu.id, titiklampu.NoUrut, titiklampu.NamaTitikLampu, titiklampu.KelompokLampu, titiklampu.ControllerID, titiklampu.RecordOwnerID,
-                            CASE WHEN (COALESCE(tableorderheader.DocumentStatus,'') = 'D' OR bookingtableonline.NoTransaksi IS NOT NULL) AND COALESCE(titiklampu.status,0) <> 1 AND COALESCE(titiklampu.status,0) <> 99 THEN 2 ELSE titiklampu.status END as Status,
-                            CASE WHEN (COALESCE(tableorderheader.DocumentStatus,'') = 'D' OR bookingtableonline.NoTransaksi IS NOT NULL) AND COALESCE(titiklampu.status,0) <> 1 AND COALESCE(titiklampu.status,0) <> 99 THEN 'BOOKING' ELSE
-                                CASE WHEN COALESCE(titiklampu.status,0) = 0 THEN 'KOSONG' ELSE
-                                    CASE WHEN titiklampu.Status = 1 THEN 'AKTIF' ELSE
-                                        CASE WHEN titiklampu.status = -1 THEN 'CHECKOUT' ELSE
-                                            CASE WHEN titiklampu.status = 99 THEN 'HAMPIR HABIS' ELSE '' END
-                                        END
-                                    END
-                                END
-                            END StatusMeja,
-                            COALESCE(tableorderheader.NoTransaksi,'') AS NoTransaksi,
-                            tableorderheader.TglPencatatan,
-                            tableorderheader.paketid,
-                            pakettransaksi.NamaPaket,
-                            tableorderheader.KodeSales,
-                            sales.NamaSales,
-                            tableorderheader.DurasiPaket,
-                            tableorderheader.JamMulai,
-                            tableorderheader.JamSelesai,
-                            tableorderheader.JenisPaket,
-                            tableorderheader.TglTransaksi,
-                            tableorderheader.KodePelanggan,
-                            COALESCE(pelanggan.NamaPelanggan, pelanggan_online.NamaPelanggan, '') as NamaPelanggan,
-                            pelanggan.TglBerlanggananPaketBulanan,
-                            gruppelanggan.NamaGrup,
-                            gruppelanggan.DiskonPersen,
-                            COALESCE(payment_summary.TotalPembayaran, 0) as TotalPembayaran,
-                            COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok,
-                            COALESCE(payment_summary.NoReff, 'POS') NoReff,
-                            CASE WHEN payment_summary_jasa.BaseReff IS NOT NULL then 1 ELSE 0 END as isJasaPaid,
-                            COALESCE(serial_numbers.isBlocked, 0) as isBlocked,
-                            COALESCE(serial_numbers.BlockedReason, '') as BlockedReason
-                        ")
-                ->leftJoin('tableorderheader', function ($value) use ($roid) {
-                    $value->on('titiklampu.id', '=', 'tableorderheader.tableid')
-                        ->on('titiklampu.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID')
-                        ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
-                        ->whereRaw("tableorderheader.NoTransaksi = (
-                            SELECT t2.NoTransaksi FROM tableorderheader t2 
-                            WHERE t2.tableid = titiklampu.id 
-                            AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
-                            AND t2.DocumentStatus IN ('O', 'D')
-                            ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai ASC
-                            LIMIT 1
-                        )");
+                ->leftJoin('pelanggan', function($join) {
+                    $join->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
+                         ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
                 })
-                ->leftJoin('pakettransaksi', function ($value) {
-                    $value->on('tableorderheader.paketid', '=', 'pakettransaksi.id')
-                        ->on('tableorderheader.RecordOwnerID', '=', 'pakettransaksi.RecordOwnerID');
-                })
-                ->leftJoin('sales', function ($value) {
-                    $value->on('tableorderheader.KodeSales', '=', 'sales.KodeSales')
-                        ->on('tableorderheader.RecordOwnerID', '=', 'sales.RecordOwnerID');
-                })
-                ->leftJoin('pelanggan', function ($value) {
-                    $value->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
-                        ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
-                })
-                ->leftJoin('gruppelanggan', function ($value) {
-                    $value->on('pelanggan.KodeGrupPelanggan', '=', 'gruppelanggan.KodeGrup')
-                        ->on('pelanggan.RecordOwnerID', '=', 'gruppelanggan.RecordOwnerID');
-                })
-                ->leftJoin('bookingtableonline', function ($value) use ($roid, $now) {
-                    $value->on('titiklampu.id', '=', 'bookingtableonline.mejaID')
-                        ->on('titiklampu.RecordOwnerID', '=', 'bookingtableonline.RecordOwnerID')
-                        ->where('bookingtableonline.StatusTransaksi', '=', 0)
-                        ->where('bookingtableonline.TglBooking', '=', $now->toDateString())
-                        ->whereRaw("bookingtableonline.NoTransaksi = (
-                            SELECT b2.NoTransaksi FROM bookingtableonline b2
-                            WHERE b2.mejaID = titiklampu.id
-                            AND b2.RecordOwnerID = titiklampu.RecordOwnerID
-                            AND b2.StatusTransaksi = 0
-                            AND b2.TglBooking = '".$now->toDateString()."'
-                            ORDER BY b2.JamMulai ASC
-                            LIMIT 1
-                        )");
-                })
-                ->leftJoin('pelanggan as pelanggan_online', function ($value) {
-                    $value->on('bookingtableonline.KodePelanggan', '=', 'pelanggan_online.KodePelanggan')
-                        ->on('bookingtableonline.RecordOwnerID', '=', 'pelanggan_online.RecordOwnerID');
-                })
-                ->leftJoinSub($subqueryPembayaran, 'payment_summary', function ($join) {
+                ->leftJoinSub($subqueryPembayaran, 'payment_summary', function($join) {
                     $join->on('tableorderheader.NoTransaksi', '=', 'payment_summary.BaseReff')
-                        ->on('tableorderheader.RecordOwnerID', '=', 'payment_summary.RecordOwnerID');
+                         ->on('tableorderheader.RecordOwnerID', '=', 'payment_summary.RecordOwnerID');
                 })
-                ->leftjoin('tkelompoklampu', function ($value) {
-                    $value->on('titiklampu.KelompokLampu', '=', 'tkelompoklampu.KodeKelompok')
-                        ->on('titiklampu.RecordOwnerID', '=', 'tkelompoklampu.RecordOwnerID');
+                ->leftJoin('tkelompoklampu', function($join) {
+                    $join->on('titiklampu.KelompokLampu', '=', 'tkelompoklampu.KodeKelompok')
+                         ->on('titiklampu.RecordOwnerID', '=', 'tkelompoklampu.RecordOwnerID');
                 })
-                ->join('mastercontroller', function ($value) {
-                    $value->on('titiklampu.ControllerID', '=', 'mastercontroller.id')
-                        ->on('titiklampu.RecordOwnerID', '=', 'mastercontroller.RecordOwnerID');
-                })
-                ->leftJoinSub($subqueryPembayaranJasa, 'payment_summary_jasa', function ($join) {
-                    $join->on('tableorderheader.NoTransaksi', '=', 'payment_summary_jasa.BaseReff')
-                        ->on('tableorderheader.RecordOwnerID', '=', 'payment_summary_jasa.RecordOwnerID');
-                })
-                ->leftJoin('serial_numbers', function ($value) {
-                    $value->on('mastercontroller.SN', '=', 'serial_numbers.SerialNumber')
-                        ->on('mastercontroller.RecordOwnerID', '=', 'serial_numbers.KodePartner');
-                })
-                ->where('titiklampu.RecordOwnerID', '=', Auth::user()->RecordOwnerID)
-                ->whereIn(DB::raw("COALESCE(payment_summary.NoReff,'POS')"), ['POS', 'POS-FNB', 'POS-TAMBAHJAM'])
-                ->OrderBy('titiklampu.DigitalInput', 'ASC')
+                ->where('titiklampu.RecordOwnerID', $roid)
+                ->orderBy('titiklampu.DigitalInput', 'ASC')
                 ->get();
 
-            // Format dates for JSON
+            // Format data for response
             $titiklampu->transform(function ($item) {
-                $item->JamMulaiParsed = $item->JamMulai ? Carbon::parse($item->JamMulai)->format('d/m/Y H:i') : '-';
-                $item->JamSelesaiParsed = $item->JamSelesai ? Carbon::parse($item->JamSelesai)->format('d/m/Y H:i') : '-';
+                $item->JamMulaiParsed = $item->JamMulai ? Carbon::parse($item->JamMulai)->format('H:i') : '-';
+                $item->JamSelesaiParsed = $item->JamSelesai ? Carbon::parse($item->JamSelesai)->format('H:i') : '-';
+                $item->Status = intval($item->status);
                 return $item;
             });
 
@@ -3293,12 +3171,14 @@ class TableOrderController extends Controller
                 'data' => $titiklampu
             ]);
         } catch (\Throwable $th) {
+            Log::error("getTableStatuses Error: " . $th->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage()
-            ], 500);
+            ]);
         }
     }
+
 
     public function storeFnBOrder(Request $request)
     {

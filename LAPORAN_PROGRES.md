@@ -29,7 +29,9 @@ Aplikasi telah berhasil disinkronkan sepenuhnya antara lingkungan lokal dan serv
 | 14 | Sinkronisasi Dapur-Queue | Mengintegrasikan status `tableorderheader` (kitchen_order_status) agar update di Dapur otomatis merubah status di Queue. | ✅ Selesai |
 | 15 | Auto-Status Siap | Menambahkan logika di Dapur: Jika semua item FNB selesai, status pesanan otomatis pindah ke "Siap Diambil". | ✅ Selesai |
 | 16 | Fix Filter Billing | Menambahkan sinkronisasi `namakelompok` pada UI billing baru agar filter tetap aktif setelah auto-refresh. | ✅ Selesai |
-| 17 | Robust Theme JS | Menambahkan pemeriksaan null pada `script.bundle.js` untuk mencegah error `innerHTML of null` pada calculator dan editor. | ✅ Selesai |
+| 17 | Robust Theme JS | Menambahkan pemeriksaan null pada `script.bundle.js` untuk mencegah error `innerHTML of null`. | ✅ Selesai |
+| 18 | Auto-Logout 30 Menit | Update middleware `CheckUserSession` agar user otomatis logout setelah 30 menit tidak ada aktivitas. Menggunakan `session('last_activity_time')` + Carbon. | ✅ Selesai (Lokal) |
+| 19 | Lokasi Queue Display | Rute `/queue/{KodePartner}` → `QueueManagementController@index`. Halaman ada di `views/Transaksi/Penjualan/QueueManagement/`. Info Kitchen ada di `/fpenjualan/infokitchen`. Customer Display Pesanan ada di `/fpenjualan/customerdisplay`. | ✅ Diklarifikasi |
 
 ---
 

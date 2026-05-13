@@ -10,14 +10,15 @@
         :root {
             --primary-red: #d00904;
             --primary-blue: #0056b3;
-            --secondary-blue: #1d8cf8;
-            --accent-red: #ff4d4d;
+            --secondary-blue: #004494;
+            --accent-red: #ff3333;
             --dark: #0f172a;
-            --darker: #020617;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f1f5f9;
-            --text-dim: #94a3b8;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text-main: #1e293b;
+            --text-dim: #64748b;
         }
 
         * {
@@ -28,7 +29,7 @@
         }
 
         body {
-            background-color: var(--darker);
+            background-color: var(--white);
             color: var(--text-main);
             overflow-x: hidden;
             line-height: 1.6;
@@ -43,30 +44,30 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%);
+            background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f8fafc 100%);
             overflow: hidden;
         }
 
         .glow-1 {
             position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0, 86, 179, 0.1) 0%, transparent 70%);
-            top: -200px;
-            right: -100px;
-            filter: blur(80px);
-            animation: move 20s infinite alternate;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 86, 179, 0.05) 0%, transparent 70%);
+            top: -300px;
+            right: -200px;
+            filter: blur(100px);
+            z-index: -1;
         }
 
         .glow-2 {
             position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(208, 9, 4, 0.05) 0%, transparent 70%);
-            bottom: -100px;
-            left: -100px;
-            filter: blur(80px);
-            animation: move 15s infinite alternate-reverse;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(208, 9, 4, 0.03) 0%, transparent 70%);
+            bottom: -200px;
+            left: -200px;
+            filter: blur(100px);
+            z-index: -1;
         }
 
         @keyframes move {
@@ -76,27 +77,26 @@
 
         /* Navbar */
         nav {
-            padding: 1.5rem 10%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             position: fixed;
-            width: 100%;
-            top: 0;
+            top: 0; width: 100%;
+            padding: 1.5rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
             z-index: 1000;
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(to right, var(--primary-red), var(--secondary-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
             text-decoration: none;
+        }
+
+        .logo img {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
         }
 
         .nav-links a {
@@ -113,11 +113,11 @@
         }
 
         .btn-login {
-            background: var(--glass);
+            background: #f1f5f9;
             padding: 0.6rem 1.5rem;
             border-radius: 50px;
             border: 1px solid var(--glass-border);
-            color: white !important;
+            color: var(--text-main) !important;
         }
 
         /* Hero Section */
@@ -154,9 +154,7 @@
 
         h1 span {
             display: block;
-            background: linear-gradient(to right, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--dark);
         }
 
         .hero-p {
@@ -189,10 +187,10 @@
         }
 
         .btn-outline {
-            background: var(--glass);
+            background: #f8fafc;
             padding: 1rem 2rem;
             border-radius: 12px;
-            color: white;
+            color: var(--text-main);
             text-decoration: none;
             font-weight: 600;
             border: 1px solid var(--glass-border);
@@ -200,8 +198,7 @@
         }
 
         .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary-red);
+            background: #e2e8f0;
         }
 
         .btn-whatsapp {
@@ -228,7 +225,7 @@
         .hero-image img {
             width: 100%;
             border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--glass-border);
             transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
             transition: 0.5s;
@@ -261,7 +258,7 @@
         }
 
         .feature-card {
-            background: var(--glass);
+            background: #f8fafc;
             padding: 3rem 2rem;
             border-radius: 24px;
             border: 1px solid var(--glass-border);
@@ -270,25 +267,25 @@
         }
 
         .feature-card:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: #ffffff;
             transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
             border-color: var(--secondary-blue);
         }
 
         .feature-icon {
             width: 60px;
             height: 60px;
-            background: rgba(29, 140, 248, 0.1);
+            background: rgba(0, 86, 179, 0.1);
             border-radius: 15px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; color: var(--secondary-blue);
+            font-size: 1.5rem; color: var(--primary-blue);
             margin-bottom: 1.5rem;
         }
 
         /* Pricing Section */
         .pricing {
             padding: 8rem 10%;
-            background: rgba(0, 0, 0, 0.2);
         }
 
         .pricing-tabs {
@@ -298,9 +295,18 @@
             margin-bottom: 3rem;
         }
 
+        .glass-card {
+            background: var(--white);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         .tab-btn {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
+            background: #f1f5f9;
+            border: 1px solid transparent;
             color: var(--text-dim);
             padding: 0.8rem 2rem;
             border-radius: 50px;
@@ -323,7 +329,7 @@
         }
 
         .pricing-card {
-            background: var(--glass);
+            background: #f8fafc;
             padding: 3rem 2rem;
             border-radius: 30px;
             border: 1px solid var(--glass-border);
@@ -336,7 +342,7 @@
 
         .pricing-card:hover {
             border-color: var(--primary-red);
-            background: rgba(255, 255, 255, 0.05);
+            background: #ffffff;
             transform: translateY(-5px);
         }
 
@@ -357,7 +363,7 @@
             font-size: 1.4rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            color: var(--secondary-blue);
+            color: var(--primary-blue);
         }
 
         .plan-price {
@@ -392,7 +398,7 @@
         }
 
         .plan-desc li i {
-            color: var(--secondary-blue);
+            color: var(--primary-blue);
             font-size: 0.8rem;
         }
 
@@ -416,8 +422,9 @@
 
         /* Footer */
         footer {
-            padding: 5rem 10% 2rem;
-            border-top: 1px solid var(--glass-border);
+            background: #f8fafc;
+            padding: 5rem 5% 2rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .footer-grid {
@@ -497,7 +504,9 @@
     </div>
 
     <nav>
-        <a href="{{ url('/') }}" class="logo">DSMS POS</a>
+        <a href="{{ url('/') }}" class="logo">
+            <img src="{{ asset('images/misc/LogoFront.png') }}" alt="Logo">
+        </a>
         <div class="nav-links">
             <a href="#features">Fitur</a>
             <a href="#pricing">Harga</a>
@@ -604,7 +613,9 @@
     <footer>
         <div class="footer-grid">
             <div class="footer-info">
-                <div class="logo footer-logo">DSMS POS</div>
+                <div class="logo footer-logo">
+                    <img src="{{ asset('images/misc/LogoFront.png') }}" alt="Logo" style="height: 35px;">
+                </div>
                 <p style="color: var(--text-dim); font-size: 0.9rem;">Solusi ERP dan Point of Sale terpercaya untuk UMKM hingga Enterprise di Indonesia. Membangun masa depan digital bisnis Anda.</p>
             </div>
             <div class="footer-links">
