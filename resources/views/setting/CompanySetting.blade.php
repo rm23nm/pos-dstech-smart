@@ -2502,9 +2502,14 @@ var oCompany;
 	})
 
 	document.addEventListener("DOMContentLoaded", function () {
+    console.log('Fetching meja list...');
     fetch('/get-meja')
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Meja data received:', data);
             let tableBody = document.getElementById("tableBookingList");
             if (!tableBody) {
                 console.error("Element tableBookingList tidak ditemukan!");

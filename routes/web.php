@@ -86,7 +86,8 @@ use App\Http\Controllers\SerialNumberController;
 |
 */
 
-Route::get('/', [LoginController::class,'login'])->name('login');
+Route::get('/', [LoginController::class, 'landingpage'])->name('landingpage');
+Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::get('/daftar', [LoginController::class,'Register'])->name('daftar');
 Route::post('/action-login', [LoginController::class, 'action_login'])->name('action-login');
 Route::post('/action-daftar', [LoginController::class, 'actionRegister'])->name('action-daftar');
@@ -601,7 +602,10 @@ Route::post('/daftartableorder/reset', [TableOrderController::class, 'ResetContr
 Route::get('/fpenjualan/infokitchen', [FakturPenjualanController::class, 'InfoKitchen'])->name('infokitchen')->middleware(['auth', 'check.session']);
 Route::post('/fpenjualan/infokitchen-data', [FakturPenjualanController::class, 'InfoKitchenData'])->name('infokitchen-data')->middleware(['auth', 'check.session']);
 Route::post('/fpenjualan/infokitchen-markdone', [FakturPenjualanController::class, 'InfoKitchenMarkDone'])->name('infokitchen-markdone')->middleware(['auth', 'check.session']);
+Route::post('/fpenjualan/infokitchen-updatestatus', [FakturPenjualanController::class, 'InfoKitchenUpdateStatus'])->name('infokitchen-updatestatus')->middleware(['auth', 'check.session']);
 Route::get('/fpenjualan/infokitchen-print', [FakturPenjualanController::class, 'InfoKitchenPrint'])->name('infokitchen-print')->middleware(['auth', 'check.session']);
+Route::get('/fpenjualan/customerdisplay', [FakturPenjualanController::class, 'CustomerDisplay'])->name('customerdisplay')->middleware(['auth', 'check.session']);
+Route::post('/fpenjualan/customerdisplay-data', [FakturPenjualanController::class, 'CustomerDisplayData'])->name('customerdisplay-data')->middleware(['auth', 'check.session']);
 
 /*
 |--------------------------------------------------------------------------

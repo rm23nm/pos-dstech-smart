@@ -3445,7 +3445,9 @@ class FakturPenjualanController extends Controller
             });
         }
 
-        $items = $query->orderBy('tableorderfnb.created_at', 'desc')->get();
+        $items = $query->orderBy('tableorderfnb.created_at', 'desc')
+            ->select('tableorderfnb.*', 'itemmaster.NamaItem', 'titiklampu.NamaTitikLampu', 'tableorderheader.TglTransaksi', 'tableorderheader.kitchen_order_status as OrderStatus')
+            ->get();
 
         return response()->json($items);
     }
@@ -3462,6 +3464,27 @@ class FakturPenjualanController extends Controller
                 ->where('LineNumber', $LineNumber)
                 ->where('RecordOwnerID', $RecordOwnerID)
                 ->update(['isCompleted' => 1]);
+
+            // Auto update order status to "Proses" (1) if it's currently "Masuk" (0)
+            DB::table('tableorderheader')
+                ->where('NoTransaksi', $NoTransaksi)
+                ->where('RecordOwnerID', $RecordOwnerID)
+                ->where('kitchen_order_status', 0)
+                ->update(['kitchen_order_status' => 1]);
+
+            // Check if all items are done to auto-set status to "Siap" (2)
+            $remaining = DB::table('tableorderfnb')
+                ->where('NoTransaksi', $NoTransaksi)
+                ->where('RecordOwnerID', $RecordOwnerID)
+                ->where('isCompleted', 0)
+                ->count();
+
+            if ($remaining == 0) {
+                DB::table('tableorderheader')
+                    ->where('NoTransaksi', $NoTransaksi)
+                    ->where('RecordOwnerID', $RecordOwnerID)
+                    ->update(['kitchen_order_status' => 2]);
+            }
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
@@ -3554,6 +3577,65 @@ class FakturPenjualanController extends Controller
 		   ->where('NoTransaksi', $NoDelivery)
 		   ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
 		   ->update(['Status' => $newStatus]);
+    }
+
+    public function CustomerDisplay()
+    {
+        return view('Transaksi.Penjualan.CustomerDisplay');
+    }
+
+    public function CustomerDisplayData()
+    {
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+        $today = date('Y-m-d');
+
+        $data = DB::table('tableorderheader')
+            ->leftJoin('pelanggan', function($join) {
+                $join->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
+                     ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
+            })
+            ->leftJoin('titiklampu', function($join) {
+                $join->on('tableorderheader.tableid', '=', 'titiklampu.id')
+                     ->on('tableorderheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
+            })
+            ->select(
+                'tableorderheader.NoTransaksi',
+                'tableorderheader.kitchen_order_status as status',
+                'pelanggan.NamaPelanggan',
+                'titiklampu.NamaTitikLampu as TableName'
+            )
+            ->where('tableorderheader.RecordOwnerID', $RecordOwnerID)
+            ->whereDate('tableorderheader.TglTransaksi', $today)
+            ->whereIn('tableorderheader.kitchen_order_status', [0, 1, 2]) // 0: Masuk, 1: Proses, 2: Siap
+            ->get();
+
+        $masuk = $data->where('status', 0)->values();
+        $proses = $data->where('status', 1)->values();
+        $siap = $data->where('status', 2)->values();
+
+        return response()->json([
+            'masuk' => $masuk,
+            'proses' => $proses,
+            'siap' => $siap
+        ]);
+    }
+
+    public function InfoKitchenUpdateStatus(Request $request)
+    {
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+        $NoTransaksi = $request->input('NoTransaksi');
+        $Status = $request->input('Status'); // 0, 1, 2, 3
+
+        try {
+            DB::table('tableorderheader')
+                ->where('NoTransaksi', $NoTransaksi)
+                ->where('RecordOwnerID', $RecordOwnerID)
+                ->update(['kitchen_order_status' => $Status]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 }
 

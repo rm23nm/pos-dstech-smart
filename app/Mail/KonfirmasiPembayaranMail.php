@@ -12,21 +12,24 @@ class KonfirmasiPembayaranMail extends Mailable
     use Queueable, SerializesModels;
 
     public $booking;
-    public $emailPelanggan; // 🔹 Tambahkan email pelanggan
+    public $emailPelanggan;
+    public $company;
 
-    public function __construct($booking, $emailPelanggan)
+    public function __construct($booking, $emailPelanggan, $company = null)
     {
         $this->booking = $booking;
-        $this->emailPelanggan = $emailPelanggan; // 🔹 Simpan email pelanggan
+        $this->emailPelanggan = $emailPelanggan;
+        $this->company = $company;
     }
 
     public function build()
     {
-        return $this->subject('Konfirmasi Pembayaran Booking')
+        return $this->subject('E-Receipt Booking Online - ' . ($this->company->NamaPartner ?? 'DStech'))
                     ->view('emails.konfirmasiPembayaran')
                     ->with([
                         'booking' => $this->booking,
-                        'emailPelanggan' => $this->emailPelanggan, // 🔹 Kirim ke view
+                        'emailPelanggan' => $this->emailPelanggan,
+                        'company' => $this->company,
                     ]);
     }
 }

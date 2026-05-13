@@ -20,7 +20,7 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 
-		<link rel="shortcut icon" href="{{ asset('media/logos/favicon.ico')}}" />
+		<link rel="shortcut icon" href="{{ asset('favicon.ico')}}" />
 
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 		<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -531,13 +531,24 @@
 		</div>
 	</div>
 
+	<script>
+		// Fallback for InlineEditor to prevent ReferenceError in script.bundle.js
+		window.InlineEditor = window.InlineEditor || {
+			create: function(element, config) {
+				if (!element) return Promise.resolve();
+				if (typeof ClassicEditor !== 'undefined') {
+					return ClassicEditor.create(element, config);
+				}
+				console.warn('CKEditor not found.');
+				return Promise.resolve();
+			}
+		};
+	</script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="{{asset('js/plugin.bundle.min.js')}}"></script>
 	<script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
 	
 	<!-- Dev Express -->
-	<!-- <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/23.2.5/css/dx.light.css">
-	<script type="text/javascript" src="https://cdn3.devexpress.com/jslib/23.2.5/js/dx.all.js"></script> -->
 	<link href="{{ asset('devexpress/dx.light.css')}}" rel="stylesheet" type="text/css" />
 	<script src="{{asset('devexpress/dx.all.js')}}"></script>
 	<script src="{{asset('devexpress/jspdf.umd.min.js')}}"></script>
@@ -550,12 +561,11 @@
 	<script src="{{asset('js/slick.min.js')}}"></script>
 	<script src="{{asset('api/jqueryvalidate/jquery.validate.min.js')}}"></script>
 	<script src="{{asset('api/apexcharts/apexcharts.js')}}"></script>
-	{{-- <script src="{{asset('api/apexcharts/scriptcharts.js')}}"></script> --}}
 	<script src="{{asset('api/pace/pace.js')}}"></script>
 	<script src="{{asset('api/mcustomscrollbar/jquery.mCustomScrollbar.concat.min.js')}}"></script>
 	<script src="{{asset('api/quill/quill.min.js')}}"></script>
 	<script src="{{asset('api/editor/classic.ckeditor.js')}}"></script>
-	<script src="{{asset('api/editor/inline.ckeditor.js')}}"></script>
+
 	<script src="{{asset('api/datatable/jquery.dataTables.min.js')}}"></script>
 	<script src="{{asset('api/select2/select2.min.js')}}"></script>
 	<script src="{{asset('api/multiple-select/multiple-select.min.js')}}"></script>
@@ -563,22 +573,11 @@
 	<script src="{{asset('js/script-slick.js')}}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
-	<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script><script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 	<script>
-		// In your Javascript (external .js resource or <script> tag)
 		jQuery(document).ready(function() {
 			jQuery('body').addClass('color-theme-red');
 			jQuery('.js-example-basic-single').select2();
-			var options = {
-				debug: 'info',
-				modules: {
-					toolbar: '#toolbar'
-				},
-				placeholder: 'Compose an epic...',
-				readOnly: true,
-				theme: 'snow'
-			};
-			console.log(options);
 		});
 	</script>
 	@include('sweetalert::alert')

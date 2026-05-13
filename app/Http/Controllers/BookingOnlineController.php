@@ -40,6 +40,16 @@ class BookingOnlineController extends Controller
         $paketTransaksi = Paket::where('RecordOwnerID','=',$idE)
                             ->where(DB::RAW("COALESCE(BisaDipesan, 'N')"), 'Y')->get();
         $user= User::where('RecordOwnerID','=',$idE)->first();
+        $titikLampu = TitikLampu::selectRaw("titiklampu.*, tkelompoklampu.NamaKelompok")
+                    ->leftjoin('tkelompoklampu', function ($value)  {
+                        $value->on('titiklampu.KelompokLampu','=','tkelompoklampu.KodeKelompok')
+                        ->on('titiklampu.RecordOwnerID','=','tkelompoklampu.RecordOwnerID');
+                    })
+                    ->where('titiklampu.BisaDipesan', 1)
+                    ->where('titiklampu.RecordOwnerID', $idE)
+                    ->get();
+        Log::debug("indexRev2: idE=$idE, titikLampu count=" . count($titikLampu));
+        $today = Carbon::today()->toDateString();
 
 
         $userdata = UserRole::selectRaw("users.*")
@@ -95,239 +105,136 @@ class BookingOnlineController extends Controller
         }
         
 
+        $groupedLampu = $titikLampu->groupBy('NamaKelompok');
+
         switch ($company->DefaultLandingPages) {
             case 'bo1':
-                $idE = base64_decode($id); // ⬅️ decode di sini
-                $company = Company::where('KodePartner','=',$idE)->first();
-                $titikLampu = TitikLampu::selectRaw("titiklampu.*, tkelompoklampu.NamaKelompok ")
-                                ->leftJoin('tkelompoklampu', function ($value){
-                                    $value->on('tkelompoklampu.KodeKelompok','=','titiklampu.KelompokLampu')
-                                    ->on('tkelompoklampu.RecordOwnerID','=','titiklampu.RecordOwnerID');
-                                })
-                                ->where('titiklampu.RecordOwnerID', $idE)
-                                ->where('titiklampu.BisaDipesan', 1)
-                                ->get();
-                $gallery = Company::select('ImageGallery1', 'ImageGallery2', 'ImageGallery3','ImageGallery4','ImageGallery5','ImageGallery6','ImageGallery7','ImageGallery8','ImageGallery9','ImageGallery10','ImageGallery11','ImageGallery12')
-                ->where('KodePartner', $idE)
-                ->get();
-                $paketTransaksi = Paket::where('RecordOwnerID','=',$idE)
-                                    ->where(DB::RAW("COALESCE(BisaDipesan, 'N')"), 'Y')->get();
-                $user= User::where('RecordOwnerID','=',$idE)->first();
-
-                $midtransdata = MetodePembayaran::where('RecordOwnerID','=',$idE)
-                                    ->where('MetodeVerifikasi','=','AUTO')->first();
-                $midtransclientkey = "";
-                $MetodePembayaranAutoID = -1;
-                // dd($midtransdata->ClientKey);
-                if ($midtransdata) {
-                    $midtransclientkey = $midtransdata->ServerKey;
-                    $MetodePembayaranAutoID = $midtransdata->id;
-                }
-                $today = date('Y-m-d');
-
-                //dd($company);
-
-                // dd($paketTransaksi);
-
-                return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu','gallery','paketTransaksi','user', 'midtransclientkey', 'today'));
+                $Tahun = Carbon::now()->year;
+                return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu','gallery','paketTransaksi','user', 'midtransclientkey', 'today', 'groupedLampu', 'userdata', 'Tahun'));
                 break;
             case 'bo2':
-                return view("Transaksi.Penjualan.PoS.BookingOnline_2",[
-                    'company' => $company, 
-                    'gallery' => $gallery,
-                    'paketTransaksi' => $paketTransaksi,
-                    'user' => $user, 
-                    'midtransclientkey' => $midtransclientkey,
-                    'galleryImages' => $galleryImages,
-                    'videoDisplay' => $videoDisplay,
-                    'hargaMinimal'=> $paketTransaksi->min('HargaNormal'),
-                    'Tahun' => Carbon::now()->year,
-                    'userdata' => $userdata
-                ]);
-
+                $hargaMinimal = $paketTransaksi->min('HargaNormal');
+                $Tahun = Carbon::now()->year;
+                return view("Transaksi.Penjualan.PoS.BookingOnline_2", compact('company', 'titikLampu', 'gallery', 'paketTransaksi', 'user', 'midtransclientkey', 'today', 'groupedLampu', 'videoDisplay', 'hargaMinimal', 'galleryImages', 'userdata', 'Tahun'));
                 break;
             default:
-                // $this->index($id);
-                // return redirect()->action([self::class, 'index'], ['id' => $id]);
                 return redirect()->action([BookingOnlineController::class, 'index'], ['id' => $id]);
                 break;
         }
-
-
     }
+
     public function getjadwalMeja(Request $request){
         $mejaData = [];
-
         $RecordOwnerID = $request->input('RecordOwnerID');
         $PaketID = $request->input('PaketID');
         $tanggalBooking = $request->input('TglBooking');
 
         $company = Company::where('KodePartner','=', $RecordOwnerID)->first();
+        if (!$company) return response()->json([]);
 
         $jamMulai = Carbon::createFromFormat('H:i:s', $company->JamAwalBooking);
         $jamSelesai = Carbon::createFromFormat('H:i:s', $company->JamAkhirBooking);
+        $now = Carbon::now();
 
-        $now = Carbon::now(); // waktu saat ini
-
-        // Kalau jam selesai lebih kecil, tambahkan 1 hari
         if ($jamSelesai->lessThan($jamMulai)) {
             $jamSelesai->addDay();
         }
-
-        $selisihJam = $jamSelesai->diffInHours($jamMulai);
 
         $paketTransaksi = Paket::where('RecordOwnerID','=',$RecordOwnerID)
                             ->where(DB::RAW("COALESCE(BisaDipesan, 'N')"), 'Y')
                             ->where('id', $PaketID)->first();
 
-        if ($paketTransaksi) {
+        if (!$paketTransaksi) return response()->json([]);
+
+        // Ambil semua TitikLampu
+        $semuaTitik = TitikLampu::selectRaw("titiklampu.*, tkelompoklampu.NamaKelompok, COALESCE(titiklampu.Deskripsi,'') AS 'Desc'")
+                        ->where('BisaDipesan', 1)
+                        ->leftJoin('tkelompoklampu', function ($value){
+                            $value->on('tkelompoklampu.KodeKelompok','=','titiklampu.KelompokLampu')
+                            ->on('tkelompoklampu.RecordOwnerID','=','titiklampu.RecordOwnerID');
+                        })
+                        ->where('titiklampu.RecordOwnerID', '=', $RecordOwnerID)->get();
+
+        // Ambil semua Booking & Order untuk hari tersebut (Sekali query)
+        $allBookings = BookingOnline::where('RecordOwnerID', $RecordOwnerID)
+            ->where('StatusTransaksi', 0)
+            ->where('TglBooking', $tanggalBooking)
+            ->get();
+
+        $allOrders = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
+            ->whereIn('DocumentStatus', ['D', 'O'])
+            ->get();
+
+        foreach ($semuaTitik as $titik) {
+            $start = $jamMulai->copy();
+            $jadwal = [];
             
-            // Ambil semua TitikLampu yang BisaDipesan = 1
-            $semuaTitik = TitikLampu::selectRaw("titiklampu.*, tkelompoklampu.NamaKelompok, COALESCE(titiklampu.Deskripsi,'') AS 'Desc'")
-                            ->where('BisaDipesan', 1)
-                            ->leftJoin('tkelompoklampu', function ($value){
-                                $value->on('tkelompoklampu.KodeKelompok','=','titiklampu.KelompokLampu')
-                                ->on('tkelompoklampu.RecordOwnerID','=','titiklampu.RecordOwnerID');
-                            })
-                            ->where('titiklampu.RecordOwnerID', '=', $RecordOwnerID)->get();
+            $tableBookings = $allBookings->where('mejaID', $titik->id);
+            $tableOrders = $allOrders->where('tableid', $titik->id);
 
-            foreach ($semuaTitik as $titik) {
-                $start = $jamMulai->copy();
-                $jadwal = [];
+            while ($start < $jamSelesai) {
+                $next = $start->copy()->addHour();
+                $jamString = $start->format('H:i') . ' - ' . $next->format('H:i');
+                
+                $daysOffset = $start->copy()->startOfDay()->diffInDays($jamMulai->copy()->startOfDay());
+                $fullStart = Carbon::parse($tanggalBooking)->addDays($daysOffset)->setTimeFrom($start);
+                
+                $daysOffsetNext = $next->copy()->startOfDay()->diffInDays($jamMulai->copy()->startOfDay());
+                $fullEnd = Carbon::parse($tanggalBooking)->addDays($daysOffsetNext)->setTimeFrom($next);
 
-                // Cek apakah ada order aktif yang belum selesai (JamSelesai is null)
-                // Jika ada, maka satu harian tersebut full booked
-                $currentDate = Carbon::now();
-                // $openOrder = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
-                //     ->where('tableid', $titik->id)
-                //     ->where('Status', "0")
-                //     ->where('DocumentStatus', 'D')
-                //     // ->whereNull('JamSelesai')
-                //     ->where(function ($query) use ($tanggalBooking) {
-                //         $query->where('JamSelesai', '>=', $tanggalBooking)
-                //             ->orWhereNull('JamSelesai');
-                //     })
-                //     ->where('JamMulai', '<', Carbon::parse($tanggalBooking)->endOfDay())
-                //     ->exists();
+                $fullStartStr = $fullStart->format('Y-m-d H:i:s');
+                $fullEndStr = $fullEnd->format('Y-m-d H:i:s');
 
-                while ($start < $jamSelesai) {
-                    $next = $start->copy()->addHour();
-                    $jamString = $start->format('H:i') . ' - ' . $next->format('H:i');
-                    $daysOffset = $start->copy()->startOfDay()->diffInDays($jamMulai->copy()->startOfDay());
-                    $fullStart = Carbon::parse($tanggalBooking)->addDays($daysOffset)->setTimeFrom($start);
-                    
-                    $daysOffsetNext = $next->copy()->startOfDay()->diffInDays($jamMulai->copy()->startOfDay());
-                    $fullEnd = Carbon::parse($tanggalBooking)->addDays($daysOffsetNext)->setTimeFrom($next);
+                // Cek Booking (In-memory)
+                $adaBooking = $tableBookings->filter(function($q) use ($fullStartStr, $fullEndStr, $tanggalBooking) {
+                    $bStart = $tanggalBooking . ' ' . $q->JamMulai;
+                    $bEnd = $tanggalBooking . ' ' . $q->JamSelesai;
+                    return ($bStart < $fullEndStr && $bEnd > $fullStartStr);
+                })->isNotEmpty();
 
-                    // Harga dinamis berdasarkan jam
+                // Cek Order (In-memory)
+                $adaOrder = $tableOrders->filter(function($q) use ($fullStartStr, $fullEndStr, $tanggalBooking) {
+                    $oStart = $q->JamMulai;
+                    $oEnd = $q->JamSelesai ?? '9999-12-31 23:59:59';
 
-                    $harga = $paketTransaksi->HargaNormal;
-                    // $hour = (int)$start->format('H');
-                    // if ($hour < 14) {
-                    //     $harga = 100000;
-                    // } elseif ($hour < 16) {
-                    //     $harga = 160000;
-                    // } else {
-                    //     $harga = 260000;
-                    // }
-
-                    // Cek Booking
-                    $adaBooking = BookingOnline::where('RecordOwnerID', $RecordOwnerID)
-                        ->where('mejaID', $titik->id)
-                        ->where('StatusTransaksi', 0)
-                        ->where(function ($q) use ($fullStart, $fullEnd) {
-                            $q->where(DB::raw("CONCAT(CAST(TglBooking AS DATE), ' ', JamMulai)"), '<', $fullEnd->format('Y-m-d H:i:s'))
-                              ->where(DB::raw("CONCAT(CAST(TglBooking AS DATE), ' ', JamSelesai)"), '>', $fullStart->format('Y-m-d H:i:s'));
-                        })->exists();
-
-                    // Cek Order
-
-                    $FindJenisPakai = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
-                        ->where('tableid', $titik->id)
-                        ->where('Status', 1)
-                        ->whereIn('DocumentStatus',['D','O'])
-                        ->where(function ($query) use ($fullEnd) {
-                            $query->where('JamSelesai', '>=', $fullEnd->format('Y-m-d H:i:s'))
-                            ->orWhereNull('JamSelesai');
-                        })
-                        ->where('JamMulai', '<=', $fullEnd->format('Y-m-d H:i:s'))
-                        ->where('tableorderheader.JenisPaket', 'PAYPERUSE')
-                        ->exists();
-
-                    if ($FindJenisPakai) {
-                        $adaOrder = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
-                            ->where('tableid', $titik->id)
-                            ->where('Status', 1)
-                            ->whereIn('DocumentStatus',['D','O'])
-                            ->where(function ($query) use ($fullEnd) {
-                                $query->where('JamSelesai', '>=', $fullEnd->format('Y-m-d H:i:s'))
-                                ->orWhereNull('JamSelesai');
-                            })
-                            ->where('JamMulai', '<=', $fullEnd->format('Y-m-d H:i:s'))
-                            ->where('tableorderheader.TglTransaksi', $tanggalBooking)
-                            // ->where(DB::raw("CASE WHEN tableorderheader.JenisPaket = 'PAYPERUSE' THEN DATE(tableorderheader.TglTransaksi) ELSE '" . $tanggalBooking . "' END = '" . $tanggalBooking . "'"))
-                            ->exists();
+                    if ($q->Status == 1) {
+                        $overlap = ($oStart <= $fullEndStr && $oEnd >= $fullEndStr);
+                        if ($q->JenisPaket == 'PAYPERUSE') {
+                            return $overlap && ($q->TglTransaksi == $tanggalBooking);
+                        }
+                        return $overlap;
+                    } else {
+                        return ($oStart < $fullEndStr && $oEnd > $fullStartStr);
                     }
-                    else{
-                        $adaOrder = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
-                        ->where('tableid', $titik->id)
-                        ->where('Status', 1)
-                        ->whereIn('DocumentStatus',['D','O'])
-                        ->where(function ($query) use ($fullEnd) {
-                            $query->where('JamSelesai', '>=', $fullEnd->format('Y-m-d H:i:s'))
-                            ->orWhereNull('JamSelesai');
-                        })
-                        ->where('JamMulai', '<=', $fullEnd->format('Y-m-d H:i:s'))
-                        // ->where(DB::raw("CASE WHEN tableorderheader.JenisPaket = 'PAYPERUSE' THEN DATE(tableorderheader.TglTransaksi) ELSE '" . $tanggalBooking . "' END = '" . $tanggalBooking . "'"))
-                        ->exists();
-                    }
+                })->isNotEmpty();
 
-                    
-                    
+                $slotSudahLewat = $fullEnd->lessThan($now);
+                $status = ($adaBooking || $adaOrder || $slotSudahLewat) ? 'booked' : 'available';
 
-                    $futureOrders = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
-                        ->where('tableid', $titik->id)
-                        ->where('Status', 0)
-                        ->whereIn('DocumentStatus',['D'])
-                        ->where(function ($q) use ($fullStart, $fullEnd) {
-                            $q->where(DB::raw("JamMulai"), '<', $fullEnd->format('Y-m-d H:i:s'))
-                              ->where(DB::raw("JamSelesai"), '>', $fullStart->format('Y-m-d H:i:s'));
-                        })
-                        ->exists();
-
-                    $slotSudahLewat = $fullEnd->lessThan($now);
-
-                    $status = ($adaBooking || $adaOrder || $slotSudahLewat || $futureOrders ) ? 'booked' : 'available';
-
-                    $jadwal[] = [
-                        'jam' => $jamString,
-                        'harga' => $harga,
-                        'status' => $status,
-                        'jammulai' => $start->format('H:i'),
-                        'jamselesai' => $next->format('H:i')
-                    ];
-
-                    $start = $next;
-                }
-
-                // Bisa disesuaikan: deskripsi & fitur dari KelompokLampu
-                $deskripsi = 'Meja standar dengan suasana santai';
-
-                // dd($jadwal);
-
-                $mejaData[] = [
-                    'id' => $titik->id,
-                    'nama' => $titik->NamaTitikLampu,
-                    'deskripsi' => ($titik->Desc == "" ? $deskripsi : $titik->Desc) ,
-                    'KelompokMeja' => $titik->NamaKelompok,
-                    'fitur' => [],
-                    'jadwal' => $jadwal
+                $jadwal[] = [
+                    'jam' => $jamString,
+                    'harga' => $paketTransaksi->HargaNormal,
+                    'status' => $status,
+                    'jammulai' => $start->format('H:i'),
+                    'jamselesai' => $next->format('H:i')
                 ];
+
+                $start = $next;
             }
+
+            $mejaData[] = [
+                'id' => $titik->id,
+                'nama' => $titik->NamaTitikLampu,
+                'deskripsi' => ($titik->Desc == "" ? 'Meja standar dengan suasana santai' : $titik->Desc) ,
+                'KelompokMeja' => $titik->NamaKelompok,
+                'KelompokMejaSlug' => \Illuminate\Support\Str::slug($titik->NamaKelompok),
+                'fitur' => [],
+                'jadwal' => $jadwal
+            ];
         }
 
         return response()->json($mejaData);
-    }
+    }   
     public function index($id)
     {
         // dd($id);
@@ -362,24 +269,31 @@ class BookingOnlineController extends Controller
     }
 
     public function getData()
-{
-    $company = Company::where('KodePartner','=',Auth::user()->RecordOwnerID)->first();
-    $titikLampu = TitikLampu::where('BisaDipesan', 1)
-    ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-    ->get();
-    $gallery = Company::select('ImageGallery1', 'ImageGallery2', 'ImageGallery3','ImageGallery4','ImageGallery5','ImageGallery6','ImageGallery7','ImageGallery8','ImageGallery9','ImageGallery10','ImageGallery11','ImageGallery12')
-    ->where('KodePartner', Auth::user()->RecordOwnerID)
-    ->get();
-    $paketTransaksi = Paket::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
-    $user= User::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->first();
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk mengakses halaman booking internal.');
+        }
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+        $company = Company::where('KodePartner', '=', $RecordOwnerID)->first();
+        $titikLampu = TitikLampu::where('BisaDipesan', 1)
+            ->where('RecordOwnerID', $RecordOwnerID)
+            ->get();
+        $gallery = Company::select('ImageGallery1', 'ImageGallery2', 'ImageGallery3', 'ImageGallery4', 'ImageGallery5', 'ImageGallery6', 'ImageGallery7', 'ImageGallery8', 'ImageGallery9', 'ImageGallery10', 'ImageGallery11', 'ImageGallery12')
+            ->where('KodePartner', $RecordOwnerID)
+            ->get();
+        $paketTransaksi = Paket::where('RecordOwnerID', '=', $RecordOwnerID)->get();
+        $user = User::where('RecordOwnerID', '=', $RecordOwnerID)->first();
 
-    //dd($company);
+        $midtransdata = MetodePembayaran::where('RecordOwnerID', '=', $RecordOwnerID)
+            ->where('MetodeVerifikasi', '=', 'AUTO')->first();
+        $midtransclientkey = "";
+        if ($midtransdata) {
+            $midtransclientkey = $midtransdata->ServerKey;
+        }
+        $today = date('Y-m-d');
 
-    //dd($paketTransaksi);
-
-
-    return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu','gallery','paketTransaksi','user'));
-}
+        return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu', 'gallery', 'paketTransaksi', 'user', 'midtransclientkey', 'today'));
+    }
 
 public function createMidTransTransaction(Request $request)
 {
@@ -444,6 +358,37 @@ function SimpanPembayaranJson(Request $request) {
         $prefix = date('ymd'); // Format YYMMDD
         $lastNoTrx = BookingOnline::where(DB::raw('LEFT(NoTransaksi,6)'),'=',$prefix)->count() + 1;
         $NoTransaksi = $prefix . str_pad($lastNoTrx, 4, '0', STR_PAD_LEFT);
+
+        // CEK KETERSEDIAAN LAGI (Avoid Race Condition)
+        $fullStart = Carbon::parse($jsonData['TglBooking'] . ' ' . $jsonData['JamMulai']);
+        $fullEnd = Carbon::parse($jsonData['TglBooking'] . ' ' . $jsonData['JamSelesai']);
+        $roid = $jsonData['kodePartner'];
+        $mejaID = $jsonData['mejaID'];
+
+        // Cek Booking Lain (Online)
+        $clashBooking = BookingOnline::where('RecordOwnerID', $roid)
+            ->where('mejaID', $mejaID)
+            ->where('StatusTransaksi', 0)
+            ->where(function ($q) use ($fullStart, $fullEnd) {
+                $q->where(DB::raw("CONCAT(CAST(TglBooking AS DATE), ' ', JamMulai)"), '<', $fullEnd->format('Y-m-d H:i:s'))
+                  ->where(DB::raw("CONCAT(CAST(TglBooking AS DATE), ' ', JamSelesai)"), '>', $fullStart->format('Y-m-d H:i:s'));
+            })->exists();
+
+        // Cek Order Langsung (Dashboard/Billing)
+        $clashOrder = TableOrderHeader::where('RecordOwnerID', $roid)
+            ->where('tableid', $mejaID)
+            ->whereIn('DocumentStatus', ['O', 'D'])
+            ->where(function ($q) use ($fullStart, $fullEnd) {
+                $q->where('JamMulai', '<', $fullEnd->format('Y-m-d H:i:s'))
+                  ->where(function($q2) use ($fullStart) {
+                      $q2->where('JamSelesai', '>', $fullStart->format('Y-m-d H:i:s'))
+                         ->orWhereNull('JamSelesai');
+                  });
+            })->exists();
+
+        if ($clashBooking || $clashOrder) {
+            throw new \Exception('Maaf, slot waktu ini baru saja dipesan oleh orang lain atau sudah terisi. Silakan pilih waktu atau meja lain.');
+        }
         
         // Cek apakah email sudah ada di tabel pelanggan
         $existingPelanggan = Pelanggan::where('Email', $jsonData['Email'])->first();
@@ -539,8 +484,8 @@ function SimpanPembayaranJson(Request $request) {
             //dd($data);
 
             if ($emailPelanggan) {
-            
-                Mail::to($emailPelanggan->Email)->send(new KonfirmasiPembayaranMail($booking, $emailPelanggan));
+                $oCompany = Company::where('KodePartner','=',$jsonData['kodePartner'])->first();
+                Mail::to($emailPelanggan->Email)->send(new KonfirmasiPembayaranMail($booking, $emailPelanggan, $oCompany));
             }
         } catch (\Throwable $th) {
             $data['message'] = $th->getMessage();
@@ -621,6 +566,9 @@ public function getDiscountVoucher(Request $request)
 
 public function View(Request $request)
 {
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
     $listBooking = BookingOnline::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
     $encodedRecordOwnerID = base64_encode(Auth::user()->RecordOwnerID);
     $BookingURLString = url('booking/').'/'.$encodedRecordOwnerID;
@@ -629,6 +577,9 @@ public function View(Request $request)
 
 public function ViewGenerateVoucher(Request $request)
 {
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
     $listBooking = BookingOnline::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
 
 
@@ -658,6 +609,9 @@ public function storeVoucher(Request $request)
     $voucher->DiscountDescription = $request->description;
     $voucher->StartDate = $request->startDate;
     $voucher->EndDate = $request->expiryDate;
+    if (!Auth::check()) {
+        throw new \Exception('Unauthorized');
+    }
     $voucher->RecordOwnerID = Auth::user()->RecordOwnerID;
     $voucher->save();
 
@@ -685,6 +639,9 @@ public function getListVoucher()
 
     public function getBookings()
     {
+        if (!Auth::check()) {
+            return response()->json(['data' => []]);
+        }
         $query = BookingOnline::join('pelanggan', 'bookingtableonline.KodePelanggan', '=', 'pelanggan.KodePelanggan')
         ->join('titiklampu', 'bookingtableonline.mejaID', '=', 'titiklampu.id') 
         ->where('bookingtableonline.RecordOwnerID', Auth::user()->RecordOwnerID)
@@ -844,6 +801,12 @@ public function insertTableOrder(Request $request)
         if (!$update) {
             throw new \Exception('Gagal memperbarui bookingtableonline.');
         }
+
+        // Update status titiklampu menjadi AKTIF (1)
+        DB::table('titiklampu')
+            ->where('id', $request->input('tableid'))
+            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+            ->update(['status' => 1]);
 
         DB::commit(); // Commit transaksi jika semuanya berhasil
         $data['success'] = true;

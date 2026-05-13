@@ -14,7 +14,7 @@ class AddBiayaLayananToFakturAndPembayaranHeader extends Migration
     public function up()
     {
         Schema::table('fakturpenjualanheader', function (Blueprint $table) {
-            $table->decimal('BiayaLayanan', 18, 2)->default(0)->after('PajakHiburan');
+            $table->decimal('BiayaLayanan', 18, 2)->default(0)->after('Pajak');
         });
 
         Schema::table('pembayaranpenjualanheader', function (Blueprint $table) {

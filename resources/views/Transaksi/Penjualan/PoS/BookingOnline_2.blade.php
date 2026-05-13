@@ -287,25 +287,37 @@
         @endforeach
     </div>
   </div>
-
-  <!-- Pilih Jadwal Section -->
+  <!-- Jadwal & Paket Section -->
   <div class="mt-5">
     <h5 class="mb-3">Pilih Layanan & Jadwal</h5>
-    <div class="d-flex align-items-center gap-2 mb-3 overflow-auto" id="dateList"></div>
-    <div class="mb-4">
-      <label for="manualDate">Atau pilih tanggal manual:</label>
-      <input type="date" id="manualDate" class="form-control" style="max-width: 250px;" placeholder="Pilih tanggal...">
+    <div class="d-flex scrolling-wrapper mb-3" id="dateList"></div>
+
+    <div class="mb-3">
+      <label for="manualDate" class="form-label">Atau pilih tanggal manual:</label>
+      <input type="date" id="manualDate" class="form-control" style="max-width: 300px;">
     </div>
 
-    <div class="mb-2">
+    <div class="mb-4">
       <label for="paketSelect" class="form-label">Pilih Paket Bermain:</label>
-      <select id="paketSelect" class="form-select" onchange="onPaketChange()">
-        @foreach ($paketTransaksi as $paket)
-            <option value="{{ $paket->id }}" data-harga="{{ $paket->HargaNormal }}">{{ $paket->NamaPaket }} - Rp {{ number_format($paket->HargaNormal) }} </option>
+      <select id="paketSelect" class="form-select">
+        @foreach($paketTransaksi as $paket)
+          <option value="{{ $paket->id }}">{{ $paket->NamaPaket }} - Rp {{ number_format($paket->HargaNormal) }}</option>
         @endforeach
       </select>
     </div>
+  </div>
 
+    <!-- Filter Buttons -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-auto">
+        <div class="btn-group flex-wrap" role="group" aria-label="Filter Layanan">
+          <button type="button" class="btn btn-outline-primary filter-btn m-1 active" data-filter="all">Semua Layanan</button>
+          @foreach($groupedLampu as $kelompok => $items)
+            <button type="button" class="btn btn-outline-primary filter-btn m-1" data-filter="{{ Str::slug($kelompok) }}">{{ $kelompok }}</button>
+          @endforeach
+        </div>
+      </div>
+    </div>
 
     <div id="mejaContainer" class="row g-4"></div>
   </div>
@@ -411,7 +423,36 @@
 
 <script>
   mejaData = [];
-  const ppnPercent = {{ $company->PPN ?? 0 }};
+  
+    // Category Filter Logic
+    $(document).on('click', '.filter-btn', function() {
+        $('.filter-btn').removeClass('active btn-primary').addClass('btn-outline-primary');
+        $(this).addClass('active btn-primary').removeClass('btn-outline-primary');
+        
+        const filter = $(this).data('filter');
+        const filterName = $(this).text().trim().toLowerCase();
+
+        if (filter === 'all') {
+            $('.portfolio-group').fadeIn();
+        } else {
+            $('.portfolio-group').hide();
+            $(`.portfolio-group[data-category="${filter}"]`).fadeIn();
+            
+            // Auto-select package based on category name
+            $("#paketSelect option").each(function() {
+                let paketName = $(this).text().toLowerCase();
+                if (paketName.includes(filterName)) {
+                    $(this).prop('selected', true);
+                    return false; // break loop
+                }
+            });
+            // Trigger fetch with new package
+            const dateStr = $('.date-btn.active').data('date') || new Date().toISOString().split('T')[0];
+            fetchJadwal("{{ $company->KodePartner }}", $('#paketSelect').val(), dateStr);
+        }
+    });
+
+    const ppnPercent = {{ $company->PPN ?? 0 }};
   const hiburanPercent = {{ $company->PajakHiburan ?? 0 }};
   let voucherDiscount = 0; // Default diskon voucher
 
@@ -552,8 +593,17 @@
 
     // Render each group
     for (const groupName in groupedMeja) {
+      const categorySlug = groupedMeja[groupName][0].KelompokMejaSlug || 'lainnya';
+      const $groupWrapper = $('<div>').addClass('portfolio-group row g-4').attr('data-category', categorySlug);
+      
+      // Periksa filter aktif agar tidak semua kategori muncul kembali setelah render
+      const currentFilter = $('.filter-btn.active').data('filter');
+      if (currentFilter !== 'all' && currentFilter !== categorySlug) {
+          $groupWrapper.hide();
+      }
+
       // Add group title
-      $container.append(`<div class="col-12"><h4 class="text-primary mt-4">${groupName}</h4><hr></div>`);
+      $groupWrapper.append(`<div class="col-12"><h4 class="text-primary mt-4">${groupName}</h4><hr></div>`);
 
       const mejasInGroup = groupedMeja[groupName];
       mejasInGroup.forEach((meja, idx) => {
@@ -621,9 +671,10 @@
         $jadwalDiv.append($row);
         $body.append($jadwalDiv);
         $card.append($body);
-        $col.append($card);
-        $container.append($col);
+        $col.append($card); // <-- FIXED: Card must be appended to column
+        $groupWrapper.append($col);
       });
+      $container.append($groupWrapper);
     }
   }
 
@@ -868,6 +919,11 @@
 
     // Panggil API pertama kali
     // fetchJadwal("{{ $company->KodePartner }}",$('#paketSelect').val(), currentSelectedDate.toISOString().split('T')[0]);
+
+    $(document).on('change', '#paketSelect', function() {
+        const dateStr = $('.date-btn.active').data('date') || new Date().toISOString().split('T')[0];
+        fetchJadwal("{{ $company->KodePartner }}", $(this).val(), dateStr);
+    });
 
     renderMeja();
     generateDateList(currentSelectedDate);

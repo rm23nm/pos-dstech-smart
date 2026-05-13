@@ -95,35 +95,46 @@
                     <h2 class="section-heading text-uppercase">Booking Layanan</h2>
                     <h3 class="section-subheading text-muted"></h3>
                 </div>
-                @php
-                    $groupedLampu = collect($titikLampu)->groupBy('NamaKelompok');
-                @endphp
+                <!-- Filter Buttons -->
+                <div class="row justify-content-center mb-5">
+                    <div class="col-auto">
+                        <div class="btn-group flex-wrap" role="group" aria-label="Filter Layanan">
+                            <button type="button" class="btn btn-primary filter-btn m-1 active" data-filter="all">Semua Layanan</button>
+                            @foreach($groupedLampu as $kelompok => $items)
+                                <button type="button" class="btn btn-outline-primary filter-btn m-1" data-filter="{{ Str::slug($kelompok) }}">{{ $kelompok }}</button>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
 
                 @foreach($groupedLampu as $kelompok => $items)
-                    <div class="text-center">
-                        <h3 class="section-heading text-muted">{{ $kelompok }}</h3>
-                        <hr>
-                    </div>
-                    <div class="row">
-                        @foreach($items as $lampu)
-                            <div class="col-lg-4 col-sm-6 mb-4">
-                                <div class="portfolio-item">
-                                    <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal{{ $lampu->id }}">
-                                        <div class="portfolio-hover">
-                                            <div class="portfolio-hover-content">
-                                                <i class="fas fa-plus fa-3x"></i>
+                    <div class="portfolio-group" data-category="{{ Str::slug($kelompok) }}">
+                        <div class="text-center">
+                            <h3 class="section-heading text-muted">{{ $kelompok }}</h3>
+                            <hr>
+                        </div>
+                        <div class="row">
+                            @foreach($items as $lampu)
+                                <div class="col-lg-4 col-sm-6 mb-4">
+                                    <div class="portfolio-item">
+                                        <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal{{ $lampu->id }}">
+                                            <div class="portfolio-hover">
+                                                <div class="portfolio-hover-content">
+                                                    <i class="fas fa-plus fa-3x"></i>
+                                                </div>
                                             </div>
+                                            <img class="img-fluid" src="{{ asset('assets/img/portfolio/meja.jpg') }}" alt="..." />
+                                        </a>
+                                        <div class="portfolio-caption">
+                                            <div class="portfolio-caption-heading">{{ $lampu->NamaTitikLampu }}</div>
                                         </div>
-                                        <img class="img-fluid" src="{{ asset('assets/img/portfolio/meja.jpg') }}" alt="..." />
-                                    </a>
-                                    <div class="portfolio-caption">
-                                        <div class="portfolio-caption-heading">{{ $lampu->NamaTitikLampu }}</div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     </div>
                 @endforeach
+
             </div>
         </section>
         <!-- About-->
@@ -958,6 +969,22 @@
                         if (!conflicts) {
                             modal.find('#btn-success').prop('disabled', false);
                         }
+                    }
+                });
+
+                // --- Logic Filter Layanan ---
+                $('.filter-btn').on('click', function() {
+                    const filter = $(this).data('filter');
+                    
+                    // Update active button state
+                    $('.filter-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
+                    $(this).removeClass('btn-outline-primary').addClass('btn-primary active');
+
+                    if (filter === 'all') {
+                        $('.portfolio-group').stop(true, true).fadeIn(300);
+                    } else {
+                        $('.portfolio-group').stop(true, true).hide();
+                        $(`.portfolio-group[data-category="${filter}"]`).stop(true, true).fadeIn(300);
                     }
                 });
 

@@ -337,10 +337,11 @@ class TitikLampuController extends Controller
 
     public function getMeja()
     {
+        Log::debug('getMeja called for user: ' . (Auth::check() ? Auth::user()->email : 'Not Logged In'));
         $data = TitikLampu::select('id', 'NamaTitikLampu', 'BisaDipesan')
-    ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-    ->get();
-
+            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+            ->get();
+        Log::debug('getMeja returns: ' . count($data) . ' items');
         return response()->json($data);
     }
 

@@ -1,176 +1,250 @@
 <!DOCTYPE html>
-<!--
-Template Name: Kundol Admin - Bootstrap 4 HTML Admin Dashboard Theme
-Author: Themes-coder
-Website: https://themes-coder.com/
-Contact: sales@themes-coder.com
-License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
--->
-<html lang="en">
-<!--begin::Head-->
-
+<html lang="id">
 <head>
-	
-	<meta charset="utf-8" />
-	<title>Admin | Dashboard</title>
-	<meta name="description" content="Updates and statistics" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<!--begin::Fonts-->
-	<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" /> -->
-	<!--end::Fonts-->
-
-	<!--begin::Global Theme Styles(used by all pages)-->
-	<link href="{{ asset('css/style.css?v=1.0')}}" rel="stylesheet" type="text/css" />
-	<!--end::Global Theme Styles-->
-
-	<link href="{{ asset('api/pace/pace-theme-flat-top.css')}}" rel="stylesheet" type="text/css" />
-	<link href="{{ asset('api/mcustomscrollbar/jquery.mCustomScrollbar.css')}}" rel="stylesheet" type="text/css" />
-	
-	<link href="{{ asset('api/datatable/jquery.dataTables.min.css')}}" rel="stylesheet" type="text/css" />
-
-
-	<link rel="shortcut icon" href="{{ asset('media/logos/favicon.ico')}}" />
-</head>
-<!--end::Head-->
-<!--begin::Body-->
-
-<body id="tc_body" class="">
-	   <!-- Paste this code after body tag -->
-	<div class="l-form" style="background-image: url({{ asset('images/misc/bg-login3.jpg')}}); background-size: contain; background-position: center; background-color: #d00904; background-repeat: no-repeat;">
-		<form method="post" action="{{route('action-login')}}" class="adminloginform">
-			@csrf
-			<div class="maintitle">
-				<div class="card-title mb-0">
-					<h3 class="card-label font-weight-bold mb-0 text-body">
-						<img src="{{ asset('images/misc/LogoFront.png')}}" alt="logo" width="30%">
-					</h3>
-				
-				</div>
-				<h5 class="font-size-h5 mb-0 mt-3 text-dark">
-					Please login to your account.
-				</h5>
-
-			</div>
-			<div class="form-group  row">
-				<div class="col-lg-2 col-3 ">
-					<label for="exampleInputEmail1" class="mb-0 text-dark">
-						<svg width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-person" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-							<path fill-rule="evenodd" d="M10 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6 5c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-							</svg>
-					</label>
-				</div>
-					<div class="col-lg-10 col-9 pl-0">
-					<input type="email" name="email" class="form-control bg-transparent text-dark border-0 p-0 h-20px font-size-h5" placeholder="example@mail.com" id="exampleInputEmail1" aria-describedby="emailHelp">
-			
-				</div>
-			 
-			</div>
-			<div class="form-group row ">
-				<div class="col-lg-2 col-3 ">
-					<label for="exampleInputPassword1" class="mb-0 text-dark">
-						<svg width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-lock" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-							<path fill-rule="evenodd" d="M11.5 8h-7a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1zm-7-1a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-7zm0-3a3.5 3.5 0 1 1 7 0v3h-1V4a2.5 2.5 0 0 0-5 0v3h-1V4z"/>
-							</svg>
-					</label>
-				</div>
-					<div class="col-lg-10 col-9 pl-0">
-					<input type="password" name="password" placeholder="......." class="form-control text-dark bg-transparent font-size-h4 border-0 p-0 h-20px" id="exampleInputPassword1">
-				</div>
-			
-			</div>
-			<div class="form-group row align-items-center justify-content-between">
-				<div class="col-6">
-					<div class="form-check pl-4">
-						<input type="checkbox" class="form-check-input ml--4" id="exampleCheck1">
-						<label class="form-check-label text-dark" for="exampleCheck1">Remember me</label>
-					</div>
-				</div>
-			
-				<div class="col-6 text-end">
-					<a href="{{ route('forgotpassword') }}">Forgot Password?</a>
-				</div>
-				 
-			</div>
-			<div class="form-group row ">
-				<div class="col-6">
-					<button type="submit" class="btn btn-primary text-white font-weight-bold w-100 py-3 mt-3">
-						Login
-					</button>
-				</div>
-				<div class="col-6">
-					<a href="{{ route('daftar') }}" class="btn btn-warning text-white font-weight-bold w-100 py-3 mt-3">
-						Daftar
-					</a>
-				</div>
-			</div>
-	</form>
-</div>
-
-<div class="modal fade text-left" id="LookupDaftar" tabindex="-1" role="dialog" aria-labelledby="LookupBuatTagihan" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<h3 class="modal-title" id="myModalLabel1444">Buka Suspend Pelanggan</h3>
-			<button type="button" class="close rounded-pill btn btn-sm btn-icon btn-light btn-hover-primary m-0" data-bs-dismiss="modal" aria-label="Close">
-			  <svg width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-				  <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
-			  </svg>
-			</button>
-		  </div>
-		  <div class="modal-body">
-			<div class="col-md-12">
-                <form action="" method="post">
-                    @csrf
-                    <div class="form-group row">
-                        <div class="col-md-3">
-                            <label  class="text-body">Kode Partner</label>
-                            <fieldset class="form-group mb-3">
-                                <input readonly type="text" id="ModalKodePartnerBuka" name="KodePartner" class="form-control" required>
-                            </fieldset>
-                        </div>
-                        <div class="col-md-8">
-                            <label  class="text-body">Nama Partner</label>
-                            <fieldset class="form-group mb-3">
-                                <input readonly type="text" id="ModalNamaPartnerBuka" name="NamaPartner" class="form-control" required>
-                            </fieldset>
-                        </div>
-                        <div class="col-md-12">
-                            <label  class="text-body">Tanggal Berakhir Langganan</label>
-                            <fieldset class="form-group mb-3">
-                                <input type="hidden" value="0" name="isSuspended">
-                                <input type="date" id="ModalEndSubsBuka" name="EndSubs" class="form-control" required>
-                            </fieldset>
-                        </div>
+    <meta charset="utf-8" />
+    <title>Login | DSMS POS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
+    <style>
+        :root {
+            --primary-red: #d00904;
+            --primary-blue: #0056b3;
+            --secondary-blue: #1d8cf8;
+            --accent-white: #ffffff;
+            --bg-light: #f8f9fa;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--primary-red);
+            overflow: hidden;
+        }
+
+        .login-wrapper {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(208, 9, 4, 0.85) 0%, rgba(0, 86, 179, 0.85) 100%);
+            position: relative;
+        }
+
+        /* Decorative Background Elements */
+        .login-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("{{ asset('images/misc/bg-login3.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.7;
+            z-index: 0;
+            filter: saturate(1.2);
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            z-index: 1;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-logo {
+            width: 120px;
+            margin-bottom: 15px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .brand-tagline {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        .input-group-text {
+            background-color: transparent;
+            border-right: none;
+            color: var(--secondary-blue);
+        }
+
+        .form-control {
+            border-left: none;
+            padding: 12px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: var(--secondary-blue);
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: var(--secondary-blue);
+        }
+
+        .btn-login {
+            background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+            border: none;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 140, 248, 0.4);
+            color: white;
+        }
+
+        .btn-register {
+            background: transparent;
+            border: 2px solid var(--primary-red);
+            color: var(--primary-red);
+            padding: 10px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.85rem;
+        }
+
+        .footer-links a {
+            color: var(--secondary-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Branding Strips */
+        .top-strip {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-blue), var(--primary-red));
+            z-index: 2;
+        }
+
+        .bottom-banner {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(208, 9, 4, 0.8);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(5px);
+            font-weight: 600;
+            letter-spacing: 1px;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-strip"></div>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="brand-header">
+                <img src="{{ asset('images/misc/LogoFront.png') }}" alt="logo" class="brand-logo">
+                <div class="brand-name">DSMS POS</div>
+                <div class="brand-tagline">Management System POS</div>
+            </div>
+
+            <form method="post" action="{{ route('action-login') }}">
+                @csrf
+                <div class="mb-3">
+                    <label class="form-label">Email / Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" class="form-control" placeholder="example@mail.com" required autofocus>
                     </div>
-                    <hr>
-                    <div class="form-group row justify-content-end mb-0">
-                        <div class="col-md-6  text-end">
-                            <button type="submit" class="btn btn-primary" id="btSaveTagihan">Simpan Data</button>
-                        </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <label class="form-label">Password</label>
+                        <a href="{{ route('forgotpassword') }}" class="text-decoration-none" style="font-size: 0.8rem; color: var(--secondary-blue);">Lupa Password?</a>
                     </div>
-                </form>
-			</div>
-		  </div>
-		</div>
-	</div>	  	  
-</div>
-@include('sweetalert::alert')
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-control" placeholder="········" required>
+                    </div>
+                </div>
 
-	
+                <div class="mb-4 d-flex align-items-center">
+                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                    <label class="form-check-label ms-2" for="remember" style="font-size: 0.9rem;">Ingat Saya</label>
+                </div>
 
-<script src="{{ asset('js/plugin.bundle.min.js')}}"></script>
-<script src="{{ asset('js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{ asset('api/jqueryvalidate/jquery.validate.min.js')}}"></script>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-login">MASUK</button>
+                    <a href="{{ route('daftar') }}" class="btn btn-register">DAFTAR AKUN BARU</a>
+                </div>
+            </form>
 
+            <div class="footer-links">
+                <p class="mb-0 text-muted">Butuh bantuan? <a href="#">Hubungi Support</a></p>
+            </div>
+        </div>
+    </div>
 
-<!-- <script src="{{ asset('js/script.bundle.js')}}"></script> -->
+    <div class="bottom-banner">
+        THE BEST SMART SYSTEM MANAGEMENT PROGRAM APPLICATION - ONE APPLICATION FOR ALL YOUR BUSINESS
+    </div>
+
+    @include('sweetalert::alert')
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-<!--end::Body-->
-<script>
-	$('#btDaftar').click(function () {
-		// alert('sfasdsa');
-	})
-</script>
-
 </html>

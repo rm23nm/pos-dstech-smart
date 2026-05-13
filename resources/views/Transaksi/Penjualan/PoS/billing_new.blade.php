@@ -650,8 +650,17 @@
         }
 
         @media print {
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                background: #fff;
+            }
             /* Hide everything that is not the receipt */
-            .pos-header, .pos-main, .receipt-actions, .modal-close, .swal2-container, .swal-overlay, .modal-pos {
+            .pos-header, .pos-main, .receipt-actions, .pp-close, .modal-close, .swal2-container, .swal-overlay, .modal-pos {
                 display: none !important;
             }
             
@@ -661,27 +670,34 @@
                 position: absolute !important;
                 left: 0 !important;
                 top: 0 !important;
-                width: 100% !important;
+                width: 80mm !important;
                 background: white !important;
                 z-index: 9999 !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             
             .receipt-container {
                 box-shadow: none !important;
                 border: none !important;
                 width: 80mm !important;
-                margin: 0 auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
             }
             
             .receipt-paper {
-                padding: 0 !important;
+                padding: 5mm !important;
+                width: 80mm !important;
                 overflow: visible !important;
+                box-sizing: border-box !important;
             }
             
             /* Ensure text is black for printing */
             #modalReceiptPreview * {
                 color: #000 !important;
                 background: transparent !important;
+                font-family: 'Courier New', Courier, monospace !important;
             }
         }
 
@@ -692,8 +708,13 @@
 <body>
     <!-- ===== HEADER ===== -->
     <header class="pos-header">
-        <div class="brand">
-            <i class="fas fa-bolt"></i> {{ $company[0]['NamaPartner'] }}
+        <div class="brand d-flex align-items-center gap-2">
+            @if(!empty($company[0]['icon']))
+                <img src="{{ $company[0]['icon'] }}" alt="Logo" style="height: 40px; width: auto; border-radius: 4px; background: white; padding: 2px;">
+            @else
+                <i class="fas fa-bolt"></i>
+            @endif
+            <span>{{ $company[0]['NamaPartner'] }}</span>
         </div>
         <div class="clock-display" id="posHeaderClock">--:--:--</div>
         <div class="d-flex align-items-center gap-3 header-actions">
@@ -769,6 +790,7 @@
                                          data-totalPembayaran="{{ $item->TotalPembayaran ?? 0 }}"
                                          data-rawjammulai="{{ $item->JamMulai ?? '' }}"
                                          data-rawjamselesai="{{ $item->JamSelesai ?? '' }}"
+                                         data-namakelompok="{{ $tl->NamaKelompok }}"
                                          onclick="selectTitikLampu(this)"
                                          title="{{ $item->NamaTitikLampu }}"
                                          role="button">
@@ -1058,6 +1080,7 @@
                         jamselesai:     mockEl.dataset.jamselesai,
                         rawjammulai:    mockEl.dataset.rawjammulai,
                         rawjamselesai:  mockEl.dataset.rawjamselesai,
+                        namakelompok:   mockEl.dataset.namakelompok,
                         gambar:         mockEl.dataset.gambar,
                         statuslabel:    mockEl.dataset.statuslabel,
                         totalPembayaran: parseFloat(mockEl.dataset.totalPembayaran || 0)
@@ -1090,6 +1113,7 @@
             jamselesai:     el.dataset.jamselesai,
             rawjammulai:    el.dataset.rawjammulai,
             rawjamselesai:  el.dataset.rawjamselesai,
+            namakelompok:   el.dataset.namakelompok,
             gambar:         el.dataset.gambar,
             statuslabel:    el.dataset.statuslabel,
             totalPembayaran: parseFloat(el.dataset.totalPembayaran || 0)
@@ -1276,14 +1300,21 @@
         document.getElementById('ppTglTransaksi').valueAsDate = new Date();
         
         var selJenis = document.getElementById('ppJenisPaket');
-        selJenis.value = '';
-        onJenisPaketChange(''); // Force UI reset (hide slots, show Time)
+        selJenis.value = 'JAM'; // Default to JAM for faster workflow
+        onJenisPaketChange('JAM'); 
 
-        document.getElementById('ppPaketId').innerHTML = '<option value="">-- Pilih Paket --</option>';
+        // Durasi & Harga reset
         document.getElementById('ppHargaNormal').value = '';
         document.getElementById('ppDurasi').value = '1';
         document.getElementById('ppMemberSearch').value = '';
         document.getElementById('ppKodeSales').value = '';
+
+        // Auto-select first available packet if filtered
+        const selPaket = $('#ppPaketId');
+        if (selPaket.find('option[value!=""]').length > 0) {
+            const firstVal = selPaket.find('option[value!=""]').first().val();
+            selPaket.val(firstVal).trigger('change');
+        }
 
         // Reset Jam Mulai ke Waktu Sekarang (24H Format)
         var now = new Date();
@@ -1641,6 +1672,11 @@
                 if (res.success) {
                     populateReceipt(res);
                     $('#modalReceiptPreview').addClass('open');
+                    
+                    // Otomatis cetak setelah modal terbuka
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
                 } else {
                     swal("Gagal", res.message, "error");
                 }
@@ -2411,14 +2447,19 @@
         selTdPaket.innerHTML = '';
         
         const currentJenis = selectedTitik.jenispaket;
+        const category = selectedTitik.namakelompok ? selectedTitik.namakelompok.toUpperCase() : "";
+
         dataPaketAll.forEach(p => {
             if (p.JenisPaket === currentJenis) {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.text = p.NamaPaket;
-                opt.dataset.harga = p.HargaNormal || 0;
-                opt.dataset.durasi = p.DurasiPaket || 1;
-                selTdPaket.appendChild(opt);
+                // Filter berdasarkan kategori meja
+                if (category === "" || p.NamaPaket.toUpperCase().includes(category)) {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.text = p.NamaPaket;
+                    opt.dataset.harga = p.HargaNormal || 0;
+                    opt.dataset.durasi = p.DurasiPaket || 1;
+                    selTdPaket.appendChild(opt);
+                }
             }
         });
 
@@ -2772,7 +2813,7 @@
                     <div class="pp-row pp-row-2">
                         <div class="pp-field">
                             <label class="pp-label"><i class="fas fa-money-bill-wave"></i> Harga</label>
-                            <input type="text" class="pp-input" id="ppHargaNormal" name="HargaNormal" readonly placeholder="Otomatis">
+                            <input type="text" class="pp-input" id="ppHargaNormal" name="HargaNormal" readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Otomatis">
                         </div>
                         <div class="pp-field">
                             <label class="pp-label"><i class="fas fa-hourglass-half"></i> Durasi</label>
@@ -3750,14 +3791,18 @@
             rowJam.style.display = 'grid';
         }
 
+        var cat = selectedTitik && selectedTitik.namakelompok ? selectedTitik.namakelompok.toUpperCase() : "";
         dataPaketAll.forEach(function(p) {
             if (p.JenisPaket === jenis) {
-                var opt = document.createElement('option');
-                opt.value = p.id;
-                opt.text = p.NamaPaket;
-                opt.dataset.harga = p.HargaNormal || 0;
-                opt.dataset.durasi = p.DurasiPaket || 1; // Inject package base durasi
-                sel.appendChild(opt);
+                // Filter berdasarkan kategori meja
+                if (cat === "" || p.NamaPaket.toUpperCase().includes(cat)) {
+                    var opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.text = p.NamaPaket;
+                    opt.dataset.harga = p.HargaNormal || 0;
+                    opt.dataset.durasi = p.DurasiPaket || 1; // Inject package base durasi
+                    sel.appendChild(opt);
+                }
             }
         });
         

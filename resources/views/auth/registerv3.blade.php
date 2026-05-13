@@ -1185,10 +1185,34 @@ $(function () {
             });
     });
 
-    // ── Jenis usaha watch (in case user goes back & changes) ──
-    $('#JenisUsaha').on('change', function () {
-        // Will re-render when entering step 3
-    });
+    // ── Handle URL Parameters (Auto-select from Landing Page) ──
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlType = urlParams.get('type');
+    const urlPkg  = urlParams.get('package');
+
+    if (urlType) {
+        $('#JenisUsaha').val(urlType).trigger('change.select2');
+        
+        // If type is present, we might want to auto-scroll to step 3? 
+        // Or at least make sure renderProducts knows it.
+        if (urlPkg) {
+            // Wait for step 1 to be "Nexted" or just force render and go to step 3
+            // To make it seamless, let's auto-fill and go to step 3 if both exist
+            renderProducts(urlType);
+            
+            // Find and click the package
+            setTimeout(function() {
+                var $pkg = $('.pkg-card[data-product="' + urlPkg + '"]');
+                if ($pkg.length) {
+                    $pkg.trigger('click');
+                    // Scroll to step 3
+                    goToStep(3);
+                    // Also scroll into view of the selected package
+                    $pkg[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 500);
+        }
+    }
 
 });
 </script>

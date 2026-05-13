@@ -36,6 +36,13 @@ class LoginController extends Controller
     {
 
     }
+    public function landingpage() {
+        $subscriptionheader = SubscriptionHeader::all();
+        return view("welcome",[
+            'subscriptionheader' => $subscriptionheader
+        ]);
+    }
+
     public function login() {
         $subscriptionheader = SubscriptionHeader::all();
         return view("auth.login",[

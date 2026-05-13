@@ -36,7 +36,8 @@ class GenerateDocumentController extends Controller
         ini_set('memory_limit', '256M');
 
         $RecordOwnerID = $request->input('RecordOwnerID');
-        Log::info("[GenerateDocument] START - RecordOwnerID: {$RecordOwnerID}");
+        $limit         = intval($request->input('limit', 100));
+        Log::info("[GenerateDocument] START - RecordOwnerID: {$RecordOwnerID}, limit per request: {$limit}");
 
         if (empty($RecordOwnerID)) {
             $data['message'] = 'RecordOwnerID tidak boleh kosong';
@@ -73,63 +74,78 @@ class GenerateDocumentController extends Controller
         }
         Log::info("[GenerateDocument] MetodePembayaran CASH ditemukan, AkunPembayaran: {$metodeCash->AkunPembayaran}");
 
-        $totalOrders = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)->count();
+        // Hanya ambil order yang belum punya faktur (cek via detail BaseReff)
+        $processedRefs = FakturPenjualanDetail::where('RecordOwnerID', $RecordOwnerID)
+            ->whereNotNull('BaseReff')
+            ->pluck('BaseReff')
+            ->unique()
+            ->toArray();
+
+        $totalOrders = TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
+            ->whereNotIn('NoTransaksi', $processedRefs)
+            ->count();
 
         if ($totalOrders === 0) {
-            $data['message'] = "Tidak ada data di tableorderheader untuk RecordOwnerID '{$RecordOwnerID}'";
-            Log::warning("[GenerateDocument] tableorderheader kosong untuk RecordOwnerID: {$RecordOwnerID}");
+            $data['message'] = "Semua order sudah diproses atau tidak ada data untuk RecordOwnerID '{$RecordOwnerID}'";
+            $data['success'] = true;
+            Log::info("[GenerateDocument] Tidak ada order baru untuk diproses: {$RecordOwnerID}");
             return response()->json($data);
         }
-        Log::info("[GenerateDocument] Total order ditemukan: {$totalOrders}");
+        Log::info("[GenerateDocument] Order belum diproses: {$totalOrders}, akan diproses: {$limit}");
+        $data['total_remaining'] = $totalOrders;
 
         try {
             TableOrderHeader::where('RecordOwnerID', $RecordOwnerID)
+                ->whereNotIn('NoTransaksi', $processedRefs)
                 ->orderBy('NoTransaksi')
-                ->chunk(50, function ($orders) use ($metodeCash, $oCompany, $RecordOwnerID, &$data) {
-                    foreach ($orders as $order) {
-                        Log::info("[GenerateDocument] Memproses order: {$order->NoTransaksi}");
+                ->limit($limit)
+                ->get()
+                ->each(function ($order) use ($metodeCash, $oCompany, $RecordOwnerID, &$data) {
+                    Log::info("[GenerateDocument] Memproses order: {$order->NoTransaksi}");
 
-                        // Lewati order yang sudah punya faktur
-                        $existing = FakturPenjualanHeader::where('NoReff', $order->NoTransaksi)
-                            ->where('RecordOwnerID', $RecordOwnerID)
-                            ->first();
+                    // Double-check sebelum proses (race condition guard)
+                    $alreadyExists = FakturPenjualanDetail::where('RecordOwnerID', $RecordOwnerID)
+                        ->where('BaseReff', $order->NoTransaksi)
+                        ->exists();
 
-                        if ($existing) {
-                            Log::info("[GenerateDocument] Order {$order->NoTransaksi} di-skip, faktur sudah ada: {$existing->NoTransaksi}");
-                            $data['generated'][] = [
-                                'NoOrder' => $order->NoTransaksi,
-                                'status'  => 'skipped',
-                                'message' => 'Faktur sudah ada: ' . $existing->NoTransaksi,
-                            ];
-                            continue;
-                        }
+                    if ($alreadyExists) {
+                        Log::info("[GenerateDocument] Order {$order->NoTransaksi} di-skip (sudah ada di detail)");
+                        $data['generated'][] = [
+                            'NoOrder' => $order->NoTransaksi,
+                            'status'  => 'skipped',
+                            'message' => 'Sudah diproses sebelumnya',
+                        ];
+                        return;
+                    }
 
-                        DB::beginTransaction();
-                        try {
-                            $result = $this->processOrder($order, $metodeCash, $oCompany, $RecordOwnerID);
-                            DB::commit();
-                            $data['generated'][] = $result;
-                            $data['total_processed']++;
-                            Log::info("[GenerateDocument] Order {$order->NoTransaksi} selesai - Faktur: {$result['NoFaktur']}, Pembayaran: {$result['NoPembayaran']}");
-                        } catch (Exception $e) {
-                            DB::rollback();
-                            Log::error("[GenerateDocument] ERROR order {$order->NoTransaksi} - " . $e->getMessage(), [
-                                'file'  => $e->getFile(),
-                                'line'  => $e->getLine(),
-                                'trace' => $e->getTraceAsString(),
-                            ]);
-                            $data['generated'][] = [
-                                'NoOrder' => $order->NoTransaksi,
-                                'status'  => 'error',
-                                'message' => $e->getMessage(),
-                            ];
-                        }
+                    DB::beginTransaction();
+                    try {
+                        $result = $this->processOrder($order, $metodeCash, $oCompany, $RecordOwnerID);
+                        DB::commit();
+                        $data['generated'][] = $result;
+                        $data['total_processed']++;
+                        Log::info("[GenerateDocument] Order {$order->NoTransaksi} selesai - Faktur: {$result['NoFaktur']}, Pembayaran: {$result['NoPembayaran']}");
+                    } catch (Exception $e) {
+                        DB::rollback();
+                        Log::error("[GenerateDocument] ERROR order {$order->NoTransaksi} - " . $e->getMessage(), [
+                            'file'  => $e->getFile(),
+                            'line'  => $e->getLine(),
+                            'trace' => $e->getTraceAsString(),
+                        ]);
+                        $data['generated'][] = [
+                            'NoOrder' => $order->NoTransaksi,
+                            'status'  => 'error',
+                            'message' => $e->getMessage(),
+                        ];
                     }
                 });
 
-            $data['success'] = true;
-            $data['message']  = $data['total_processed'] . " order berhasil diproses";
-            Log::info("[GenerateDocument] SELESAI - Total diproses: {$data['total_processed']}");
+            $remaining = $totalOrders - $data['total_processed'];
+            $data['success']          = true;
+            $data['total_remaining']  = max(0, $remaining);
+            $data['has_more']         = $remaining > 0;
+            $data['message']          = $data['total_processed'] . " order berhasil diproses. Sisa: " . max(0, $remaining);
+            Log::info("[GenerateDocument] SELESAI - Diproses: {$data['total_processed']}, Sisa: " . max(0, $remaining));
 
         } catch (Exception $e) {
             Log::error("[GenerateDocument] ERROR FATAL - " . $e->getMessage(), [

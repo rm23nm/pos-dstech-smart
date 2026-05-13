@@ -326,6 +326,7 @@
                     NamaTitikLampu: item.NamaTitikLampu || 'Take Away',
                     TglTransaksi: item.TglTransaksi,
                     created_at: item.created_at,
+                    OrderStatus: item.OrderStatus || 0,
                     details: []
                 };
             }
@@ -334,35 +335,48 @@
 
         let html = '<div class="row">';
         Object.values(groupedItems).forEach(group => {
+            let statusClass = 'bg-secondary';
+            let statusText = 'Masuk';
+            if(group.OrderStatus == 1) { statusClass = 'bg-warning text-dark'; statusText = 'Diproses'; }
+            else if(group.OrderStatus == 2) { statusClass = 'bg-success'; statusText = 'Siap'; }
+
             html += `
                 <div class="col-md-6 col-lg-4">
-                    <div class="kitchen-card fade-in">
+                    <div class="kitchen-card fade-in" style="border-left-color: ${group.OrderStatus == 2 ? '#22c55e' : (group.OrderStatus == 1 ? '#fbbf24' : '#1d8cf8')}">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                              <div class="table-name">TABLE: ${group.NamaTitikLampu}</div>
-                             <div class="d-flex align-items-center gap-2">
-                                <button class="btn btn-print btn-sm" onclick="printOrder('${group.NoTransaksi}', this)">
-                                    <i class="bi bi-printer"></i> Print
-                                </button>
-                                <div class="item-detail">${group.NoTransaksi}</div>
-                             </div>
+                             <div class="badge ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="item-detail">${group.NoTransaksi}</div>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-info ${group.OrderStatus == 0 ? 'active' : ''}" onclick="updateOrderStatus('${group.NoTransaksi}', 0)">Masuk</button>
+                                <button class="btn btn-outline-warning ${group.OrderStatus == 1 ? 'active' : ''}" onclick="updateOrderStatus('${group.NoTransaksi}', 1)">Proses</button>
+                                <button class="btn btn-outline-success ${group.OrderStatus == 2 ? 'active' : ''}" onclick="updateOrderStatus('${group.NoTransaksi}', 2)">Siap</button>
+                            </div>
                         </div>
                         <hr style="border-color: #444; margin-top: 5px; margin-bottom: 10px;">
                         <div class="order-items">
                             ${group.details.map(item => `
                                 <div class="item-row d-flex justify-content-between align-items-center">
                                     <div style="flex: 1;">
-                                        <div class="item-name" style="font-size: 1.1rem;">${item.NamaItem}</div>
+                                        <div class="item-name" style="font-size: 1.1rem; ${item.isCompleted ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${item.NamaItem} ${item.isCompleted ? '(Done)' : ''}</div>
                                         <div class="brand-text text-info" style="font-size: 0.8rem;">${item.NamaJenis || ''}</div>
                                     </div>
                                     <div class="item-qty me-3" style="font-size: 1.1rem; padding: 2px 10px;">x${item.Qty}</div>
-                                    <button class="btn btn-success btn-sm px-3" onclick="markItemDone('${item.NoTransaksi}', '${item.LineNumber}')">
+                                    <button class="btn ${item.isCompleted ? 'btn-outline-secondary' : 'btn-success'} btn-sm px-3" onclick="markItemDone('${item.NoTransaksi}', '${item.LineNumber}', ${item.isCompleted})" ${item.isCompleted ? 'disabled' : ''}>
                                         <i class="bi bi-check2"></i>
                                     </button>
                                 </div>
                             `).join('')}
                         </div>
-                        <div class="item-detail text-end mt-2" style="font-size: 0.75rem">
-                            Ordered at: ${group.created_at}
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <button class="btn btn-print btn-sm" onclick="printOrder('${group.NoTransaksi}', this)">
+                                <i class="bi bi-printer"></i> Print
+                            </button>
+                            <div class="item-detail" style="font-size: 0.75rem">
+                                Ordered at: ${group.created_at}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -370,6 +384,25 @@
         });
         html += '</div>';
         container.html(html);
+    }
+
+    function updateOrderStatus(noTrx, status) {
+        $.ajax({
+            url: "{{ route('infokitchen-updatestatus') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                NoTransaksi: noTrx,
+                Status: status
+            },
+            success: function(response) {
+                if (response.success) {
+                    fetchKitchenData();
+                } else {
+                    alert('Gagal: ' + response.message);
+                }
+            }
+        });
     }
 
     function markItemDone(noTrx, lineNo) {

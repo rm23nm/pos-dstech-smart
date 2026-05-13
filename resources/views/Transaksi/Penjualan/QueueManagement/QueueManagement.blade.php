@@ -147,7 +147,7 @@
   let autoSlideInterval = null;
   let ytPlayers = [];
 
-  const lastSpokenMap = {}; // NamaTitikLampu => timestamp terakhir dibacakan
+  const spokenStages = {}; // { tableName: { '10m': timestamp, ... } }
   const SPEAK_INTERVAL_MS = 5 * 60 * 1000; // 5 menit
 
   function scrollLoop() {
@@ -236,29 +236,36 @@
     responsiveVoice.speak(text, "Indonesian Female", { onend: callback });
   }
 
-  function speakQueueInIndonesian(queueList) {
+  function speakQueueInIndonesian(list) {
     const now = Date.now();
-    const filtered = queueList.filter(row => {
-      const menit = getSisaMenit(row.JamSelesai);
-      const lastSpoken = lastSpokenMap[row.NamaTitikLampu] || 0;
-      return menit < 10 && menit >= 0 && (now - lastSpoken > SPEAK_INTERVAL_MS);
+    list.forEach(r => {
+        const menit = getSisaMenit(r.JamSelesai);
+        const tableName = r.NamaTitikLampu;
+        const noTransaksi = r.NoTransaksi;
+        
+        if (!spokenStages[tableName] || spokenStages[tableName].NoTransaksi !== noTransaksi) {
+            spokenStages[tableName] = { NoTransaksi: noTransaksi };
+        }
+        
+        let pesan = "";
+        let stage = "";
+        
+        if (menit <= 10 && menit > 5 && !spokenStages[tableName]['10m']) {
+            pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam sepuluh menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
+            stage = '10m';
+        } else if (menit <= 5 && menit > 0 && !spokenStages[tableName]['5m']) {
+            pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam lima menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
+            stage = '5m';
+        } else if (menit <= 0 && !spokenStages[tableName]['0m']) {
+            pesan = `Perhatian. Waktu penggunaan ${tableName} telah berakhir. Terima kasih atas kunjungan Anda.`;
+            stage = '0m';
+        }
+        
+        if (pesan && stage) {
+            spokenStages[tableName][stage] = now;
+            speakWithResponsiveVoice(pesan);
+        }
     });
-
-    if (filtered.length === 0) return;
-
-    let index = 0;
-    function speakNext() {
-      if (index >= filtered.length) return;
-      const row = filtered[index];
-      const pesan = `Perhatian. Layanan ${row.NamaTitikLampu}, akan selesai pada jam ${row.JamSelesai}. Harap segera bersiap.`;
-      lastSpokenMap[row.NamaTitikLampu] = now;
-      speakWithResponsiveVoice(pesan, () => {
-        index++;
-        speakNext();
-      });
-    }
-
-    speakNext();
   }
 
   function updateTables(data) {
@@ -266,7 +273,7 @@
       <thead class="table-danger"><tr><th colspan="5">Hampir Habis</th></tr><tr><th>Nama Layanan</th><th>Nama Pelanggan</th><th>Jam Mulai</th><th>Jam Selesai</th><th>Sisa Waktu</th></tr></thead>
       <tbody>${data.hampirHabisTable.map(row => {
         const sisa = getSisaWaktu(row.JamSelesai);
-        const icon = lastSpokenMap[row.NamaTitikLampu] ? ` <span class="spoken-indicator">🔊</span>` : '';
+        const icon = (spokenStages[row.NamaTitikLampu] && (spokenStages[row.NamaTitikLampu]['10m'] || spokenStages[row.NamaTitikLampu]['5m'] || spokenStages[row.NamaTitikLampu]['0m'])) ? ` <span class="spoken-indicator">🔊</span>` : '';
         return `<tr><td>${row.NamaTitikLampu}</td><td>${row.NamaPelanggan || '-'}</td><td>${row.JamMulai}</td><td>${row.JamSelesai}</td><td>${sisa}${icon}</td></tr>`;
       }).join('')}</tbody></table>`;
 
@@ -284,8 +291,9 @@
     document.getElementById('table-hampirHabis').innerHTML = hampirHabisHTML;
     document.getElementById('table-used').innerHTML = usedHTML;
     document.getElementById('table-available').innerHTML = availableHTML;
-
-    speakQueueInIndonesian(data.hampirHabisTable);
+ 
+    const allOccupied = [...(data.usedTable || []), ...(data.hampirHabisTable || [])];
+    if(allOccupied.length > 0) speakQueueInIndonesian(allOccupied);
   }
 
   function fetchQueueData() {

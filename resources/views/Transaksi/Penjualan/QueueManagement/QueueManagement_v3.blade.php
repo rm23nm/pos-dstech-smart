@@ -409,7 +409,8 @@
 
 
     // === QUEUE DATA ===
-    const lastSpokenMap={}, SPEAK_INTERVAL_MS=5*60*1000;
+    const spokenStages = {}; 
+    const SPEAK_INTERVAL_MS=5*60*1000;
     
     const formatDate = (dateStr) => {
       if (!dateStr) return '-';
@@ -444,20 +445,40 @@
     
     const speakQueueInIndonesian=(list)=>{
       const now=Date.now();
-      const f=list.filter(r=>{
-        const menit=getSisaMenit(r.JamSelesai);
-        const last=lastSpokenMap[r.NamaTitikLampu]||0;
-        return menit<10&&menit>=0&&(now-last>SPEAK_INTERVAL_MS);
+      list.forEach(r => {
+          const menit = getSisaMenit(r.JamSelesai);
+          const tableName = r.NamaTitikLampu;
+          const noTransaksi = r.NoTransaksi;
+          
+          // Reset status jika transaksi baru atau berbeda
+          if (!spokenStages[tableName] || spokenStages[tableName].NoTransaksi !== noTransaksi) {
+              spokenStages[tableName] = { NoTransaksi: noTransaksi };
+          }
+          
+          let pesan = "";
+          let stage = "";
+          
+          // Peringatan 10 Menit
+          if (menit <= 10 && menit > 5 && !spokenStages[tableName]['10m']) {
+              pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam sepuluh menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
+              stage = '10m';
+          } 
+          // Peringatan 5 Menit
+          else if (menit <= 5 && menit > 0 && !spokenStages[tableName]['5m']) {
+              pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam lima menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
+              stage = '5m';
+          } 
+          // Waktu Habis (0 Menit)
+          else if (menit <= 0 && !spokenStages[tableName]['0m']) {
+              pesan = `Perhatian. Waktu penggunaan ${tableName} telah berakhir. Terima kasih atas kunjungan Anda.`;
+              stage = '0m';
+          }
+          
+          if (pesan && stage) {
+              spokenStages[tableName][stage] = now;
+              speakWithResponsiveVoice(pesan);
+          }
       });
-      if(!f.length)return;
-      let i=0;function speakNext(){
-        if(i>=f.length)return;
-        const r=f[i];
-        const pesan=`Perhatian. Layanan ${r.NamaTitikLampu}, akan selesai pada jam ${r.JamSelesai}. Harap segera bersiap.`;
-        lastSpokenMap[r.NamaTitikLampu]=now;
-        speakWithResponsiveVoice(pesan,()=>{i++;speakNext();});
-      }
-      speakNext();
     };
 
     function updateTables(data){
@@ -481,7 +502,7 @@
                                 <td>${row.JamSelesai}</td>
                                 <td><span class="time-badge">${sisa}</span></td>`;
                  } else if(type === 'warn') {
-                     const icon = lastSpokenMap[row.NamaTitikLampu] ? ` <span class="spoken-indicator">🔊</span>` : '';
+                     const icon = (spokenStages[row.NamaTitikLampu] && (spokenStages[row.NamaTitikLampu]['10m'] || spokenStages[row.NamaTitikLampu]['5m'] || spokenStages[row.NamaTitikLampu]['0m'])) ? ` <span class="spoken-indicator">🔊</span>` : '';
                      content = `<td><span class="text-highlight">${row.NamaTitikLampu}</span></td>
                                 <td>${row.NamaPelanggan || '-'}</td>
                                 <td>${row.JamMulai}</td>
@@ -508,8 +529,9 @@
         document.getElementById('table-available').innerHTML = createTable(data.availableTable, 'avail');
         document.getElementById('table-booking').innerHTML = createTable(data.bookingTable, 'booking');
         
-        // Voice trigger
-        if(data.hampirHabisTable) speakQueueInIndonesian(data.hampirHabisTable);
+        // Voice trigger - Check both used and expiring tables
+        const allOccupied = [...(data.usedTable || []), ...(data.hampirHabisTable || [])];
+        if(allOccupied.length > 0) speakQueueInIndonesian(allOccupied);
     }
 
     function fetchQueueData(){

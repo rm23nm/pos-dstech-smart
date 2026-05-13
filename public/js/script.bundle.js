@@ -164,24 +164,28 @@ function checkedPoint() {
   
 jQuery(document).ready(function(){
   jQuery(".loadingmore").slice(0, 12).show();
-  console.log( jQuery(".loadingmore").slice(0, 12).show().length);
-  var getnumber = document.getElementById('numbering').innerHTML;
- console.log(getnumber);
-  var totalgetnumber =jQuery(".loadingmore").length
-  document.getElementById('totalnumber').innerHTML=totalgetnumber;
-  console.log(totalgetnumber);
   
-  jQuery("#loadMore").on("click", function(e){
-  e.preventDefault();
-  jQuery(".loadingmore:hidden").slice(0, 6).slideDown();
-   getnumber= parseInt(getnumber)+6;
-   document.getElementById("numbering").innerHTML=getnumber;
- 
-  if(jQuery(".loadingmore:hidden").length == 0) {
-      jQuery("#loadMore").text("No Content").addClass("noContent");
-  }
-});
+  var numberingEl = document.getElementById('numbering');
+  var totalNumberEl = document.getElementById('totalnumber');
+  var totalgetnumber = jQuery(".loadingmore").length;
 
+  if (totalNumberEl) {
+      totalNumberEl.innerHTML = totalgetnumber;
+  }
+
+  jQuery("#loadMore").on("click", function(e){
+    e.preventDefault();
+    jQuery(".loadingmore:hidden").slice(0, 6).slideDown();
+    
+    if (numberingEl) {
+        var currentNum = parseInt(numberingEl.innerHTML) || 0;
+        numberingEl.innerHTML = currentNum + 6;
+    }
+  
+    if(jQuery(".loadingmore:hidden").length == 0) {
+        jQuery("#loadMore").text("No Content").addClass("noContent");
+    }
+  });
 });
 
 function printDiv2() {
@@ -626,22 +630,21 @@ jQuery('.kt_notes_panel_close').on("click", function(e){
 });
 jQuery(document).on('click',function() {
   var sel22 = document.getElementById('typeselect');
-  console.log('value', sel22.value);
-   /// show and hide div on the click by value basis
-  //  var cliked = document.getElementById(sel.value);
-   for ( var i = 1; i <= 7; i++){
-     if(sel22.value == i){
-     console.log("aya rye" ,i);
-      jQuery(`#${i}`).css("display", "block");
-      
-     }else{
+  if (sel22) {
+    console.log('value', sel22.value);
+    /// show and hide div on the click by value basis
+    //  var cliked = document.getElementById(sel.value);
+    for ( var i = 1; i <= 7; i++){
+      if(sel22.value == i){
+      console.log("aya rye" ,i);
+        jQuery(`#${i}`).css("display", "block");
+        
+      }else{
 
      jQuery(`#${i}`).css("display", "none");
    }
   }
-  
-
-
+ }
 } );
 
 jQuery(document).ready(function() {
@@ -982,15 +985,15 @@ jQuery(".nav-pills .nav-link").each(function(i){
 });
 
 jQuery(".nav-pills .nav-link").click(function(e) {
-  var active = this.href.slice(-5)
-  , link = active.slice(1);
+  var active = jQuery(this).attr("href");
+  var link = active.replace('#', '');
   console.log(active, link)
-  jQuery(".tab-content [id^=tab]").hide();
+  jQuery(".tab-content [id^=tab]").hide(); // This might be wrong if tab IDs don't start with tab
+  jQuery(".tab-pane").hide(); // Better to hide all tab-panes
   jQuery(active).show();
+  jQuery(active).addClass('show active');
   history.replaceState(null, link
-    , location.href.slice(-1) === "/" 
-    ? location.href + "/" + link 
-    : link
+    , location.href.split('#')[0] + active
   )
 });
 
