@@ -18,78 +18,92 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $awalTahun = Carbon::now()->startOfYear()->toDateString();;
-        $TglAwal = Carbon::now()->startOfMonth()->toDateString();
-        $TglAkhir = Carbon::now();
+        $roid = Auth::user()->RecordOwnerID;
+        $now = Carbon::now();
+        $awalTahun = $now->copy()->startOfYear()->toDateTimeString();
+        $TglAwal = $now->copy()->startOfMonth()->toDateTimeString();
+        $TglAkhir = $now->copy()->toDateTimeString();
+        $HariIni = $now->copy()->startOfDay()->toDateTimeString();
+        $Besok = $now->copy()->endOfDay()->toDateTimeString();
 
+        // Optimized DayByDay
         $daybyday = FakturPenjualanHeader::selectRaw("SUM(TotalPembelian) Total")
-                        ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                        ->whereBetween(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'),[DB::raw("DATE('".$TglAkhir."')"), DB::raw("DATE('".$TglAkhir."')")])
-                        ->where('Status','<>',DB::raw("'D'"))
-                        ->get();
+                        ->where('RecordOwnerID', $roid)
+                        ->whereBetween('TglTransaksi', [$HariIni, $Besok])
+                        ->where('Status', '!=', 'D')
+                        ->first();
+
+        // Optimized MTD
         $mtd = FakturPenjualanHeader::selectRaw("SUM(TotalPembelian) Total")
-                        ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                        ->whereBetween(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'),[$TglAwal, $TglAkhir])
-                        ->where('Status','<>',DB::raw("'D'"))
-                        ->get();
+                        ->where('RecordOwnerID', $roid)
+                        ->whereBetween('TglTransaksi', [$TglAwal, $TglAkhir])
+                        ->where('Status', '!=', 'D')
+                        ->first();
+
+        // Optimized YTD
         $ytd = FakturPenjualanHeader::selectRaw("SUM(TotalPembelian) Total")
-                        ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                        ->whereBetween(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'),[$awalTahun, $TglAkhir])
-                        ->where('Status','<>',DB::raw("'D'"))
-                        ->get();
+                        ->where('RecordOwnerID', $roid)
+                        ->whereBetween('TglTransaksi', [$awalTahun, $TglAkhir])
+                        ->where('Status', '!=', 'D')
+                        ->first();
         
         $stockMinimum = ItemMaster::selectRaw("KodeItem, NamaItem, Stock")
-                        ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                        ->where('Stock','<=', 'StockMinimum')
-                        ->where('Active','=', DB::raw("'Y'"))
+                        ->where('RecordOwnerID', $roid)
+                        ->whereColumn('Stock', '<=', 'StockMinimum')
+                        ->where('Active', 'Y')
+                        ->take(10)
                         ->get();
 
-        $grafikpenjualan = FakturPenjualanHeader::selectRaw("DATE(fakturpenjualanheader.TglTransaksi) Tanggal ,SUM(TotalPembelian) Total")
-                        ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                        ->whereBetween(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'),[now()->startOfMonth(), now()->endOfMonth()])
-                        ->where('Status','<>',DB::raw("'D'"))
-                        ->groupBy(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'))
-                        ->orderBy(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'))
+        $grafikpenjualan = FakturPenjualanHeader::selectRaw("DATE(TglTransaksi) Tanggal ,SUM(TotalPembelian) Total")
+                        ->where('RecordOwnerID', $roid)
+                        ->whereBetween('TglTransaksi', [$TglAwal, $TglAkhir])
+                        ->where('Status', '!=', 'D')
+                        ->groupBy(DB::raw('DATE(TglTransaksi)'))
+                        ->orderBy('TglTransaksi')
                         ->get();
 
-        $perbandinganharga = DB::select('CALL rsp_perbandinganhargasupplier(?, ?, ?)', [$awalTahun, $TglAkhir, Auth::user()->RecordOwnerID]);
-
-        // TopSpender
+        // Heavy SP - DISABLED FOR SPEED TEST
+        $perbandinganharga = [];
+        /*
+        try {
+            $perbandinganharga = DB::select('CALL rsp_perbandinganhargasupplier(?, ?, ?)', [$awalTahun, $TglAkhir, $roid]);
+        } catch (\Exception $e) { Log::error("SP Error: " . $e->getMessage()); }
+        */
 
         $topspender = FakturPenjualanHeader::selectRaw('pelanggan.NamaPelanggan, SUM(TotalPembelian) Total')
-                    ->leftJoin('pelanggan', function ($value){
-                        $value->on('pelanggan.KodePelanggan','=','fakturpenjualanheader.KodePelanggan')
-                        ->on('pelanggan.RecordOwnerID','=','fakturpenjualanheader.RecordOwnerID');
+                    ->leftJoin('pelanggan', function ($value) use ($roid) {
+                        $value->on('pelanggan.KodePelanggan', '=', 'fakturpenjualanheader.KodePelanggan')
+                              ->on('pelanggan.RecordOwnerID', '=', 'fakturpenjualanheader.RecordOwnerID');
                     })
-                    ->where('fakturpenjualanheader.RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                    ->whereBetween(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'),[$TglAwal, $TglAkhir])
-                    ->where('fakturpenjualanheader.Status','<>',DB::raw("'D'"))
-                    ->groupBy(DB::raw('pelanggan.NamaPelanggan'))
-                    ->orderByDesc(DB::raw('Total'))
+                    ->where('fakturpenjualanheader.RecordOwnerID', $roid)
+                    ->whereBetween('fakturpenjualanheader.TglTransaksi', [$TglAwal, $TglAkhir])
+                    ->where('fakturpenjualanheader.Status', '!=', 'D')
+                    ->groupBy('pelanggan.NamaPelanggan')
+                    ->orderByDesc('Total')
                     ->take(5)
                     ->get();
         
-        $topItemPerformance = FakturPenjualanDetail::selectRaw('itemmaster.NamaItem, itemmaster.Satuan , SUM(TotalPembelian) Total, SUM(Qty) AS Qty')
-                            ->leftJoin('fakturpenjualanheader', function ($value){
-                                $value->on('fakturpenjualanheader.NoTransaksi','=','fakturpenjualandetail.NoTransaksi')
-                                ->on('fakturpenjualanheader.RecordOwnerID','=','fakturpenjualandetail.RecordOwnerID');
+        $topItemPerformance = FakturPenjualanDetail::selectRaw('itemmaster.NamaItem, itemmaster.Satuan , SUM(fakturpenjualanheader.TotalPembelian) Total, SUM(fakturpenjualandetail.Qty) AS Qty')
+                            ->join('fakturpenjualanheader', function ($value) use ($roid) {
+                                $value->on('fakturpenjualanheader.NoTransaksi', '=', 'fakturpenjualandetail.NoTransaksi')
+                                      ->on('fakturpenjualanheader.RecordOwnerID', '=', 'fakturpenjualandetail.RecordOwnerID');
                             })
-                            ->leftJoin('itemmaster', function ($value){
-                                $value->on('itemmaster.KodeItem','=','fakturpenjualandetail.KodeItem')
-                                ->on('itemmaster.RecordOwnerID','=','fakturpenjualandetail.RecordOwnerID');
+                            ->join('itemmaster', function ($value) use ($roid) {
+                                $value->on('itemmaster.KodeItem', '=', 'fakturpenjualandetail.KodeItem')
+                                      ->on('itemmaster.RecordOwnerID', '=', 'fakturpenjualandetail.RecordOwnerID');
                             })
-                            ->where('fakturpenjualanheader.RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                            ->whereBetween(DB::raw('DATE(fakturpenjualanheader.TglTransaksi)'),[$TglAwal, $TglAkhir])
-                            ->where('fakturpenjualanheader.Status','<>',DB::raw("'D'"))
-                            ->groupBy(DB::raw('itemmaster.NamaItem, itemmaster.Satuan'))
-                            ->orderBy(DB::raw('itemmaster.NamaItem'))
+                            ->where('fakturpenjualanheader.RecordOwnerID', $roid)
+                            ->whereBetween('fakturpenjualanheader.TglTransaksi', [$TglAwal, $TglAkhir])
+                            ->where('fakturpenjualanheader.Status', '!=', 'D')
+                            ->groupBy('itemmaster.NamaItem', 'itemmaster.Satuan')
+                            ->orderByDesc('Total')
+                            ->take(3) // Further limited for test
                             ->get();
 
-        // var_dump($perbandinganharga);
     	return view("dashboard",[
-            'daybyday' => $daybyday[0]['Total'],
-            'mtd' => $mtd[0]['Total'],
-            'ytd' => $ytd[0]['Total'],
+            'daybyday' => $daybyday->Total ?? 0,
+            'mtd' => $mtd->Total ?? 0,
+            'ytd' => $ytd->Total ?? 0,
             'stockMinimum' => $stockMinimum,
             'grafikpenjualan' => $grafikpenjualan,
             'perbandinganharga' => $perbandinganharga,
