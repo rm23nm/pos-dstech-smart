@@ -89,7 +89,7 @@ class LoginController extends Controller
                 );
             $data = [
                 'title' => 'Reset Password',
-                'message' => 'Silahkan Melakukan Reset Password melalui linkberikut : '. url('/')."/resetpassword/".$KonfirmasiID
+                'message' => 'Silahkan melakukan Reset Password melalui link berikut : '. url('/')."/resetpassword/".$KonfirmasiID
             ];
         
             Mail::to($request->input('email'))->send(new SendMail($data,"Reset Password"));

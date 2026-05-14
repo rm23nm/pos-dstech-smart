@@ -17,10 +17,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 
     <!-- Midtrans Snap -->
-    @if(env('MIDTRANS_IS_PRODUCTION', false))
-        <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY', '') }}"></script>
-    @else
-        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY', '') }}"></script>
+    @if(isset($midtransclientkey) && $midtransclientkey != "")
+        @if(env('MIDTRANS_IS_PRODUCTION', false))
+            <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ $midtransclientkey }}"></script>
+        @else
+            <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ $midtransclientkey }}"></script>
+        @endif
     @endif
 
     <style>
@@ -89,12 +91,10 @@
             @endif
         }
 
-        /* Kelompok section - Transparent Card */
         .kelompok-section {
             margin-bottom: 30px;
             background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 24px;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
@@ -111,563 +111,222 @@
             margin-bottom: 20px;
             letter-spacing: 1px;
             text-transform: uppercase;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
         }
 
-        /* Titik lampu grid */
-        .titik-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+        .titik-grid { display: flex; flex-wrap: wrap; gap: 12px; }
 
-        /* Each titik lampu box */
         .titik-box {
-            width: 90px;
-            height: 90px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-            box-shadow: 0 3px 7px rgba(0,0,0,0.22);
+            width: 100px; height: 100px;
+            border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 700; color: #fff;
+            cursor: pointer; border: 3px solid transparent;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             position: relative;
-            user-select: none;
         }
-        .titik-box:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .titik-box.active-selected {
-            border-color: #fff;
-            box-shadow: 0 0 0 3px rgba(255,255,255,0.7), 0 4px 12px rgba(0,0,0,0.35);
-            transform: scale(1.12);
-        }
+        .titik-box:hover { transform: scale(1.05); }
+        .titik-box.active-selected { border-color: #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.6); }
 
-        /* Status Colors */
-        .status-0  { background: linear-gradient(135deg, #2e7d32, #43a047); } /* Hijau - Kosong */
-        .status-1  { background: linear-gradient(135deg, #b71c1c, #e53935); } /* Merah - Aktif */
-        .status-2  { background: linear-gradient(135deg, #e65100, #fb8c00); } /* Kuning/Orange */
-        .status-99 { background: linear-gradient(135deg, #e65100, #fb8c00); } /* Kuning/Orange - Hampir Habis */
-        .status-n1 { background: linear-gradient(135deg, #f57f17, #fdd835); filter: brightness(0.9); } /* Kuning keemasan - Checkout */
+        .status-0  { background: linear-gradient(135deg, #2e7d32, #43a047); }
+        .status-1  { background: linear-gradient(135deg, #b71c1c, #e53935); }
+        .status-2  { background: linear-gradient(135deg, #e65100, #fb8c00); }
+        .status-99 { background: linear-gradient(135deg, #fbc02d, #ffeb3b); color: #000 !important; }
+        .status-n1 { background: linear-gradient(135deg, #f57f17, #fdd835); }
 
-        .table-timer {
-            font-size: 0.85rem;
-            margin-top: 5px;
-            font-family: monospace;
-            background: rgba(0,0,0,0.2);
-            padding: 2px 5px;
-            border-radius: 4px;
-        }
+        .table-timer { font-size: 0.8rem; margin-top: 5px; font-family: monospace; background: rgba(0,0,0,0.25); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .paid-badge { position: absolute; top: -5px; right: -5px; background: #ffd600; color: #000; font-size: 0.6rem; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1.5px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         /* ========== RIGHT PANEL ========== */
         .right-panel {
-            flex: 0 0 30%;
-            width: 30%;
-            background: #fff;
-            border-left: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            box-shadow: -4px 0 16px rgba(0,0,0,0.08);
-            overflow-y: auto;
+            flex: 0 0 30%; width: 30%; background: #fff; border-left: 1px solid #e0e0e0;
+            display: flex; flex-direction: column; box-shadow: -4px 0 16px rgba(0,0,0,0.08); overflow-y: auto;
         }
-
-        /* Placeholder state */
-        .right-placeholder {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #bdbdbd;
-            padding: 32px;
-            text-align: center;
-        }
+        .right-placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #bdbdbd; padding: 32px; text-align: center; }
         .right-placeholder i { font-size: 4rem; margin-bottom: 16px; }
-        .right-placeholder p { font-size: 1rem; }
-
-        /* Detail content */
         .detail-content { display: none; flex-direction: column; flex: 1; }
+        .detail-name-banner { background: linear-gradient(135deg, #1a237e, #283593); color: #fff; padding: 18px 16px; font-size: 1.4rem; font-weight: 700; text-align: center; }
+        .detail-status-badge { display: block; width: 100%; padding: 10px; font-size: 0.95rem; font-weight: 700; text-align: center; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .detail-img-wrap { width: 100%; height: 260px; overflow: hidden; background: #e9ecef; border-bottom: 1px solid #eee; }
+        .detail-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Titik name banner */
-        .detail-name-banner {
-            background: linear-gradient(135deg, #1a237e, #283593);
-            color: #fff;
-            padding: 14px 16px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-        .detail-status-badge {
-            display: block;
-            width: 100%;
-            padding: 8px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            text-align: center;
-            color: #fff;
-            border: none;
-            cursor: default;
-        }
+        .detail-info-list { list-style: none; margin: 0; padding: 0; }
+        .detail-info-list li { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #f1f1f1; }
+        .detail-info-list li .info-label { display: flex; align-items: center; gap: 12px; font-weight: 600; color: #546e7a; font-size: 0.9rem; }
+        .detail-info-list li .info-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; }
+        .detail-info-list li .info-value { font-weight: 700; color: #263238; font-size: 1rem; }
 
-        /* Image */
-        .detail-img-wrap {
-            width: 100%;
-            height: 250px;
-            overflow: hidden;
-            background: #e9ecef;
-            border-bottom: 1px solid #eee;
+        .detail-actions { padding: 20px; background: #fafafa; }
+        .btn-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+        .btn-row-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .btn-action {
+            padding: 14px 8px; font-size: 0.85rem; font-weight: 700; border: none; border-radius: 10px; color: #fff; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .detail-img-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .btn-action i { font-size: 1.4rem; }
+        .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); filter: brightness(1.1); }
+        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
-        /* Info list */
-        .detail-info-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            border-bottom: 1px solid #eee;
-        }
-        .detail-info-list li {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 16px;
-            border-bottom: 1px dotted #e0e0e0;
-            font-size: 0.9rem;
-        }
-        .detail-info-list li .info-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            color: #37474f;
-        }
-        .detail-info-list li .info-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 0.8rem;
-        }
-        .detail-info-list li .info-value {
-            font-weight: 600;
-            color: #263238;
-            font-size: 0.85rem;
-            text-align: right;
-        }
-
-        /* Action buttons area */
-        .detail-actions {
-            padding: 12px 12px 8px;
-        }
-        .detail-actions .btn-row {
-            display: grid;
-            grid-template-columns: 1fr; /* Only one button: Paket */
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-        .detail-actions .btn-row-2 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-        }
-        .detail-actions .btn-action {
-            padding: 12px 4px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .detail-actions .btn-action i { font-size: 1.4rem; }
-        .detail-actions .btn-action:hover:not(:disabled) {
-            opacity: 0.88;
-            transform: translateY(-1px);
-        }
-        .detail-actions .btn-action:disabled {
-            opacity: 0.38;
-            cursor: not-allowed;
-        }
         .btn-pilih-paket { background: linear-gradient(135deg, #2e7d32, #43a047); }
-        .btn-tambah-makan { background: linear-gradient(135deg, #1565c0, #1976d2); }
+        .btn-tambah-makan { background: linear-gradient(135deg, #1565c0, #1e88e5); }
         .btn-tambah-jam   { background: linear-gradient(135deg, #6a1b9a, #8e24aa); }
-        .btn-tambah-layanan { background: linear-gradient(135deg, #00695c, #00897b); }
+        .btn-detail-view { background: linear-gradient(135deg, #455a64, #607d8b); }
+        .btn-checkout { background: linear-gradient(135deg, #d32f2f, #f44336); }
 
-        /* Legend */
-        .legend {
-            display: flex;
-            gap: 20px;
-            padding: 12px 16px 8px;
-            flex-wrap: wrap;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #37474f;
-        }
-        .legend-dot {
-            width: 22px; height: 22px;
-            border-radius: 5px;
-            display: inline-block;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-        }
-
-        /* Modal Styles */
+        /* Modal Overlay */
         .pp-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
+            z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(4px);
         }
         .pp-overlay.open { display: flex; }
         .pp-modal {
-            background: #fff;
-            width: 90%;
-            max-width: 600px;
-            border-radius: 16px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
-            overflow: hidden;
-            animation: modalIn 0.3s ease-out;
+            background: #fff; border-radius: 16px; width: 95%; max-width: 650px; 
+            max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden;
+            animation: ppPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes modalIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .pp-header {
-            background: #1a237e;
-            color: #fff;
-            padding: 18px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .pp-header-label { font-size: 1rem; opacity: 0.8; text-transform: uppercase; }
-        .pp-header-titik { font-size: 1.4rem; font-weight: 700; }
-        .pp-close { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; }
+        @keyframes ppPopIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        .pp-body { padding: 24px; max-height: 75vh; overflow-y: auto; }
-        .pp-row { margin-bottom: 15px; }
-        .pp-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .pp-label { display: block; font-size: 0.85rem; font-weight: 700; color: #455a64; margin-bottom: 6px; }
-        .pp-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
+        .pp-header { background: #1a237e; color: #fff; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .pp-header-titik { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
+        .pp-close { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        .pp-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .pp-footer { padding: 16px 24px; background: #f8f9fa; border-top: 1px solid #eee; display: flex; gap: 12px; justify-content: flex-end; }
+        
+        .pp-row { margin-bottom: 18px; }
+        .pp-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .pp-label { font-size: 0.8rem; font-weight: 700; color: #546e7a; text-transform: uppercase; margin-bottom: 6px; display: block; }
+        .pp-input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: border-color 0.2s; outline: none; background: #fff; }
         .pp-input:focus { border-color: #1a237e; }
 
+        .slot-container { display: flex; flex-wrap: wrap; gap: 8px; background: #f1f3f4; padding: 12px; border-radius: 10px; max-height: 150px; overflow-y: auto; }
+        .slot-box { padding: 8px 12px; background: #fff; border: 1.5px solid #cfd8dc; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; }
+        .slot-box.selected { background: #1a237e; color: #fff; border-color: #1a237e; }
+        .slot-box.booked { background: #e0e0e0; color: #999; cursor: not-allowed; border-color: #e0e0e0; }
+
         .pp-durasi-wrap { display: flex; align-items: center; gap: 10px; }
-        .pp-dur-btn {
-            background: #f5f5f5;
-            border: 2px solid #e0e0e0;
-            width: 40px; height: 40px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .pp-dur-btn:hover { background: #e0e0e0; }
-        .pp-dur-input { text-align: center; }
+        .pp-dur-btn { width: 40px; height: 40px; border-radius: 10px; border: 2px solid #1a237e; background: #fff; color: #1a237e; font-size: 1.5rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .pp-dur-btn:hover { background: #1a237e; color: #fff; }
+        .pp-dur-input { flex: 1; text-align: center; }
 
-        .pp-footer {
-            padding: 18px 24px;
-            background: #f8f9fa;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            border-top: 1px solid #eee;
-        }
-        .pp-btn-cancel {
-            background: #e0e0e0;
-            color: #424242;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .pp-btn-confirm {
-            background: linear-gradient(135deg, #1a237e, #283593);
-            color: #fff;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
+        .detail-calc-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; color: #37474f; }
+        .pp-btn-cancel { padding: 12px 24px; border-radius: 10px; border: 2px solid #cfd8dc; background: #fff; color: #546e7a; font-weight: 700; cursor: pointer; }
+        .pp-btn-confirm { padding: 12px 30px; border-radius: 10px; border: none; background: #2e7d32; color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(46,125,50,0.3); }
+        .pp-btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .detail-calc-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-            color: #455a64;
-        }
+        /* FnB Selection Styling */
+        .fnb-selection-area { border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin-top: 15px; }
+        .fnb-header { background: #f5f5f5; padding: 12px 16px; font-weight: 700; color: #1a237e; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .fnb-list { max-height: 250px; overflow-y: auto; padding: 10px; background: #fff; }
+        .fnb-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #f1f1f1; gap: 12px; }
+        .fnb-item:last-child { border-bottom: none; }
+        .fnb-item-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #eee; }
+        .fnb-item-info { flex: 1; }
+        .fnb-item-name { font-weight: 700; font-size: 0.9rem; color: #263238; }
+        .fnb-item-price { font-size: 0.8rem; color: #546e7a; font-weight: 600; }
+        .fnb-qty-ctrl { display: flex; align-items: center; gap: 8px; }
+        .fnb-qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #cfd8dc; background: #fff; color: #1a237e; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; }
+        .fnb-qty-btn:hover { background: #1a237e; color: #fff; border-color: #1a237e; }
+        .fnb-qty-val { width: 30px; text-align: center; font-weight: 700; font-size: 0.95rem; }
+        .fnb-search-wrap { padding: 8px 16px; background: #fff; border-bottom: 1px solid #eee; }
+        .fnb-search-input { width: 100%; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .fnb-search-input:focus { border-color: #1a237e; }
 
-        /* Paid Badge */
-        .paid-badge {
-            position: absolute;
-            top: 5px; right: 5px;
-            background: #ffd600;
-            color: #000;
-            font-size: 0.55rem;
-            font-weight: 900;
-            padding: 1px 4px;
-            border-radius: 3px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        /* Receipt Preview */
-        .receipt-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 9000;
-            align-items: center;
-            justify-content: center;
-        }
-        .receipt-overlay.open { display: flex; }
-        .receipt-container {
-            background: #fff;
-            width: 380px;
-            max-height: 90vh;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .receipt-paper { padding: 20px; flex: 1; overflow-y: auto; font-family: monospace; }
-        .receipt-actions { padding: 15px; background: #f5f5f5; display: flex; gap: 10px; justify-content: center; }
-        .btn-receipt-close { background: #1a237e; color:#fff; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; }
-
-        @media print {
-            @page {
-                size: 80mm auto;
-                margin: 0;
-            }
-            body {
-                margin: 0;
-                padding: 0;
-                background: #fff;
-            }
-            /* Hide everything that is not the receipt */
-            .pos-header, .pos-main, .receipt-actions, .btn-receipt-close, .modal-close, .swal2-container, .swal-overlay {
-                display: none !important;
-            }
-            
-            /* Show the modal overlay as a simple block */
-            #modalReceiptPreview {
-                display: block !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 80mm !important;
-                background: white !important;
-                z-index: 9999 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            .receipt-container {
-                box-shadow: none !important;
-                border: none !important;
-                width: 80mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-            }
-            
-            .receipt-paper {
-                padding: 5mm !important;
-                width: 80mm !important;
-                overflow: visible !important;
-                box-sizing: border-box !important;
-                font-family: 'Courier New', Courier, monospace !important;
-            }
-            
-            /* Ensure text is black for printing */
-            #modalReceiptPreview * {
-                color: #000 !important;
-                background: transparent !important;
-            }
-        }
+        /* Receipt */
+        .receipt-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9000; align-items: center; justify-content: center; }
+        .receipt-container { background: #fff; width: 380px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .receipt-paper { padding: 25px; flex: 1; overflow-y: auto; font-family: 'Courier New', Courier, monospace; line-height: 1.2; }
     </style>
 </head>
 
 <body>
-    <!-- ===== HEADER ===== -->
     <header class="pos-header">
-        <div class="brand d-flex align-items-center gap-2">
-            @if(!empty($company[0]['icon']))
-                <img src="{{ $company[0]['icon'] }}" alt="Logo" style="height: 40px; width: auto; border-radius: 4px; background: white; padding: 2px;">
-            @else
-                <i class="fas fa-bolt"></i>
+        <div class="brand">
+            @if(count($company) > 0 && !empty($company[0]->icon))
+                <img src="{{ $company[0]->icon }}" alt="Logo" style="height: 40px; border-radius: 6px; background: white; padding: 2px; vertical-align: middle;">
             @endif
-            <span>{{ $company[0]['NamaPartner'] }} - SELF SERVICE</span>
+            <span style="margin-left: 12px;">{{ $company[0]->NamaPartner ?? 'DSTech' }} Self-Service</span>
         </div>
         <div class="clock-display" id="posHeaderClock">--:--:--</div>
-        <div class="d-flex align-items-center gap-3">
-            <div class="refresh-config" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 4px 8px; color: #eee; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
-                <i class="fas fa-sync-alt"></i>
-                <span>Auto Refresh:</span>
-                <select id="autoRefreshInterval" onchange="onRefreshIntervalChange()" style="background: #1a1a2e; color: #00e5ff; border: none; outline: none; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
-                    <option value="0">OFF</option>
-                    <option value="10000" selected>10s</option>
-                    <option value="30000">30s</option>
-                    <option value="60000">1m</option>
-                </select>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="refresh-config" style="background: rgba(0,229,255,0.1); border-color: #00e5ff; color: #00e5ff; font-weight: 700; padding: 6px 15px; border-radius: 20px;">
+                <i class="fas fa-sync-alt fa-spin"></i> LIVE
             </div>
-            <a href="javascript:void(0)" onclick="openJualFnbModal()" style="background: linear-gradient(135deg,#e65100,#ff8f00); color:#fff; padding:5px 12px; border-radius:6px; font-weight:600; text-decoration:none; font-size:0.85rem;"><i class="fas fa-utensils"></i> Jual FnB</a>
+            <button class="btn-action btn-tambah-makan" style="padding: 8px 20px; flex-direction: row; height: 42px; font-size: 0.95rem; border-radius: 21px;" onclick="onJualFnbStandalone()">
+                <i class="fas fa-utensils"></i> <span style="margin-left: 10px;">Beli Makanan</span>
+            </button>
         </div>
     </header>
 
-    <!-- ===== MAIN SPLIT LAYOUT ===== -->
     <div class="pos-main">
-
-        <!-- ===== LEFT PANEL : Titik Lampu Grid ===== -->
         <div class="left-panel">
-            <div class="legend mb-1">
-                <span class="legend-item"><span class="legend-dot" style="background:#43a047;"></span> Kosong</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#e53935;"></span> Aktif</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#fb8c00;"></span> Hampir Habis</span>
-            </div>
-
-            @if (count($kelompoklampu) > 0)
-                @foreach ($kelompoklampu as $tl)
-                    @php
-                        $itemInGroup = $titiklampu->filter(fn($item) => $item->KelompokLampu == $tl->KodeKelompok)->sortBy('DigitalInput');
-                    @endphp
-                    @if ($itemInGroup->count() > 0)
-                        <div class="kelompok-section">
-                            <div class="kelompok-title"><i class="fas fa-layer-group me-1"></i> {{ $tl->NamaKelompok }}</div>
-                            <div class="titik-grid">
-                                @foreach ($itemInGroup as $item)
-                                    @php
-                                        $statusClass = 'status-0';
-                                        if ($item->Status == 1)  $statusClass = 'status-1';
-                                        elseif ($item->Status == 99) $statusClass = 'status-99';
-                                        elseif ($item->Status == -1) $statusClass = 'status-n1';
-                                        elseif ($item->Status == 2)  $statusClass = 'status-2';
-
-                                        $statusLabel = 'KOSONG';
-                                        if ($item->Status == 1)  $statusLabel = 'AKTIF';
-                                        elseif ($item->Status == 99) $statusLabel = 'HABIS';
-                                        elseif ($item->Status == -1) $statusLabel = 'CHECKOUT';
-                                    @endphp
-                                    <div class="titik-box {{ $statusClass }}"
-                                         data-id="{{ $item->id }}"
-                                         data-namatitiklampu="{{ $item->NamaTitikLampu }}"
-                                         data-notransaksi="{{ $item->NoTransaksi }}"
-                                         data-jenispaket="{{ $item->JenisPaket }}"
-                                         data-status="{{ $item->Status }}"
-                                         data-namapaket="{{ $item->NamaPaket ?? '' }}"
-                                         data-jammulai="{{ $item->JamMulai ? \Carbon\Carbon::parse($item->JamMulai)->format('d/m/Y H:i') : '-' }}"
-                                         data-jamselesai="{{ $item->JamSelesai ? \Carbon\Carbon::parse($item->JamSelesai)->format('d/m/Y H:i') : '-' }}"
-                                         data-gambar="{{ $item->Gambar ?? '' }}"
-                                         data-statuslabel="{{ $statusLabel }}"
-                                         data-totalPembayaran="{{ $item->TotalPembayaran ?? 0 }}"
-                                         data-rawjammulai="{{ $item->JamMulai ?? '' }}"
-                                         data-rawjamselesai="{{ $item->JamSelesai ?? '' }}"
-                                         data-namakelompok="{{ $tl->NamaKelompok }}"
-                                         onclick="selectTitikLampu(this)"
-                                         title="{{ $item->NamaTitikLampu }}">
-                                        {{ $item->DigitalInput }}
-                                        @if(($item->TotalPembayaran ?? 0) > 0)
-                                            <div class="paid-badge">PAID</div>
-                                        @endif
-                                        <div class="table-timer">--:--:--</div>
-                                    </div>
-                                @endforeach
-                            </div>
+            @foreach ($kelompoklampu as $tl)
+                @php
+                    $itemInGroup = $titiklampu->filter(fn($item) => $item->KelompokLampu == $tl->KodeKelompok)->sortBy('DigitalInput');
+                @endphp
+                @if ($itemInGroup->count() > 0)
+                    <div class="kelompok-section">
+                        <div class="kelompok-title">{{ $tl->NamaKelompok }}</div>
+                        <div class="titik-grid">
+                            @foreach ($itemInGroup as $item)
+                                @php
+                                    $statusClass = 'status-0';
+                                    if ($item->Status == 1) $statusClass = 'status-1';
+                                    elseif ($item->Status == 99) $statusClass = 'status-99';
+                                    elseif ($item->Status == -1) $statusClass = 'status-n1';
+                                    elseif ($item->Status == 2) $statusClass = 'status-2';
+                                @endphp
+                                <div class="titik-box {{ $statusClass }}"
+                                     data-id="{{ $item->id }}"
+                                     data-namatitiklampu="{{ $item->NamaTitikLampu }}"
+                                     data-notransaksi="{{ $item->NoTransaksi }}"
+                                     data-status="{{ $item->Status }}"
+                                     data-namapaket="{{ $item->NamaPaket ?? '' }}"
+                                     data-jammulai="{{ $item->JamMulaiParsed ?? '-' }}"
+                                     data-jamselesai="{{ $item->JamSelesaiParsed ?? '-' }}"
+                                     data-rawjammulai="{{ $item->JamMulai ?? '' }}"
+                                     data-rawjamselesai="{{ $item->JamSelesai ?? '' }}"
+                                     data-gambar="{{ $item->Gambar ?? '' }}"
+                                     data-namakelompok="{{ $tl->NamaKelompok }}"
+                                     data-kodekelompok="{{ $item->KelompokLampu }}"
+                                     data-statuslabel="{{ $item->StatusMeja }}"
+                                     data-totalPembayaran="{{ $item->TotalPembayaran ?? 0 }}"
+                                     onclick="selectTitikLampu(this)">
+                                    {{ $item->DigitalInput }}
+                                    @if(($item->TotalPembayaran ?? 0) > 0)
+                                        <div class="paid-badge">PAID</div>
+                                    @endif
+                                    <div class="table-timer">--:--:--</div>
+                                </div>
+                            @endforeach
                         </div>
-                    @endif
-                @endforeach
-            @endif
+                    </div>
+                @endif
+            @endforeach
         </div>
 
-        <!-- ===== RIGHT PANEL : Detail ===== -->
-        <div class="right-panel" id="rightPanel">
+        <div class="right-panel">
             <div class="right-placeholder" id="rightPlaceholder">
                 <i class="fas fa-hand-pointer"></i>
-                <p>Klik Meja<br>untuk mulai / tambah pesanan</p>
+                <p style="font-size: 1.2rem; font-weight: 600; color: #999;">Pilih Meja untuk Memulai</p>
             </div>
 
             <div class="detail-content" id="detailContent">
                 <div class="detail-name-banner" id="detailNamaTitikLampu">--</div>
                 <div class="detail-status-badge" id="detailStatusBadge" style="background:#9e9e9e;">--</div>
-
-                <div class="detail-img-wrap">
-                    <img id="detailGambar" src="" alt="Meja" />
-                </div>
-
+                <div class="detail-img-wrap"><img id="detailGambar" src="" alt="Meja" /></div>
                 <ul class="detail-info-list">
-                    <li>
-                        <div class="info-label"><span class="info-icon bg-success"><i class="fas fa-box"></i></span> Paket</div>
-                        <span class="info-value" id="detailPaket">-</span>
-                    </li>
-                    <li>
-                        <div class="info-label"><span class="info-icon bg-primary"><i class="fas fa-play"></i></span> Jam Mulai</div>
-                        <span class="info-value" id="detailJamMulai">-</span>
-                    </li>
-                    <li>
-                        <div class="info-label"><span class="info-icon bg-warning"><i class="fas fa-stop"></i></span> Jam Selesai</div>
-                        <span class="info-value" id="detailJamSelesai">-</span>
-                    </li>
+                    <li><div class="info-label"><span class="info-icon" style="background:#43a047;"><i class="fas fa-box"></i></span> Paket</div><span class="info-value" id="detailPaket">-</span></li>
+                    <li><div class="info-label"><span class="info-icon" style="background:#1e88e5;"><i class="fas fa-play"></i></span> Mulai</div><span class="info-value" id="detailJamMulai">-</span></li>
+                    <li><div class="info-label"><span class="info-icon" style="background:#fb8c00;"><i class="fas fa-stop"></i></span> Selesai</div><span class="info-value" id="detailJamSelesai">-</span></li>
                 </ul>
-
                 <div class="detail-actions">
                     <div class="btn-row">
-                        <button class="btn-action btn-pilih-paket" id="btnPilihPaket" onclick="onPilihPaket()">
-                            <i class="fas fa-play"></i>
-                            <span>Mulai Sekarang</span>
-                        </button>
-                    </div>
-                    <div class="btn-row-2">
-                        <button class="btn-action btn-tambah-makan" id="btnTambahMakan" onclick="onTambahMakan()">
-                            <i class="fas fa-utensils"></i>
-                            <span>+ Makan</span>
-                        </button>
-                        <button class="btn-action btn-tambah-jam" id="btnTambahJam" onclick="onTambahJam()">
-                            <i class="fas fa-clock"></i>
-                            <span>+ Durasi</span>
-                        </button>
-                        <button class="btn-action btn-tambah-layanan" id="btnTambahLayanan" onclick="onTambahLayanan()">
-                            <i class="fas fa-concierge-bell"></i>
-                            <span>+ Layanan</span>
-                        </button>
+                        <button class="btn-action btn-pilih-paket" id="btnPilihPaket" onclick="onPilihPaket()"><i class="fas fa-play"></i><span>SEWA MEJA</span></button>
+                        <button class="btn-action btn-tambah-makan" id="btnTambahMakan" onclick="onTambahMakan()"><i class="fas fa-utensils"></i><span>+ MAKANAN</span></button>
+                        <button class="btn-action btn-tambah-jam" id="btnTambahJam" onclick="onTambahJam()"><i class="fas fa-clock"></i><span>+ DURASI</span></button>
                     </div>
                 </div>
             </div>
@@ -675,32 +334,22 @@
     </div>
 
     <!-- ===== MODALS ===== -->
-    
-    <!-- MODAL PILIH PAKET -->
     <div id="modalPilihPaket" class="pp-overlay">
         <div class="pp-modal">
             <div class="pp-header">
-                <div>
-                    <div class="pp-header-label">Mulai Transaksi</div>
-                    <div class="pp-header-titik" id="modalPaketTitikNama">--</div>
-                </div>
+                <div class="pp-header-titik" id="modalPaketTitikNama">--</div>
                 <button class="pp-close" onclick="closePilihPaketModal()">&times;</button>
             </div>
             <div class="pp-body">
                 <form id="frmPilihPaket" autocomplete="off">
-                    <input type="hidden" id="ppTglTransaksi" value="{{ date('Y-m-d') }}">
-                    
+                    <input type="hidden" id="ppTglTransaksi">
                     <div class="pp-row pp-row-2">
                         <div class="pp-field">
                             <label class="pp-label">Jenis Paket</label>
                             <select class="pp-input" id="ppJenisPaket" onchange="onJenisPaketChange(this.value)">
                                 <option value="">-- Pilih Jenis --</option>
                                 @foreach($jenisLangganan as $jl)
-                                    @php
-                                        $val = is_array($jl) ? $jl['Kode'] : $jl;
-                                        $lbl = is_array($jl) ? $jl['Nama'] : $jl;
-                                    @endphp
-                                    <option value="{{ $val }}">{{ $lbl }}</option>
+                                    <option value="{{ is_array($jl) ? $jl['Kode'] : $jl }}">{{ is_array($jl) ? $jl['Nama'] : $jl }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -711,498 +360,773 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="pp-row pp-row-2">
                         <div class="pp-field">
-                            <label class="pp-label">Harga</label>
-                            <input type="text" class="pp-input" id="ppHargaNormal" readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Rp 0">
+                            <label class="pp-label">Harga Satuan</label>
+                            <input type="text" class="pp-input" id="ppHargaNormal" readonly style="background:#f5f5f5;">
                         </div>
                         <div class="pp-field">
                             <label class="pp-label">Durasi</label>
                             <div class="pp-durasi-wrap">
                                 <button type="button" class="pp-dur-btn" onclick="changeDurasi(-1)">-</button>
-                                <input type="number" class="pp-input pp-dur-input" id="ppDurasi" value="1" min="1">
+                                <input type="number" class="pp-input pp-dur-input" id="ppDurasi" value="1" oninput="updateJamSelesai()">
                                 <button type="button" class="pp-dur-btn" onclick="changeDurasi(1)">+</button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="pp-row pp-row-2">
+                    <div class="pp-row" id="ppRowSlot" style="display:none;">
+                        <label class="pp-label">Pilih Jam (Slot)</label>
+                        <div id="ppSlotContainer" class="slot-container"></div>
+                    </div>
+                    <div class="pp-row pp-row-2" id="ppRowJamMulai">
                         <div class="pp-field">
                             <label class="pp-label">Jam Mulai</label>
-                            <input type="text" class="pp-input" id="ppJamMulai" readonly>
+                            <input type="text" class="pp-input" id="ppJamMulai" placeholder="HH:mm" oninput="updateJamSelesai()">
                         </div>
                         <div class="pp-field">
-                            <label class="pp-label">Estimasi Selesai</label>
-                            <input type="text" class="pp-input" id="ppJamSelesai" readonly placeholder="-">
+                            <label class="pp-label">Perkiraan Selesai</label>
+                            <input type="text" class="pp-input" id="ppJamSelesai" readonly style="background:#f5f5f5;">
+                        </div>
+                    </div>
+                    <div class="pp-row">
+                        <div class="pp-field">
+                            <label class="pp-label">Member / Pelanggan</label>
+                            <select class="pp-input" id="ppKodePelanggan" onchange="calculateTotal()">
+                                <option value="">-- Umum / Guest --</option>
+                                @foreach($pelanggan as $p)
+                                    <option value="{{ $p->KodePelanggan }}">{{ $p->NamaPelanggan }} ({{ $p->KodePelanggan }})</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
-                    <!-- Force Payment Info -->
-                    <div style="background: #f1f8e9; border: 1px solid #c5e1a5; border-radius: 8px; padding: 15px; margin-top: 15px;">
-                        <div class="detail-calc-row">
-                            <span>Grand Total:</span>
-                            <span id="calcGrandTotal" style="font-weight:700; color:#2e7d32;">Rp 0</span>
+                    <!-- FNB Selection inside Sewa Meja -->
+                    <div class="fnb-selection-area">
+                        <div class="fnb-header">
+                            <span>PESAN MAKANAN & MINUMAN (OPSIONAL)</span>
+                            <span id="fnbTotalCount" class="badge bg-primary" style="font-size: 0.7rem; border-radius: 10px;">0 Item</span>
                         </div>
-                        <div class="pp-row mt-2">
-                            <label class="pp-label">Metode Pembayaran (Midtrans/E-Wallet)</label>
+                        <div class="fnb-search-wrap">
+                            <input type="text" class="fnb-search-input" placeholder="Cari Menu..." oninput="filterFnb(this.value, 'ppFnbList')">
+                        </div>
+                        <div class="fnb-list" id="ppFnbList">
+                            @foreach($itemmaster as $item)
+                            <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
+                            <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" class="fnb-item-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                <div class="fnb-item-info">
+                                    <div class="fnb-item-name">{{ $item->NamaItem }}</div>
+                                    <div class="fnb-item-price">Rp {{ number_format($item->HargaJual) }}</div>
+                                </div>
+                                <div class="fnb-qty-ctrl">
+                                    <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', -1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'ppFnbList')">-</button>
+                                    <div class="fnb-qty-val" id="qty-{{ $item->KodeItem }}-ppFnbList">0</div>
+                                    <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', 1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'ppFnbList')">+</button>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="pp-row" style="display:none;">
+                        <input type="hidden" id="ppKodeSales" value="{{ Auth::user()->KodeSales ?? '' }}">
+                    </div>
+
+                    <div id="ppDetailBayar" style="background:#f0f4f8; padding:20px; border-radius:12px; margin-top:10px;">
+                        <div class="detail-calc-row"><span>Biaya Meja</span> <span id="calcSubtotal">Rp 0</span></div>
+                        <div class="detail-calc-row"><span>Diskon Member</span> <span id="calcDiskonRp" style="color:#d32f2f;">Rp 0</span></div>
+                        <div class="detail-calc-row"><span>Pajak (PPN)</span> <span id="calcPpnRp">Rp 0</span></div>
+                        <div class="detail-calc-row"><span>Admin / Layanan</span> <span id="calcAdminRp">Rp 0</span></div>
+                        <div class="detail-calc-row"><span>Total FNB</span> <span id="calcFnbTotal">Rp 0</span></div>
+                        <hr style="border:none; border-top:1px dashed #ccc; margin:10px 0;">
+                        <div class="detail-calc-row" style="font-weight:800; font-size:1.1rem; color:#1a237e;"><span>GRAND TOTAL</span> <span id="calcGrandTotal">Rp 0</span></div>
+                        
+                        <div class="pp-row mt-2" style="margin-top:15px;">
+                            <label class="pp-label">Metode Pembayaran</label>
                             <select class="pp-input" id="ppMetodePembayaran" onchange="calculateTotal()">
                                 @foreach($metodepembayaran as $mp)
-                                    @if($mp->TipePembayaran == 'NON TUNAI' || $mp->MetodeVerifikasi == 'AUTO')
-                                        <option value="{{ $mp->id }}" 
-                                            data-tipe="{{ $mp->TipePembayaran }}"
-                                            data-percent="{{ $mp->BiayaAdminPercent ?? 0 }}"
-                                            data-rupiah="{{ $mp->BiayaAdminRupiah ?? 0 }}">
-                                            {{ $mp->NamaMetodePembayaran }}
-                                        </option>
-                                    @endif
+                                    <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent ?? 0 }}" data-rupiah="{{ $mp->BiayaAdminRupiah ?? 0 }}">{{ $mp->NamaMetodePembayaran }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="pp-row pp-row-2" style="margin-top:10px;">
+                            <div class="pp-field">
+                                <label class="pp-label">Nominal Bayar</label>
+                                <input type="text" class="pp-input" id="ppNominalBayar" oninput="formatRupiahInput(this); calculateTotal(true)">
+                            </div>
+                            <div class="pp-field">
+                                <label class="pp-label">Kembalian</label>
+                                <div id="ppKembalian" style="font-weight:800; font-size:1.1rem; padding-top:10px;">Rp 0</div>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="pp-footer">
-                <button class="pp-btn-cancel" onclick="closePilihPaketModal()">Batal</button>
-                <button class="pp-btn-confirm" id="ppBtnConfirm" onclick="onKonfirmasiPaket()">Bayar & Mulai</button>
+                <button class="pp-btn-cancel" onclick="closePilihPaketModal()">BATAL</button>
+                <button class="pp-btn-confirm" id="btnSubmitPaket" onclick="submitPilihPaket()">BAYAR & AKTIFKAN</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL TAMBAH MAKAN -->
-    <div id="modalTambahMakanan" class="pp-overlay">
-        <div class="pp-modal" style="max-width: 800px;">
+    <!-- Modal Tambah FNB Standalone / On-Session -->
+    <div id="modalTambahFnb" class="pp-overlay">
+        <div class="pp-modal">
             <div class="pp-header">
-                <div>
-                    <div class="pp-header-label">Tambah Pesanan FnB</div>
-                    <div class="pp-header-titik" id="mdFnbTitikNama">--</div>
-                </div>
-                <button class="pp-close" onclick="closeTambahMakananModal()">&times;</button>
+                <div class="pp-header-titik">PESAN MENU</div>
+                <button class="pp-close" onclick="closeTambahFnbModal()">&times;</button>
             </div>
             <div class="pp-body">
-                <div class="pp-field mb-3">
-                    <label class="pp-label">Cari Menu</label>
-                    <div style="position:relative;">
-                        <input type="text" class="pp-input" id="fnbSearchInput" placeholder="Ketik nama makanan..." onkeyup="searchFnbItems(this.value)">
-                        <div id="fnbSearchResults" style="position:absolute; width:100%; z-index:100; background:white; border:1px solid #ccc; max-height:200px; overflow-y:auto; display:none;"></div>
+                <div class="fnb-selection-area" style="margin-top:0;">
+                    <div class="fnb-header">
+                        <span>PILIH MAKANAN & MINUMAN</span>
+                        <span id="fnbOnlyCount" class="badge bg-primary" style="font-size: 0.7rem; border-radius: 10px;">0 Item</span>
+                    </div>
+                    <div class="fnb-search-wrap">
+                        <input type="text" class="fnb-search-input" placeholder="Cari Menu..." oninput="filterFnb(this.value, 'fnbOnlyList')">
+                    </div>
+                    <div class="fnb-list" id="fnbOnlyList" style="max-height: 400px;">
+                        @foreach($itemmaster as $item)
+                        <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
+                            <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" class="fnb-item-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                            <div class="fnb-item-info">
+                                <div class="fnb-item-name">{{ $item->NamaItem }}</div>
+                                <div class="fnb-item-price">Rp {{ number_format($item->HargaJual) }}</div>
+                            </div>
+                            <div class="fnb-qty-ctrl">
+                                <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', -1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'fnbOnlyList')">-</button>
+                                <div class="fnb-qty-val" id="qty-{{ $item->KodeItem }}-fnbOnlyList">0</div>
+                                <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', 1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'fnbOnlyList')">+</button>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
-                <div style="border: 1px solid #eee; border-radius:8px; overflow:hidden;">
-                    <table style="width:100%; border-collapse:collapse;">
-                        <thead style="background:#f5f5f5;">
-                            <tr>
-                                <th style="padding:10px; text-align:left;">Item</th>
-                                <th style="padding:10px; width:100px;">Qty</th>
-                                <th style="padding:10px; text-align:right;">Subtotal</th>
-                                <th style="padding:10px;"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="fnbCartItems"></tbody>
-                    </table>
-                </div>
-                <div style="background: #e3f2fd; padding:15px; border-radius:8px; margin-top:15px;">
-                    <div class="detail-calc-row">
-                        <span>Grand Total FnB:</span>
-                        <span id="fnbCalcGrandTotal" style="font-weight:700; color:#1565c0;">Rp 0</span>
-                    </div>
-                    <div class="pp-row mt-2">
+
+                <div id="fnbOnlySummary" style="background:#f0f4f8; padding:20px; border-radius:12px; margin-top:20px;">
+                    <div class="detail-calc-row"><span>Subtotal Menu</span> <span id="fnbOnlySubtotal">Rp 0</span></div>
+                    <div class="detail-calc-row"><span>Pajak & Layanan</span> <span id="fnbOnlyTaxSvc">Rp 0</span></div>
+                    <hr style="border:none; border-top:1px dashed #ccc; margin:10px 0;">
+                    <div class="detail-calc-row" style="font-weight:800; font-size:1.1rem; color:#1a237e;"><span>TOTAL BAYAR</span> <span id="fnbOnlyGrandTotal">Rp 0</span></div>
+                    
+                    <div class="pp-row mt-3" style="margin-top:15px;">
                         <label class="pp-label">Metode Pembayaran</label>
-                        <select class="pp-input" id="fnbMetodePembayaran" onchange="calculateFnbTotal()">
+                        <select class="pp-input" id="fnbOnlyMetode">
                             @foreach($metodepembayaran as $mp)
-                                @if($mp->TipePembayaran == 'NON TUNAI' || $mp->MetodeVerifikasi == 'AUTO')
-                                    <option value="{{ $mp->id }}" data-percent="{{ $mp->BiayaAdminPercent ?? 0 }}" data-rupiah="{{ $mp->BiayaAdminRupiah ?? 0 }}">
-                                        {{ $mp->NamaMetodePembayaran }}
-                                    </option>
-                                @endif
+                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}">{{ $mp->NamaMetodePembayaran }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
             </div>
             <div class="pp-footer">
-                <button class="pp-btn-cancel" onclick="closeTambahMakananModal()">Batal</button>
-                <button class="pp-btn-confirm" id="btnConfirmFnb" onclick="submitFnbOrder()">Bayar & Pesan</button>
+                <button class="pp-btn-cancel" onclick="closeTambahFnbModal()">BATAL</button>
+                <button class="pp-btn-confirm" id="btnSubmitFnbOnly" onclick="submitFnbOnly()">BAYAR & PESAN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL ORDER -->
+    <div id="modalDetailOrder" class="pp-overlay">
+        <div class="pp-modal" style="max-width:550px;">
+            <div class="pp-header">
+                <div class="pp-header-titik">Detail Transaksi</div>
+                <button class="pp-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="pp-body">
+                <div class="detail-calc-row"><span>No. Transaksi</span> <span id="mdNoTransaksi" style="font-weight:700;">-</span></div>
+                <div class="detail-calc-row"><span>Pelanggan</span> <span id="mdNamaPelanggan">-</span></div>
+                <div class="detail-calc-row"><span>Waktu Sesi</span> <span id="mdWaktuSesi">-</span></div>
+                <div class="detail-calc-row"><span>Paket</span> <span id="mdNamaPaket">-</span></div>
+                
+                <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                    <div class="detail-calc-row"><span>Subtotal Paket</span> <span id="mdSubtotalPaket">Rp 0</span></div>
+                    <div class="detail-calc-row"><span>Total FnB</span> <span id="mdTotalFnB">Rp 0</span></div>
+                    <div class="detail-calc-row"><span>Diskon</span> <span id="mdDiskon" style="color:#d32f2f;">Rp 0</span></div>
+                    <div class="detail-calc-row"><span>Pajak (PPN)</span> <span id="mdPajak">Rp 0</span></div>
+                    <div class="detail-calc-row" style="font-weight:800; font-size:1.1rem; color:#1a237e; border-top:2px solid #1a237e; margin-top:5px; padding-top:5px;">
+                        <span>GRAND TOTAL</span> <span id="mdGrandTotal">Rp 0</span>
+                    </div>
+                </div>
+
+                <div id="mdPaymentSection" style="display:none; margin-top:20px; background:#fff3e0; padding:15px; border-radius:10px; border:1px solid #ffe0b2;">
+                    <div style="font-weight:700; color:#e65100; margin-bottom:10px;">PEMBAYARAN SISA TAGIHAN</div>
+                    <div class="detail-calc-row"><span>Sisa Tagihan</span> <span id="mdSumOutstanding" style="font-weight:800; color:#d32f2f;">Rp 0</span></div>
+                    <div class="pp-row" style="margin-top:10px;">
+                        <label class="pp-label">Metode Pembayaran</label>
+                        <select class="pp-input" id="mdMetodePembayaran" onchange="onDetailMetodeChange()">
+                            @foreach($metodepembayaran as $mp)
+                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="pp-row pp-row-2">
+                        <div class="pp-field">
+                            <label class="pp-label">Nominal Bayar</label>
+                            <input type="text" class="pp-input" id="mdNominalBayar" oninput="formatRupiahInput(this); onDetailNominalChange()">
+                        </div>
+                        <div class="pp-field">
+                            <label class="pp-label">Kembalian</label>
+                            <div id="mdKembalian" style="font-weight:800; padding-top:10px;">Rp 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pp-footer">
+                <button class="pp-btn-cancel" onclick="closeDetailModal()">TUTUP</button>
+                <button class="pp-btn-confirm" id="mdBtnBayar" onclick="onBayarFromDetail()" style="display:none;">BAYAR SEKARANG</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL TAMBAH DURASI -->
-    <div id="modalTambahDurasi" class="pp-overlay">
-        <div class="pp-modal" style="max-width: 450px;">
-            <div class="pp-header">
-                <div>
-                    <div class="pp-header-label">Tambah Durasi</div>
-                    <div class="pp-header-titik" id="mdDurasiTitikNama">--</div>
-                </div>
-                <button class="pp-close" onclick="closeTambahDurasiModal()">&times;</button>
+    <div id="modalTambahJam" class="pp-overlay">
+        <div class="pp-modal" style="max-width:500px;">
+            <div class="pp-header" style="background:#6a1b9a;">
+                <div class="pp-header-titik">Tambah Durasi</div>
+                <button class="pp-close" onclick="closeTambahJamModal()">&times;</button>
             </div>
             <div class="pp-body">
                 <div class="pp-row">
-                    <label class="pp-label">Pilih Paket Ekstensi</label>
-                    <select class="pp-input" id="tdPaketId" onchange="calculateTambahDurasi()"></select>
+                    <label class="pp-label">Pilih Paket Tambahan</label>
+                    <select class="pp-input" id="tjPaketId" onchange="calculateTambahJam()">
+                        @foreach($paket as $p)
+                            @if($p->JenisPaket == 'JAM')
+                                <option value="{{ $p->id }}" data-harga="{{ $p->HargaNormal }}" data-durasi="{{ $p->DurasiPaket ?? 1 }}">{{ $p->NamaPaket }}</option>
+                            @endif
+                        @endforeach
+                    </select>
                 </div>
                 <div class="pp-row">
-                    <label class="pp-label">Jumlah</label>
+                    <label class="pp-label">Jumlah Durasi</label>
                     <div class="pp-durasi-wrap">
-                        <button type="button" class="pp-dur-btn" onclick="adjTambahDurasi(-1)">-</button>
-                        <input type="number" id="tdDurasi" class="pp-input pp-dur-input" value="1" min="1" onchange="calculateTambahDurasi()">
-                        <button type="button" class="pp-dur-btn" onclick="adjTambahDurasi(1)">+</button>
+                        <button type="button" class="pp-dur-btn" onclick="changeDurasiTj(-1)" style="border-color:#6a1b9a; color:#6a1b9a;">-</button>
+                        <input type="number" class="pp-input pp-dur-input" id="tjDurasi" value="1" oninput="calculateTambahJam()">
+                        <button type="button" class="pp-dur-btn" onclick="changeDurasiTj(1)" style="border-color:#6a1b9a; color:#6a1b9a;">+</button>
                     </div>
                 </div>
-                <div style="background: #f1f8e9; padding:15px; border-radius:8px; margin-top:15px;">
-                    <div class="detail-calc-row">
-                        <span>Grand Total Ekstensi:</span>
-                        <span id="tdCalcGrandTotal" style="font-weight:700; color:#2e7d32;">Rp 0</span>
+                <div style="background:#f3e5f5; padding:20px; border-radius:12px; margin-top:15px;">
+                    <div class="detail-calc-row"><span>Harga Paket</span> <span id="tjSumHarga">Rp 0</span></div>
+                    <div class="detail-calc-row"><span>Pajak (PPN)</span> <span id="tjSumTax">Rp 0</span></div>
+                    <div class="detail-calc-row" style="font-weight:800; font-size:1.1rem; color:#4a148c; border-top:1px solid #4a148c; margin-top:5px; padding-top:5px;">
+                        <span>TOTAL BAYAR</span> <span id="tjGrandTotal">Rp 0</span>
                     </div>
-                    <div class="pp-row mt-2">
+                    <div class="pp-row" style="margin-top:15px;">
                         <label class="pp-label">Metode Pembayaran</label>
-                        <select class="pp-input" id="tdMetodePembayaran" onchange="calculateTambahDurasi()">
+                        <select class="pp-input" id="tjMetodePembayaran" onchange="calculateTambahJam()">
                             @foreach($metodepembayaran as $mp)
-                                @if($mp->TipePembayaran == 'NON TUNAI' || $mp->MetodeVerifikasi == 'AUTO')
-                                    <option value="{{ $mp->id }}" data-percent="{{ $mp->BiayaAdminPercent ?? 0 }}" data-rupiah="{{ $mp->BiayaAdminRupiah ?? 0 }}">
-                                        {{ $mp->NamaMetodePembayaran }}
-                                    </option>
-                                @endif
+                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
             </div>
             <div class="pp-footer">
-                <button class="pp-btn-cancel" onclick="closeTambahDurasiModal()">Batal</button>
-                <button class="pp-btn-confirm" id="btnConfirmTambahDurasi" onclick="submitTambahDurasi()">Bayar & Tambah</button>
+                <button class="pp-btn-cancel" onclick="closeTambahJamModal()">BATAL</button>
+                <button class="pp-btn-confirm" id="tjBtnConfirm" onclick="onKonfirmasiTambahJam()" style="background:#6a1b9a;">BAYAR & TAMBAH</button>
             </div>
         </div>
     </div>
 
-    <!-- RECEIPT MODAL -->
-    <div id="modalReceiptPreview" class="receipt-overlay">
-        <div class="receipt-container">
-            <div class="receipt-paper" id="receiptContent">
-                <!-- Populated via JS -->
+    <!-- MODAL FnB STANDALONE (Beli Makanan) -->
+    <div id="modalJualFnb" class="pp-overlay" style="z-index:9000;">
+        <div class="pp-modal" style="max-width:850px;">
+            <div class="pp-header" style="background:linear-gradient(135deg,#e65100,#ff8f00);">
+                <div class="pp-header-titik"><i class="fas fa-utensils"></i> Beli Makanan & Minuman</div>
+                <button class="pp-close" onclick="closeJualFnbModal()">&times;</button>
             </div>
-            <div class="receipt-actions">
-                <button class="btn-receipt-close" onclick="closeReceiptModal()">TUTUP</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL JUAL FNB STANDALONE -->
-    <div id="modalJualFnb" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:16px; width:96%; max-width:820px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;">
-            <!-- Header -->
-            <div style="background:linear-gradient(135deg,#e65100,#ff8f00); color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="margin:0; font-size:1.2rem;"><i class="fas fa-utensils"></i> Jual FnB Langsung</h2>
-                <button onclick="closeJualFnbModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
-            </div>
-            <!-- Body -->
-            <div style="flex:1; overflow-y:auto; padding:20px; display:flex; gap:16px;">
-                <!-- Left: Item Search -->
-                <div style="flex:1; min-width:0;">
-                    <div style="margin-bottom:12px;">
-                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Cari Item</label>
-                        <div style="position:relative; margin-top:4px;">
-                            <input type="text" id="jualFnbSearchInput" placeholder="Ketik nama atau kode item..." oninput="searchJualFnbItems(this.value)"
-                                style="width:100%; padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem; box-sizing:border-box;">
-                            <div id="jualFnbSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e0e0e0; border-radius:0 0 8px 8px; max-height:200px; overflow-y:auto; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
-                        </div>
+            <div class="pp-body" style="display:flex; gap:20px;">
+                <div style="flex:1;">
+                    <div class="pp-row">
+                        <label class="pp-label">CARI MENU</label>
+                        <input type="text" id="jfSearchInput" class="pp-input" placeholder="Ketik nama menu..." oninput="searchJfItems(this.value)">
+                        <div id="jfSearchResults" style="display:none; position:absolute; background:#fff; border:1px solid #ddd; width:450px; max-height:250px; overflow-y:auto; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.1); border-radius:0 0 10px 10px;"></div>
                     </div>
-                    <!-- Cart Table -->
-                    <div style="border:1px solid #eee; border-radius:8px; overflow:hidden;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <thead style="background:#f5f7fa;">
+                    <div style="border:1px solid #eee; border-radius:12px; overflow:hidden;">
+                        <table class="fnb-table" style="width:100%; border-collapse:collapse;">
+                            <thead style="background:#f5f5f5;">
                                 <tr>
-                                    <th style="padding:10px 12px; text-align:left; font-size:0.8rem; color:#666;">Item</th>
-                                    <th style="padding:10px 8px; text-align:center; font-size:0.8rem; color:#666; width:110px;">Qty</th>
-                                    <th style="padding:10px 8px; text-align:right; font-size:0.8rem; color:#666;">Harga</th>
-                                    <th style="padding:10px 8px; text-align:right; font-size:0.8rem; color:#666;">Subtotal</th>
-                                    <th style="padding:10px 8px; width:36px;"></th>
+                                    <th style="padding:12px; text-align:left;">Menu</th>
+                                    <th style="padding:12px; text-align:center; width:120px;">Qty</th>
+                                    <th style="padding:12px; text-align:right;">Subtotal</th>
+                                    <th style="padding:12px; width:40px;"></th>
                                 </tr>
                             </thead>
-                            <tbody id="jualFnbCartItems">
-                                <tr><td colspan="5" style="text-align:center; padding:20px; color:#90a4ae;">Belum ada item.</td></tr>
+                            <tbody id="jfCartItems">
+                                <tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">Keranjang belanja masih kosong.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <!-- Right: Payment -->
-                <div style="width:260px; flex-shrink:0;">
-                    <!-- Summary -->
-                    <div style="background:#f8f9ff; border:1px solid #e8eaf6; border-radius:10px; padding:16px; margin-bottom:16px;">
-                        <div style="font-weight:700; color:#1a237e; margin-bottom:12px; font-size:0.95rem;">Ringkasan</div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>Subtotal</span><span id="jualFnbSubtotal">Rp 0</span></div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>PPN</span><span id="jualFnbPpn">Rp 0</span></div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>Layanan</span><span id="jualFnbLayanan">Rp 0</span></div>
-                        <div id="jualFnbAdminRow" style="display:none; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>Admin Fee</span><span id="jualFnbAdminFee">Rp 0</span></div>
-                        <hr style="border:none; border-top:2px solid #3f51b5; margin:10px 0;">
-                        <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:800; color:#1a237e;"><span>TOTAL</span><span id="jualFnbGrandTotal">Rp 0</span></div>
+                <div style="width:280px; flex-shrink:0;">
+                    <div style="background:#fff3e0; padding:20px; border-radius:12px; border:1px solid #ffe0b2;">
+                        <div style="font-weight:700; color:#e65100; margin-bottom:12px;">RINGKASAN</div>
+                        <div class="detail-calc-row"><span>Item Total</span> <span id="jfSubtotal">Rp 0</span></div>
+                        <div class="detail-calc-row"><span>Pajak & Layanan</span> <span id="jfTax">Rp 0</span></div>
+                        <hr style="border:none; border-top:1px solid #ffcc80; margin:10px 0;">
+                        <div class="detail-calc-row" style="font-weight:800; font-size:1.1rem; color:#e65100;"><span>GRAND TOTAL</span> <span id="jfGrandTotal">Rp 0</span></div>
                     </div>
-                    <!-- Customer Selection (Self Service usually Umum) -->
-                    <div style="margin-bottom:12px; display: none;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pelanggan</label>
-                            <div style="font-size:0.75rem;">
-                                <input type="checkbox" id="jualFnbIsNewCustomer" onchange="toggleJualFnbNewCustomer()">
-                                <label for="jualFnbIsNewCustomer" style="color:#1a237e; font-weight:600; cursor:pointer;">Baru?</label>
-                            </div>
-                        </div>
-                        
-                        <div id="jualFnbExistingCustomerRow">
-                            <select id="jualFnbPelanggan" style="width:100%;">
-                                @foreach($pelanggan as $p)
-                                    <option value="{{ $p->KodePelanggan }}">{{ $p->NamaPelanggan }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div id="jualFnbNewCustomerRow" style="display:none; background:#fff3e0; padding:10px; border-radius:8px; border:1px solid #ffe0b2;">
-                            <input type="text" id="jualFnbNewNama" placeholder="Nama Pelanggan *" style="width:100%; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px; font-size:0.85rem;">
-                            <input type="text" id="jualFnbNewTlp" placeholder="No Tlp / WA *" style="width:100%; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px; font-size:0.85rem;">
-                            <input type="email" id="jualFnbNewEmail" placeholder="Email (Opsional)" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; font-size:0.85rem;">
-                        </div>
-                    </div>
-                    <!-- Payment Method -->
-                    <div style="margin-bottom:12px;">
-                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Metode Bayar <span style="color:red;">*</span></label>
-                        <select id="jualFnbMetode" onchange="calculateJualFnbTotal()" style="width:100%; padding:9px 10px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem;">
+                    <div class="pp-row" style="margin-top:15px;">
+                        <label class="pp-label">Metode Pembayaran</label>
+                        <select class="pp-input" id="jfMetodePembayaran" onchange="calculateJfTotal()">
                             @foreach($metodepembayaran as $mp)
-                                @if($mp->TipePembayaran == 'NON TUNAI' || $mp->MetodeVerifikasi == 'AUTO')
-                                    <option value="{{ $mp->id }}"
-                                        data-percent="{{ $mp->AdminFeePercent ?? 0 }}"
-                                        data-rupiah="{{ $mp->AdminFeeRupiah ?? 0 }}"
-                                        data-tipe="{{ $mp->TipePembayaran ?? '' }}"
-                                        data-nama="{{ $mp->NamaMetodePembayaran }}">{{ $mp->NamaMetodePembayaran }}</option>
-                                @endif
+                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <!-- Nominal Bayar -->
-                    <div style="margin-bottom:8px;">
-                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Nominal Bayar</label>
-                        <input type="text" id="jualFnbNominal" placeholder="0" oninput="onJualFnbNominalChange()" style="width:100%; padding:9px 10px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem; box-sizing:border-box;">
-                    </div>
-                    <!-- Kembalian -->
-                    <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:600; margin-bottom:16px;">
-                        <span style="color:#555;">Kembalian:</span>
-                        <span id="jualFnbKembalian" style="color:#2e7d32;">Rp 0</span>
-                    </div>
-                    <small style="color:#888; display:block; margin-bottom:16px;">PPN: <span id="jualFnbPpnPersen">{{ $company[0]['PPN'] ?? 0 }}</span>% | Layanan: <span id="jualFnbServicePersen">{{ $company[0]['ServiceCharge'] ?? 0 }}</span>%</small>
-                    <!-- Submit -->
-                    <button id="jualFnbBtnSubmit" onclick="submitJualFnb()" style="width:100%; background:linear-gradient(135deg,#e65100,#ff8f00); color:#fff; border:none; border-radius:8px; padding:12px; font-size:1rem; font-weight:700; cursor:pointer;">
-                        <i class="fas fa-check-circle"></i> Bayar & Pesan
+                    <button id="jfBtnSubmit" class="pp-btn-confirm" style="width:100%; background:#e65100; margin-top:10px; padding:15px;" onclick="submitJfStandalone()">
+                        BAYAR & PESAN SEKARANG
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="{{ asset('devexpress/jquery.min.js') }}"></script>
-    <script src="{{ asset('css/sweetalert.min.js') }}"></script>
-    
-    <script>
-    var selectedTitik = null;
-    var dataPaketAll = @json($paket);
-    var dataPelangganAll = @json($pelanggan);
-    var confCompany = @json($company[0] ?? null);
+    <!-- MODAL RECEIPT PREVIEW -->
+    <div id="modalReceiptPreview" class="receipt-overlay">
+        <div class="receipt-container">
+            <div class="receipt-paper" id="receiptContent">
+                <!-- Struk thermal injected here -->
+            </div>
+            <div class="pp-footer" style="background:#fff; border:none; justify-content:center; padding-bottom:24px;">
+                <button class="pp-btn-confirm" onclick="window.print()"><i class="fas fa-print"></i> CETAK STRUK</button>
+                <button class="pp-btn-cancel" onclick="closeReceiptModal()">TUTUP</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- SCRIPTS -->
+    <script src="{{ asset('devexpress/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/sweetalert.js') }}"></script>
+    <script src="{{ asset('api/select2/select2.min.js') }}"></script>
+
+    <script>
+    // ===== CONFIG & DATA =====
+    var dataPaketAll = {!! json_encode($paket) !!};
+    var dataPelangganAll = {!! json_encode($pelanggan) !!};
+    var dataGrupPelanggan = {!! json_encode($gruppelanggan) !!};
+    var confCompany = {!! json_encode(count($company) > 0 ? $company[0] : null) !!};
+    var selectedTitik = null;
+    var selectedSlots = []; 
+    var rawSlots = [];      
+    window.activePaketDurasi = 1;
+
+    // FnB State
+    var ppSelectedFnb = {}; // Cart for Sewa Meja modal
+    var fnbOnlyCart = {};   // Cart for Tambah Makanan modal
+
+    // Clock
     function updateClock() {
         var now = new Date();
-        var h = String(now.getHours()).padStart(2, '0');
-        var m = String(now.getMinutes()).padStart(2, '0');
-        var s = String(now.getSeconds()).padStart(2, '0');
-        $('#posHeaderClock').text(h + ':' + m + ':' + s);
+        $('#posHeaderClock').text(now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0'));
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    setInterval(updateClock, 1000); updateClock();
 
-    var refreshTimer = null;
-    function onRefreshIntervalChange() {
-        var interval = parseInt($('#autoRefreshInterval').val());
-        if(refreshTimer) clearInterval(refreshTimer);
-        if(interval > 0) {
-            refreshTimer = setInterval(refreshTableStatuses, interval);
-        }
-    }
-
+    // Auto Refresh
+    let isRefreshing = false;
     function refreshTableStatuses() {
+        if (isRefreshing) return;
+        isRefreshing = true;
+
         fetch('{{ route("billing-get-table-statuses") }}')
             .then(res => res.json())
-            .then(res => { if(res.success) updateUI(res.data); });
+            .then(res => { if (res.success) updateUIWithLatestData(res.data); })
+            .catch(err => console.warn("Background refresh pending network..."))
+            .finally(() => { isRefreshing = false; });
     }
-    // Start default
-    onRefreshIntervalChange();
+    setInterval(refreshTableStatuses, 5000);
 
-    function updateUI(data) {
+    function updateUIWithLatestData(data) {
         data.forEach(item => {
             var el = document.querySelector('.titik-box[data-id="' + item.id + '"]');
-            if(el) {
+            if (el) {
+                el.dataset.status = item.Status;
                 el.dataset.notransaksi = item.NoTransaksi || '';
-                el.dataset.status = item.Status || 0;
-                el.dataset.rawjammulai = item.JamMulai || '';
-                el.dataset.rawjamselesai = item.JamSelesai || '';
+                el.dataset.namapaket = item.NamaPaket || '';
                 el.dataset.jammulai = item.JamMulaiParsed || '-';
                 el.dataset.jamselesai = item.JamSelesaiParsed || '-';
-                el.dataset.namapaket = item.NamaPaket || '';
+                el.dataset.rawjammulai = item.JamMulai || '';
+                el.dataset.rawjamselesai = item.JamSelesai || '';
+                el.dataset.statuslabel = item.StatusMeja || '';
                 el.dataset.totalPembayaran = item.TotalPembayaran || 0;
 
-                el.className = 'titik-box';
-                if(selectedTitik && selectedTitik.id == item.id) el.classList.add('active-selected');
-                
-                var s = parseInt(item.Status);
-                if(s === 0) el.classList.add('status-0');
-                else if(s === 1) el.classList.add('status-1');
-                else if(s === 99) el.classList.add('status-99');
-                else if(s === -1) el.classList.add('status-n1');
+                el.className = 'titik-box status-' + (item.Status == -1 ? 'n1' : item.Status);
+                if (selectedTitik && selectedTitik.id == item.id) el.classList.add('active-selected');
 
-                var badge = el.querySelector('.paid-badge');
-                if(parseFloat(item.TotalPembayaran || 0) > 0) {
-                    if(!badge) $(el).append('<div class="paid-badge">PAID</div>');
-                } else { if(badge) badge.remove(); }
+                var totalPay = parseFloat(item.TotalPembayaran || 0);
+                var status = parseInt(item.Status || 0);
+                var paidBadge = el.querySelector('.paid-badge');
+
+                if (status === 0) {
+                    if (paidBadge) paidBadge.remove();
+                } else if (totalPay > 0) {
+                    if (!paidBadge) {
+                        paidBadge = document.createElement('div');
+                        paidBadge.className = 'paid-badge';
+                        paidBadge.textContent = 'PAID';
+                        el.appendChild(paidBadge);
+                    }
+                } else if (paidBadge) {
+                    paidBadge.remove();
+                }
             }
         });
-        if(selectedTitik) {
-            var updated = data.find(x => x.id == selectedTitik.id);
-            if(updated) {
-                selectedTitik.status = parseInt(updated.Status);
-                selectedTitik.notransaksi = updated.NoTransaksi;
-                renderRightPanel(selectedTitik);
+        if (selectedTitik) {
+            var upd = data.find(x => x.id == selectedTitik.id);
+            if (upd) {
+                selectedTitik.status = upd.Status;
+                selectedTitik.notransaksi = upd.NoTransaksi;
+                renderRightPanel();
             }
         }
     }
 
-    // Timers
+    // Timer Logic
     setInterval(() => {
         $('.titik-box').each(function() {
-            var status = parseInt(this.dataset.status);
-            if(status === 0) return;
-            var start = this.dataset.rawjammulai;
-            var end = this.dataset.rawjamselesai;
-            var now = new Date();
-            var diff = 0;
-            if(end && end !== 'null' && end !== '') {
-                diff = new Date(end.replace(' ', 'T')) - now;
-                $(this).find('.table-timer').text(diff < 0 ? "TIME UP" : formatDur(diff));
-            } else if(start) {
-                diff = now - new Date(start.replace(' ', 'T'));
-                $(this).find('.table-timer').text(formatDur(diff));
+            var s = parseInt(this.dataset.status); if (s === 0) return;
+            var start = this.dataset.rawjammulai; var end = this.dataset.rawjamselesai;
+            var now = new Date(); var label = "--:--:--";
+            if (end && end !== 'null' && end !== '') {
+                var diff = new Date(end.replace(' ', 'T')) - now;
+                label = diff < 0 ? "WAKTU HABIS" : formatDur(diff);
+            } else if (start) {
+                label = formatDur(now - new Date(start.replace(' ', 'T')));
             }
+            $(this).find('.table-timer').text(label);
         });
     }, 1000);
 
     function formatDur(ms) {
         var s = Math.floor(Math.abs(ms) / 1000);
-        var h = Math.floor(s / 3600);
-        var m = Math.floor((s % 3600) / 60);
-        var sec = s % 60;
-        return [h,m,sec].map(v => String(v).padStart(2,'0')).join(':');
+        return [Math.floor(s/3600), Math.floor((s%3600)/60), s%60].map(v => v.toString().padStart(2,'0')).join(':');
     }
 
+    // UI Interactions
     function selectTitikLampu(el) {
         $('.titik-box').removeClass('active-selected');
         $(el).addClass('active-selected');
-        selectedTitik = {
-            id: el.dataset.id,
-            namatitiklampu: el.dataset.namatitiklampu,
-            status: parseInt(el.dataset.status),
-            notransaksi: el.dataset.notransaksi,
-            namapaket: el.dataset.namapaket,
-            jammulai: el.dataset.jammulai,
-            jamselesai: el.dataset.jamselesai,
-            rawjammulai: el.dataset.rawjammulai,
-            rawjamselesai: el.dataset.rawjamselesai,
-            namakelompok: el.dataset.namakelompok,
-            gambar: el.dataset.gambar,
-            statuslabel: el.dataset.statuslabel,
-            jenispaket: el.dataset.jenispaket
-        };
-        renderRightPanel(selectedTitik);
+        selectedTitik = { ...el.dataset };
+        renderRightPanel();
+        if (parseInt(selectedTitik.status) === 0) onPilihPaket();
     }
 
-    function renderRightPanel(d) {
+    function renderRightPanel() {
         $('#rightPlaceholder').hide();
         $('#detailContent').css('display', 'flex');
-        $('#detailNamaTitikLampu').text(d.namatitiklampu);
-        $('#detailStatusBadge').text(d.statuslabel).css('background', d.status == 0 ? '#43a047' : '#e53935');
-        $('#detailGambar').attr('src', d.gambar || 'https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg');
-        $('#detailPaket').text(d.namapaket || '-');
-        $('#detailJamMulai').text(d.jammulai);
-        $('#detailJamSelesai').text(d.jamselesai);
+        $('#detailNamaTitikLampu').text(selectedTitik.namatitiklampu);
+        $('#detailStatusBadge').text(selectedTitik.statuslabel || 'KOSONG').css('background', selectedTitik.status == 0 ? '#43a047' : '#e53935');
+        $('#detailPaket').text(selectedTitik.namapaket || '-');
+        $('#detailJamMulai').text(selectedTitik.jammulai || '-');
+        $('#detailJamSelesai').text(selectedTitik.jamselesai || '-');
+        $('#detailGambar').attr('src', selectedTitik.gambar || '');
 
-        $('#btnPilihPaket').prop('disabled', d.status !== 0);
-        $('#btnTambahMakan, #btnTambahJam, #btnTambahLayanan').prop('disabled', d.status === 0 || !d.notransaksi);
+        var s = parseInt(selectedTitik.status);
+        var noTrx = selectedTitik.notransaksi && selectedTitik.notransaksi !== '';
+        
+        $('#btnPilihPaket').prop('disabled', s !== 0);
+        $('#btnTambahMakan').prop('disabled', s === 0);
+        $('#btnTambahJam').prop('disabled', s === 0);
     }
 
-    // Modal Pilih Paket Logic
+    // Modal Logic
     function onPilihPaket() {
+        if (!selectedTitik) return;
         $('#modalPaketTitikNama').text(selectedTitik.namatitiklampu);
-        var now = new Date();
-        $('#ppJamMulai').val(String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0'));
+        $('#ppTglTransaksi').val(new Date().toISOString().split('T')[0]);
+        $('#ppJenisPaket').val('JAM'); onJenisPaketChange('JAM');
+        $('#ppDurasi').val(1);
+        $('#ppKodePelanggan').val('');
         
-        // Populate options first
-        onJenisPaketChange('JAM');
-        $('#ppJenisPaket').val('JAM');
-
-        // Auto select first valid option
-        var $sel = $('#ppPaketId');
-        if($sel.find('option[value!=""]').length > 0) {
-            $sel.val($sel.find('option[value!=""]').first().val()).trigger('change');
-        }
-
+        var now = new Date();
+        $('#ppJamMulai').val(now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0'));
+        
         $('#modalPilihPaket').addClass('open');
+        ppSelectedFnb = {}; // Reset FnB Cart
+        $('.fnb-qty-val').text('0'); // Reset all qty displays
+        $('#fnbTotalCount').text('0 Item');
+        updateJamSelesai();
     }
 
-    function onJenisPaketChange(val) {
-        var $p = $('#ppPaketId').html('<option value="">-- Pilih Paket --</option>');
-        var cat = selectedTitik.namakelompok ? selectedTitik.namakelompok.toUpperCase() : "";
-        
-        dataPaketAll.forEach(pk => {
-            if(pk.JenisPaket == val) {
-                // Filter berdasarkan kategori meja
-                if(cat === "" || pk.NamaPaket.toUpperCase().includes(cat)) {
-                    $p.append(`<option value="${pk.id}" data-harga="${pk.HargaNormal}" data-durasi="${pk.DurasiPaket}">${pk.NamaPaket}</option>`);
+    function closePilihPaketModal() { $('#modalPilihPaket').removeClass('open'); }
+
+    function onJenisPaketChange(jenis) {
+        var sel = document.getElementById('ppPaketId');
+        sel.innerHTML = '<option value="">-- Pilih Paket --</option>';
+        var cat = selectedTitik && selectedTitik.namakelompok ? selectedTitik.namakelompok.toUpperCase() : "";
+        dataPaketAll.forEach(p => {
+            // Filter by Jenis AND Category (matching main POS logic)
+            if (p.JenisPaket === jenis) {
+                if (cat === "" || p.NamaPaket.toUpperCase().includes(cat)) {
+                    var opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.text = p.NamaPaket;
+                    opt.dataset.harga = p.HargaNormal;
+                    opt.dataset.durasi = p.DurasiPaket || 1;
+                    sel.appendChild(opt);
                 }
             }
         });
-        // Listener defined globally to avoid duplication
+        $('#ppRowSlot').toggle(jenis === 'JAM' || jenis === 'PAKETMEMBER');
+        if (jenis === 'JAM' || jenis === 'PAKETMEMBER') fetchSlots();
+        updateJamSelesai();
     }
 
-    function changeDurasi(d) {
-        var $i = $('#ppDurasi');
-        var v = parseInt($i.val()) + d;
-        if(v < 1) v = 1;
-        $i.val(v);
+    function fetchSlots() {
+        var tgl = $('#ppTglTransaksi').val();
+        var id = selectedTitik.id;
+        $('#ppSlotContainer').html('<div style="font-size:0.8rem; color:#666;">Memuat slot...</div>');
+        fetch('{{ route("billing-getAvailableSlots") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            body: JSON.stringify({ tanggal: tgl, table_id: id })
+        }).then(res => res.json()).then(res => {
+            if (res.success) renderSlots(res.data);
+            else $('#ppSlotContainer').html('Gagal memuat slot.');
+        });
+    }
+
+    function renderSlots(data) {
+        rawSlots = data;
+        var html = data.map((s, i) => `<div class="slot-box ${s.booked ? 'booked' : ''}" onclick="toggleSlot(this, ${i})">${s.time}</div>`).join('');
+        $('#ppSlotContainer').html(html);
+        selectedSlots = [];
+    }
+
+    function toggleSlot(el, idx) {
+        if (el.classList.contains('booked')) return;
+        if (el.classList.contains('selected')) {
+            el.classList.remove('selected');
+            selectedSlots = selectedSlots.filter(i => i !== idx);
+        } else {
+            el.classList.add('selected');
+            selectedSlots.push(idx);
+        }
+        selectedSlots.sort((a,b) => a-b);
+        if (selectedSlots.length > 0) {
+            $('#ppDurasi').val(selectedSlots.length);
+            $('#ppJamMulai').val(rawSlots[selectedSlots[0]].time);
+        }
+        updateJamSelesai();
+    }
+
+    $('#ppPaketId').on('change', function() {
+        var opt = this.options[this.selectedIndex];
+        if (opt && opt.value) {
+            var h = parseFloat(opt.dataset.harga);
+            var d = parseInt(opt.dataset.durasi);
+            $('#ppHargaNormal').val(formatRp(h));
+            $('#ppDurasi').val(d);
+            window.activePaketDurasi = d;
+        }
+        updateJamSelesai();
+    });
+
+    function changeDurasi(delta) {
+        var inp = $('#ppDurasi');
+        var step = window.activePaketDurasi || 1;
+        var val = (parseInt(inp.val()) || 0) + (delta * step);
+        inp.val(Math.max(step, val));
+        updateJamSelesai();
+    }
+
+    function updateJamSelesai() {
+        var jenis = $('#ppJenisPaket').val();
+        var mulai = $('#ppJamMulai').val();
+        var dur = parseInt($('#ppDurasi').val()) || 0;
+        var out = $('#ppJamSelesai');
+
+        if (!mulai || !dur) { out.val('-'); return; }
+        
+        var parts = mulai.split(':');
+        var d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+
+        if (jenis === 'MENIT') {
+            d.setMinutes(d.getMinutes() + dur);
+        } else if (['JAM', 'JAMREALTIME', 'PAKETMEMBER'].includes(jenis)) {
+            d.setMinutes(d.getMinutes() + (dur * 60));
+        } else if (jenis === 'DAILY') {
+            d.setDate(d.getDate() + dur);
+        } else if (jenis === 'MONTHLY') {
+            d.setMonth(d.getMonth() + dur);
+        } else if (jenis === 'YEARLY') {
+            d.setFullYear(d.getFullYear() + dur);
+        }
+        
+        // Format Output: DD/MM/YYYY HH:mm
+        var dateStr = d.getDate().toString().padStart(2, '0') + '/' + 
+                      (d.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                      d.getFullYear();
+        out.val(dateStr + ' ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0'));
         calculateTotal();
     }
 
-    function calculateTotal() {
-        var $opt = $('#ppPaketId option:selected');
-        var harga = parseFloat($opt.data('harga') || 0);
-        var dur = parseInt($('#ppDurasi').val()) || 1;
-        var sub = harga * dur;
-        
-        var ppn = confCompany ? (confCompany.PPN || 0) : 0;
-        var total = sub + (sub * ppn / 100);
-        
-        // Admin fee
-        var $mp = $('#ppMetodePembayaran option:selected');
-        var pAdmin = parseFloat($mp.data('percent') || 0);
-        var rAdmin = parseFloat($mp.data('rupiah') || 0);
-        var admin = (total * pAdmin / 100) + rAdmin;
-        
-        var gt = Math.round(total + admin);
-        $('#calcGrandTotal').text(formatRp(gt));
 
-        // Jam Selesai
-        var start = $('#ppJamMulai').val().split(':');
-        var d = new Date(); d.setHours(start[0], start[1]);
-        var jp = $('#ppJenisPaket').val();
-        if(jp == 'JAM') d.setMinutes(d.getMinutes() + (dur * 60));
-        else if(jp == 'MENIT') d.setMinutes(d.getMinutes() + dur);
-        $('#ppJamSelesai').val(String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'));
+    // ===== FnB Global Functions =====
+    function updateFnbQty(kode, delta, name, price, listId) {
+        let cart = (listId === 'ppFnbList') ? ppSelectedFnb : fnbOnlyCart;
+        if (!cart[kode]) cart[kode] = { kode: kode, name: name, price: price, qty: 0 };
+        
+        cart[kode].qty += delta;
+        if (cart[kode].qty < 0) cart[kode].qty = 0;
+        if (cart[kode].qty === 0) delete cart[kode];
+
+        // Update UI
+        let qtyVal = (cart[kode] ? cart[kode].qty : 0);
+        $(`#qty-${kode}-${listId}`).text(qtyVal);
+
+        // Update Totals
+        if (listId === 'ppFnbList') {
+            let totalItems = Object.values(ppSelectedFnb).reduce((s, i) => s + i.qty, 0);
+            $('#fnbTotalCount').text(totalItems + ' Item');
+            calculateTotal();
+        } else {
+            let totalItems = Object.values(fnbOnlyCart).reduce((s, i) => s + i.qty, 0);
+            $('#fnbOnlyCount').text(totalItems + ' Item');
+            calculateFnbOnlyTotal();
+        }
     }
 
+    function filterFnb(q, listId) {
+        q = q.toLowerCase();
+        $(`#${listId} .fnb-item`).each(function() {
+            let name = $(this).data('name');
+            $(this).toggle(name.includes(q));
+        });
+    }
+
+    function onTambahMakan() {
+        if (!selectedTitik || !selectedTitik.notransaksi) {
+            swal("Info", "Pilih meja yang sedang aktif untuk menambah makanan.", "info");
+            return;
+        }
+        fnbOnlyCart = {};
+        $('#modalTambahFnb .fnb-qty-val').text('0');
+        $('#fnbOnlyCount').text('0 Item');
+        calculateFnbOnlyTotal();
+        $('#modalTambahFnb').addClass('open');
+    }
+
+    function closeTambahFnbModal() { $('#modalTambahFnb').removeClass('open'); }
+
+    function calculateFnbOnlyTotal() {
+        let sub = Object.values(fnbOnlyCart).reduce((s, i) => s + (i.qty * i.price), 0);
+        let ppn = sub * (confCompany ? parseFloat(confCompany.PPN)/100 : 0);
+        let svc = sub * (confCompany ? parseFloat(confCompany.ServiceCharge)/100 : 0);
+        
+        let selMp = document.getElementById('fnbOnlyMetode');
+        let opt = selMp.options[selMp.selectedIndex];
+        let admin = (sub + ppn + svc) * ((parseFloat(opt.dataset.percent) || 0)/100) + (parseFloat(opt.dataset.rupiah) || 0);
+
+        let grand = sub + ppn + svc + admin;
+        $('#fnbOnlySubtotal').text(formatRp(sub));
+        $('#fnbOnlyTaxSvc').text(formatRp(ppn + svc + admin));
+        $('#fnbOnlyGrandTotal').text(formatRp(grand));
+        $('#btnSubmitFnbOnly').prop('disabled', sub === 0);
+    }
+
+    function submitFnbOnly() {
+        if (!selectedTitik || !selectedTitik.notransaksi) return;
+        
+        let items = Object.values(fnbOnlyCart).map(i => ({ kode: i.kode, name: i.name, price: i.price, qty: i.qty }));
+        const payload = {
+            NoTransaksi: selectedTitik.notransaksi,
+            items: items,
+            OpsiBayar: 'LANGSUNG',
+            MetodePembayaran: $('#fnbOnlyMetode').val(),
+            NominalBayar: parseFormattedRp($('#fnbOnlyGrandTotal').text()),
+            payment_type: 'ADD_FNB'
+        };
+
+        swal({ title: "Konfirmasi", text: "Proses pesanan makanan?", type: "question", showCancelButton: true })
+        .then((r) => {
+            if (r.value) {
+                $('#btnSubmitFnbOnly').prop('disabled', true).text('Memproses...');
+                fetch('{{ route("billing-store-fnb-order") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    body: JSON.stringify(payload)
+                }).then(res => res.json()).then(res => {
+                    if (res.success) {
+                        if (res.snap_token) {
+                            window.snap.pay(res.snap_token, {
+                                onSuccess: function() { 
+                                    fetch('{{ route("billing-midtrans-success") }}', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                                        body: JSON.stringify({ NoTransaksi: selectedTitik.notransaksi, payment_type: 'ADD_FNB', NominalBayar: payload.NominalBayar })
+                                    }).then(() => refreshTableStatuses());
+                                },
+                                onClose: function() { refreshTableStatuses(); }
+                            });
+                        } else {
+                            swal("Berhasil", "Pesanan makanan telah masuk.", "success").then(() => refreshTableStatuses());
+                        }
+                    } else {
+                        $('#btnSubmitFnbOnly').prop('disabled', false).text('BAYAR & PESAN');
+                        swal("Gagal", res.message, "error");
+                    }
+                });
+            }
+        });
+    }
+
+    function calculateTotal(isFromInput = false) {
+        var dur = parseInt($('#ppDurasi').val()) || 1;
+        var base = window.activePaketDurasi || 1;
+        var harga = parseFormattedRp($('#ppHargaNormal').val());
+        var subtotal = (dur / base) * harga;
+
+        // FNB Total
+        var fnbSubtotal = Object.values(ppSelectedFnb).reduce((s, i) => s + (i.qty * i.price), 0);
+
+        var discPer = 0;
+        var memberId = $('#ppKodePelanggan').val();
+        if (memberId) {
+            var m = dataPelangganAll.find(x => x.KodePelanggan == memberId);
+            if (m && m.GroupID) {
+                var g = dataGrupPelanggan.find(x => x.id == m.GroupID);
+                if (g) discPer = parseFloat(g.DiskonPersen) || 0;
+            }
+        }
+        var discRp = subtotal * (discPer / 100);
+        
+        var ppnPaket = (subtotal - discRp) * (confCompany ? parseFloat(confCompany.PPN)/100 : 0);
+        var ppnFnb = fnbSubtotal * (confCompany ? parseFloat(confCompany.PPN)/100 : 0);
+        var svcFnb = fnbSubtotal * (confCompany ? parseFloat(confCompany.ServiceCharge)/100 : 0);
+        var ppn = ppnPaket + ppnFnb + svcFnb;
+
+        var admin = (subtotal - discRp + ppn + fnbSubtotal) * ((parseFloat(opt.dataset.percent) || 0)/100) + (parseFloat(opt.dataset.rupiah) || 0);
+
+        var grand = subtotal - discRp + ppn + admin + fnbSubtotal;
+
+        $('#calcSubtotal').text(formatRp(subtotal));
+        $('#calcDiskonRp').text('- ' + formatRp(discRp));
+        $('#calcPpnRp').text(formatRp(ppn));
+        $('#calcAdminRp').text(formatRp(admin));
+        $('#calcFnbTotal').text(formatRp(fnbSubtotal));
+        $('#calcGrandTotal').text(formatRp(grand));
+
+        var nom = $('#ppNominalBayar');
+        if (opt.dataset.tipe.includes('NON')) {
+            nom.val(formatRupiahVal(grand)).prop('readonly', true);
+        } else {
+            nom.prop('readonly', false);
+            if (!isFromInput) nom.val(formatRupiahVal(grand));
+        }
+
+        var pay = parseFormattedRp(nom.val());
+        $('#ppKembalian').text(formatRp(Math.max(0, pay - grand))).css('color', pay < grand ? 'red' : 'green');
+        
+        $('#btnSubmitPaket').prop('disabled', !($('#ppJenisPaket').val() && $('#ppPaketId').val() && pay >= grand));
+    }
+
+    function formatRp(v) { return 'Rp ' + Math.round(v || 0).toLocaleString('id-ID'); }
+    function parseFormattedRp(v) { return parseFloat((v || '0').replace(/[^0-9]/g, '')) || 0; }
+    function formatRupiahVal(v) { return new Intl.NumberFormat('id-ID').format(Math.round(v)); }
+    function formatRupiahInput(e) { e.value = formatRupiahVal(parseFormattedRp(e.value)); }
+
     function onKonfirmasiPaket() {
-        var payload = {
+        const payload = {
             tableid: selectedTitik.id,
             TglTransaksi: $('#ppTglTransaksi').val(),
             JenisPaket: $('#ppJenisPaket').val(),
@@ -1210,465 +1134,369 @@
             DurasiPaket: $('#ppDurasi').val(),
             JamMulai: $('#ppJamMulai').val(),
             JamSelesai: $('#ppJamSelesai').val(),
+            KodePelanggan: $('#ppKodePelanggan').val(),
+            KodeSales: $('#ppKodeSales').val(),
             OpsiBayar: 'LANGSUNG',
             MetodePembayaran: $('#ppMetodePembayaran').val(),
-            NominalBayar: parseFormattedRp($('#calcGrandTotal').text()),
-            KodePelanggan: '', // Self service default to Umum
-            KodeSales: ''
+            NominalBayar: parseFormattedRp($('#ppNominalBayar').val()),
+            fnb_items: Object.values(ppSelectedFnb).map(i => ({ kode: i.kode, name: i.name, price: i.price, qty: i.qty }))
         };
 
-        if(!payload.paketid) { swal("Error", "Pilih paket dahulu", "error"); return; }
-
-        var $btn = $('#ppBtnConfirm');
-        $btn.prop('disabled', true).text('Memproses...');
-
-        fetch('{{ route("billing-store-paket") }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(res => {
-            if(res.success && res.snap_token) {
-                window.snap.pay(res.snap_token, {
-                    onSuccess: function(result) {
-                        fetch('{{ route("billing-midtrans-success") }}', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                            body: JSON.stringify({ NoTransaksi: res.NoTransaksi, payment_type: 'POS' })
-                        }).then(() => { closePilihPaketModal(); showReceiptPreview(res.NoTransaksi); });
-                    },
-                    onClose: function() { $btn.prop('disabled', false).text('Bayar & Mulai'); }
+        swal({ title: "Konfirmasi", text: "Proses pembayaran dan mulai sewa meja?", type: "question", showCancelButton: true })
+        .then((r) => {
+            if (r.value) {
+                $('#btnSubmitPaket').prop('disabled', true).text('Memproses...');
+                fetch('{{ route("billing-store-paket") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    body: JSON.stringify(payload)
+                }).then(res => res.json()).then(res => {
+                    if (res.success) {
+                        if (res.snap_token) {
+                            window.snap.pay(res.snap_token, {
+                                onSuccess: function() { 
+                                    fetch('{{ route("billing-midtrans-success") }}', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                                        body: JSON.stringify({ NoTransaksi: res.NoTransaksi, payment_type: 'POS' })
+                                    }).then(() => refreshTableStatuses());
+                                },
+                                onClose: function() { refreshTableStatuses(); }
+                            });
+                        } else {
+                            swal("Berhasil", "Meja telah aktif.", "success").then(() => refreshTableStatuses());
+                        }
+                    } else {
+                        $('#btnSubmitPaket').prop('disabled', false).text('BAYAR & AKTIFKAN');
+                        swal("Gagal", res.message, "error");
+                    }
                 });
-            } else { swal("Gagal", res.message, "error"); $btn.prop('disabled', false).text('Bayar & Mulai'); }
+            }
         });
     }
 
-    // Fnb Logic
-    var fnbCart = [];
-    function searchFnbItems(q) {
-        if(q.length < 2) { $('#fnbSearchResults').hide(); return; }
+    function submitPilihPaket() { onKonfirmasiPaket(); }
+
+    function onCheckOut() {
+        swal({ title: "Checkout?", text: "Selesaikan penggunaan meja ini.", type: "warning", showCancelButton: true })
+        .then((r) => {
+            if (r.value) {
+                $.post('{{ route("billing-process-checkout") }}', { _token: $('meta[name="csrf-token"]').attr('content'), NoTransaksi: selectedTitik.notransaksi }, function() {
+                    refreshTableStatuses();
+                });
+            }
+        });
+    }
+
+    // ===== MODAL DETAIL & PEMBAYARAN SISA =====
+    function onDetail() {
+        if (!selectedTitik || !selectedTitik.notransaksi) return;
+        swal({ title: "Memuat...", text: "Sedang mengambil data tagihan", allowOutsideClick: false, onOpen: () => { swal.showLoading(); } });
+        
+        fetch('{{ route("billing-get-order-detail") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            body: JSON.stringify({ NoTransaksi: selectedTitik.notransaksi })
+        }).then(res => res.json()).then(res => {
+            swal.close();
+            if (res.success) {
+                const h = res.header;
+                $('#mdNoTransaksi').text(h.NoTransaksi);
+                $('#mdNamaPelanggan').text(h.NamaPelanggan || 'Umum');
+                $('#mdWaktuSesi').text(h.JamMulai + ' - ' + (h.JamSelesai || 'Sekarang'));
+                $('#mdNamaPaket').text(h.NamaPaket || '-');
+                $('#mdSubtotalPaket').text(formatRp(h.SubtotalPaket));
+                $('#mdTotalFnB').text(formatRp(h.TotalFnB));
+                $('#mdDiskon').text('- ' + formatRp(h.DiskonRp));
+                $('#mdPajak').text(formatRp(h.TotalTax));
+                $('#mdGrandTotal').text(formatRp(h.GrandTotal));
+
+                const outstanding = h.GrandTotal - h.TotalTerbayar;
+                if (outstanding > 0) {
+                    $('#mdSumOutstanding').text(formatRp(outstanding));
+                    $('#mdPaymentSection').show();
+                    $('#mdBtnBayar').show();
+                    onDetailMetodeChange();
+                } else {
+                    $('#mdPaymentSection').hide();
+                    $('#mdBtnBayar').hide();
+                }
+                $('#modalDetailOrder').addClass('open');
+            }
+        });
+    }
+
+    function closeDetailModal() { $('#modalDetailOrder').removeClass('open'); }
+
+    function onDetailMetodeChange() {
+        onDetailNominalChange();
+    }
+
+    function onDetailNominalChange() {
+        const grand = parseFormattedRp($('#mdSumOutstanding').text());
+        const selMp = document.getElementById('mdMetodePembayaran');
+        const opt = selMp.options[selMp.selectedIndex];
+        
+        const nomInp = $('#mdNominalBayar');
+        if (opt.dataset.tipe.includes('NON')) {
+            nomInp.val(formatRupiahVal(grand)).prop('readonly', true);
+        } else {
+            nomInp.prop('readonly', false);
+            if (parseFormattedRp(nomInp.val()) === 0) nomInp.val(formatRupiahVal(grand));
+        }
+
+        const pay = parseFormattedRp(nomInp.val());
+        $('#mdKembalian').text(formatRp(Math.max(0, pay - grand))).css('color', pay < grand ? 'red' : 'green');
+        $('#mdBtnBayar').prop('disabled', pay < grand);
+    }
+
+    function onBayarFromDetail() {
+        const payload = {
+            NoTransaksi: $('#mdNoTransaksi').text(),
+            MetodePembayaranId: $('#mdMetodePembayaran').val(),
+            NominalBayar: parseFormattedRp($('#mdNominalBayar').val())
+        };
+
+        swal({ title: "Konfirmasi", text: "Proses pembayaran sisa tagihan?", type: "question", showCancelButton: true })
+        .then((r) => {
+            if (r.value) {
+                fetch('{{ route("billing-pay-order-detail") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    body: JSON.stringify(payload)
+                }).then(res => res.json()).then(res => {
+                    if (res.success) {
+                        if (res.snap_token) {
+                            window.snap.pay(res.snap_token, {
+                                onSuccess: function() { refreshTableStatuses(); },
+                                onClose: function() { refreshTableStatuses(); }
+                            });
+                        } else {
+                            swal("Berhasil", "Pembayaran diterima.", "success").then(() => refreshTableStatuses());
+                        }
+                    } else {
+                        swal("Gagal", res.message, "error");
+                    }
+                });
+            }
+        });
+    }
+
+    // ===== TAMBAH DURASI =====
+    function onTambahJam() {
+        if (!selectedTitik || !selectedTitik.notransaksi) return;
+        $('#tjTitikNama').text(selectedTitik.namatitiklampu);
+        $('#tjDurasi').val(1);
+        calculateTambahJam();
+        $('#modalTambahJam').addClass('open');
+    }
+
+    function closeTambahJamModal() { $('#modalTambahJam').removeClass('open'); }
+
+    function changeDurasiTj(delta) {
+        var opt = $('#tjPaketId option:selected');
+        var step = parseInt(opt.data('durasi')) || 1;
+        var val = (parseInt($('#tjDurasi').val()) || 0) + (delta * step);
+        $('#tjDurasi').val(Math.max(step, val));
+        calculateTambahJam();
+    }
+
+    function calculateTambahJam() {
+        var opt = $('#tjPaketId option:selected');
+        var base = parseInt(opt.data('durasi')) || 1;
+        var harga = parseFloat(opt.data('harga')) || 0;
+        var dur = parseInt($('#tjDurasi').val()) || base;
+        
+        var sub = (dur / base) * harga;
+        var tax = sub * (confCompany ? parseFloat(confCompany.PPN)/100 : 0);
+        
+        var admin = (sub + tax) * ((parseFloat(mOpt.dataset.percent) || 0)/100) + (parseFloat(mOpt.dataset.rupiah) || 0);
+        
+        $('#tjSumHarga').text(formatRp(sub));
+        $('#tjSumTax').text(formatRp(tax));
+        $('#tjGrandTotal').text(formatRp(sub + tax + admin));
+    }
+
+    function onKonfirmasiTambahJam() {
+        const payload = {
+            NoTransaksi: selectedTitik.notransaksi,
+            paketid: $('#tjPaketId').val(),
+            durasi: $('#tjDurasi').val(),
+            MetodePembayaran: $('#tjMetodePembayaran').val()
+        };
+
+        swal({ title: "Konfirmasi", text: "Tambah durasi sekarang?", type: "question", showCancelButton: true })
+        .then((r) => {
+            if (r.value) {
+                fetch('{{ route("billing-store-tambah-durasi") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    body: JSON.stringify(payload)
+                }).then(res => res.json()).then(res => {
+                    if (res.success) {
+                        if (res.snap_token) {
+                            window.snap.pay(res.snap_token, {
+                                onSuccess: function() { refreshTableStatuses(); },
+                                onClose: function() { refreshTableStatuses(); }
+                            });
+                        } else {
+                            swal("Berhasil", "Durasi ditambahkan.", "success").then(() => refreshTableStatuses());
+                        }
+                    } else {
+                        swal("Gagal", res.message, "error");
+                    }
+                });
+            }
+        });
+    }
+
+    // ===== FnB STANDALONE (Beli Makanan) =====
+    var jfCart = [];
+    function onJualFnbStandalone() {
+        jfCart = [];
+        updateJfTable();
+        $('#jfSearchInput').val('');
+        $('#jfSearchResults').hide();
+        $('#modalJualFnb').addClass('open');
+    }
+
+    function closeJualFnbModal() { $('#modalJualFnb').removeClass('open'); }
+
+    function searchJfItems(q) {
+        if (q.length < 2) { $('#jfSearchResults').hide(); return; }
         $.ajax({
             url: "{{ route('itemmaster-ViewJson') }}",
             method: 'POST',
             data: { Scan: q, Active: 'Y', TipeItemIN: '1,2,3,5' },
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             success: function(res) {
-                var h = '';
-                res.data.forEach(it => {
-                    h += `<div onclick='addFnb(${JSON.stringify(it)})' style='padding:8px; border-bottom:1px solid #eee; cursor:pointer;'>${it.NamaItem} - ${formatRp(it.HargaJual)}</div>`;
-                });
-                $('#fnbSearchResults').html(h).show();
-            }
-        });
-    }
-    function addFnb(it) {
-        var ex = fnbCart.find(c => c.KodeItem == it.KodeItem);
-        if(ex) ex.Qty++; else fnbCart.push({ KodeItem: it.KodeItem, NamaItem: it.NamaItem, Harga: it.HargaJual, Qty: 1 });
-        $('#fnbSearchInput').val(''); $('#fnbSearchResults').hide();
-        renderFnbCart();
-    }
-    function renderFnbCart() {
-        var h = ''; var total = 0;
-        fnbCart.forEach((c, i) => {
-            var sub = c.Qty * c.Harga; total += sub;
-            h += `<tr><td style='padding:8px;'>${c.NamaItem}</td><td style='padding:8px;'>${c.Qty}</td><td style='padding:8px; text-align:right;'>${formatRp(sub)}</td><td style='padding:8px;'><button onclick='fnbCart.splice(${i},1);renderFnbCart();'>&times;</button></td></tr>`;
-        });
-        $('#fnbCartItems').html(h);
-        calculateFnbTotal();
-    }
-    function calculateFnbTotal() {
-        var sub = fnbCart.reduce((s, c) => s + (c.Qty * c.Harga), 0);
-        var ppn = confCompany ? (confCompany.PPN || 0) : 0;
-        var svc = confCompany ? (confCompany.ServiceCharge || 0) : 0;
-        var tax = sub * (ppn + svc) / 100;
-        var $mp = $('#fnbMetodePembayaran option:selected');
-        var adm = (sub + tax) * (parseFloat($mp.data('percent') || 0) / 100) + parseFloat($mp.data('rupiah') || 0);
-        $('#fnbCalcGrandTotal').text(formatRp(Math.round(sub + tax + adm)));
-    }
-    function submitFnbOrder() {
-        if(!fnbCart.length) return;
-        var gt = parseFormattedRp($('#fnbCalcGrandTotal').text());
-        var payload = { NoTransaksi: selectedTitik.notransaksi, items: fnbCart, OpsiBayar: 'LANGSUNG', MetodePembayaran: $('#fnbMetodePembayaran').val(), NominalBayar: gt };
-        fetch("{{ route('billing-store-fnb') }}", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            body: JSON.stringify(payload)
-        }).then(res => res.json()).then(res => {
-            if(res.snap_token) {
-                window.snap.pay(res.snap_token, {
-                    onSuccess: function() {
-                        fetch('{{ route("billing-midtrans-success") }}', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                            body: JSON.stringify({ NoTransaksi: res.NoTransaksi, payment_type: 'ADD_FNB', NominalBayar: gt })
-                        }).then(() => { closeTambahMakananModal(); showReceiptPreview(res.NoTransaksi); });
-                    }
-                });
-            }
-        });
-    }
-
-    // Durasi Logic
-    function onTambahJam() {
-        $('#mdDurasiTitikNama').text(selectedTitik.namatitiklampu);
-        var $s = $('#tdPaketId').html('');
-        var cat = selectedTitik.namakelompok ? selectedTitik.namakelompok.toUpperCase() : "";
-
-        dataPaketAll.forEach(p => {
-            if(p.JenisPaket == selectedTitik.jenispaket) {
-                if(cat === "" || p.NamaPaket.toUpperCase().includes(cat)) {
-                    $s.append(`<option value="${p.id}" data-harga="${p.HargaNormal}">${p.NamaPaket}</option>`);
-                }
-            }
-        });
-        calculateTambahDurasi();
-        $('#modalTambahDurasi').addClass('open');
-    }
-    function adjTambahDurasi(v) { var $i = $('#tdDurasi'); var val = parseInt($i.val()) + v; if(val < 1) val = 1; $i.val(val); calculateTambahDurasi(); }
-    function calculateTambahDurasi() {
-        var $o = $('#tdPaketId option:selected');
-        var sub = parseFloat($o.data('harga') || 0) * (parseInt($('#tdDurasi').val()) || 1);
-        var tax = sub * ((confCompany.PPN || 0) + (confCompany.ServiceCharge || 0)) / 100;
-        var $mp = $('#tdMetodePembayaran option:selected');
-        var adm = (sub + tax) * (parseFloat($mp.data('percent') || 0) / 100) + parseFloat($mp.data('rupiah') || 0);
-        $('#tdCalcGrandTotal').text(formatRp(Math.round(sub + tax + adm)));
-    }
-    function submitTambahDurasi() {
-        var gt = parseFormattedRp($('#tdCalcGrandTotal').text());
-        fetch('{{ route("billing-store-tambah-durasi") }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            body: JSON.stringify({ NoTransaksi: selectedTitik.notransaksi, PaketId: $('#tdPaketId').val(), Durasi: $('#tdDurasi').val(), OpsiBayar: 'LANGSUNG', MetodePembayaran: $('#tdMetodePembayaran').val(), NominalBayar: gt })
-        }).then(res => res.json()).then(res => {
-            if(res.snap_token) {
-                window.snap.pay(res.snap_token, {
-                    onSuccess: function() {
-                        fetch('{{ route("billing-midtrans-success") }}', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                            body: JSON.stringify({ NoTransaksi: res.NoTransaksi, payment_type: 'ADD_DURATION', NominalBayar: gt })
-                        }).then(() => { closeTambahDurasiModal(); showReceiptPreview(res.NoTransaksi); });
-                    }
-                });
-            }
-        });
-    }
-
-    // Layanan Logic
-    function onTambahLayanan() {
-        if(!selectedTitik.rawjamselesai) { swal("Error", "Meja realtime tidak bisa tambah layanan berurutan", "warning"); return; }
-        var dt = new Date(selectedTitik.rawjamselesai.replace(' ', 'T'));
-        dt.setMinutes(dt.getMinutes() + 1);
-        onPilihPaket();
-        $('#ppJamMulai').val(String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0'));
-    }
-
-    function showReceiptPreview(no) {
-        $.ajax({
-            url: '{{ route("billing-get-faktur-detail") }}',
-            method: 'POST',
-            data: { _token: $('meta[name="csrf-token"]').attr('content'), NoTransaksi: no },
-            success: function(res) {
-                var h = res.header;
-                var html = `<div style='text-align:center;'><h3>${res.company.NamaPartner}</h3><p>${res.company.Alamat}</p><hr></div>`;
-                html += `<p>No: ${h.NoTransaksi}<br>Meja: ${h.NamaTitikLampu}<br>Total: ${formatRp(h.TotalPembelian)}</p><hr><p style='text-align:center;'>TERIMA KASIH</p>`;
-                $('#receiptContent').html(html);
-                $('#modalReceiptPreview').addClass('open');
-                
-                // Otomatis cetak
-                setTimeout(() => {
-                    window.print();
-                }, 500);
-            }
-        });
-    }
-
-    function formatRp(v) { return 'Rp ' + parseFloat(v).toLocaleString('id-ID'); }
-    function parseFormattedRp(s) { return parseFloat(s.replace(/[^0-9]/g, '')) || 0; }
-    
-    $(document).ready(function() {
-        $('#ppPaketId').on('change', calculateTotal);
-    });
-
-    function closePilihPaketModal() { $('#modalPilihPaket').removeClass('open'); }
-    function closeTambahMakananModal() { $('#modalTambahMakanan').removeClass('open'); }
-    function closeTambahDurasiModal() { $('#modalTambahDurasi').removeClass('open'); }
-    function closeReceiptModal() { $('#modalReceiptPreview').removeClass('open'); location.reload(); }
-
-    // ===== JUAL FnB STANDALONE =====
-    let jualFnbCart = [];
-
-    function openJualFnbModal() {
-        jualFnbCart = [];
-        updateJualFnbCartTable();
-        $('#jualFnbSearchInput').val('');
-        $('#jualFnbSearchResults').hide();
-        calculateJualFnbTotal();
-        document.getElementById('modalJualFnb').style.display = 'flex';
-    }
-
-    function closeJualFnbModal() {
-        document.getElementById('modalJualFnb').style.display = 'none';
-    }
-
-    function toggleJualFnbNewCustomer() {
-        const isNew = $('#jualFnbIsNewCustomer').is(':checked');
-        if (isNew) {
-            $('#jualFnbExistingCustomerRow').hide();
-            $('#jualFnbNewCustomerRow').show();
-        } else {
-            $('#jualFnbExistingCustomerRow').show();
-            $('#jualFnbNewCustomerRow').hide();
-        }
-    }
-
-    function searchJualFnbItems(query) {
-        let $results = $('#jualFnbSearchResults');
-        if (query.length < 2) { $results.hide(); return; }
-        $.ajax({
-            url: "{{ route('itemmaster-ViewJson') }}",
-            method: 'POST',
-            data: { Scan: query, Active: 'Y', TipeItemIN: '1,2,3,5' },
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            success: function(res) {
-                if (res.data && res.data.length > 0) {
-                    let html = res.data.map(item => `
-                        <div onclick='addJualFnbToCart(${JSON.stringify(item).replace(/"/g, "&quot;")})'
-                            style="padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div style="font-weight:600; font-size:0.88rem;">${item.NamaItem}</div>
-                                <div style="font-size:0.75rem; color:#999;">${item.KodeItem}</div>
-                            </div>
-                            <div style="font-weight:700; color:#2e7d32; font-size:0.88rem;">${formatRp(item.HargaJual)}</div>
-                        </div>`).join('');
-                    $results.html(html).show();
-                } else {
-                    $results.html('<div style="padding:10px; color:#999; font-size:0.88rem;">Tidak ditemukan.</div>').show();
+                if (res.data) {
+                    let html = res.data.map(i => `<div onclick='addJfToCart(${JSON.stringify(i).replace(/"/g, "&quot;")})' style="padding:12px; cursor:pointer; border-bottom:1px solid #f5f5f5; font-size:0.9rem;"><strong>${i.NamaItem}</strong><br><span style="color:#2e7d32; font-weight:700;">${formatRp(i.HargaJual)}</span></div>`).join('');
+                    $('#jfSearchResults').html(html).show();
                 }
             }
         });
     }
 
-    function addJualFnbToCart(item) {
-        let existing = jualFnbCart.find(c => c.KodeItem === item.KodeItem);
-        if (existing) { existing.Qty += 1; }
-        else { jualFnbCart.push({ KodeItem: item.KodeItem, NamaItem: item.NamaItem, Harga: item.HargaJual, Satuan: item.Satuan || 'PCS', Qty: 1 }); }
-        $('#jualFnbSearchInput').val('');
-        $('#jualFnbSearchResults').hide();
-        updateJualFnbCartTable();
+    function addJfToCart(i) {
+        let ex = jfCart.find(x => x.KodeItem === i.KodeItem);
+        if (ex) ex.Qty++; else jfCart.push({ KodeItem: i.KodeItem, NamaItem: i.NamaItem, Harga: i.HargaJual, Qty: 1 });
+        $('#jfSearchInput').val(''); $('#jfSearchResults').hide();
+        updateJfTable();
     }
 
-    function changeJualFnbQty(index, delta) {
-        jualFnbCart[index].Qty = Math.max(1, jualFnbCart[index].Qty + delta);
-        updateJualFnbCartTable();
+    function changeJfQty(idx, delta) {
+        jfCart[idx].Qty = Math.max(1, jfCart[idx].Qty + delta);
+        updateJfTable();
     }
 
-    function setJualFnbQty(index, val) {
-        let v = parseInt(val);
-        if (v < 1 || isNaN(v)) v = 1;
-        jualFnbCart[index].Qty = v;
-        updateJualFnbCartTable();
+    function removeJfItem(idx) {
+        jfCart.splice(idx, 1);
+        updateJfTable();
     }
 
-    function removeJualFnbItem(index) {
-        jualFnbCart.splice(index, 1);
-        updateJualFnbCartTable();
+    function updateJfTable() {
+        let html = jfCart.map((i, idx) => `
+            <tr>
+                <td style="padding:12px;">${i.NamaItem}</td>
+                <td style="padding:12px; text-align:center;">
+                    <div class="pp-durasi-wrap" style="justify-content:center;">
+                        <button type="button" class="pp-dur-btn" onclick="changeJfQty(${idx},-1)" style="width:28px; height:28px; font-size:1rem;">-</button>
+                        <span>${i.Qty}</span>
+                        <button type="button" class="pp-dur-btn" onclick="changeJfQty(${idx},1)" style="width:28px; height:28px; font-size:1rem;">+</button>
+                    </div>
+                </td>
+                <td style="padding:12px; text-align:right;">${formatRp(i.Qty*i.Harga)}</td>
+                <td style="padding:12px; text-align:center;"><i class="fas fa-trash" style="color:#d32f2f; cursor:pointer;" onclick="removeJfItem(${idx})"></i></td>
+            </tr>
+        `).join('');
+        $('#jfCartItems').html(html || '<tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">Keranjang belanja masih kosong.</td></tr>');
+        calculateJfTotal();
     }
 
-    function updateJualFnbCartTable() {
-        let $body = $('#jualFnbCartItems');
-        if (jualFnbCart.length === 0) {
-            $body.html('<tr><td colspan="5" style="text-align:center; padding:20px; color:#90a4ae;">Belum ada item.</td></tr>');
-        } else {
-            let html = jualFnbCart.map((item, i) => {
-                let sub = item.Qty * item.Harga;
-                return `<tr>
-                    <td style="padding:10px 12px; font-size:0.88rem;">${item.NamaItem}</td>
-                    <td style="padding:8px;">
-                        <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
-                            <button type="button" class="pp-dur-btn" style="padding:2px 7px;" onclick="changeJualFnbQty(${i}, -1)">−</button>
-                            <input type="number" class="pp-input" style="width:46px; text-align:center; padding:4px;" value="${item.Qty}" onchange="setJualFnbQty(${i}, this.value)">
-                            <button type="button" class="pp-dur-btn" style="padding:2px 7px;" onclick="changeJualFnbQty(${i}, 1)">+</button>
-                        </div>
-                    </td>
-                    <td style="padding:8px; text-align:right; font-size:0.88rem;">${formatRp(item.Harga)}</td>
-                    <td style="padding:8px; text-align:right; font-size:0.88rem; font-weight:600;">${formatRp(sub)}</td>
-                    <td style="padding:8px; text-align:center;"><button type="button" onclick="removeJualFnbItem(${i})" style="background:none; border:none; color:#e53935; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
-            }).join('');
-            $body.html(html);
-        }
-        calculateJualFnbTotal();
+    function calculateJfTotal() {
+        let sub = jfCart.reduce((s, i) => s + (i.Qty*i.Harga), 0);
+        let tax = sub * (confCompany ? (parseFloat(confCompany.PPN) + parseFloat(confCompany.ServiceCharge))/100 : 0);
+        
+        const selMp = document.getElementById('jfMetodePembayaran');
+        const mOpt = selMp.options[selMp.selectedIndex];
+        let admin = (sub + tax) * (parseFloat(mOpt.dataset.percent)/100) + parseFloat(mOpt.dataset.rupiah);
+        
+        $('#jfSubtotal').text(formatRp(sub));
+        $('#jfTax').text(formatRp(tax + admin));
+        $('#jfGrandTotal').text(formatRp(sub + tax + admin));
+        $('#jfBtnSubmit').prop('disabled', jfCart.length === 0);
     }
 
-    function calculateJualFnbTotal(isFromInput = false) {
-        let subtotal = jualFnbCart.reduce((s, i) => s + i.Qty * i.Harga, 0);
-        let ppnPersen = parseFloat($('#jualFnbPpnPersen').text()) || 0;
-        let servicePersen = parseFloat($('#jualFnbServicePersen').text()) || 0;
+    function submitJfStandalone() {
+        const payload = {
+            items: jfCart,
+            MetodePembayaranId: $('#jfMetodePembayaran').val(),
+            isNewCustomer: true,
+            NamaPelanggan: 'Guest Self-Service',
+            NoTlp1: '-'
+        };
 
-        let ppnRp = subtotal * (ppnPersen / 100);
-        let serviceRp = subtotal * (servicePersen / 100);
-
-        let $opt = $('#jualFnbMetode option:selected');
-        let adminPercent = parseFloat($opt.data('percent')) || 0;
-        let adminRupiah = parseFloat($opt.data('rupiah')) || 0;
-        let tipe = $opt.data('tipe') || '';
-
-        let subtotalWithTax = subtotal + ppnRp + serviceRp;
-        let adminFee = adminPercent > 0 ? subtotalWithTax * (adminPercent / 100) : (adminRupiah > 0 ? adminRupiah : 0);
-        let grandTotal = Math.round(subtotalWithTax + adminFee);
-
-        $('#jualFnbSubtotal').text(formatRp(Math.round(subtotal)));
-        $('#jualFnbPpn').text(formatRp(Math.round(ppnRp)));
-        $('#jualFnbLayanan').text(formatRp(Math.round(serviceRp)));
-        $('#jualFnbGrandTotal').text(formatRp(grandTotal));
-
-        if (adminFee > 0) {
-            $('#jualFnbAdminFee').text(formatRp(Math.round(adminFee)));
-            $('#jualFnbAdminRow').css('display', 'flex');
-        } else {
-            $('#jualFnbAdminRow').hide();
-        }
-
-        const nominalInp = document.getElementById('jualFnbNominal');
-        if (tipe === 'NON TUNAI' || tipe === 'NONTUNAI') {
-            nominalInp.value = new Intl.NumberFormat('id-ID').format(grandTotal);
-            nominalInp.readOnly = true;
-            nominalInp.style.backgroundColor = '#f3f6f9';
-        } else {
-            nominalInp.readOnly = false;
-            nominalInp.style.backgroundColor = '';
-            if (!isFromInput) nominalInp.value = new Intl.NumberFormat('id-ID').format(grandTotal);
-        }
-
-        let nominal = parseFormattedRp(nominalInp.value || '0');
-        let kembalian = nominal - grandTotal;
-        if (kembalian < 0) {
-            $('#jualFnbKembalian').text('Kurang: ' + formatRp(Math.abs(kembalian))).css('color', '#c62828');
-        } else {
-            $('#jualFnbKembalian').text(formatRp(kembalian)).css('color', '#2e7d32');
-        }
-    }
-
-    function onJualFnbNominalChange() {
-        calculateJualFnbTotal(true);
-    }
-
-    function submitJualFnb() {
-        if (jualFnbCart.length === 0) {
-            swal("Perhatian", "Tidak ada item di keranjang.", "warning");
-            return;
-        }
-
-        let grandTotalText = $('#jualFnbGrandTotal').text();
-        let grandTotal = parseFormattedRp(grandTotalText);
-        let nominal = parseFormattedRp($('#jualFnbNominal').val() || '0');
-
-        if (nominal < grandTotal) {
-            swal("Perhatian", "Nominal bayar kurang dari Grand Total.", "warning");
-            return;
-        }
-
-        swal({
-            title: "Konfirmasi",
-            text: "Simpan pesanan FnB sebesar " + formatRp(grandTotal) + "?",
-            type: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#e65100",
-            confirmButtonText: "Ya, Pesan",
-            cancelButtonText: "Batal"
-        }).then((result) => {
-            if (!result.value) return;
-
-            const $btn = $('#jualFnbBtnSubmit');
-            const oldHtml = $btn.html();
-            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Memproses...');
-
-            fetch('{{ route("billing-jual-fnb-standalone") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                body: JSON.stringify({
-                    items: jualFnbCart,
-                    MetodePembayaranId: $('#jualFnbMetode').val(),
-                    NominalBayar: nominal,
-                    isNewCustomer: $('#jualFnbIsNewCustomer').is(':checked'),
-                    KodePelanggan: $('#jualFnbPelanggan').val(),
-                    NamaPelanggan: $('#jualFnbNewNama').val(),
-                    NoTlp1: $('#jualFnbNewTlp').val(),
-                    Email: $('#jualFnbNewEmail').val()
-                })
-            })
-            .then(r => r.json())
-            .then(r => {
-                if (r.success) {
-                    if (r.snap_token) {
-                        $btn.html('<i class="fas fa-spinner fa-spin"></i> Menunggu Pembayaran...');
-                        window.snap.pay(r.snap_token, {
-                            onSuccess: function (result) {
-                                fetch('{{ route("billing-midtrans-success") }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                    },
-                                    body: JSON.stringify({ 
-                                        NoTransaksi: r.invoiceNo,
-                                        payment_type: 'JUAL_FNB'
-                                    })
-                                })
-                                .then(res => res.json())
-                                .then(res => {
-                                    if (res.success) {
-                                        swal({ title: "Berhasil!", text: "Pesanan berhasil disimpan.\nNo Faktur: " + res.invoiceNo, type: "success", timer: 2000, showConfirmButton: true })
-                                            .then(() => {
-                                                closeJualFnbModal();
-                                                showReceiptPreview(res.invoiceNo);
-                                            });
-                                    } else {
-                                        swal("Gagal", res.message || "Gagal finalisasi data.", "error");
-                                    }
-                                });
-                            },
-                            onPending: function (result) {
-                                swal("Info", "Selesaikan pembayaran Anda.", "info").then(() => closeJualFnbModal());
-                            },
-                            onError: function (result) {
-                                $btn.prop('disabled', false).html(oldHtml);
-                                swal("Gagal", "Pembayaran gagal.", "error");
-                            },
-                            onClose: function () {
-                                $btn.prop('disabled', false).html(oldHtml);
-                                swal("Batal", "Pembayaran dibatalkan.", "warning");
-                            }
-                        });
-                    } else {
-                        $btn.prop('disabled', false).html(oldHtml);
-                        swal({ title: "Berhasil!", text: "Pesanan berhasil disimpan.", type: "success", timer: 2000, showConfirmButton: true })
-                            .then(() => {
-                                closeJualFnbModal();
-                                showReceiptPreview(r.invoiceNo);
+        swal({ title: "Konfirmasi", text: "Proses pesanan Anda?", type: "question", showCancelButton: true })
+        .then((r) => {
+            if (r.value) {
+                fetch('{{ route("billing-jual-fnb-standalone") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                    body: JSON.stringify(payload)
+                }).then(res => res.json()).then(res => {
+                    if (res.success) {
+                        if (res.snap_token) {
+                            window.snap.pay(res.snap_token, {
+                                onSuccess: function() { 
+                                    fetch('{{ route("billing-midtrans-success") }}', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                                        body: JSON.stringify({ NoTransaksi: res.invoiceNo, payment_type: 'JUAL_FNB' })
+                                    }).then(() => { showReceiptPreview(res.invoiceNo); });
+                                },
+                                onClose: function() { refreshTableStatuses(); }
                             });
+                        } else {
+                            showReceiptPreview(res.invoiceNo);
+                        }
+                    } else {
+                        swal("Gagal", res.message, "error");
                     }
-                } else {
-                    $btn.prop('disabled', false).html(oldHtml);
-                    swal("Gagal", r.message || "Terjadi kesalahan.", "error");
-                }
-            })
-            .catch(err => {
-                $btn.prop('disabled', false).html(oldHtml);
-                swal("Error", "Gagal menghubungi server.", "error");
-            });
+                });
+            }
         });
     }
 
-    // Modal close backdrop
-    document.getElementById('modalJualFnb').addEventListener('click', function(e) {
-        if (e.target === this) closeJualFnbModal();
-    });
+    // ===== RECEIPT HANDLERS =====
+    function showReceiptPreview(no) {
+        fetch('{{ route("billing-get-faktur-detail") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            body: JSON.stringify({ NoTransaksi: no })
+        }).then(res => res.json()).then(res => {
+            if (res.success) {
+                const h = res.header;
+                let html = `
+                    <div style="text-align:center; font-size:1.2rem; font-weight:800; margin-bottom:10px;">${h.NamaPartner || 'DSTECH SMART'}</div>
+                    <div style="text-align:center; font-size:0.8rem; margin-bottom:10px;">${h.AlamatPartner || ''}</div>
+                    <div style="border-top:1px dashed #000; margin:10px 0;"></div>
+                    <div style="font-size:0.85rem;">No: ${h.NoTransaksi}</div>
+                    <div style="font-size:0.85rem;">Meja: ${h.NamaTitikLampu || '-'}</div>
+                    <div style="font-size:0.85rem;">Tgl: ${h.JamSelesai || h.JamMulai}</div>
+                    <div style="border-top:1px dashed #000; margin:10px 0;"></div>
+                    <table style="width:100%; font-size:0.85rem;">
+                        <tr style="border-bottom:1px dashed #000;"><td colspan="3"><strong>GRAND TOTAL: ${formatRp(h.GrandTotal)}</strong></td></tr>
+                        <tr><td colspan="3" style="text-align:center; padding-top:20px;">Terima Kasih Atas Kunjungannya</td></tr>
+                    </table>
+                `;
+                $('#receiptContent').html(html);
+                $('#modalReceiptPreview').fadeIn().css('display','flex');
+            }
+        });
+    }
+
+    function closeReceiptModal() { refreshTableStatuses(); }
     </script>
 </body>
 </html>

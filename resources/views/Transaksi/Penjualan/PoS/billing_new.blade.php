@@ -165,7 +165,7 @@
         .status-0  { background: linear-gradient(135deg, #2e7d32, #43a047); } /* Hijau - Kosong */
         .status-1  { background: linear-gradient(135deg, #b71c1c, #e53935); } /* Merah - Aktif */
         .status-2  { background: linear-gradient(135deg, #e65100, #fb8c00); } /* Kuning/Orange */
-        .status-99 { background: linear-gradient(135deg, #e65100, #fb8c00); } /* Kuning/Orange - Hampir Habis */
+        .status-99 { background: linear-gradient(135deg, #fbc02d, #ffeb3b); color: #000 !important; } /* Kuning - Mau Habis */
         .status-n1 { background: linear-gradient(135deg, #f57f17, #fdd835); filter: brightness(0.9); } /* Kuning keemasan - Checkout */
 
         .titik-label {
@@ -368,24 +368,36 @@
 
         /* Auto Refresh Setting */
         .refresh-config {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 6px;
-            padding: 4px 8px;
-            color: #eee;
-            font-size: 0.8rem;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 5px 12px;
+            color: #ffffff;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
         }
         .refresh-config select {
             background: #1a1a2e;
-            color: #00e5ff;
-            border: none;
+            color: #ffffff;
+            border: 1px solid #00e5ff;
+            border-radius: 4px;
             outline: none;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             cursor: pointer;
+            padding: 2px 6px;
+            transition: all 0.2s;
+        }
+        .refresh-config select:focus {
+            box-shadow: 0 0 8px rgba(0,229,255,0.6);
+            border-color: #fff;
+        }
+        .refresh-config select option {
+            background: #1a1a2e;
+            color: #fff;
         }
 
         /* Modal Order Detail */
@@ -701,6 +713,37 @@
             }
         }
 
+        /* FnB Selection Styling for Main POS */
+        .fnb-selection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; max-height: 350px; overflow-y: auto; padding: 10px; background: #f8f9fa; border-radius: 12px; border: 1px solid #e0e0e0; }
+        .fnb-card { background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #eee; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .fnb-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #1a237e; }
+        .fnb-card-img { width: 100%; height: 90px; object-fit: cover; background: #eee; }
+        .fnb-card-body { padding: 8px; flex: 1; display: flex; flex-direction: column; }
+        .fnb-card-name { font-weight: 700; font-size: 0.75rem; color: #263238; line-height: 1.2; margin-bottom: 4px; height: 2.4em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .fnb-card-price { font-weight: 800; color: #2e7d32; font-size: 0.8rem; }
+        .fnb-card-stock { font-size: 0.65rem; color: #78909c; margin-top: auto; }
+
+        /* FnB Selection Styling - List Style (Harmonized with Self-Service) */
+        .fnb-list-area { border: 1.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin-top: 10px; background: #fff; }
+        .fnb-list-container { max-height: 350px; overflow-y: auto; padding: 5px; }
+        .fnb-item-list { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #f1f1f1; gap: 15px; transition: background 0.2s; }
+        .fnb-item-list:last-child { border-bottom: none; }
+        .fnb-item-list:hover { background: #f8f9fa; }
+        .fnb-item-img-list { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; background: #eee; border: 1px solid #eee; }
+        .fnb-item-info-list { flex: 1; min-width: 0; }
+        .fnb-item-name-list { font-weight: 700; font-size: 0.95rem; color: #263238; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fnb-item-price-list { font-size: 0.85rem; color: #2e7d32; font-weight: 700; }
+        .fnb-item-stock-list { font-size: 0.75rem; color: #78909c; }
+        
+        .fnb-qty-ctrl-list { display: flex; align-items: center; gap: 10px; background: #f1f3f4; padding: 5px 10px; border-radius: 20px; border: 1px solid #e0e0e0; }
+        .fnb-qty-btn-list { width: 30px; height: 30px; border-radius: 50%; border: none; background: #fff; color: #1a237e; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .fnb-qty-btn-list:hover { background: #1a237e; color: #fff; transform: scale(1.1); }
+        .fnb-qty-btn-list:active { transform: scale(0.9); }
+        .fnb-qty-val-list { width: 25px; text-align: center; font-weight: 800; font-size: 1rem; color: #1a237e; }
+
+        /* FnB Selection Styling - Harmonized with Self-Service */
+        .fnb-selection-area { border: 1.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin-top: 15px; background: #fff; }
+        .fnb-header { background: #f5f5f5; padding: 12px 16px; font-weight: 700; color: #1a237e; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
     </style>
 
 </head>
@@ -925,6 +968,7 @@
 
     // ===== AUTO REFRESH =====
     function onRefreshIntervalChange() {
+        console.log("Interval changed, restarting auto refresh...");
         var interval = parseInt(document.getElementById('autoRefreshInterval').value);
         stopAutoRefresh();
         if (interval > 0) {
@@ -945,15 +989,25 @@
         }
     }
 
+    let isRefreshing = false;
     function refreshTableStatuses() {
+        if (isRefreshing) return;
+        isRefreshing = true;
+
         fetch('{{ route("billing-get-table-statuses") }}')
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
+                    console.log("Auto-refresh data received:", res.data);
                     updateUIWithLatestData(res.data);
                 }
             })
-            .catch(err => console.error("Refresh error:", err));
+            .catch(err => {
+                console.warn("Auto-refresh skipped due to network or server delay.");
+            })
+            .finally(() => {
+                isRefreshing = false;
+            });
     }
     
     // Initial start
@@ -1040,8 +1094,14 @@
 
                 // Update Paid Badge
                 var totalPay = parseFloat(item.TotalPembayaran || 0);
+                var status = parseInt(item.Status || 0);
                 var paidBadge = el.querySelector('.paid-badge');
-                if (totalPay > 0) {
+
+                // Explicitly remove badge if status is 0 (Vacant/Booking)
+                if (status === 0) {
+                    if (paidBadge) paidBadge.remove();
+                } else if (totalPay > 0) {
+                    // Show badge only for Active/Checkout if paid
                     if (!paidBadge) {
                         paidBadge = document.createElement('div');
                         paidBadge.className = 'paid-badge';
@@ -1184,8 +1244,8 @@
         // Checkout: enabled when status = 1 or 99
         setBtn('btnCheckOut', (s === 1 || s === 99));
 
-        // Detail: enabled when there's a transaction
-        setBtn('btnDetail', noTrx);
+        // Detail: enabled when there's a transaction AND table is NOT vacant (status 0)
+        setBtn('btnDetail', noTrx && s !== 0);
 
         // Tambah Makan: enabled when status = 1 or 99 (and has transaction)
         setBtn('btnTambahMakan', (s === 1 || s === 99) && noTrx);
@@ -1317,7 +1377,7 @@
 
         // Reset FnB Cart
         ppFnbCart = [];
-        updatePpFnbCartTable();
+        updatePpFnbListQty();
 
         // Auto-select first available packet if filtered
         const selPaket = $('#ppPaketId');
@@ -1739,7 +1799,7 @@
         // Totals
         $('#rcptSubtotal').text(formatRp(h.TotalTransaksi));
         
-        if (parseFloat(h.Potongan) > 0) {
+        if (parseFloat(h.Potongan || 0) > 0) {
             $('#rcptRowDiskon').show();
             $('#rcptDiskon').text("- " + formatRp(h.Potongan));
         } else {
@@ -1748,7 +1808,7 @@
 
         $('#rcptPajak').text(formatRp(h.Pajak));
 
-        if (parseFloat(h.PajakHiburan) > 0) {
+        if (parseFloat(h.PajakHiburan || 0) > 0) {
             $('#rcptRowPajakHiburan').show();
             $('#rcptPajakHiburan').text(formatRp(h.PajakHiburan));
         } else {
@@ -1766,8 +1826,8 @@
 
     function closeReceiptModal() {
         $('#modalReceiptPreview').removeClass('open');
-        // Refresh page to sync all statuses after payment
-        location.reload();
+        // Smooth refresh status without reloading page
+        refreshTableStatuses();
     }
 
     function shareReceiptWhatsApp() {
@@ -2030,7 +2090,7 @@
                                 });
                             },
                             onPending: function (result) {
-                                swal("Info", "Pembayaran tertunda. Selesaikan pembayaran Anda.", "info").then(() => location.reload());
+                                swal("Info", "Pembayaran tertunda. Selesaikan pembayaran Anda.", "info").then(() => refreshTableStatuses());
                             },
                             onError: function (result) {
                                 btn.disabled = false;
@@ -2119,10 +2179,9 @@
 
         $('#mdFnbTitikNama').text(selectedTitik.namatitiklampu);
         fnbCart = [];
-        updateFnbCartTable();
+        updateFnbListQty();
         $('#fnbSearchInput').val('');
-        $('#fnbSearchResults').hide();
-
+        
         // Reset payment radio
         $('input[name="FnbOpsiBayar"][value="NANTI"]').prop('checked', true);
         toggleFnbPaymentSection();
@@ -2134,92 +2193,26 @@
         $('#modalTambahMakanan').removeClass('open');
     }
 
-    function searchFnbItems(query) {
-        let $results = $('#fnbSearchResults');
-        if (query.length < 2) {
-            $results.hide();
-            return;
-        }
-
-        $.ajax({
-            url: "{{ route('itemmaster-ViewJson') }}",
-            method: 'POST',
-            data: {
-                Scan: query,
-                Active: 'Y',
-                TipeItemIN: '1,2,3,5' // Inventory, Non-Inv, Rakitan, Konsinyasi
-            },
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            success: function(res) {
-                if (res.data && res.data.length > 0) {
-                    let html = res.data.map(item => `
-                        <div class="fnb-search-item" onclick="addFnbToCart(${JSON.stringify(item).replace(/"/g, '&quot;')})" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div style="font-weight:600;">${item.NamaItem}</div>
-                                <div style="font-size:0.8rem; color:#666;">${item.KodeItem} | Stok: ${item.Stock}</div>
-                            </div>
-                            <div style="font-weight:700; color:#2e7d32;">${formatRp(item.HargaJual)}</div>
-                        </div>
-                    `).join('');
-                    $results.html(html).show();
-                } else {
-                    $results.html('<div style="padding:10px; color:#999;">Tidak ditemukan item.</div>').show();
-                }
-            }
+    function filterFnbGrid(query, gridId) {
+        let q = query.toLowerCase();
+        $(`#${gridId} > div`).each(function() {
+            let name = $(this).data('name') || "";
+            $(this).toggle(name.includes(q));
         });
     }
 
-    function addFnbToCart(item) {
-        let existing = fnbCart.find(c => c.KodeItem === item.KodeItem);
-        if (existing) {
-            existing.Qty += 1;
-        } else {
-            fnbCart.push({
-                KodeItem: item.KodeItem,
-                NamaItem: item.NamaItem,
-                Harga: item.HargaJual,
-                Qty: 1
-            });
-        }
-        $('#fnbSearchInput').val('');
-        $('#fnbSearchResults').hide();
-        updateFnbCartTable();
-    }
+    // Legacy search functions removed. Using filterFnbGrid instead.
 
-    function updateFnbCartTable() {
-        let $body = $('#fnbCartItems');
-        if (fnbCart.length === 0) {
-            $body.html('<tr><td colspan="5" style="text-align:center; padding:20px; color:#90a4ae;">Belum ada item terpilih.</td></tr>');
-            $('#fnbTotalItem').text('Rp 0');
-            calculateFnbTotal();
-            return;
-        }
-
-        let total = 0;
-        let html = fnbCart.map((item, index) => {
-            let subtotal = item.Qty * item.Harga;
-            total += subtotal;
-            return `
-                <tr>
-                    <td style="padding: 10px;">${item.NamaItem}</td>
-                    <td style="padding: 10px;">
-                        <div style="display:flex; align-items:center; gap:5px;">
-                            <button type="button" class="pp-dur-btn" style="padding:2px 8px;" onclick="changeFnbQty(${index}, -1)">-</button>
-                            <input type="number" class="pp-input" style="width:50px; text-align:center; padding:5px;" value="${item.Qty}" onchange="setFnbQty(${index}, this.value)">
-                            <button type="button" class="pp-dur-btn" style="padding:2px 8px;" onclick="changeFnbQty(${index}, 1)">+</button>
-                        </div>
-                    </td>
-                    <td style="padding: 10px; text-align:right;">${formatRp(item.Harga)}</td>
-                    <td style="padding: 10px; text-align:right;">${formatRp(subtotal)}</td>
-                    <td style="padding: 10px; text-align:center;">
-                        <button type="button" onclick="removeFnbFromCart(${index})" style="background:none; border:none; color:#e53935; cursor:pointer;"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-        $body.html(html);
-        $('#fnbTotalItem').text(formatRp(total));
+    function updateFnbListQty() {
+        $('.fnb-qty-val').text(0);
+        fnbCart.forEach(item => {
+            $(`.fnb-qty-val[data-kode="${item.KodeItem}"]`).text(item.Qty);
+        });
         
+        let total = fnbCart.reduce((sum, i) => sum + (i.Qty * i.Harga), 0);
+        $('#fnbTotalItem').text(formatRp(total));
+        $('#fnbCalcSubtotal').text(formatRp(total));
+
         // Sync with Customer Display
         const syncData = {
             data: fnbCart.map(item => ({ NamaItem: item.NamaItem, Qty: item.Qty, Harga: item.Harga })),
@@ -2228,26 +2221,27 @@
             Tax: 0,
             Net: total
         };
-        syncCustomerDisplay(syncData);
+        if (typeof syncCustomerDisplay === 'function') syncCustomerDisplay(syncData);
+    }
 
+    function addFnbToCart(item, delta = 1) {
+        let existing = fnbCart.find(c => c.KodeItem === item.KodeItem);
+        if (existing) {
+            existing.Qty += delta;
+            if (existing.Qty < 1) {
+                fnbCart = fnbCart.filter(c => c.KodeItem !== item.KodeItem);
+            }
+        } else if (delta > 0) {
+            fnbCart.push({
+                KodeItem: item.KodeItem,
+                NamaItem: item.NamaItem,
+                Harga: item.HargaJual,
+                Qty: delta
+            });
+        }
+        
+        updateFnbListQty();
         calculateFnbTotal();
-    }
-
-    function changeFnbQty(index, delta) {
-        fnbCart[index].Qty += delta;
-        if (fnbCart[index].Qty < 1) fnbCart.splice(index, 1);
-        updateFnbCartTable();
-    }
-
-    function setFnbQty(index, val) {
-        fnbCart[index].Qty = parseFloat(val) || 1;
-        if (fnbCart[index].Qty < 1) fnbCart.splice(index, 1);
-        updateFnbCartTable();
-    }
-
-    function removeFnbFromCart(index) {
-        fnbCart.splice(index, 1);
-        updateFnbCartTable();
     }
 
     function toggleFnbPaymentSection() {
@@ -2315,106 +2309,38 @@
     /* Logic for FnB Ordering inside Pilih Paket Modal */
     let ppFnbCart = [];
 
-    function searchPpFnbItems(query) {
-        let $results = $('#ppFnbSearchResults');
-        if (query.length < 2) {
-            $results.hide();
-            return;
-        }
+    // Legacy search functions removed. Using filterFnbGrid instead.
 
-        $.ajax({
-            url: "{{ route('itemmaster-ViewJson') }}",
-            method: 'POST',
-            data: {
-                Scan: query,
-                Active: 'Y',
-                TipeItemIN: '1,2,3,5'
-            },
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            success: function(res) {
-                if (res.data && res.data.length > 0) {
-                    let html = res.data.map(item => `
-                        <div class="fnb-search-item" onclick="addPpFnbToCart(${JSON.stringify(item).replace(/"/g, '&quot;')})" style="padding:10px; cursor:pointer; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div style="font-weight:600;">${item.NamaItem}</div>
-                                <div style="font-size:0.8rem; color:#666;">${item.KodeItem} | Stok: ${item.Stock}</div>
-                            </div>
-                            <div style="font-weight:700; color:#2e7d32;">${formatRp(item.HargaJual)}</div>
-                        </div>
-                    `).join('');
-                    $results.html(html).show();
-                } else {
-                    $results.html('<div style="padding:10px; color:#999;">Tidak ditemukan item.</div>').show();
-                }
-            }
+    function updatePpFnbListQty() {
+        $('.pp-fnb-qty-val').text(0);
+        ppFnbCart.forEach(item => {
+            $(`.pp-fnb-qty-val[data-kode="${item.KodeItem}"]`).text(item.Qty);
         });
+        
+        let fnbTotal = ppFnbCart.reduce((acc, item) => acc + (item.Qty * item.Harga), 0);
+        $('#ppSumFnb').text(formatRp(fnbTotal));
     }
 
-    function addPpFnbToCart(item) {
+    function addPpFnbToCart(item, delta = 1) {
         let existing = ppFnbCart.find(c => c.KodeItem === item.KodeItem);
         if (existing) {
-            existing.Qty += 1;
-        } else {
+            existing.Qty += delta;
+            if (existing.Qty < 1) {
+                ppFnbCart = ppFnbCart.filter(c => c.KodeItem !== item.KodeItem);
+            }
+        } else if (delta > 0) {
             ppFnbCart.push({
                 KodeItem: item.KodeItem,
                 NamaItem: item.NamaItem,
                 Harga: item.HargaJual,
-                Qty: 1
+                Qty: delta
             });
         }
-        $('#ppFnbSearchInput').val('');
-        $('#ppFnbSearchResults').hide();
-        updatePpFnbCartTable();
+        
+        updatePpFnbListQty();
+        calculateTotal();
     }
 
-    function updatePpFnbCartTable() {
-        let $body = $('#ppFnbCartItems');
-        if (ppFnbCart.length === 0) {
-            $body.html('<tr><td colspan="5" style="text-align:center; padding:15px; color:#90a4ae;">Belum ada pesanan FnB.</td></tr>');
-            calculateTotal(); // Trigger total refresh even when empty
-            return;
-        }
-
-        let html = ppFnbCart.map((item, index) => {
-            let subtotal = item.Qty * item.Harga;
-            return `
-                <tr>
-                    <td style="padding: 5px 10px;">${item.NamaItem}</td>
-                    <td style="padding: 5px 10px;">
-                        <div style="display:flex; align-items:center; gap:3px;">
-                            <button type="button" class="pp-dur-btn" style="padding:1px 6px; font-size:0.7rem;" onclick="changePpFnbQty(${index}, -1)">-</button>
-                            <input type="number" class="pp-input" style="width:40px; text-align:center; padding:2px; font-size:0.8rem;" value="${item.Qty}" onchange="setPpFnbQty(${index}, this.value)">
-                            <button type="button" class="pp-dur-btn" style="padding:1px 6px; font-size:0.7rem;" onclick="changePpFnbQty(${index}, 1)">+</button>
-                        </div>
-                    </td>
-                    <td style="padding: 5px 10px; text-align:right;">${formatRp(item.Harga)}</td>
-                    <td style="padding: 5px 10px; text-align:right;">${formatRp(subtotal)}</td>
-                    <td style="padding: 5px 10px; text-align:center;">
-                        <button type="button" onclick="removePpFnbFromCart(${index})" style="background:none; border:none; color:#e53935; cursor:pointer; font-size:0.8rem;"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-        $body.html(html);
-        calculateTotal(); // Recalculate everything
-    }
-
-    function changePpFnbQty(index, delta) {
-        ppFnbCart[index].Qty += delta;
-        if (ppFnbCart[index].Qty < 1) ppFnbCart.splice(index, 1);
-        updatePpFnbCartTable();
-    }
-
-    function setPpFnbQty(index, val) {
-        ppFnbCart[index].Qty = parseFloat(val) || 1;
-        if (ppFnbCart[index].Qty < 1) ppFnbCart.splice(index, 1);
-        updatePpFnbCartTable();
-    }
-
-    function removePpFnbFromCart(index) {
-        ppFnbCart.splice(index, 1);
-        updatePpFnbCartTable();
-    }
 
 
 
@@ -2494,7 +2420,7 @@
                                 });
                             },
                             onPending: function (result) {
-                                swal("Info", "Selesaikan pembayaran.", "info").then(() => location.reload());
+                                swal("Info", "Selesaikan pembayaran.", "info").then(() => refreshTableStatuses());
                             },
                             onError: function (result) {
                                 $btn.prop('disabled', false).html(oldHtml);
@@ -2526,7 +2452,7 @@
                         if (res.NoTransaksi) {
                             showReceiptPreview(res.NoTransaksi);
                         } else {
-                            location.reload();
+                            refreshTableStatuses();
                         }
                     }
                 } else {
@@ -2766,7 +2692,7 @@
                             });
                         },
                         onPending: function (result) {
-                            swal("Info", "Selesaikan pembayaran.", "info").then(() => location.reload());
+                            swal("Info", "Selesaikan pembayaran.", "info").then(() => refreshTableStatuses());
                         },
                         onError: function (result) {
                             $btn.prop('disabled', false).html(oldHtml);
@@ -2803,7 +2729,8 @@
                     if (res.NoTransaksi) {
                         showReceiptPreview(res.NoTransaksi);
                     } else {
-                        location.reload();
+                        closePilihPaketModal();
+                        refreshTableStatuses();
                     }
                 }
             } else {
@@ -2982,38 +2909,36 @@
                         </div>
                     </div>
 
-                    <!-- Row: FnB Ordering (New) -->
+                    <!-- Row: FnB Ordering (Modern List) -->
                     <div class="pp-row" style="margin-top: 15px; border-top: 1px dashed #cfd8dc; padding-top: 15px;">
                         <div class="pp-field">
-                            <label class="pp-label"><i class="fas fa-utensils"></i> Tambahkan Pesanan FnB (Opsional)</label>
-                            <div style="position:relative;">
-                                <input type="text" class="pp-input" id="ppFnbSearchInput" placeholder="Cari makanan/minuman..." onkeyup="searchPpFnbItems(this.value)">
-                                <div id="ppFnbSearchResults" style="position:absolute; width:100%; z-index:1100; background:white; border:1px solid #ccc; border-top:none; display:none; max-height:200px; overflow-y:auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                    <!-- Results populate here -->
-                                </div>
+                            <label class="pp-label" style="font-weight: 700; color: #1a237e;"><i class="fas fa-utensils"></i> PESAN MAKANAN & MINUMAN (OPSIONAL)</label>
+                            <div style="position:relative; margin-bottom: 10px;">
+                                <input type="text" class="pp-input" id="ppFnbSearchInput" placeholder="Cari makanan/minuman..." onkeyup="filterFnbGrid(this.value, 'ppFnbMenuList')" style="border-radius: 20px; padding-left: 15px;">
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="pp-row" style="margin-top:10px;">
-                        <div class="pp-field">
-                            <div style="border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; max-height: 200px; overflow-y: auto; background: #fafafa;">
-                                <table class="fnb-table" style="margin-bottom:0; width:100%; font-size: 0.8rem;">
-                                    <thead style="background: #eceff1; position: sticky; top: 0; z-index: 10;">
-                                        <tr>
-                                            <th>Item</th>
-                                            <th style="width:80px;">Qty</th>
-                                            <th style="width:100px; text-align:right;">Harga</th>
-                                            <th style="width:100px; text-align:right;">Subtotal</th>
-                                            <th style="width:40px; text-align:center;">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="ppFnbCartItems">
-                                        <tr>
-                                            <td colspan="5" style="text-align:center; padding:15px; color:#90a4ae;">Belum ada pesanan FnB.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            
+                            <div class="fnb-list-area">
+                                <div class="fnb-list-container" id="ppFnbMenuList">
+                                    @foreach($itemmaster as $item)
+                                        @if(in_array($item->TypeItem, [1,2,3,5]))
+                                        <div class="fnb-item-list" data-name="{{ strtolower($item->NamaItem) }}">
+                                            <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0yNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
+                                                 class="fnb-item-img-list" 
+                                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                            <div class="fnb-item-info-list">
+                                                <div class="fnb-item-name-list">{{ $item->NamaItem }}</div>
+                                                <div class="fnb-item-price-list">Rp {{ number_format($item->HargaJual) }}</div>
+                                                <div class="fnb-item-stock-list">Stok: {{ $item->Stock }}</div>
+                                            </div>
+                                            <div class="fnb-qty-ctrl-list">
+                                                <button type="button" class="fnb-qty-btn-list" onclick='addPpFnbToCart(@json($item), -1)'>-</button>
+                                                <span class="fnb-qty-val-list pp-fnb-qty-val" data-kode="{{ $item->KodeItem }}">0</span>
+                                                <button type="button" class="fnb-qty-btn-list" onclick='addPpFnbToCart(@json($item), 1)'>+</button>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3147,45 +3072,41 @@
                 <!-- Search Row -->
                 <div class="pp-row">
                     <div class="pp-field">
-                        <label class="pp-label"><i class="fas fa-search"></i> Cari Menu / Item</label>
-                        <div style="position:relative;">
-                            <input type="text" class="pp-input" id="fnbSearchInput" placeholder="Ketik nama makanan atau minuman..." onkeyup="searchFnbItems(this.value)">
-                            <div id="fnbSearchResults" style="position:absolute; width:100%; z-index:100; background:white; border:1px solid #ccc; border-top:none; display:none; max-height:200px; overflow-y:auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                <!-- Results populate here -->
+                        <label class="pp-label"><i class="fas fa-search"></i> Cari & Pilih Menu</label>
+                        <div style="position:relative; margin-bottom: 12px;">
+                            <input type="text" class="pp-input" id="fnbSearchInput" placeholder="Ketik nama makanan atau minuman..." onkeyup="filterFnbGrid(this.value, 'fnbMenuList')">
+                        </div>
+                        
+                        <div class="fnb-list-area">
+                            <div class="fnb-list-container" id="fnbMenuList" style="max-height: 400px;">
+                                @foreach($itemmaster as $item)
+                                    @if(in_array($item->TypeItem, [1,2,3,5]))
+                                    <div class="fnb-item-list" data-name="{{ strtolower($item->NamaItem) }}">
+                                        <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
+                                             class="fnb-item-img-list" 
+                                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                        <div class="fnb-item-info-list">
+                                            <div class="fnb-item-name-list">{{ $item->NamaItem }}</div>
+                                            <div class="fnb-item-price-list">Rp {{ number_format($item->HargaJual) }}</div>
+                                            <div class="fnb-item-stock-list">Stok: {{ $item->Stock }}</div>
+                                        </div>
+                                        <div class="fnb-qty-ctrl-list">
+                                            <button type="button" class="fnb-qty-btn-list" onclick='addFnbToCart(@json($item), -1)'>-</button>
+                                            <span class="fnb-qty-val-list fnb-qty-val" data-kode="{{ $item->KodeItem }}">0</span>
+                                            <button type="button" class="fnb-qty-btn-list" onclick='addFnbToCart(@json($item), 1)'>+</button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                @endforeach
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Table Cart Row -->
-                <div class="pp-row" style="margin-top:15px;">
-                    <div class="pp-field">
-                        <label class="pp-label"><i class="fas fa-shopping-cart"></i> Pesanan</label>
-                        <div style="border: 1px solid #cfd8dc; border-radius: 8px; overflow: hidden; max-height: 250px; overflow-y: auto;">
-                            <table class="fnb-table" style="margin-bottom:0; width:100%;">
-                                <thead style="background: #eceff1; position: sticky; top: 0; z-index: 10;">
-                                    <tr>
-                                        <th>Item</th>
-                                        <th style="width:100px;">Qty</th>
-                                        <th style="width:120px; text-align:right;">Harga</th>
-                                        <th style="width:120px; text-align:right;">Subtotal</th>
-                                        <th style="width:60px; text-align:center;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="fnbCartItems">
-                                    <tr>
-                                        <td colspan="5" style="text-align:center; padding:20px; color:#90a4ae;">Belum ada item terpilih.</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot style="background: #f5f5f5; font-weight:700;">
-                                    <tr>
-                                        <td colspan="3" style="text-align:right;">TOTAL ITEM:</td>
-                                        <td id="fnbTotalItem" style="text-align:right;">Rp 0</td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
+                <div class="pp-row" style="margin-top:15px; background: #f8f9fa; padding: 12px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 1.1rem; color: #1a237e;">
+                        <span>TOTAL PESANAN:</span>
+                        <span id="fnbTotalItem">Rp 0</span>
                     </div>
                 </div>
 
@@ -4102,7 +4023,7 @@
         }
     }
 
-    document.getElementById('ppPaketId').addEventListener('change', function() {
+    $('#ppPaketId').on('change', function() {
         var selectedOpt = this.options[this.selectedIndex];
         var inputHarga = document.getElementById('ppHargaNormal');
         var inputDurasi = document.getElementById('ppDurasi');
@@ -4112,7 +4033,7 @@
             var defaultDur = parseInt(selectedOpt.dataset.durasi) || 1;
             
             // Format to Rupiah standard
-            inputHarga.value = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(hrg);
+            inputHarga.value = formatRp(hrg);
             
             // Set Base & Minimum Durasi depending on package's preset
             inputDurasi.min = defaultDur;
@@ -4125,6 +4046,7 @@
             window.activePaketDurasi = 1;
         }
         updateJamSelesai();
+        calculateTotal(); // Ensure totals are updated
         validateForm();
     });
 
@@ -4317,6 +4239,10 @@
         var harga = parseFormattedRp(hargaInp);
         
         var subtotalPaket = (durasi / baseDurasi) * harga;
+        
+        // Debug check if result is NaN or 0 unexpectedly
+        if (isNaN(subtotalPaket)) subtotalPaket = 0;
+        
         $('#calcSubtotal').text(formatRp(subtotalPaket));
         $('#calcQty').text(durasi);
 
@@ -4588,7 +4514,10 @@
                     },
                     body: JSON.stringify(payload)
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error('Server error: ' + res.status);
+                    return res.json();
+                })
                 .then(res => {
                     console.log(res);
                     if (res.success) {
@@ -4616,7 +4545,12 @@
                                         showReceiptPreview(res.NoTransaksi);
                                     })
                                     .catch(err => {
-                                        swal("Perhatian", "Pembayaran berhasil, tapi sinkronisasi gagal. Harap lapor admin.", "warning").then(() => location.reload());
+                                        swal("Perhatian", "Pembayaran berhasil, tapi sinkronisasi gagal. Harap lapor admin.", "warning").then(() => {
+                                            btn.disabled = false;
+                                            btn.innerHTML = oldHtml;
+                                            closePilihPaketModal();
+                                            refreshTableStatuses();
+                                        });
                                     });
                                 },
                                 onPending: function (result) {
@@ -4625,7 +4559,10 @@
                                         text: "Selesaikan instruksi pembayaran Anda.",
                                         type: "info"
                                     }).then(() => {
-                                        location.reload();
+                                        btn.disabled = false;
+                                        btn.innerHTML = oldHtml;
+                                        closePilihPaketModal();
+                                        refreshTableStatuses();
                                     });
                                 },
                                 onError: function (result) {
@@ -4650,7 +4587,10 @@
                                     })
                                     .then(() => {
                                         swal("Perhatian", "Anda menutup halaman pembayaran sebelum selesai. Transaksi dibatalkan.", "warning").then(() => {
-                                            location.reload(); 
+                                            btn.disabled = false;
+                                            btn.innerHTML = oldHtml;
+                                            closePilihPaketModal();
+                                            refreshTableStatuses();
                                         });
                                     });
                                 }
@@ -4662,12 +4602,18 @@
                             // Flow normal (Cash / Piutang / Metode Manual)
                             var isLangsung = document.querySelector('input[name="OpsiBayar"]:checked').value === 'LANGSUNG';
 
-                            if (isLangsung) {
+                             if (isLangsung) {
+                                btn.disabled = false;
+                                btn.innerHTML = oldHtml;
+                                closePilihPaketModal();
                                 showReceiptPreview(res.NoTransaksi);   
                             }
                             else{
                                 swal("Perhatian", "Order berhasil dibuat", "success").then(() => {
-                                    location.reload(); 
+                                    btn.disabled = false;
+                                    btn.innerHTML = oldHtml;
+                                    closePilihPaketModal();
+                                    refreshTableStatuses();
                                 });
                             }
                         }
@@ -4691,7 +4637,7 @@
     </script>
     <!-- ===== MODAL JUAL FnB STANDALONE ===== -->
     <div id="modalJualFnb" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:16px; width:96%; max-width:820px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;">
+        <div style="background:#fff; border-radius:16px; width:96%; max-width:850px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;">
             <!-- Header -->
             <div style="background:linear-gradient(135deg,#e65100,#ff8f00); color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center;">
                 <h2 style="margin:0; font-size:1.2rem;"><i class="fas fa-utensils"></i> Jual FnB Langsung</h2>
@@ -4699,16 +4645,33 @@
             </div>
             <!-- Body -->
             <div style="flex:1; overflow-y:auto; padding:20px; display:flex; gap:16px;">
-                <!-- Left: Item Search -->
-                <div style="flex:1; min-width:0;">
+                <!-- Left: Item Search & Grid -->
+                <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
                     <div style="margin-bottom:12px;">
-                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Cari Item</label>
+                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pilih Item</label>
                         <div style="position:relative; margin-top:4px;">
-                            <input type="text" id="jualFnbSearchInput" placeholder="Ketik nama atau kode item..." oninput="searchJualFnbItems(this.value)"
-                                style="width:100%; padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem; box-sizing:border-box;">
-                            <div id="jualFnbSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e0e0e0; border-radius:0 0 8px 8px; max-height:200px; overflow-y:auto; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+                            <input type="text" id="jualFnbSearchInput" placeholder="Cari Menu..." onkeyup="filterFnbGrid(this.value, 'jualFnbMenuGrid')"
+                                style="width:100%; padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem; box-sizing:border-box; margin-bottom:10px;">
                         </div>
                     </div>
+                    
+                    <div class="fnb-selection-grid" id="jualFnbMenuGrid" style="flex:1; max-height: 500px;">
+                        @foreach($itemmaster as $item)
+                            @if(in_array($item->TypeItem, [1,2,3,5]))
+                            <div class="fnb-card fnb-menu-item" data-name="{{ strtolower($item->NamaItem) }}" onclick='addJualFnbToCart(@json($item))'>
+                                <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
+                                     class="fnb-card-img" 
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                <div class="fnb-card-body">
+                                    <div class="fnb-card-name">{{ $item->NamaItem }}</div>
+                                    <div class="fnb-card-price">Rp {{ number_format($item->HargaJual) }}</div>
+                                    <div class="fnb-card-stock">Stok: {{ $item->Stock }}</div>
+                                </div>
+                            </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
                     <!-- Cart Table -->
                     <div style="border:1px solid #eee; border-radius:8px; overflow:hidden;">
                         <table style="width:100%; border-collapse:collapse;">
