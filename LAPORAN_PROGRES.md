@@ -33,6 +33,14 @@ Aplikasi telah berhasil disinkronkan sepenuhnya antara lingkungan lokal dan serv
 | 18 | Auto-Logout 30 Menit | Update middleware `CheckUserSession` agar user otomatis logout setelah 30 menit tidak ada aktivitas. Menggunakan `session('last_activity_time')` + Carbon. | ✅ Selesai (Lokal) |
 | 19 | Lokasi Queue Display | Rute `/queue/{KodePartner}` → `QueueManagementController@index`. Halaman ada di `views/Transaksi/Penjualan/QueueManagement/`. Info Kitchen ada di `/fpenjualan/infokitchen`. Customer Display Pesanan ada di `/fpenjualan/customerdisplay`. | ✅ Diklarifikasi |
 
+| 20 | Warning Time 10 Menit | Mengubah logika reaktif `updateTableTimers` di `billing_new.blade.php` agar warna meja berubah menjadi kuning/orange (`status-99`) saat sisa waktu <= 10 menit. | ✅ Selesai |
+| 21 | Harmonisasi UI FnB | Mengupdate modal `Pilih Paket` dan `Tambah Makanan` di POS utama agar menggunakan desain list yang identik dengan modul Self-Service. | ✅ Selesai |
+| 22 | Auto-Status Checkout | Menambahkan logika transisi otomatis ke warna checkout (`status-n1`) di frontend saat waktu habis ("TIME UP"). | ✅ Selesai |
+| 23 | Fix FnB Calculation Error | Memperbaiki `ReferenceError: opt is not defined` pada fungsi `calculateTotal` di `BillingSelfService.blade.php` yang menyebabkan grand total menjadi nol. | ✅ Selesai |
+| 24 | Fix FnB UI Visibility | Menghapus filter `TypeItem` dan menambah `min-height` pada kontainer FnB agar semua produk muncul otomatis sebelum dicari. | ✅ Selesai |
+| 25 | Auto-Total QRIS | Memperbarui logika pembayaran agar metode NON-TUNAI (QRIS/Transfer) otomatis mengisi Nominal Bayar sesuai Grand Total. | ✅ Selesai |
+| 26 | Robust Calculation | Menambahkan NaN guards pada semua variabel kalkulasi di `BillingSelfService` untuk mencegah error Grand Total Rp 0. | ✅ Selesai |
+
 ---
 
 ## 3. Penjelasan Fitur Antrian Pelanggan (Queue System)
@@ -45,11 +53,13 @@ Aplikasi telah berhasil disinkronkan sepenuhnya antara lingkungan lokal dan serv
 ---
 
 ## 4. Langkah Selanjutnya (To-Do List)
-1. [ ] **Verifikasi Voice Announcement:** Memastikan suara panggilan terdengar jelas pada browser monitor TV.
-2. [ ] **Audit IoT (Lampu):** Memastikan integrasi FNB tidak mengganggu timing lampu billiard pada sistem gabungan.
+1. [ ] **Audit Real-time Sync**: Memastikan delay antara server (10 menit) dan frontend (10 menit) minimal agar tidak terjadi flicker warna.
+2. [ ] **Testing FnB Cart**: Memastikan kalkulasi PPN dan Service Charge di modal FnB baru tetap akurat setelah perubahan UI.
+3. [ ] **Fix Company Setting Timeout**: Mengoptimasi query di `CompanyController@View` karena adanya laporan "Maximum execution time exceeded". Langkah: Membatasi kolom pada query `ItemMaster` dan `UserRole`.
 
 ---
 > [!IMPORTANT]
 > **Catatan Teknis:**
 > - Menu Baru: `Transaksi` > `Penjualan` > `Customer Display Queue`
 > - Database: Kolom `kitchen_order_status` di `tableorderheader` dan `kitchen_item_status` di `tableorderfnb`.
+> - **Update UI POS:** Menggunakan class `.fnb-selection-area` dan `.fnb-header` untuk standarisasi antar modul.

@@ -724,26 +724,22 @@
         .fnb-card-stock { font-size: 0.65rem; color: #78909c; margin-top: auto; }
 
         /* FnB Selection Styling - List Style (Harmonized with Self-Service) */
-        .fnb-list-area { border: 1.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin-top: 10px; background: #fff; }
-        .fnb-list-container { max-height: 350px; overflow-y: auto; padding: 5px; }
-        .fnb-item-list { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #f1f1f1; gap: 15px; transition: background 0.2s; }
-        .fnb-item-list:last-child { border-bottom: none; }
-        .fnb-item-list:hover { background: #f8f9fa; }
-        .fnb-item-img-list { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; background: #eee; border: 1px solid #eee; }
-        .fnb-item-info-list { flex: 1; min-width: 0; }
-        .fnb-item-name-list { font-weight: 700; font-size: 0.95rem; color: #263238; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .fnb-item-price-list { font-size: 0.85rem; color: #2e7d32; font-weight: 700; }
-        .fnb-item-stock-list { font-size: 0.75rem; color: #78909c; }
-        
-        .fnb-qty-ctrl-list { display: flex; align-items: center; gap: 10px; background: #f1f3f4; padding: 5px 10px; border-radius: 20px; border: 1px solid #e0e0e0; }
-        .fnb-qty-btn-list { width: 30px; height: 30px; border-radius: 50%; border: none; background: #fff; color: #1a237e; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .fnb-qty-btn-list:hover { background: #1a237e; color: #fff; transform: scale(1.1); }
-        .fnb-qty-btn-list:active { transform: scale(0.9); }
-        .fnb-qty-val-list { width: 25px; text-align: center; font-weight: 800; font-size: 1rem; color: #1a237e; }
-
-        /* FnB Selection Styling - Harmonized with Self-Service */
         .fnb-selection-area { border: 1.5px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin-top: 15px; background: #fff; }
         .fnb-header { background: #f5f5f5; padding: 12px 16px; font-weight: 700; color: #1a237e; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .fnb-list-container { height: 300px; max-height: 400px; overflow-y: auto; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 8px; margin: 10px; }
+        .fnb-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f1f1f1; gap: 12px; transition: background 0.2s; min-height: 80px; }
+        .fnb-item:hover { background: #f8f9ff; }
+        .fnb-item:last-child { border-bottom: none; }
+        .fnb-item-img { width: 55px; height: 55px; border-radius: 10px; object-fit: cover; background: #eee; border: 1px solid #e0e0e0; }
+        .fnb-item-info { flex: 1; min-width: 0; }
+        .fnb-item-name { font-weight: 700; font-size: 0.95rem; color: #1a237e; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fnb-item-price { font-size: 0.85rem; color: #e65100; font-weight: 700; }
+        .fnb-item-stock { font-size: 0.7rem; color: #78909c; font-weight: 600; margin-top: 1px; }
+        .fnb-qty-ctrl { display: flex; align-items: center; gap: 10px; background: #f5f5f5; padding: 4px 8px; border-radius: 20px; border: 1.5px solid #e0e0e0; }
+        .fnb-qty-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: #fff; color: #1a237e; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .fnb-qty-btn:hover { background: #1a237e; color: #fff; transform: scale(1.1); }
+        .fnb-qty-btn:active { transform: scale(0.9); }
+        .fnb-qty-val { width: 25px; text-align: center; font-weight: 800; font-size: 1rem; color: #1a237e; }
     </style>
 
 </head>
@@ -1037,9 +1033,23 @@
                 if (diffMs < 0) {
                     label = "TIME UP";
                     timerEl.style.color = "#d32f2f";
+                    // If time is up, force checkout status color
+                    el.classList.remove('status-1', 'status-99');
+                    el.classList.add('status-n1');
                 } else {
                     label = formatDuration(diffMs);
                     timerEl.style.color = "inherit";
+                    // Warning: 10 minutes or less
+                    if (diffMs <= 10 * 60 * 1000) {
+                        // Only change to warning if it's currently active (status-1)
+                        // and not already at checkout (status-n1)
+                        if (!el.classList.contains('status-n1')) {
+                            el.classList.remove('status-1');
+                            el.classList.add('status-99');
+                        }
+                    }
+                    // No revert here to avoid fighting with server clock sync. 
+                    // Reverts are handled by updateUIWithLatestData when fetching from server.
                 }
             } else if (rawMulai && rawMulai.trim() !== "" && rawMulai !== "null") {
                 // Count-up Logic
@@ -2907,39 +2917,34 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-
-                    <!-- Row: FnB Ordering (Modern List) -->
-                    <div class="pp-row" style="margin-top: 15px; border-top: 1px dashed #cfd8dc; padding-top: 15px;">
-                        <div class="pp-field">
-                            <label class="pp-label" style="font-weight: 700; color: #1a237e;"><i class="fas fa-utensils"></i> PESAN MAKANAN & MINUMAN (OPSIONAL)</label>
-                            <div style="position:relative; margin-bottom: 10px;">
-                                <input type="text" class="pp-input" id="ppFnbSearchInput" placeholder="Cari makanan/minuman..." onkeyup="filterFnbGrid(this.value, 'ppFnbMenuList')" style="border-radius: 20px; padding-left: 15px;">
-                            </div>
-                            
-                            <div class="fnb-list-area">
-                                <div class="fnb-list-container" id="ppFnbMenuList">
-                                    @foreach($itemmaster as $item)
-                                        @if(in_array($item->TypeItem, [1,2,3,5]))
-                                        <div class="fnb-item-list" data-name="{{ strtolower($item->NamaItem) }}">
-                                            <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0yNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
-                                                 class="fnb-item-img-list" 
-                                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
-                                            <div class="fnb-item-info-list">
-                                                <div class="fnb-item-name-list">{{ $item->NamaItem }}</div>
-                                                <div class="fnb-item-price-list">Rp {{ number_format($item->HargaJual) }}</div>
-                                                <div class="fnb-item-stock-list">Stok: {{ $item->Stock }}</div>
-                                            </div>
-                                            <div class="fnb-qty-ctrl-list">
-                                                <button type="button" class="fnb-qty-btn-list" onclick='addPpFnbToCart(@json($item), -1)'>-</button>
-                                                <span class="fnb-qty-val-list pp-fnb-qty-val" data-kode="{{ $item->KodeItem }}">0</span>
-                                                <button type="button" class="fnb-qty-btn-list" onclick='addPpFnbToCart(@json($item), 1)'>+</button>
-                                            </div>
-                                        </div>
-                                        @endif
-                                    @endforeach
+                    </div>                    <!-- Row: FnB Ordering (Harmonized with Self-Service) -->
+                    <div class="fnb-selection-area" style="margin-top: 15px;">
+                        <div class="fnb-header">
+                            <span style="font-size: 0.9rem;"><i class="fas fa-utensils"></i> PESAN MAKANAN & MINUMAN (OPSIONAL)</span>
+                            <span id="ppFnbTotalCount" class="badge" style="background: #1a237e; color: #fff; font-size: 0.75rem; border-radius: 10px; padding: 4px 10px;">0 Item</span>
+                        </div>
+                        <div style="padding: 10px; border-bottom: 1px solid #eee; background: #fff;">
+                            <input type="text" class="pp-input" id="ppFnbSearchInput" placeholder="Cari makanan/minuman..." onkeyup="filterFnbGrid(this.value, 'ppFnbMenuList')" style="border-radius: 20px; padding-left: 15px; height: 38px;">
+                        </div>
+                        
+                        <div class="fnb-list-container" id="ppFnbMenuList">
+                            @foreach($itemmaster as $item)
+                                <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
+                                    <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
+                                         class="fnb-item-img" 
+                                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                    <div class="fnb-item-info">
+                                        <div class="fnb-item-name">{{ $item->NamaItem }}</div>
+                                        <div class="fnb-item-price">Rp {{ number_format($item->HargaJual) }}</div>
+                                        <div class="fnb-item-stock">Stok: {{ $item->Stock }}</div>
+                                    </div>
+                                    <div class="fnb-qty-ctrl">
+                                        <button type="button" class="fnb-qty-btn" onclick='addPpFnbToCart(@json($item), -1)'>-</button>
+                                        <span class="fnb-qty-val pp-fnb-qty-val" data-kode="{{ $item->KodeItem }}">0</span>
+                                        <button type="button" class="fnb-qty-btn" onclick='addPpFnbToCart(@json($item), 1)'>+</button>
+                                    </div>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
 
@@ -3069,37 +3074,37 @@
 
             <!-- Body -->
             <div class="pp-body">
-                <!-- Search Row -->
-                <div class="pp-row">
-                    <div class="pp-field">
-                        <label class="pp-label"><i class="fas fa-search"></i> Cari & Pilih Menu</label>
-                        <div style="position:relative; margin-bottom: 12px;">
-                            <input type="text" class="pp-input" id="fnbSearchInput" placeholder="Ketik nama makanan atau minuman..." onkeyup="filterFnbGrid(this.value, 'fnbMenuList')">
-                        </div>
-                        
-                        <div class="fnb-list-area">
-                            <div class="fnb-list-container" id="fnbMenuList" style="max-height: 400px;">
-                                @foreach($itemmaster as $item)
-                                    @if(in_array($item->TypeItem, [1,2,3,5]))
-                                    <div class="fnb-item-list" data-name="{{ strtolower($item->NamaItem) }}">
-                                        <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
-                                             class="fnb-item-img-list" 
-                                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
-                                        <div class="fnb-item-info-list">
-                                            <div class="fnb-item-name-list">{{ $item->NamaItem }}</div>
-                                            <div class="fnb-item-price-list">Rp {{ number_format($item->HargaJual) }}</div>
-                                            <div class="fnb-item-stock-list">Stok: {{ $item->Stock }}</div>
-                                        </div>
-                                        <div class="fnb-qty-ctrl-list">
-                                            <button type="button" class="fnb-qty-btn-list" onclick='addFnbToCart(@json($item), -1)'>-</button>
-                                            <span class="fnb-qty-val-list fnb-qty-val" data-kode="{{ $item->KodeItem }}">0</span>
-                                            <button type="button" class="fnb-qty-btn-list" onclick='addFnbToCart(@json($item), 1)'>+</button>
-                                        </div>
-                                    </div>
-                                    @endif
-                                @endforeach
+
+                <!-- Row: FnB Ordering (Harmonized with Self-Service) -->
+                <div class="fnb-selection-area">
+                    <div class="fnb-header">
+                        <span style="font-size: 0.9rem;"><i class="fas fa-utensils"></i> PILIH MAKANAN & MINUMAN</span>
+                        <span id="fnbTotalCount" class="badge" style="background: #1a237e; color: #fff; font-size: 0.75rem; border-radius: 10px; padding: 4px 10px;">0 Item</span>
+                    </div>
+                    <div style="padding: 10px; border-bottom: 1px solid #eee; background: #fff;">
+                        <input type="text" class="pp-input" id="fnbSearchInput" placeholder="Ketik nama makanan atau minuman..." onkeyup="filterFnbGrid(this.value, 'fnbMenuList')" style="border-radius: 20px; padding-left: 15px; height: 38px;">
+                    </div>
+                    
+                    <div class="fnb-list-container" id="fnbMenuList" style="max-height: 400px;">
+                        @foreach($itemmaster as $item)
+                            @if(in_array($item->TypeItem, [1,2,3,5]))
+                            <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
+                                <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwIiBmaWxsPSIjZWVlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNhYWEiIGR5PSIuM2VtIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZvb2Q8L3RleHQ+PC9zdmc+' }}" 
+                                     class="fnb-item-img" 
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwIiBmaWxsPSIjZWVlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNhYWEiIGR5PSIuM2VtIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZvb2Q8L3RleHQ+PC9zdmc+'">
+                                <div class="fnb-item-info">
+                                    <div class="fnb-item-name">{{ $item->NamaItem }}</div>
+                                    <div class="fnb-item-price">Rp {{ number_format($item->HargaJual) }}</div>
+                                    <div class="fnb-item-stock">Stok: {{ $item->Stock }}</div>
+                                </div>
+                                <div class="fnb-qty-ctrl">
+                                    <button type="button" class="fnb-qty-btn" onclick='addFnbToCart(@json($item), -1)'>-</button>
+                                    <span class="fnb-qty-val fnb-qty-val" data-kode="{{ $item->KodeItem }}">0</span>
+                                    <button type="button" class="fnb-qty-btn" onclick='addFnbToCart(@json($item), 1)'>+</button>
+                                </div>
                             </div>
-                        </div>
+                            @endif
+                        @endforeach
                     </div>
                 </div>
 
@@ -4318,7 +4323,8 @@
         $('#calcGrandTotal').text(formatRp(grandTotal));
 
         // 6. Payment Logic
-        if (tipePembayaran === 'NON TUNAI' || tipePembayaran === 'NONTUNAI') {
+        var isNonTunai = tipePembayaran && tipePembayaran.toUpperCase().indexOf('NON') !== -1;
+        if (isNonTunai) {
             nominalInp.value = formatRupiahVal(grandTotal);
             nominalInp.readOnly = true;
             nominalInp.style.backgroundColor = '#f5f5f5';

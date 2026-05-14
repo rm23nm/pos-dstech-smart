@@ -516,7 +516,13 @@ class FakturPenjualanController extends Controller
 	        $model->Periode = $Year.$Month;
 	        $model->NoTransaksi= $NoTransaksi;
 	        $model->Transaksi= 'POS';
-	        $model->TglTransaksi = $jsonData['TglTransaksi'];
+	        
+			$tglTransaksi = $jsonData['TglTransaksi'];
+			// Fallback: If time is missing (length <= 10), add current time
+			if (strlen($tglTransaksi) <= 10) {
+				$tglTransaksi .= " " . Carbon::now()->format('H:i:s');
+			}
+			$model->TglTransaksi = $tglTransaksi;
 			$model->TglJatuhTempo = $jsonData['TglJatuhTempo'];
 			$model->NoReff = $jsonData['NoReff'];
 			$model->KodePelanggan = $jsonData['KodePelanggan'];
@@ -1280,7 +1286,12 @@ class FakturPenjualanController extends Controller
 	        $model->Periode = $Year.$Month;
 	        $model->NoTransaksi= $NoTransaksi;
 	        $model->Transaksi= 'POS';
-	        $model->TglTransaksi = $jsonData['TglTransaksi'];
+			$tglTransaksi = $jsonData['TglTransaksi'];
+			// Fallback: If time is missing (length <= 10), add current time
+			if (strlen($tglTransaksi) <= 10) {
+				$tglTransaksi .= " " . Carbon::now()->format('H:i:s');
+			}
+			$model->TglTransaksi = $tglTransaksi;
 			$model->TglJatuhTempo = $jsonData['TglJatuhTempo'];
 			$model->NoReff = $jsonData['NoReff'];
 			$model->KodePelanggan = $jsonData['KodePelanggan'];

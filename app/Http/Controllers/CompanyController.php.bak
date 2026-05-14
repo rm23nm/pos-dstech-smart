@@ -247,20 +247,19 @@ class CompanyController extends Controller
     public function View(Request $request)
     {
         $clientOS = "";
-        
-        // Optimize: Increased timeout for heavy company data (base64 images)
-        set_time_limit(180);
 
-        $company = Company::Where('KodePartner','=',Auth::user()->RecordOwnerID)->get();
+        $company = Company::Where('KodePartner','=',Auth::user()->RecordOwnerID)
+                        ->leftJoin('subscriptionheader', 'company.KodePaketLangganan', 'subscriptionheader.NoTransaksi')
+                        ->get();
         $printer = Printer::Where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
         $gudang = Gudang::Where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
         $temin = Termin::Where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
-        
         $itemjasa = ItemMaster::where('TypeItem','=','4')
                         ->where('RecordOwnerID', '=', Auth::user()->RecordOwnerID)
                         ->get();
 
-        $userdata = UserRole::leftJoin('users', function ($value){
+        $userdata = UserRole::selectRaw("users.*")
+                ->leftJoin('users', function ($value){
                     $value->on('userrole.userid','=','users.id')
                     ->on('userrole.RecordOwnerID','=','users.RecordOwnerID');
                 })

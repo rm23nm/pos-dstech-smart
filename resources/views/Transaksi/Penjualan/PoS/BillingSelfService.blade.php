@@ -219,7 +219,7 @@
         /* FnB Selection Styling */
         .fnb-selection-area { border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin-top: 15px; }
         .fnb-header { background: #f5f5f5; padding: 12px 16px; font-weight: 700; color: #1a237e; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
-        .fnb-list { max-height: 250px; overflow-y: auto; padding: 10px; background: #fff; }
+        .fnb-list { height: 300px; max-height: 400px; overflow-y: auto; padding: 10px; background: #fff; border: 1px solid #eee; border-radius: 8px; margin: 10px; }
         .fnb-item { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #f1f1f1; gap: 12px; }
         .fnb-item:last-child { border-bottom: none; }
         .fnb-item-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #eee; }
@@ -1073,31 +1073,49 @@
     function calculateTotal(isFromInput = false) {
         var dur = parseInt($('#ppDurasi').val()) || 1;
         var base = window.activePaketDurasi || 1;
-        var harga = parseFormattedRp($('#ppHargaNormal').val());
+        var harga = parseFormattedRp($('#ppHargaNormal').val()) || 0;
         var subtotal = (dur / base) * harga;
+        if (isNaN(subtotal)) subtotal = 0;
 
         // FNB Total
-        var fnbSubtotal = Object.values(ppSelectedFnb).reduce((s, i) => s + (i.qty * i.price), 0);
+        var fnbSubtotal = Object.values(ppSelectedFnb).reduce((s, i) => s + ((parseInt(i.qty) || 0) * (parseFloat(i.price) || 0)), 0);
+        if (isNaN(fnbSubtotal)) fnbSubtotal = 0;
 
         var discPer = 0;
         var memberId = $('#ppKodePelanggan').val();
         if (memberId) {
-            var m = dataPelangganAll.find(x => x.KodePelanggan == memberId);
+            var m = (typeof dataPelangganAll !== 'undefined') ? dataPelangganAll.find(x => x.KodePelanggan == memberId) : null;
             if (m && m.GroupID) {
-                var g = dataGrupPelanggan.find(x => x.id == m.GroupID);
+                var g = (typeof dataGrupPelanggan !== 'undefined') ? dataGrupPelanggan.find(x => x.id == m.GroupID) : null;
                 if (g) discPer = parseFloat(g.DiskonPersen) || 0;
             }
         }
         var discRp = subtotal * (discPer / 100);
+        if (isNaN(discRp)) discRp = 0;
         
-        var ppnPaket = (subtotal - discRp) * (confCompany ? parseFloat(confCompany.PPN)/100 : 0);
-        var ppnFnb = fnbSubtotal * (confCompany ? parseFloat(confCompany.PPN)/100 : 0);
-        var svcFnb = fnbSubtotal * (confCompany ? parseFloat(confCompany.ServiceCharge)/100 : 0);
-        var ppn = ppnPaket + ppnFnb + svcFnb;
+        var ppnVal = confCompany ? parseFloat(confCompany.PPN) || 0 : 0;
+        var svcVal = confCompany ? parseFloat(confCompany.ServiceCharge) || 0 : 0;
 
-        var admin = (subtotal - discRp + ppn + fnbSubtotal) * ((parseFloat(opt.dataset.percent) || 0)/100) + (parseFloat(opt.dataset.rupiah) || 0);
+        var ppnPaket = (subtotal - discRp) * (ppnVal / 100);
+        var ppnFnb = fnbSubtotal * (ppnVal / 100);
+        var svcFnb = fnbSubtotal * (svcVal / 100);
+        var ppn = ppnPaket + ppnFnb + svcFnb;
+        if (isNaN(ppn)) ppn = 0;
+
+        // Get selected payment method option
+        var selMp = document.getElementById('ppMetodePembayaran');
+        var opt = selMp ? selMp.options[selMp.selectedIndex] : null;
+        if (!opt) return;
+
+        var admP = parseFloat(opt.getAttribute('data-percent')) || 0;
+        var admR = parseFloat(opt.getAttribute('data-rupiah')) || 0;
+        var tipeP = opt.getAttribute('data-tipe') || '';
+
+        var admin = (subtotal - discRp + ppn + fnbSubtotal) * (admP / 100) + admR;
+        if (isNaN(admin)) admin = 0;
 
         var grand = subtotal - discRp + ppn + admin + fnbSubtotal;
+        if (isNaN(grand)) grand = 0;
 
         $('#calcSubtotal').text(formatRp(subtotal));
         $('#calcDiskonRp').text('- ' + formatRp(discRp));
@@ -1107,7 +1125,7 @@
         $('#calcGrandTotal').text(formatRp(grand));
 
         var nom = $('#ppNominalBayar');
-        if (opt.dataset.tipe.includes('NON')) {
+        if (tipeP.toUpperCase().indexOf('NON') !== -1) {
             nom.val(formatRupiahVal(grand)).prop('readonly', true);
         } else {
             nom.prop('readonly', false);

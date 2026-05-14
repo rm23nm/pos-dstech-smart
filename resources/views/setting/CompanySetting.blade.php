@@ -85,6 +85,9 @@
 								<div class="card-title mb-0">
 									<h3 class="card-label mb-0 font-weight-bold text-body">
 										Setting Data perusahaan
+										<a href="{{ url('/queue/' . base64_encode(Auth::user()->RecordOwnerID)) }}" target="_blank" class="btn btn-outline-primary btn-sm ms-2">
+											<i class="fas fa-external-link-alt"></i> Lihat Antrian Pesanan
+										</a>
 									</h3>
 								</div>
 							</div>
@@ -139,7 +142,7 @@
 													@endif
 												@else
 													<li class="nav-item" >
-														<a class="nav-link active" id="general-tab2" data-bs-toggle="pill" href=" #general" role="tab" aria-controls="general" aria-selected="true">General</a>
+														<a class="nav-link active" id="general-tab2" data-bs-toggle="pill" href="#general" role="tab" aria-controls="general" aria-selected="true">General</a>
 													</li>
 													<li class="nav-item" >
 														<a class="nav-link" id="inv-tab" data-bs-toggle="pill" href="#inv" role="tab" aria-controls="inv" aria-selected="false">Inventory</a>

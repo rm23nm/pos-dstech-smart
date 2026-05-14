@@ -982,6 +982,7 @@ jQuery(document).ready( function () {
 
 
 
+/*
 jQuery(".nav-pills .nav-link").each(function(i){ 
   jQuery(this).click(function(e){
     jQuery(this).attr("href", jQuery('.tab-pane')[i].id);
@@ -1002,6 +1003,7 @@ jQuery(".nav-pills .nav-link").click(function(e) {
     , location.href.split('#')[0] + active
   )
 });
+*/
 
 
 

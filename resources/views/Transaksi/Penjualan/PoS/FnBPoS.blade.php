@@ -1211,6 +1211,19 @@ License: You must have a valid license purchased only from themeforest(the above
 			SetEnableCommand();
 		});
 
+		function UpdateCurrentTime() {
+			var now = new Date();
+			var day = ("0" + now.getDate()).slice(-2);
+			var month = ("0" + (now.getMonth() + 1)).slice(-2);
+			var hours = now.getHours().toString().padStart(2, '0');
+			var minutes = now.getMinutes().toString().padStart(2, '0');
+			var seconds = now.getSeconds().toString().padStart(2, '0');
+
+			var NowDay = now.getFullYear() + "-" + month + "-" + day;
+			_Tanggal = NowDay;
+			_Jam = hours + ":" + minutes + ":" + seconds;
+		}
+
 		jQuery('#cboJenisItem').change(function () {
 			// console.log(jQuery('#cboJenisItem').val());
 			// lsvProductList
@@ -2760,6 +2773,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 	
 	function SaveData(Status, ButonObject, ButtonDefaultText) {
+		UpdateCurrentTime();
 		ButonObject.text('Tunggu Sebentar.....');
   		ButonObject.attr('disabled',true);
 
@@ -2976,7 +2990,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 
 	function PaymentGateWay(Status, ButonObject, ButtonDefaultText) {
-
+		UpdateCurrentTime();
 		var dataGridInstance = jQuery('#gridContainerDetail').dxDataGrid('instance');
   		var allRowsData  = dataGridInstance.getDataSource().items();
 

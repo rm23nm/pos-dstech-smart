@@ -280,7 +280,7 @@ class TableOrderController extends Controller
                             ->where('itemmaster.TypeItem', 4)
                             ->groupBy('fakturpenjualandetail.BaseReff', 'fakturpenjualandetail.RecordOwnerID');
 
-        $titiklampu = TitikLampu::selectRaw("DISTINCT titiklampu.*,
+        $titiklampu = TitikLampu::selectRaw("titiklampu.*,
                             CASE 
                                 WHEN COALESCE(titiklampu.Status,0) = 0 AND tableorderheader.NoTransaksi IS NOT NULL THEN 'BOOKING'
                                 WHEN COALESCE(titiklampu.Status,0) = 0 THEN 'KOSONG' 
@@ -316,15 +316,7 @@ class TableOrderController extends Controller
                             $value->on('titiklampu.id','=','tableorderheader.tableid')
                             ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID')
                             ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
-                            ->where('tableorderheader.RecordOwnerID', '=', $roid)
-                            ->whereRaw("tableorderheader.NoTransaksi = (
-                                SELECT t2.NoTransaksi FROM tableorderheader t2 
-                                WHERE t2.tableid = titiklampu.id 
-                                AND t2.RecordOwnerID = '{$roid}'
-                                AND t2.DocumentStatus IN ('O', 'D')
-                                ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai DESC
-                                LIMIT 1
-                            )");
+                            ->where('tableorderheader.RecordOwnerID', '=', $roid);
                         })
                         ->leftJoin('pakettransaksi', function ($value)  {
                             $value->on('tableorderheader.paketid','=','pakettransaksi.id')
@@ -373,13 +365,15 @@ class TableOrderController extends Controller
         $company = Company::Where('KodePartner','=',$roid)->get();
         $sales = Sales::Where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
-        $sql = "pelanggan.*, CONCAT(COALESCE(NoTlp1,''),CASE WHEN COALESCE(NoTlp2,'') != '' THEN ' / ' ELSE '' END , COALESCE(NoTlp2,'')) NoTlpConcat ";
+        $sql = "pelanggan.KodePelanggan, pelanggan.NamaPelanggan, pelanggan.NoTlp1, pelanggan.NoTlp2, pelanggan.RecordOwnerID, 
+                CONCAT(COALESCE(NoTlp1,''),CASE WHEN COALESCE(NoTlp2,'') != '' THEN ' / ' ELSE '' END , COALESCE(NoTlp2,'')) NoTlpConcat ";
         $pelanggan = Pelanggan::selectRaw($sql)
                     ->where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
         $metodepembayaran = MetodePembayaran::where('RecordOwnerID','=',$roid)->get();
-        $oItem = new ItemMaster();
-        $itemmaster = $oItem->GetItemData($roid,"", "", "","", "Y", '', 0);
+        $itemmaster = ItemMaster::select('KodeItem', 'NamaItem', 'HargaJual', 'Gambar', 'Stock', 'TypeItem')
+                    ->where('RecordOwnerID', $roid)
+                    ->where('Active', 'Y');
         $midtransdata = MetodePembayaran::where('RecordOwnerID','=',$roid)
                             ->where('MetodeVerifikasi','=','AUTO')->first();
         $midtransclientkey = "";
@@ -1176,7 +1170,7 @@ class TableOrderController extends Controller
 
             $numberingData = new DocumentNumbering();
             $periode = Carbon::now()->format('Ym');
-            $tglTransaksi = Carbon::now()->toDateString();
+            $tglTransaksi = Carbon::now()->toDateTimeString();
             $itemHiburan = $company->ItemHiburan;
 
             DB::beginTransaction();

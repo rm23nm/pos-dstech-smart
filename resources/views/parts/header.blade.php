@@ -111,6 +111,28 @@
 									</a>
 								</li>
 
+								<li class="nav-item {{ request()->routeIs('queue-management') ? 'active' : '' }}">
+									<a href="{{ url('/queue/' . base64_encode(Auth::user()->RecordOwnerID)) }}" target="_blank" class="nav-link">
+										<span class="svg-icon nav-icon">
+											<i class="fas fa-desktop font-size-h4"></i>
+										</span>
+										<span class="nav-text">
+											Antrian Lapangan
+										</span>
+									</a>
+								</li>
+
+								<li class="nav-item {{ request()->routeIs('infokitchen') ? 'active' : '' }}">
+									<a href="{{ route('infokitchen') }}" target="_blank" class="nav-link">
+										<span class="svg-icon nav-icon">
+											<i class="fas fa-utensils font-size-h4"></i>
+										</span>
+										<span class="nav-text">
+											Antrian FnB (Dapur)
+										</span>
+									</a>
+								</li>
+
 								<li class="nav-item">
 									<a href="https://api.whatsapp.com/send/?phone=6282258493130&text=Saya%20ada%20kendala%20di%20PoS&type=phone_number&app_absent=0" target="_blank" class="nav-link">
 										<span class="svg-icon nav-icon">
