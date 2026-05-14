@@ -2679,6 +2679,7 @@ class TableOrderController extends Controller
 
     public function storePaket(Request $request)
     {
+        $roid = Auth::user()->RecordOwnerID;
         $data = array('success' => false, 'message' => '', 'data' => array(), 'NoTransaksi' => "");
 
         $this->validate($request, [
@@ -2693,9 +2694,10 @@ class TableOrderController extends Controller
 
         DB::beginTransaction();
         try {
-            $currentDate = Carbon::now();
-            $Year = $currentDate->format('Y');
-            $Month = $currentDate->format('m');
+            date_default_timezone_set('Asia/Jakarta');
+            $now = Carbon::now('Asia/Jakarta');
+            $Year = $now->format('Y');
+            $Month = $now->format('m');
 
             $numberingData = new DocumentNumbering();
             $NoTransaksi = $numberingData->GetNewDoc("TRDR", "tableorderheader", "NoTransaksi");
@@ -2705,10 +2707,10 @@ class TableOrderController extends Controller
             $tglTransaksi = $request->input('TglTransaksi');
             // Fallback: If time is missing (length <= 10), add current time
             if (strlen($tglTransaksi) <= 10) {
-                $tglTransaksi .= " " . Carbon::now()->format('H:i:s');
+                $tglTransaksi .= " " . $now->format('H:i:s');
             }
             $model->TglTransaksi = $tglTransaksi;
-            $model->TglPencatatan = Carbon::now();
+            $model->TglPencatatan = $now;
             $model->JenisPaket = $request->input('JenisPaket');
             $model->paketid = $request->input('paketid');
             if ($model->JenisPaket === 'PAKETMEMBER' && empty($model->paketid)) {
@@ -2767,15 +2769,18 @@ class TableOrderController extends Controller
             }
 
             // Booking Logic - Use a 5-minute tolerance for "now"
-            $now = Carbon::now();
-            $toleranceTime = (clone $now)->addMinutes(5);
-            
+            $now = Carbon::now('Asia/Jakarta');
+            $dtStart = Carbon::parse($request->input('JamMulai'), 'Asia/Jakarta');
+            // Jika JamMulai diinput lebih dari 15 menit dari sekarang, anggap BOOKING. 
+            // Namun jika kurang dari itu, anggap AKTIF (O) untuk mengatasi selisih detik/menit server.
+            $toleranceTime = (clone $now)->addMinutes(15);
+
             if ($dtStart->gt($toleranceTime) || $isMidtrans) {
-                // Future Booking (> 5 mins from now) or waiting for Midtrans
+                // Future Booking
                 $model->Status = 0;
                 $model->DocumentStatus = 'D';
             } else {
-                // Immediate Active (if it's for today and within tolerance or past)
+                // Immediate Active
                 $model->Status = 1;
                 $model->DocumentStatus = 'O';
 
@@ -2787,7 +2792,7 @@ class TableOrderController extends Controller
             }
 
             $model->RecordOwnerID = Auth::user()->RecordOwnerID;
-            $model->created_at = Carbon::now();
+            $model->created_at = $now;
             $model->kitchen_order_status = 0; // Default: Masuk antrean dapur
 
             // ===== CALCULATION LOGIC (Always calculate for storage) =====
@@ -2858,7 +2863,7 @@ class TableOrderController extends Controller
             $model->BiayaLayanan = $dpp * ($servicePer / 100);
 
             // 5. Food & Beverage (Initial store)
-            $fnbItems = $request->input('fnb_items', []);
+            $fnbItems = $request->input('fnb_items') ?? $request->input('fnbItems') ?? [];
             Log::info("storePaket fnbItems received: " . json_encode($fnbItems));
             
             $totalMakanan = 0;
@@ -3229,8 +3234,9 @@ class TableOrderController extends Controller
 public function getTableStatuses()
     {
         try {
+            date_default_timezone_set('Asia/Jakarta');
             $roid = Auth::user()->RecordOwnerID;
-            $now = Carbon::now();
+            $now = Carbon::now('Asia/Jakarta');
             $nearlyExpiredThreshold = (clone $now)->addMinutes(10);
 
             // A. Handle Expired Tables (O -> C/KOSONG)
