@@ -990,7 +990,7 @@
         if (isRefreshing) return;
         isRefreshing = true;
 
-        fetch('{{ route("billing-get-table-statuses") }}')
+        fetch('/billing/get-table-statuses')
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
@@ -1453,7 +1453,7 @@
                 const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                 $.ajax({
-                    url: '{{ route("billing-process-checkout") }}',
+                    url: '/billing/process-checkout',
                     method: 'POST',
                     data: {
                         _token: token,
@@ -1741,7 +1741,7 @@
         });
 
         $.ajax({
-            url: '{{ route("billing-get-faktur-detail") }}',
+            url: '/billing/get-faktur-detail',
             method: 'POST',
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
@@ -2395,7 +2395,7 @@
             const oldHtml = $btn.html();
             $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Memproses...');
 
-            fetch("{{ route('billing-store-fnb') }}", {
+            fetch("/billing/store-fnb", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2411,7 +2411,7 @@
                         
                         const handlers = {
                             onSuccess: function (result) {
-                                fetch('{{ route("billing-midtrans-success") }}', {
+                                fetch('/billing/midtrans-success', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -2438,7 +2438,7 @@
                             },
                             onClose: function () {
                                 $btn.prop('disabled', false).html(oldHtml);
-                                fetch('{{ route("billing-midtrans-cancel") }}', {
+                                fetch('/billing/midtrans-cancel', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -3903,7 +3903,7 @@
         
         var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
-        fetch('{{ route("billing-getAvailableSlots") }}', {
+        fetch('/billing/getAvailableSlots', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4437,7 +4437,7 @@
             
             var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            fetch('{{ route("billing-checkvoucher") }}', {
+            fetch('/billing/checkvoucher', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -4512,7 +4512,7 @@
 
                 const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
-                fetch('{{ route("billing-store-paket") }}', {
+                fetch('/billing/store-paket', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

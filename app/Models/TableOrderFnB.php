@@ -9,4 +9,6 @@ class TableOrderFnB extends BaseModel
 {
     use HasFactory;
     protected $table = 'tableorderfnb';
+    protected $primaryKey = null;
+    public $incrementing = false;
 }

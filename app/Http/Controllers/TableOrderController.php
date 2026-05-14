@@ -1948,6 +1948,7 @@ class TableOrderController extends Controller
                 $delete = DB::table('tableorderfnb')
 		                ->where('NoTransaksi','=', $NoTransaksi)
 		                ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                        ->where('LineStatus', '=', 'O') // Hanya hapus yang belum difakturkan
 		                ->delete();
 
                 $index = 0;
@@ -1980,6 +1981,8 @@ class TableOrderController extends Controller
                     $detail->Tax = 0;
                     $detail->Discount = $dt['Diskon'];
                     $detail->LineTotal = $dt['Qty'] * $dt['Harga'];
+                    $detail->LineStatus = 'O'; // WAJIB: Agar terbaca saat checkout/bayar
+                    $detail->isCompleted = 0;
                     $detail->RecordOwnerID = Auth::user()->RecordOwnerID;
                     $detail->save();
 
@@ -1999,7 +2002,10 @@ class TableOrderController extends Controller
                 DB::table('tableorderheader')
                     ->where('NoTransaksi', $NoTransaksi)
                     ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-                    ->update(['TotalMakanan' => $totalMakanan]);
+                    ->update([
+                        'TotalMakanan' => $totalMakanan,
+                        'kitchen_order_status' => 0 // Set kembali ke Masuk jika ada tambahan makanan
+                    ]);
             }
             else{
                 $data['message'] = "Pilih Item terlebih dahulu";
@@ -2038,6 +2044,10 @@ class TableOrderController extends Controller
                         })
                         ->where('tableorderfnb.NoTransaksi','=',$NoTransaksi)
                         ->where('tableorderfnb.RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                        ->where(function($q) {
+                            $q->where('tableorderfnb.LineStatus', 'O')
+                              ->orWhereNull('tableorderfnb.LineStatus');
+                        })
                         ->get();
         $data['data'] = $tableorderfnb;
         $data['success'] = true;
@@ -2692,7 +2702,12 @@ class TableOrderController extends Controller
 
             $model = new TableOrderHeader;
             $model->NoTransaksi = $NoTransaksi;
-            $model->TglTransaksi = $request->input('TglTransaksi');
+            $tglTransaksi = $request->input('TglTransaksi');
+            // Fallback: If time is missing (length <= 10), add current time
+            if (strlen($tglTransaksi) <= 10) {
+                $tglTransaksi .= " " . Carbon::now()->format('H:i:s');
+            }
+            $model->TglTransaksi = $tglTransaksi;
             $model->TglPencatatan = Carbon::now();
             $model->JenisPaket = $request->input('JenisPaket');
             $model->paketid = $request->input('paketid');
@@ -2708,10 +2723,13 @@ class TableOrderController extends Controller
             $jamMulaiStr = $request->input('JamMulai');
             $jamSelesaiStr = $request->input('JamSelesai');
             
+            // Ambil hanya bagian tanggal (YYYY-MM-DD) untuk menghindari "Double time" error
+            $tglDateOnly = substr($model->TglTransaksi, 0, 10);
+
             // Check if strings already contain a date part (e.g. YYYY-MM-DD)
             $startInput = (preg_match('/^\d{4}-\d{2}-\d{2}/', $jamMulaiStr)) 
                           ? $jamMulaiStr 
-                          : ($model->TglTransaksi . ' ' . $jamMulaiStr);
+                          : ($tglDateOnly . ' ' . $jamMulaiStr);
             
             $dtStart = Carbon::parse($startInput);
             $model->JamMulai = $dtStart;
@@ -2719,8 +2737,9 @@ class TableOrderController extends Controller
             if (!empty($jamSelesaiStr) && $jamSelesaiStr != '-') {
                 $endInput = (preg_match('/^\d{4}-\d{2}-\d{2}/', $jamSelesaiStr)) 
                             ? $jamSelesaiStr 
-                            : ($model->TglTransaksi . ' ' . $jamSelesaiStr);
+                            : ($tglDateOnly . ' ' . $jamSelesaiStr);
                 $model->JamSelesai = Carbon::parse($endInput);
+
             } else {
                 if ($model->JenisPaket === 'JAMREALTIME') {
                     $model->JamSelesai = (clone $dtStart)->addHours($model->DurasiPaket)->subMinute();
@@ -2769,6 +2788,7 @@ class TableOrderController extends Controller
 
             $model->RecordOwnerID = Auth::user()->RecordOwnerID;
             $model->created_at = Carbon::now();
+            $model->kitchen_order_status = 0; // Default: Masuk antrean dapur
 
             // ===== CALCULATION LOGIC (Always calculate for storage) =====
             $paket = ($model->paketid && $model->paketid != -1) ? Paket::find($model->paketid) : null;
@@ -2839,18 +2859,39 @@ class TableOrderController extends Controller
 
             // 5. Food & Beverage (Initial store)
             $fnbItems = $request->input('fnb_items', []);
+            Log::info("storePaket fnbItems received: " . json_encode($fnbItems));
+            
             $totalMakanan = 0;
             $totalTaxFnb = 0;
             $totalServiceFnb = 0;
-
-            $ppnPer = $company->PPN ?? 0;
-            $svcPer = $company->ServiceCharge ?? 0;
+            $gudangPoS = $company->GudangPoS ?? 'GDG01';
+            $allowNegative = $company->AllowNegativeInventory ?? 'N';
 
             foreach ($fnbItems as $item) {
-                $subItem = ($item['Qty'] ?? 0) * ($item['Harga'] ?? 0);
+                $kodeItem = $item['KodeItem'] ?? $item['kode'] ?? '';
+                $qty = floatval($item['Qty'] ?? $item['qty'] ?? 0);
+                $harga = floatval($item['Harga'] ?? $item['price'] ?? 0);
+
+                if (empty($kodeItem)) continue;
+
+                // Stock Validation
+                if ($allowNegative !== 'Y') {
+                    $stock = DB::table('itemwarehouses')
+                        ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                        ->where('KodeItem', $kodeItem)
+                        ->where('KodeGudang', $gudangPoS)
+                        ->value('Qty');
+                    $currentStock = ($stock === null) ? 0 : floatval($stock);
+                    if ($currentStock < $qty) {
+                        $itemName = DB::table('itemmaster')->where('RecordOwnerID', Auth::user()->RecordOwnerID)->where('KodeItem', $kodeItem)->value('NamaItem') ?? $kodeItem;
+                        return response()->json(['success' => false, 'message' => "Stok item $itemName ($kodeItem) tidak mencukupi (Tersedia: $currentStock, Diminta: $qty)."], 400);
+                    }
+                }
+
+                $subItem = $qty * $harga;
                 $totalMakanan += $subItem;
                 $totalTaxFnb += $subItem * ($ppnPer / 100);
-                $totalServiceFnb += $subItem * ($svcPer / 100);
+                $totalServiceFnb += $subItem * ($servicePer / 100);
             }
 
             $model->TotalMakanan = $totalMakanan;
@@ -2882,19 +2923,44 @@ class TableOrderController extends Controller
             if ($save) {
                 // Save FnB Items to tableorderfnb
                 foreach ($fnbItems as $index => $item) {
-                    $fnb = new TableOrderFnB();
-                    $fnb->NoTransaksi = $model->NoTransaksi;
-                    $fnb->LineNumber = $index + 1;
-                    $fnb->KodeItem = $item['KodeItem'] ?? $item['kode'] ?? '';
-                    $fnb->Qty = $item['Qty'] ?? $item['qty'] ?? 0;
-                    $fnb->Harga = $item['Harga'] ?? $item['price'] ?? 0;
-                    $fnb->Discount = 0;
-                    $fnb->Tax = ($fnb->Qty * $fnb->Harga) * ($ppnPer / 100);
-                    $fnb->BiayaLayanan = ($fnb->Qty * $fnb->Harga) * ($svcPer / 100);
-                    $fnb->LineStatus = ($opsiBayar === 'LANGSUNG' && !$isMidtrans) ? 'C' : 'O';
-                    $fnb->RecordOwnerID = Auth::user()->RecordOwnerID;
-                    $fnb->created_at = Carbon::now();
-                    $fnb->save();
+                    $kodeItem = $item['KodeItem'] ?? $item['kode'] ?? '';
+                    $qty = floatval($item['Qty'] ?? $item['qty'] ?? 0);
+                    $harga = floatval($item['Harga'] ?? $item['price'] ?? 0);
+                    if (empty($kodeItem)) continue;
+
+                    $tax = ($qty * $harga) * ($ppnPer / 100);
+                    $service = ($qty * $harga) * ($servicePer / 100);
+
+                    DB::table('tableorderfnb')->insert([
+                        'NoTransaksi' => $model->NoTransaksi,
+                        'LineNumber' => $index + 1,
+                        'KodeItem' => $kodeItem,
+                        'Qty' => $qty,
+                        'Harga' => $harga,
+                        'Tax' => $tax,
+                        'Discount' => 0,
+                        'BiayaLayanan' => $service,
+                        'LineStatus' => ($opsiBayar === 'LANGSUNG' && !$isMidtrans) ? 'C' : 'O',
+                        'LineTotal' => ($qty * $harga) + $tax + $service,
+                        'isCompleted' => 0,
+                        'RecordOwnerID' => Auth::user()->RecordOwnerID,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+
+                    // Deduct stock
+                    if (!empty($gudangPoS)) {
+                        DB::table('itemwarehouses')
+                            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                            ->where('KodeItem', $kodeItem)
+                            ->where('KodeGudang', $gudangPoS)
+                            ->decrement('Qty', $qty);
+                    }
+                }
+                
+                if (!empty($fnbItems)) {
+                    $model->kitchen_order_status = 0;
+                    $model->save();
                 }
                 // ===== BAYAR LANGSUNG LOGIC (Create Invoice) =====
                 // Jika Midtrans, jangan buat invoice dulu sampai dikonfirmasi
@@ -2966,25 +3032,30 @@ class TableOrderController extends Controller
 
                     // Add FnB items to invoice if Cash
                     foreach ($fnbItems as $index => $item) {
+                        $kodeItem = $item['KodeItem'] ?? $item['kode'] ?? '';
+                        $qty = floatval($item['Qty'] ?? $item['qty'] ?? 0);
+                        $harga = floatval($item['Harga'] ?? $item['price'] ?? 0);
+                        if (empty($kodeItem)) continue;
+
                         $fdFnb = new FakturPenjualanDetail;
                         $fdFnb->NoTransaksi   = $invoiceNo;
                         $fdFnb->BaseReff      = $model->NoTransaksi;
                         $fdFnb->NoUrut        = $index + 2;
                         $fdFnb->BaseLine      = 0;
-                        $fdFnb->KodeItem      = $item['kode'];
-                        $fdFnb->Qty           = $item['qty'];
-                        $fdFnb->QtyKonversi   = $item['qty'];
+                        $fdFnb->KodeItem      = $kodeItem;
+                        $fdFnb->Qty           = $qty;
+                        $fdFnb->QtyKonversi   = $qty;
                         $fdFnb->QtyRetur      = 0;
                         $fdFnb->Satuan         = "PCS";
-                        $fdFnb->Harga          = $item['price'];
+                        $fdFnb->Harga          = $harga;
                         $fdFnb->Discount       = 0;
-                        $fdFnb->HargaNet       = $item['qty'] * $item['price'];
+                        $fdFnb->HargaNet       = $qty * $harga;
                         $fdFnb->LineStatus     = "C";
                         $fdFnb->KodeGudang     = $company->GudangPoS ?? 'HO';
                         $fdFnb->Keterangan     = "FnB - " . $model->NoTransaksi;
                         $fdFnb->VatPercent     = $ppnPer;
-                        $fdFnb->VatTotal       = ($item['qty'] * $item['price']) * ($ppnPer / 100);
-                        $fdFnb->Pajak          = ($item['qty'] * $item['price']) * ($ppnPer / 100);
+                        $fdFnb->VatTotal       = ($qty * $harga) * ($ppnPer / 100);
+                        $fdFnb->Pajak          = ($qty * $harga) * ($ppnPer / 100);
                         $fdFnb->PajakHiburan   = 0;
                         $fdFnb->RecordOwnerID  = Auth::user()->RecordOwnerID;
                         $fdFnb->created_at     = Carbon::now();
@@ -3162,33 +3233,20 @@ public function getTableStatuses()
             $now = Carbon::now();
             $nearlyExpiredThreshold = (clone $now)->addMinutes(10);
 
-            // A. Handle Expired Tables with a single Bulk-Update logic
-            // We use a join to check payment status directly in the query
-            $expiredUnpaid = DB::table('tableorderheader as h')
-                ->leftJoin(DB::raw("(
-                    SELECT d.BaseReff, d.RecordOwnerID, SUM(f.TotalPembayaran) as TotalPaid
-                    FROM fakturpenjualandetail d
-                    JOIN fakturpenjualanheader f ON f.NoTransaksi = d.NoTransaksi AND f.RecordOwnerID = d.RecordOwnerID
-                    WHERE f.Status = 'C' AND d.RecordOwnerID = '{$roid}'
-                    GROUP BY d.BaseReff, d.RecordOwnerID
-                ) as p"), function($join) {
-                    $join->on('h.NoTransaksi', '=', 'p.BaseReff')
-                         ->on('h.RecordOwnerID', '=', 'p.RecordOwnerID');
-                })
-                ->where('h.RecordOwnerID', $roid)
-                ->where('h.DocumentStatus', 'O')
-                ->whereNotNull('h.JamSelesai')
-                ->where('h.JamSelesai', '<', $now)
-                ->select('h.NoTransaksi', 'h.tableid', 'h.NetTotal', 'p.TotalPaid')
+            // A. Handle Expired Tables (O -> C/KOSONG)
+            $expiredTables = DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('DocumentStatus', 'O')
+                ->whereNotNull('JamSelesai')
+                ->where('JamSelesai', '<', $now)
                 ->get();
 
-            foreach ($expiredUnpaid as $et) {
+            foreach ($expiredTables as $et) {
                 $netTotal = floatval($et->NetTotal ?? 0);
-                $totalPaid = floatval($et->TotalPaid ?? 0);
-
-                // Auto-close if fully paid OR if price is 0
+                $totalPaid = floatval($et->TotalTerbayar ?? 0);
+                
                 if ($totalPaid >= $netTotal || $netTotal == 0) {
-                    // Fully Paid or Free -> Close
+                    // Fully Paid or Free -> Green/Kosong
                     DB::table('tableorderheader')->where('NoTransaksi', $et->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'C']);
                     DB::table('titiklampu')->where('id', $et->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
                 } else {
@@ -3219,19 +3277,7 @@ public function getTableStatuses()
                 DB::table('tableorderheader')->where('NoTransaksi', $ta->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'O']);
                 DB::table('titiklampu')->where('id', $ta->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
             }
-                     // 2. Optimized Subqueries for Payment Summary
-            $subqueryPembayaran = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
-                            SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran")
-                ->join('fakturpenjualanheader', function ($join) use ($roid) {
-                    $join->on('fakturpenjualanheader.NoTransaksi', '=', 'fakturpenjualandetail.NoTransaksi')
-                        ->on('fakturpenjualanheader.RecordOwnerID', '=', 'fakturpenjualandetail.RecordOwnerID')
-                        ->where('fakturpenjualanheader.RecordOwnerID', '=', $roid)
-                        ->where('fakturpenjualanheader.Status', '=', 'C')
-                        ->where('fakturpenjualanheader.TotalPembayaran', '>', 0);
-                })
-                ->where('fakturpenjualandetail.RecordOwnerID', $roid)
-                ->whereIn(DB::RAW("COALESCE(fakturpenjualanheader.NoReff, 'POS')"), ['POS'])
-                ->groupBy('fakturpenjualandetail.BaseReff', 'fakturpenjualandetail.RecordOwnerID');
+            // B. (Removed optimized subqueries as we use TotalTerbayar now)
 
             // 3. MAIN STATUS QUERY (SUPER LIGHTWEIGHT)
             $titiklampu = DB::table('titiklampu')
@@ -3254,9 +3300,8 @@ public function getTableStatuses()
                     tableorderheader.JamMulai,
                     tableorderheader.JamSelesai,
                     tableorderheader.JenisPaket,
-                    DATE_FORMAT(tableorderheader.JamMulai, '%H:%i') as JamMulaiParsed,
-                    DATE_FORMAT(tableorderheader.JamSelesai, '%H:%i') as JamSelesaiParsed,
-                    COALESCE(payment_summary.TotalPembayaran, 0) as TotalPembayaran,
+                    COALESCE(tableorderheader.TotalTerbayar, 0) as TotalPembayaran,
+                    COALESCE(tableorderheader.NetTotal, 0) as NetTotal,
                     COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok
                 ")
                 ->leftJoin('tableorderheader', function($join) use ($roid) {
@@ -3269,10 +3314,6 @@ public function getTableStatuses()
                     $join->on('tableorderheader.paketid', '=', 'pakettransaksi.id')
                          ->on('tableorderheader.RecordOwnerID', '=', 'pakettransaksi.RecordOwnerID')
                          ->where('pakettransaksi.RecordOwnerID', '=', $roid);
-                })
-                ->leftJoinSub($subqueryPembayaran, 'payment_summary', function ($join) {
-                    $join->on('tableorderheader.NoTransaksi', '=', 'payment_summary.BaseReff')
-                         ->on('tableorderheader.RecordOwnerID', '=', 'payment_summary.RecordOwnerID');
                 })
                 ->leftjoin('tkelompoklampu', function ($join) use ($roid) {
                     $join->on('titiklampu.KelompokLampu','=','tkelompoklampu.KodeKelompok')
@@ -3308,13 +3349,17 @@ public function getTableStatuses()
     public function storeFnBOrder(Request $request)
     {
         $recordOwnerID = Auth::user()->RecordOwnerID;
-        Log::debug("storeFnBOrder Request: " . json_encode($request->all()));
+        Log::critical("storeFnBOrder REACHED - Request: " . json_encode($request->all()));
 
         DB::beginTransaction();
         try {
             $noTransaksi = $request->input('NoTransaksi');
             $items = $request->input('items', []);
-            $opsiBayar = $request->input('OpsiBayar'); // 'LANGSUNG' or 'NANTI'
+            
+            if (empty($items)) {
+                return response()->json(['success' => false, 'message' => 'Daftar pesanan makanan kosong. Silahkan pilih menu terlebih dahulu.'], 400);
+            }
+            $opsiBayar = $request->input('FnbOpsiBayar') ?? $request->input('OpsiBayar') ?? 'NANTI';
 
             $header = TableOrderHeader::where('NoTransaksi', $noTransaksi)
                 ->where('RecordOwnerID', $recordOwnerID)
@@ -3325,7 +3370,11 @@ public function getTableStatuses()
             }
 
             $company = Company::where('KodePartner', $recordOwnerID)->first();
-            $gudangPoS = $company->GudangPoS ?? '';
+            $gudangPoS = $company->GudangPoS;
+            if (empty($gudangPoS)) {
+                // Try to find any warehouse for this owner as fallback, or use GDG01
+                $gudangPoS = DB::table('warehouses')->where('RecordOwnerID', $recordOwnerID)->value('KodeGudang') ?? 'GDG01';
+            }
             $allowNegative = $company->AllowNegativeInventory ?? 'N';
 
             $totalFnB = 0;
@@ -3367,9 +3416,15 @@ public function getTableStatuses()
                         ->where('KodeGudang', $gudangPoS)
                         ->value('Qty');
 
-                    if ($stock < $qty) {
+                    // STRICT CHECK: If no stock record (null) or stock < qty, reject
+                    $currentStock = ($stock === null) ? 0 : floatval($stock);
+
+                    if ($currentStock < $qty) {
                         DB::rollBack();
-                        return response()->json(['success' => false, 'message' => "Stok item $namaItem ($kodeItem) tidak mencukupi (Tersedia: $stock, Diminta: $qty)"], 400);
+                        return response()->json([
+                            'success' => false, 
+                            'message' => "Stok item $namaItem ($kodeItem) tidak mencukupi di gudang $gudangPoS (Tersedia: $currentStock, Diminta: $qty). Silahkan isi stok atau aktifkan 'Allow Negative Inventory' di pengaturan."
+                        ], 400);
                     }
                 }
 
@@ -3383,28 +3438,31 @@ public function getTableStatuses()
                 $totalTax += $tax;
                 $totalService += $service;
 
-                $fnb = new TableOrderFnB();
-                $fnb->NoTransaksi = $noTransaksi;
-                $fnb->LineNumber = $maxLine + $index + 1;
-                $fnb->KodeItem = $kodeItem;
-                $fnb->Qty = $qty;
-                $fnb->Harga = $harga;
-                $fnb->Tax = $tax;
-                $fnb->Discount = 0;
-                $fnb->BiayaLayanan = $service;
-                // Jika Midtrans, set 'O' dulu, nanti handleMidtransSuccess yang ubah jadi 'C'
-                $fnb->LineStatus = ($opsiBayar === 'LANGSUNG' && !$isMidtrans) ? 'C' : 'O';
-                $fnb->LineTotal = $lineTotal + $tax + $service;
-                $fnb->isCompleted = 0;
-                $fnb->RecordOwnerID = $recordOwnerID;
-                $fnb->save();
+                DB::table('tableorderfnb')->insert([
+                    'NoTransaksi' => $noTransaksi,
+                    'LineNumber' => $maxLine + $index + 1,
+                    'KodeItem' => $kodeItem,
+                    'Qty' => $qty,
+                    'Harga' => $harga,
+                    'Tax' => $tax,
+                    'Discount' => 0,
+                    'BiayaLayanan' => $service,
+                    'LineStatus' => ($opsiBayar === 'LANGSUNG' && !$isMidtrans) ? 'C' : 'O',
+                    'LineTotal' => $lineTotal + $tax + $service,
+                    'isCompleted' => 0,
+                    'RecordOwnerID' => $recordOwnerID,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
 
-                // Deduct stock
-                DB::table('itemwarehouses')
-                    ->where('RecordOwnerID', $recordOwnerID)
-                    ->where('KodeItem', $kodeItem)
-                    ->where('KodeGudang', $gudangPoS)
-                    ->decrement('Qty', $qty);
+                // Deduct stock only if warehouse is set
+                if (!empty($gudangPoS)) {
+                    DB::table('itemwarehouses')
+                        ->where('RecordOwnerID', $recordOwnerID)
+                        ->where('KodeItem', $kodeItem)
+                        ->where('KodeGudang', $gudangPoS)
+                        ->decrement('Qty', $qty);
+                }
             }
 
             // Update Header (Hanya jika LANGSUNG dan bukan Midtrans, karena Midtrans dihandle di callback)
@@ -3415,6 +3473,12 @@ public function getTableStatuses()
                 $header->TotalTax += $totalTax;
                 $header->BiayaLayanan += $totalService;
                 $header->NetTotal += ($totalFnB + $totalTax + $totalService);
+                $header->kitchen_order_status = 0; // Update status dapur
+                $header->save();
+            } else {
+                // Untuk opsi bayar nanti, tetap update status dapur dan total makanan
+                $header->TotalMakanan += $totalFnB;
+                $header->kitchen_order_status = 0;
                 $header->save();
             }
             // dd($opsiBayar, $header);
@@ -3629,7 +3693,7 @@ public function getTableStatuses()
             return response()->json([
                 'success' => true, 
                 'message' => 'FnB berhasil ditambahkan',
-                'NoTransaksi' => ($opsiBayar === 'LANGSUNG' && isset($invoiceNo)) ? $invoiceNo : null
+                'NoTransaksi' => ($opsiBayar === 'LANGSUNG' && isset($invoiceNo)) ? $invoiceNo : $noTransaksi
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -5166,6 +5230,7 @@ public function getTableStatuses()
         $noTransaksi = $request->NoTransaksi;
         $recordOwnerID = Auth::user()->RecordOwnerID;
 
+        // 1. Get the "Main" Header (prefer the one with Table Rental if multiple exist)
         $header = FakturPenjualanHeader::selectRaw("
                 fakturpenjualanheader.*, 
                 pembayaranpenjualanheader.TotalPembayaran as Bayar, 
@@ -5178,10 +5243,6 @@ public function getTableStatuses()
             ->join('fakturpenjualandetail', function($join) {
                 $join->on('fakturpenjualanheader.NoTransaksi', '=', 'fakturpenjualandetail.NoTransaksi')
                      ->on('fakturpenjualanheader.RecordOwnerID', '=', 'fakturpenjualandetail.RecordOwnerID');
-            })
-            ->join('itemmaster', function($join) {
-                $join->on('fakturpenjualandetail.KodeItem', '=', 'itemmaster.KodeItem')
-                     ->on('fakturpenjualandetail.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
             })
             ->leftJoin('pembayaranpenjualanheader', function($join) {
                 $join->on('fakturpenjualanheader.NoTransaksi', '=', 'pembayaranpenjualanheader.NoReff')
@@ -5200,33 +5261,74 @@ public function getTableStatuses()
                      ->on('fakturpenjualanheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
             })
             ->where('fakturpenjualanheader.RecordOwnerID', $recordOwnerID)
-            // ->where('fakturpenjualanheader.NoTransaksi', $noTransaksi)
-            ->where(function($q) use ($noTransaksi) {
-                // Scenario 1: Table order receipt - look up by BaseReff (tableorder NoTransaksi) with TypeItem=4
-                $q->Where(function($sq) use ($noTransaksi) {
-                      $sq->where('fakturpenjualandetail.BaseReff', $noTransaksi)
-                         ->where('itemmaster.TypeItem', 4);
-                  });
-                // Scenario 2: Direct FnB sale receipt - look up by faktur NoTransaksi directly
-                // ->orWhere(function($sq) use ($noTransaksi) {
-                //       $sq->where('fakturpenjualanheader.NoTransaksi', $noTransaksi)
-                //          ->where('fakturpenjualanheader.NoReff', 'FNB-DIRECT');
-                //   });
-            })
+            ->where('fakturpenjualandetail.BaseReff', $noTransaksi)
+            ->orderByRaw("CASE WHEN fakturpenjualanheader.NoReff = 'POS' THEN 0 ELSE 1 END") // Prioritize main POS faktur
             ->first();
 
         if (!$header) {
-            return response()->json(['success' => false, 'message' => 'Data faktur tidak ditemukan.']);
+            // Fallback to tableorderheader for unpaid orders (Order Slip)
+            $header = DB::table('tableorderheader')
+                ->leftJoin('pelanggan', function($join) {
+                    $join->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
+                         ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
+                })
+                ->leftJoin('titiklampu', function($join) {
+                    $join->on('tableorderheader.tableid', '=', 'titiklampu.id')
+                         ->on('tableorderheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
+                })
+                ->where('tableorderheader.NoTransaksi', $noTransaksi)
+                ->where('tableorderheader.RecordOwnerID', $recordOwnerID)
+                ->selectRaw("
+                    tableorderheader.NoTransaksi,
+                    tableorderheader.TglTransaksi,
+                    tableorderheader.TotalMakanan as TotalPembelian,
+                    0 as Bayar,
+                    0 as Kembali,
+                    'BAYAR NANTI' as NamaMetodePembayaran,
+                    pelanggan.NamaPelanggan,
+                    pelanggan.Email,
+                    CONCAT(COALESCE(titiklampu.NamaTitikLampu, ''), ' - ', COALESCE(titiklampu.DigitalInput, '')) as NamaTitikLampu,
+                    'ORDER SLIP' as NoReff
+                ")
+                ->first();
         }
 
-        $details = FakturPenjualanDetail::selectRaw('fakturpenjualandetail.*, COALESCE(itemmaster.NamaItem, fakturpenjualandetail.Keterangan) as NamaItem')
-            ->leftJoin('itemmaster', function($join) use ($recordOwnerID) {
-                $join->on('fakturpenjualandetail.KodeItem', '=', 'itemmaster.KodeItem')
-                     ->on('fakturpenjualandetail.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
-            })
-            ->where('fakturpenjualandetail.NoTransaksi', $header->NoTransaksi)
-            ->where('fakturpenjualandetail.RecordOwnerID', $recordOwnerID)
-            ->get();
+        if (!$header) {
+            return response()->json(['success' => false, 'message' => 'Data faktur atau pesanan tidak ditemukan.']);
+        }
+
+        // 2. Fetch ALL details linked to the same Table Order (BaseReff)
+        // If it's a Faktur, we use BaseReff or NoTransaksi
+        // If it's a TableOrder, we check tableorderfnb
+        $details = [];
+        if (isset($header->NoReff) && $header->NoReff === 'ORDER SLIP') {
+            $details = DB::table('tableorderfnb')
+                ->join('itemmaster', function($join) {
+                    $join->on('tableorderfnb.KodeItem', '=', 'itemmaster.KodeItem')
+                         ->on('tableorderfnb.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+                })
+                ->where('tableorderfnb.NoTransaksi', $noTransaksi)
+                ->where('tableorderfnb.RecordOwnerID', $recordOwnerID)
+                ->selectRaw('tableorderfnb.*, itemmaster.NamaItem')
+                ->get();
+        } else {
+            $details = FakturPenjualanDetail::selectRaw('fakturpenjualandetail.*, COALESCE(itemmaster.NamaItem, fakturpenjualandetail.Keterangan) as NamaItem')
+                ->leftJoin('itemmaster', function($join) use ($recordOwnerID) {
+                    $join->on('fakturpenjualandetail.KodeItem', '=', 'itemmaster.KodeItem')
+                         ->on('fakturpenjualandetail.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+                })
+                ->where(function($q) use ($noTransaksi, $header) {
+                    $q->where('fakturpenjualandetail.BaseReff', $noTransaksi)
+                      ->orWhere('fakturpenjualandetail.NoTransaksi', $header->NoTransaksi);
+                })
+                ->where('fakturpenjualandetail.RecordOwnerID', $recordOwnerID)
+                ->orderBy('fakturpenjualandetail.NoUrut')
+                ->get();
+        }
+
+        // Recalculate totals from all details if we found multiple
+        $totalPembelian = $details->sum('HargaNet');
+        $header->TotalPembelian = $totalPembelian; // Update for display
 
         $company = Company::where('KodePartner', $recordOwnerID)->first();
 

@@ -1059,7 +1059,13 @@
                                 onClose: function() { refreshTableStatuses(); }
                             });
                         } else {
-                            swal("Berhasil", "Pesanan makanan telah masuk.", "success").then(() => refreshTableStatuses());
+                            swal("Berhasil", "Pesanan makanan telah masuk.", "success").then(() => {
+                                if (res.NoTransaksi) {
+                                    showReceiptPreview(res.NoTransaksi);
+                                } else {
+                                    refreshTableStatuses();
+                                }
+                            });
                         }
                     } else {
                         $('#btnSubmitFnbOnly').prop('disabled', false).text('BAYAR & PESAN');
@@ -1199,7 +1205,7 @@
         swal({ title: "Checkout?", text: "Selesaikan penggunaan meja ini.", type: "warning", showCancelButton: true })
         .then((r) => {
             if (r.value) {
-                $.post('{{ route("billing-process-checkout") }}', { _token: $('meta[name="csrf-token"]').attr('content'), NoTransaksi: selectedTitik.notransaksi }, function() {
+                $.post('/billing/process-checkout', { _token: $('meta[name="csrf-token"]').attr('content'), NoTransaksi: selectedTitik.notransaksi }, function() {
                     refreshTableStatuses();
                 });
             }
@@ -1211,7 +1217,7 @@
         if (!selectedTitik || !selectedTitik.notransaksi) return;
         swal({ title: "Memuat...", text: "Sedang mengambil data tagihan", allowOutsideClick: false, onOpen: () => { swal.showLoading(); } });
         
-        fetch('{{ route("billing-get-order-detail") }}', {
+        fetch('/billing/get-order-detail', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             body: JSON.stringify({ NoTransaksi: selectedTitik.notransaksi })
@@ -1278,7 +1284,7 @@
         swal({ title: "Konfirmasi", text: "Proses pembayaran sisa tagihan?", type: "question", showCancelButton: true })
         .then((r) => {
             if (r.value) {
-                fetch('{{ route("billing-pay-order-detail") }}', {
+                fetch('/billing/pay-order-detail', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     body: JSON.stringify(payload)
@@ -1346,7 +1352,7 @@
         swal({ title: "Konfirmasi", text: "Tambah durasi sekarang?", type: "question", showCancelButton: true })
         .then((r) => {
             if (r.value) {
-                fetch('{{ route("billing-store-tambah-durasi") }}', {
+                fetch('/billing/store-tambah-durasi', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     body: JSON.stringify(payload)
@@ -1383,7 +1389,7 @@
     function searchJfItems(q) {
         if (q.length < 2) { $('#jfSearchResults').hide(); return; }
         $.ajax({
-            url: "{{ route('itemmaster-ViewJson') }}",
+            url: "/itemmaster/ViewJson",
             method: 'POST',
             data: { Scan: q, Active: 'Y', TipeItemIN: '1,2,3,5' },
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
@@ -1488,28 +1494,84 @@
 
     // ===== RECEIPT HANDLERS =====
     function showReceiptPreview(no) {
-        fetch('{{ route("billing-get-faktur-detail") }}', {
+        fetch('/billing/get-faktur-detail', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             body: JSON.stringify({ NoTransaksi: no })
         }).then(res => res.json()).then(res => {
             if (res.success) {
                 const h = res.header;
+                const details = res.details || [];
+                const c = res.company || {};
+                
+                let itemsHtml = '';
+                details.forEach(item => {
+                    itemsHtml += `
+                        <tr>
+                            <td style="padding:4px 0;">${item.NamaItem}<br/><small>${formatRp(item.Harga)} x ${item.Qty}</small></td>
+                            <td style="text-align:right; vertical-align:top; padding:4px 0;">${formatRp(item.HargaNet || (item.Qty * item.Harga))}</td>
+                        </tr>
+                    `;
+                });
+
                 let html = `
-                    <div style="text-align:center; font-size:1.2rem; font-weight:800; margin-bottom:10px;">${h.NamaPartner || 'DSTECH SMART'}</div>
-                    <div style="text-align:center; font-size:0.8rem; margin-bottom:10px;">${h.AlamatPartner || ''}</div>
-                    <div style="border-top:1px dashed #000; margin:10px 0;"></div>
-                    <div style="font-size:0.85rem;">No: ${h.NoTransaksi}</div>
-                    <div style="font-size:0.85rem;">Meja: ${h.NamaTitikLampu || '-'}</div>
-                    <div style="font-size:0.85rem;">Tgl: ${h.JamSelesai || h.JamMulai}</div>
-                    <div style="border-top:1px dashed #000; margin:10px 0;"></div>
-                    <table style="width:100%; font-size:0.85rem;">
-                        <tr style="border-bottom:1px dashed #000;"><td colspan="3"><strong>GRAND TOTAL: ${formatRp(h.GrandTotal)}</strong></td></tr>
-                        <tr><td colspan="3" style="text-align:center; padding-top:20px;">Terima Kasih Atas Kunjungannya</td></tr>
-                    </table>
+                    <div style="text-align:center; font-family: 'Courier New', Courier, monospace;">
+                        <div style="font-size:1.1rem; font-weight:800; margin-bottom:5px;">${c.NamaPartner || 'DSTECH SMART'}</div>
+                        <div style="font-size:0.75rem; margin-bottom:5px;">${c.Alamat || ''}</div>
+                        <div style="border-top:1px dashed #000; margin:10px 0;"></div>
+                        
+                        <div style="text-align:left; font-size:0.8rem; margin-bottom:10px;">
+                            <div>No: ${h.NoTransaksi}</div>
+                            <div>Tgl: ${h.TglTransaksi}</div>
+                            <div>Meja: ${h.NamaTitikLampu || '-'}</div>
+                            <div>Pelanggan: ${h.NamaPelanggan || 'Umum'}</div>
+                        </div>
+
+                        <div style="border-top:1px dashed #000; margin:5px 0;"></div>
+                        <table style="width:100%; font-size:0.8rem; border-collapse:collapse;">
+                            ${itemsHtml}
+                        </table>
+                        <div style="border-top:1px dashed #000; margin:5px 0;"></div>
+                        
+                        <table style="width:100%; font-size:0.85rem; font-weight:bold;">
+                            <tr>
+                                <td>TOTAL</td>
+                                <td style="text-align:right;">${formatRp(h.TotalPembelian)}</td>
+                            </tr>
+                        </table>
+
+                        <div style="border-top:1px dashed #000; margin:10px 0;"></div>
+                        <div style="font-size:0.75rem;">Terima Kasih Atas Kunjungannya</div>
+                        <div style="font-size:0.7rem; margin-top:5px;">${new Date().toLocaleString()}</div>
+                    </div>
                 `;
                 $('#receiptContent').html(html);
                 $('#modalReceiptPreview').fadeIn().css('display','flex');
+                
+                // Trigger print
+                setTimeout(() => {
+                    // Create a hidden iframe for printing to avoid messing up the UI
+                    const printFrame = document.createElement('iframe');
+                    printFrame.style.position = 'fixed';
+                    printFrame.style.right = '0';
+                    printFrame.style.bottom = '0';
+                    printFrame.style.width = '0';
+                    printFrame.style.height = '0';
+                    printFrame.style.border = '0';
+                    document.body.appendChild(printFrame);
+                    
+                    const doc = printFrame.contentWindow.document;
+                    doc.write('<html><head><title>Print</title></head><body>');
+                    doc.write(html);
+                    doc.write('</body></html>');
+                    doc.close();
+                    
+                    printFrame.contentWindow.focus();
+                    printFrame.contentWindow.print();
+                    setTimeout(() => { document.body.removeChild(printFrame); }, 1000);
+                }, 500);
+            } else {
+                swal("Gagal", res.message, "error");
             }
         });
     }

@@ -42,7 +42,9 @@ class AppServiceProvider extends ServiceProvider
             // $navbars = Navbar::orderBy('ordering')->get();
             
             if (Auth::check()) {
-                $oCompany = Company::where('KodePartner', Auth::user()->RecordOwnerID)->get();
+                $oCompany = Company::select('company.*', 'subscriptionheader.AllowMonitorAntrean', 'subscriptionheader.AllowPesananMeja', 'subscriptionheader.AllowAccounting', 'subscriptionheader.AllowPaymentGateway')
+                            ->leftJoin('subscriptionheader', 'company.KodePaketLangganan', '=', 'subscriptionheader.NoTransaksi')
+                            ->where('company.KodePartner', Auth::user()->RecordOwnerID)->get();
                 $PermissionID = [];
                 if ($oCompany[0]['isActive'] == 0) {
                     $PermissionID = [1, 16, 17];

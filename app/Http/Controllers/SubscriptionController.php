@@ -142,6 +142,7 @@ class SubscriptionController extends Controller
             $model->AllowPesananMeja = $jsonData['AllowPesananMeja'];
             $model->AllowPaymentGateway = $jsonData['AllowPaymentGateway'];
             $model->AllowKatalogOnline = $jsonData['AllowKatalogOnline'];
+            $model->AllowMonitorAntrean = $jsonData['AllowMonitorAntrean'];
             $model->JenisUsaha = $jsonData['JenisUsaha'];
 
             $save = $model->save();
@@ -208,6 +209,8 @@ class SubscriptionController extends Controller
 									'AllowAccounting' => $jsonData['AllowAccounting'],
 									'AllowPesananMeja' => $jsonData['AllowPesananMeja'],
 									'AllowPaymentGateway' => $jsonData['AllowPaymentGateway'],
+									'AllowKatalogOnline' => $jsonData['AllowKatalogOnline'],
+									'AllowMonitorAntrean' => $jsonData['AllowMonitorAntrean'],
                                     'JenisUsaha' => $jsonData['JenisUsaha']
                                ]
                            );

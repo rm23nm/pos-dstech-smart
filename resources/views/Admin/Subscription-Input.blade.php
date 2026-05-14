@@ -129,6 +129,10 @@
                                             <input type="checkbox" class="checkbox-input" id="AllowKatalogOnline" name="AllowKatalogOnline" placeholder="Masukan Harga" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowKatalogOnline'] == 1 ? 'checked' : '' : '' }}>
                                             <label  class="text-body" for="AllowKatalogOnline">Integrasi Katalog Online</label>
                                         </fieldset>
+                                        <fieldset class="form-group mb-3">
+                                            <input type="checkbox" class="checkbox-input" id="AllowMonitorAntrean" name="AllowMonitorAntrean" placeholder="Masukan Harga" {{ count($subscriptionheader) > 0 ? (isset($subscriptionheader[0]['AllowMonitorAntrean']) && $subscriptionheader[0]['AllowMonitorAntrean'] == 1) ? 'checked' : '' : '' }}>
+                                            <label  class="text-body" for="AllowMonitorAntrean">Integrasi Monitor Antrean / Kitchen (NEW)</label>
+                                        </fieldset>
                                     </div>
 
                                     <hr>
@@ -297,6 +301,7 @@
                 'AllowPesananMeja' : jQuery('#AllowPesananMeja').prop('checked') ? 1 : 0,
                 'AllowPaymentGateway' : jQuery('#AllowPaymentGateway').prop('checked') ? 1 : 0,
                 'AllowKatalogOnline' : jQuery('#AllowKatalogOnline').prop('checked') ? 1 : 0,
+                'AllowMonitorAntrean' : jQuery('#AllowMonitorAntrean').prop('checked') ? 1 : 0,
                 'JenisUsaha' : jQuery('#JenisUsaha').val(),
 				'Detail' : oDetail
 			};
