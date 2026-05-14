@@ -327,6 +327,7 @@
                     TglTransaksi: item.TglTransaksi,
                     created_at: item.created_at,
                     OrderStatus: item.OrderStatus || 0,
+                    ServiceType: item.ServiceType || 'DINE_IN',
                     details: []
                 };
             }
@@ -340,12 +341,19 @@
             if(group.OrderStatus == 1) { statusClass = 'bg-warning text-dark'; statusText = 'Diproses'; }
             else if(group.OrderStatus == 2) { statusClass = 'bg-success'; statusText = 'Siap'; }
 
+            let serviceBadge = group.ServiceType === 'TAKE_AWAY' 
+                ? '<span class="badge bg-danger" style="font-size:0.7rem;"><i class="bi bi-bag-check"></i> BAWA PULANG</span>'
+                : '<span class="badge bg-primary" style="font-size:0.7rem;"><i class="bi bi-house-door"></i> MAKAN DI TEMPAT</span>';
+
             html += `
                 <div class="col-md-6 col-lg-4">
                     <div class="kitchen-card fade-in" style="border-left-color: ${group.OrderStatus == 2 ? '#22c55e' : (group.OrderStatus == 1 ? '#fbbf24' : '#1d8cf8')}">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                             <div class="table-name">TABLE: ${group.NamaTitikLampu}</div>
+                             <div class="table-name">MEJA: ${group.NamaTitikLampu}</div>
                              <div class="badge ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="mb-2">
+                            ${serviceBadge}
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="item-detail">${group.NoTransaksi}</div>

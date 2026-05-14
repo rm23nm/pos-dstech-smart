@@ -3609,26 +3609,22 @@ class FakturPenjualanController extends Controller
                 $join->on('tableorderheader.tableid', '=', 'titiklampu.id')
                      ->on('tableorderheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
             })
+            ->leftJoin('tableorderfnb', function($join) {
+                $join->on('tableorderheader.NoTransaksi', '=', 'tableorderfnb.NoTransaksi')
+                     ->on('tableorderheader.RecordOwnerID', '=', 'tableorderfnb.RecordOwnerID');
+            })
             ->select(
                 'tableorderheader.NoTransaksi',
+                'tableorderheader.QueueNumber',
                 'tableorderheader.kitchen_order_status as status',
                 'pelanggan.NamaPelanggan',
-                'titiklampu.NamaTitikLampu as TableName'
+                'titiklampu.NamaTitikLampu as TableName',
+                'tableorderfnb.ServiceType'
             )
             ->where('tableorderheader.RecordOwnerID', $RecordOwnerID)
             ->whereDate('tableorderheader.TglTransaksi', $today)
-            ->whereIn('tableorderheader.kitchen_order_status', [0, 1, 2]) // 0: Masuk, 1: Proses, 2: Siap
-            ->whereExists(function ($query) use ($RecordOwnerID) {
-                $query->select(DB::raw(1))
-                    ->from('tableorderfnb')
-                    ->join('itemmaster', function($join) {
-                        $join->on('tableorderfnb.KodeItem', '=', 'itemmaster.KodeItem')
-                             ->on('tableorderfnb.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
-                    })
-                    ->whereColumn('tableorderfnb.NoTransaksi', 'tableorderheader.NoTransaksi')
-                    ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID)
-                    ->where('itemmaster.TypeItem', '<>', 4);
-            })
+            ->whereIn('tableorderheader.kitchen_order_status', [0, 1, 2])
+            ->distinct()
             ->get();
 
         $masuk = $data->where('status', 0)->values();

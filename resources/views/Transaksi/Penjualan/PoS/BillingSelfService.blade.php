@@ -137,6 +137,28 @@
         .table-timer { font-size: 0.8rem; margin-top: 5px; font-family: monospace; background: rgba(0,0,0,0.25); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
         .paid-badge { position: absolute; top: -5px; right: -5px; background: #ffd600; color: #000; font-size: 0.6rem; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1.5px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 20px;
+            padding: 12px 0px 20px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #37474f;
+        }
+        .legend-dot {
+            width: 18px; height: 18px;
+            border-radius: 4px;
+            display: inline-block;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
         /* ========== RIGHT PANEL ========== */
         .right-panel {
             flex: 0 0 30%; width: 30%; background: #fff; border-left: 1px solid #e0e0e0;
@@ -262,6 +284,12 @@
 
     <div class="pos-main">
         <div class="left-panel">
+            <!-- Legend -->
+            <div class="legend">
+                <span class="legend-item"><span class="legend-dot" style="background:#43a047;"></span> Kosong</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#e53935;"></span> Aktif</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#fb8c00;"></span> Hampir Habis / Checkout</span>
+            </div>
             @foreach ($kelompoklampu as $tl)
                 @php
                     $itemInGroup = $titiklampu->filter(fn($item) => $item->KelompokLampu == $tl->KodeKelompok)->sortBy('DigitalInput');
@@ -295,7 +323,7 @@
                                      data-totalPembayaran="{{ $item->TotalPembayaran ?? 0 }}"
                                      onclick="selectTitikLampu(this)">
                                     {{ $item->DigitalInput }}
-                                    @if(($item->TotalPembayaran ?? 0) > 0)
+                                    @if($item->Status != 0 && ($item->TotalPembayaran ?? 0) > 0)
                                         <div class="paid-badge">PAID</div>
                                     @endif
                                     <div class="table-timer">--:--:--</div>
@@ -428,6 +456,21 @@
                     </div>
                     <div class="pp-row" style="display:none;">
                         <input type="hidden" id="ppKodeSales" value="{{ Auth::user()->KodeSales ?? '' }}">
+                    </div>
+
+                    <!-- Row: Service Type (Dine In / Take Away) -->
+                    <div class="pp-row" style="margin-top: 15px; background: #fffde7; padding: 10px; border-radius: 8px; border: 1px solid #fff9c4;">
+                        <div class="pp-field">
+                            <label class="pp-label" style="color: #f57f17; font-size: 0.85rem; font-weight: 700;"><i class="fas fa-hand-holding-heart"></i> TIPE LAYANAN</label>
+                            <div style="display: flex; gap: 20px; margin-top: 5px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #1a237e; font-size: 0.9rem;">
+                                    <input type="radio" name="ppServiceType" value="DINE_IN" checked> Makan di Tempat
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #e65100; font-size: 0.9rem;">
+                                    <input type="radio" name="ppServiceType" value="TAKE_AWAY"> Bawa Pulang
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="ppDetailBayar" style="background:#f0f4f8; padding:20px; border-radius:12px; margin-top:10px;">
@@ -715,8 +758,8 @@
 
     // Clock
     function updateClock() {
-        var now = new Date();
-        $('#posHeaderClock').text(now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0'));
+        var _nowLocal = new Date();
+        $('#posHeaderClock').text(_nowLocal.getHours().toString().padStart(2,'0') + ':' + _nowLocal.getMinutes().toString().padStart(2,'0') + ':' + _nowLocal.getSeconds().toString().padStart(2,'0'));
     }
     setInterval(updateClock, 1000); updateClock();
 
@@ -784,12 +827,12 @@
         $('.titik-box').each(function() {
             var s = parseInt(this.dataset.status); if (s === 0) return;
             var start = this.dataset.rawjammulai; var end = this.dataset.rawjamselesai;
-            var now = new Date(); var label = "--:--:--";
+            var _nowLocal = new Date(); var label = "--:--:--";
             if (end && end !== 'null' && end !== '') {
-                var diff = new Date(end.replace(' ', 'T')) - now;
+                var diff = new Date(end.replace(' ', 'T')) - _nowLocal;
                 label = diff < 0 ? "WAKTU HABIS" : formatDur(diff);
             } else if (start) {
-                label = formatDur(now - new Date(start.replace(' ', 'T')));
+                label = formatDur(_nowLocal - new Date(start.replace(' ', 'T')));
             }
             $(this).find('.table-timer').text(label);
         });
@@ -831,13 +874,17 @@
     function onPilihPaket() {
         if (!selectedTitik) return;
         $('#modalPaketTitikNama').text(selectedTitik.namatitiklampu);
-        $('#ppTglTransaksi').val(new Date().toISOString().split('T')[0]);
+        const _nowLocal = new Date();
+        const year = _nowLocal.getFullYear();
+        const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
+        const day = String(_nowLocal.getDate()).padStart(2, '0');
+        $('#ppTglTransaksi').val(`${year}-${month}-${day}`);
         $('#ppJenisPaket').val('JAM'); onJenisPaketChange('JAM');
         $('#ppDurasi').val(1);
         $('#ppKodePelanggan').val('');
         
-        var now = new Date();
-        $('#ppJamMulai').val(now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0'));
+        var _nowLocalForJam = new Date();
+        $('#ppJamMulai').val(_nowLocalForJam.getHours().toString().padStart(2,'0') + ':' + _nowLocalForJam.getMinutes().toString().padStart(2,'0'));
         
         $('#modalPilihPaket').addClass('open');
         ppSelectedFnb = {}; // Reset FnB Cart
@@ -1034,6 +1081,7 @@
             OpsiBayar: 'LANGSUNG',
             MetodePembayaran: $('#fnbOnlyMetode').val(),
             NominalBayar: parseFormattedRp($('#fnbOnlyGrandTotal').text()),
+            ServiceType: $('input[name="fnbServiceType"]:checked').val(),
             payment_type: 'ADD_FNB'
         };
 
@@ -1163,6 +1211,7 @@
             OpsiBayar: 'LANGSUNG',
             MetodePembayaran: $('#ppMetodePembayaran').val(),
             NominalBayar: parseFormattedRp($('#ppNominalBayar').val()),
+            ServiceType: $('input[name="ppServiceType"]:checked').val(),
             fnb_items: Object.values(ppSelectedFnb).map(i => ({ kode: i.kode, name: i.name, price: i.price, qty: i.qty }))
         };
 

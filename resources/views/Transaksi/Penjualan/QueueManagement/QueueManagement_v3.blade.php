@@ -321,9 +321,9 @@
       <div class="box-content" id="table-hampirHabis"></div>
     </div>
 
-    <!-- MEJA AVAILABLE -->
+    <!-- MEJA TERSEDIA -->
     <div class="grid-box area-available">
-      <div class="box-header">Layanan Available Hari ini</div>
+      <div class="box-header" style="background: var(--accent-success);">Meja Tersedia</div>
       <div class="box-content" id="table-available"></div>
     </div>
 
@@ -459,14 +459,9 @@
           let stage = "";
           
           // Peringatan 10 Menit
-          if (menit <= 10 && menit > 5 && !spokenStages[tableName]['10m']) {
+          if (menit <= 10 && menit > 0 && !spokenStages[tableName]['10m']) {
               pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam sepuluh menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
               stage = '10m';
-          } 
-          // Peringatan 5 Menit
-          else if (menit <= 5 && menit > 0 && !spokenStages[tableName]['5m']) {
-              pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam lima menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
-              stage = '5m';
           } 
           // Waktu Habis (0 Menit)
           else if (menit <= 0 && !spokenStages[tableName]['0m']) {
@@ -480,6 +475,7 @@
           }
       });
     };
+
 
     function updateTables(data){
         // Modern Table Markup
@@ -529,9 +525,12 @@
         document.getElementById('table-available').innerHTML = createTable(data.availableTable, 'avail');
         document.getElementById('table-booking').innerHTML = createTable(data.bookingTable, 'booking');
         
+        // FNB READY REMOVED
+
         // Voice trigger - Check both used and expiring tables
         const allOccupied = [...(data.usedTable || []), ...(data.hampirHabisTable || [])];
         if(allOccupied.length > 0) speakQueueInIndonesian(allOccupied);
+
     }
 
     function fetchQueueData(){

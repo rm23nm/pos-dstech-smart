@@ -856,7 +856,11 @@
                     var bookingInfoContainer = modal.find('#bookingInfo');
                     var kodePartner = document.getElementById('kodePartner').value;
 
-                    const today = new Date().toISOString().slice(0, 10); // format yyyy-mm-dd
+                    var _nowLocal = new Date();
+                    const year = _nowLocal.getFullYear();
+                    const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
+                    const day = String(_nowLocal.getDate()).padStart(2, '0');
+                    const today = `${year}-${month}-${day}`;
 
                     var jamMulaiInstance = modal.find('input[name="jamMulai"]')[0];
                     var jamSelesaiInstance = modal.find('input[name="jamSelesai"]')[0];

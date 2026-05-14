@@ -1601,6 +1601,23 @@ License: You must have a valid license purchased only from themeforest(the above
 				location.reload();
 			}
 		}, 1000);
+
+		function updateClock() {
+			var now = new Date();
+			var hours = String(now.getHours()).padStart(2, '0');
+			var minutes = String(now.getMinutes()).padStart(2, '0');
+			var seconds = String(now.getSeconds()).padStart(2, '0');
+			
+			jQuery('#hours').text(hours);
+			jQuery('#min').text(minutes);
+			jQuery('#sec').text(seconds);
+			
+			var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+			jQuery('#Date').text(now.toLocaleDateString('id-ID', options));
+		}
+		setInterval(updateClock, 1000);
+		updateClock();
+
 		
 		var _billing = [];
 		var _dataPaket = [];
@@ -1924,8 +1941,8 @@ License: You must have a valid license purchased only from themeforest(the above
 				jQuery('#lblNamaTitikLampu').text(NamaTitikLampu);
 				jQuery('#tableid').val(itemId).change();
 
-				var now = new Date();
-				var localDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+				var _nowLocal = new Date();
+				var localDate = _nowLocal.getFullYear() + '-' + String(_nowLocal.getMonth() + 1).padStart(2, '0') + '-' + String(_nowLocal.getDate()).padStart(2, '0');
 				jQuery('#TglTransaksi').val(localDate);
 				jQuery('#TglTransaksi').attr('min', localDate);
 
@@ -2189,9 +2206,9 @@ License: You must have a valid license purchased only from themeforest(the above
 					}
 
 					// calculation
-					const now = new Date();
-					const currentYear = now.getFullYear();
-					const currentMonth = now.getMonth();
+					var _nowLocal = new Date();
+					const currentYear = _nowLocal.getFullYear();
+					const currentMonth = _nowLocal.getMonth();
 					
 					// Days in month
 					let daysInMonth;
@@ -2216,7 +2233,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					}
 					
 					console.log("targetDate : " + targetDate);
-					console.log("now : " + now);
+					console.log("now : " + _nowLocal);
 					
 					const diffTime = targetDate - now;
 					const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -2293,13 +2310,13 @@ License: You must have a valid license purchased only from themeforest(the above
                 jQuery('#DurasiPaket').attr('readonly', false);
 
 				// ...existing code...
-				var now = new Date();
-				var formattedNow = now.getFullYear() + '-' +
-					String(now.getMonth() + 1).padStart(2, '0') + '-' +
-					String(now.getDate()).padStart(2, '0') + ' ' +
-					String(now.getHours()).padStart(2, '0') + ':' +
-					String(now.getMinutes()).padStart(2, '0') + ':' +
-					String(now.getSeconds()).padStart(2, '0');
+				var _nowLocal = new Date();
+				var formattedNow = _nowLocal.getFullYear() + '-' +
+					String(_nowLocal.getMonth() + 1).padStart(2, '0') + '-' +
+					String(_nowLocal.getDate()).padStart(2, '0') + ' ' +
+					String(_nowLocal.getHours()).padStart(2, '0') + ':' +
+					String(_nowLocal.getMinutes()).padStart(2, '0') + ':' +
+					String(_nowLocal.getSeconds()).padStart(2, '0');
 				// Use formattedNow instead of jQuery('#JamRequest').val()
 				
 				// ...existing code...
@@ -2429,9 +2446,9 @@ License: You must have a valid license purchased only from themeforest(the above
 				const month = String(baseDate.getMonth() + 1).padStart(2, '0');
 				const day = String(baseDate.getDate()).padStart(2, '0');
 				
-				const now = new Date();
-				const hours = String(now.getHours()).padStart(2, '0');
-				const minutes = String(now.getMinutes()).padStart(2, '0');
+				var _nowLocal = new Date();
+				const hours = String(_nowLocal.getHours()).padStart(2, '0');
+				const minutes = String(_nowLocal.getMinutes()).padStart(2, '0');
 
 				jQuery('#TglMasuk_Monthly').val(`${year}-${month}-${day}`);
 				jQuery('#JamMasuk_Monthly').val(`${hours}:${minutes}`);
@@ -2471,9 +2488,9 @@ License: You must have a valid license purchased only from themeforest(the above
 				const month = String(baseDate.getMonth() + 1).padStart(2, '0');
 				const day = String(baseDate.getDate()).padStart(2, '0');
 				
-				const now = new Date();
-				const hours = String(now.getHours()).padStart(2, '0');
-				const minutes = String(now.getMinutes()).padStart(2, '0');
+				var _nowLocal = new Date();
+				const hours = String(_nowLocal.getHours()).padStart(2, '0');
+				const minutes = String(_nowLocal.getMinutes()).padStart(2, '0');
 
 				jQuery('#TglMasuk_Yearly').val(`${year}-${month}-${day}`);
 				jQuery('#JamMasuk_Yearly').val(`${hours}:${minutes}`);
@@ -2510,9 +2527,9 @@ License: You must have a valid license purchased only from themeforest(the above
 				const month = String(baseDate.getMonth() + 1).padStart(2, '0');
 				const day = String(baseDate.getDate()).padStart(2, '0');
 				
-				const now = new Date();
-				const hours = String(now.getHours()).padStart(2, '0');
-				const minutes = String(now.getMinutes()).padStart(2, '0');
+				var _nowLocal = new Date();
+				const hours = String(_nowLocal.getHours()).padStart(2, '0');
+				const minutes = String(_nowLocal.getMinutes()).padStart(2, '0');
 
 				jQuery('#TglMasuk_Daily').val(`${year}-${month}-${day}`);
 				jQuery('#JamMasuk_Daily').val(`${hours}:${minutes}`);
@@ -2558,10 +2575,10 @@ License: You must have a valid license purchased only from themeforest(the above
 			const tglTransaksi = jQuery('#TglTransaksi').val();
 			if (!tglTransaksi) return;
 
-			const now = new Date();
-			const year = now.getFullYear();
-			const month = String(now.getMonth() + 1).padStart(2, '0');
-			const day = String(now.getDate()).padStart(2, '0');
+			var _nowLocal = new Date();
+			const year = _nowLocal.getFullYear();
+			const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
+			const day = String(_nowLocal.getDate()).padStart(2, '0');
 			const todayDate = `${year}-${month}-${day}`;
 
 			if (tglTransaksi === todayDate) {
@@ -2609,7 +2626,7 @@ License: You must have a valid license purchased only from themeforest(the above
                     success: function(response) {
                         if (response.data.length > 0) {
                             const member = response.data[0];
-                            const now = new Date();
+                            var _nowLocal = new Date();
                             const validUntil = member.ValidUntil ? new Date(member.ValidUntil) : null;
 
                             // a. cek ValidUntil kosong
@@ -2621,7 +2638,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
                             // b. cek ValidUntil < Now
                             // Reset time for comparison if needed, or compare as is
-                            if (validUntil < now) {
+                            if (validUntil < _nowLocal) {
                                 Swal.fire("Informasi", "member sudah expired", "warning");
                                 jQuery('#KodePelanggan').val("").trigger('change');
                                 return;
@@ -2855,8 +2872,8 @@ License: You must have a valid license purchased only from themeforest(the above
 						 // Use TglTransaksi from the form or default to today
 						 var tglTrx = jQuery('#TglTransaksi').val();
 						 if(!tglTrx) {
-							var now = new Date();
-						 	tglTrx = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+							var _nowLocal = new Date();
+						 	tglTrx = _nowLocal.getFullYear() + '-' + String(_nowLocal.getMonth() + 1).padStart(2, '0') + '-' + String(_nowLocal.getDate()).padStart(2, '0');
 						 }
                          formData.append('TglBooking', tglTrx);
                      }
@@ -2875,9 +2892,9 @@ License: You must have a valid license purchased only from themeforest(the above
 				formData.append('TglBooking', tglMasuk); // Use TglMasuk as TglBooking
 				
 				const startDateTime = new Date(tglMasuk + 'T' + jamMasuk);
-				const now = new Date();
+				var _nowLocal = new Date();
 
-				if (startDateTime > now) {
+				if (startDateTime > _nowLocal) {
 					formData.append('Status', '0');
 					formData.append('DocumentStatus', 'D');
 				} else {
@@ -2901,9 +2918,9 @@ License: You must have a valid license purchased only from themeforest(the above
 				formData.append('TglBooking', tglMasuk); // Use TglMasuk as TglBooking
 				
 				const startDateTime = new Date(tglMasuk + 'T' + jamMasuk);
-				const now = new Date();
+				var _nowLocal = new Date();
 
-				if (startDateTime > now) {
+				if (startDateTime > _nowLocal) {
 					formData.append('Status', '0');
 					formData.append('DocumentStatus', 'D');
 				} else {
@@ -2926,9 +2943,9 @@ License: You must have a valid license purchased only from themeforest(the above
 				formData.append('TglBooking', tglMasuk);
 				
 				const startDateTime = new Date(tglMasuk + 'T' + jamMasuk);
-				const now = new Date();
+				var _nowLocal = new Date();
 
-				if (startDateTime > now) {
+				if (startDateTime > _nowLocal) {
 					formData.append('Status', '0');
 					formData.append('DocumentStatus', 'D');
 				} else {
@@ -3207,14 +3224,14 @@ License: You must have a valid license purchased only from themeforest(the above
 			const NoTransaksi = jQuery('#txtNoTransaksi_RubahDurasi').val();
 			const filteredData = _billing.filter(item => item.NoTransaksi == NoTransaksi);
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;
 
@@ -3345,14 +3362,14 @@ License: You must have a valid license purchased only from themeforest(the above
 			const NoTransaksi = jQuery('#txtNoTransaksi_RubahDurasi').val();
 			const filteredData = _billing.filter(item => item.NoTransaksi == NoTransaksi);
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;
 
@@ -3561,14 +3578,14 @@ License: You must have a valid license purchased only from themeforest(the above
 			
 			const filteredData = _billing.filter(item => item.NoTransaksi == jQuery('#txtNoTransaksi_TambahMakan').val());
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;
 
@@ -3715,14 +3732,14 @@ License: You must have a valid license purchased only from themeforest(the above
 			
 			const filteredData = _billing.filter(item => item.NoTransaksi == jQuery('#txtNoTransaksi_TambahMakan').val());
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;
 
@@ -3960,7 +3977,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			// Let's Keep it simple: Add existing value. Logic in Change event handles update.
 			// Actually, if I add an item, the base changes, so % fee should change.
 			// I should verify if I need to re-run calculation. 
-			// Let's just add for now.
+			// Let's just add for _nowLocal.
 			
 			// Better: Re-read selected option to recalculate?
 			const selectedOption = jQuery('#cboMetodePembayaran_TambahMakan').find('option:selected');
@@ -4387,10 +4404,10 @@ License: You must have a valid license purchased only from themeforest(the above
 					const warningDate = new Date(endDateTS.setMinutes(endDateTS.getMinutes() - _warningMinutes)).getTime();
 
 					const timer = setInterval(() => {
-						const now = new Date().getTime();
+						const _nowLocal = new Date().getTime();
 
 						// console.log(genfnFormatingDate(warningDate));
-						// console.log(genfnFormatingDate(now));
+						// console.log(genfnFormatingDate(_nowLocal));
 						// console.log(now >= warningDate);
 						// console.log(now == warningDate);
 						if (now < startDate) {
@@ -4409,7 +4426,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							jQuery("#hours_"+tableid).html((hours < 10 ? "0" : "") + hours);
 							jQuery("#min_"+tableid).html((minutes < 10 ? "0" : "") + minutes);
 							jQuery("#sec_"+tableid).html((seconds < 10 ? "0" : "") + seconds);
-							if(genfnFormatingDate(now) == genfnFormatingDate(warningDate)){
+							if(genfnFormatingDate(_nowLocal) == genfnFormatingDate(warningDate)){
 								// console.log('Warning');
 								fnWarning(NoTransaksi);
 							} 
@@ -4425,10 +4442,10 @@ License: You must have a valid license purchased only from themeforest(the above
 					break;
 				case 1:
 					setInterval(function() {
-						// const now = new Date();
+						// var _nowLocal = new Date();
 						const startDate = new Date(EndTime).getTime();
-						const now = new Date().getTime();
-						const timeElapsed = now - startDate;
+						const _nowLocal = new Date().getTime();
+						const timeElapsed = _nowLocal - startDate;
 						if (timeElapsed >= 0) {
 							const hours = Math.floor((timeElapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 							const minutes = Math.floor((timeElapsed % (1000 * 60 * 60)) / (1000 * 60));
@@ -5355,15 +5372,15 @@ License: You must have a valid license purchased only from themeforest(the above
 			
 			const filteredData = _billing.filter(item => item.NoTransaksi == jQuery('#txtNoTransaksi_Detail').val());
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const firstDay = now.getFullYear()+"-"+month+"-01";
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const firstDay = _nowLocal.getFullYear()+"-"+month+"-01";
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;
@@ -5571,15 +5588,15 @@ License: You must have a valid license purchased only from themeforest(the above
 			
 			const filteredData = _billing.filter(item => item.NoTransaksi == jQuery('#txtNoTransaksi_Detail').val());
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const firstDay = now.getFullYear()+"-"+month+"-01";
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const firstDay = _nowLocal.getFullYear()+"-"+month+"-01";
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;
@@ -5623,7 +5640,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			var _JamSelesai = (parseInt(hours) + parseInt(DurasiLama))+":"+minutes+":"+seconds;
 
 			if(parseInt(hours) + parseInt(DurasiLama) >= 24){
-				_TanggalSelesai = now.getFullYear()+"-"+month+"-"+(parseInt(day) + 1);
+				_TanggalSelesai = _nowLocal.getFullYear()+"-"+month+"-"+(parseInt(day) + 1);
 				_JamSelesai = (parseInt(hours) + parseInt(DurasiLama) - 24)+":"+minutes+":"+seconds;
 			}
 			jQuery('#dtJamMulai_Paket').text(genfnFormatingDate(_Tanggal + " " + _Jam));
@@ -5641,15 +5658,15 @@ License: You must have a valid license purchased only from themeforest(the above
 			
 			const filteredData = _billing.filter(item => item.NoTransaksi == jQuery('#txtNoTransaksi_Detail').val());
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const firstDay = now.getFullYear()+"-"+month+"-01";
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const firstDay = _nowLocal.getFullYear()+"-"+month+"-01";
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;
@@ -5741,15 +5758,15 @@ License: You must have a valid license purchased only from themeforest(the above
 			
 			const filteredData = _billing.filter(item => item.NoTransaksi == jQuery('#txtNoTransaksi_Detail').val());
 
-			const now = new Date();
-	    	const day = ("0" + now.getDate()).slice(-2);
-	    	const month = ("0" + (now.getMonth() + 1)).slice(-2);
-	    	const hours = now.getHours().toString().padStart(2, '0');
-			const minutes = now.getMinutes().toString().padStart(2, '0');
-			const seconds = now.getSeconds().toString().padStart(2, '0');
+			var _nowLocal = new Date();
+	    	const day = ("0" + _nowLocal.getDate()).slice(-2);
+	    	const month = ("0" + (_nowLocal.getMonth() + 1)).slice(-2);
+	    	const hours = _nowLocal.getHours().toString().padStart(2, '0');
+			const minutes = _nowLocal.getMinutes().toString().padStart(2, '0');
+			const seconds = _nowLocal.getSeconds().toString().padStart(2, '0');
 
-	    	const firstDay = now.getFullYear()+"-"+month+"-01";
-	    	const NowDay = now.getFullYear()+"-"+month+"-"+day;
+	    	const firstDay = _nowLocal.getFullYear()+"-"+month+"-01";
+	    	const NowDay = _nowLocal.getFullYear()+"-"+month+"-"+day;
 
 	    	const _Tanggal = NowDay;
 	    	const _Jam = hours+":"+minutes+":"+seconds;

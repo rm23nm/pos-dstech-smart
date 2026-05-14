@@ -91,7 +91,12 @@
         </div>
         
         <div class="info">
-            <p><strong>TABLE: {{ $TableName }}</strong></p>
+            <p><strong>MEJA: {{ $TableName }}</strong></p>
+            @php 
+                $firstItem = collect($items)->first();
+                $sentryType = ($firstItem && $firstItem->ServiceType === 'TAKE_AWAY') ? 'BAWA PULANG' : 'MAKAN DI TEMPAT';
+            @endphp
+            <p><strong>TIPE: {{ $sentryType }}</strong></p>
             <p>TRX: {{ $NoTransaksi }}</p>
             <p>Date: {{ date('d/m/Y H:i') }}</p>
         </div>

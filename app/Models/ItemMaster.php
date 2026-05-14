@@ -176,7 +176,7 @@ class ItemMaster extends BaseModel
           $itemmaster->union($itemmaster2);
         }
 
-       	return $itemmaster;
+       	return $itemmaster->orderBy('NamaItem', 'ASC');
     }
 
     

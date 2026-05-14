@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
-use DB;
-use Log;
 
 use App\Models\TableOrderHeader;
 use App\Models\TableOrderFnB;
@@ -36,18 +37,7 @@ class TableOrderController extends Controller
     {
         $paket = Paket::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
 
-        DB::table('tableorderheader')
-                    ->where('DocumentStatus','=', 'O')
-                    ->where('Status','=', '0')
-                    ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                     // PREVIOUSLY CLOSED ALL STATUS 0. 
-                     // NEW LOGIC: Only close if JamMulai <= NOW. Future bookings (Status 0) must remain Open.
-                    ->where('JamMulai', '<=', Carbon::now()) 
-                    ->update(
-                        [
-                            'DocumentStatus'=>'C',
-                        ]
-                    );
+        // Removed dangerous auto-close logic
 
         $subqueryPembayaran = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
                             SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran,
@@ -176,7 +166,6 @@ class TableOrderController extends Controller
                                   ->on('mastercontroller.RecordOwnerID', '=', 'serial_numbers.KodePartner');
                         })
                         ->where('titiklampu.RecordOwnerID', '=', Auth::user()->RecordOwnerID)
-                        ->whereIn(DB::raw("COALESCE(payment_summary.NoReff,'POS')"), ['POS','POS-FNB','POS-TAMBAHJAM'])
                         ->OrderBy('titiklampu.DigitalInput','ASC')
                         ->get();
         $titiklampuoption = TitikLampu::where('titiklampu.RecordOwnerID', '=', Auth::user()->RecordOwnerID)
@@ -196,7 +185,7 @@ class TableOrderController extends Controller
         //                 ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
         //                 ->where('Active','=', 'Y')->get();
         $oItem = new ItemMaster();
-        $itemmaster = $oItem->GetItemData(Auth::user()->RecordOwnerID,"", "", "","", "Y", '', 0);
+        $itemmaster = $oItem->GetItemData(Auth::user()->RecordOwnerID,"", "", "", "1,2,3,5", "Y", '', 0);
 
         $midtransdata = MetodePembayaran::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
                             ->where('MetodeVerifikasi','=','AUTO')->first();
@@ -238,13 +227,27 @@ class TableOrderController extends Controller
         $now = Carbon::now();
 
         $paket = Paket::where('RecordOwnerID','=',$roid)->get();
+        $today = Carbon::now()->format('Y-m-d');
 
-        DB::table('tableorderheader')
-                    ->where('DocumentStatus','=', 'O')
-                    ->where('Status','=', '0')
-                    ->where('RecordOwnerID','=',$roid)
-                    ->where('JamMulai', '<=', $now)
-                    ->update(['DocumentStatus'=>'C']);
+        // SELF-HEALING: Re-open orders that were accidentally closed but the table is still active
+        $activeTableIds = DB::table('titiklampu')
+            ->where('Status', 1)
+            ->where('RecordOwnerID', $roid)
+            ->pluck('id');
+
+        if ($activeTableIds->isNotEmpty()) {
+            foreach($activeTableIds as $tid) {
+                DB::table('tableorderheader')
+                    ->where('tableid', $tid)
+                    ->where('DocumentStatus', 'C')
+                    ->where('RecordOwnerID', $roid)
+                    ->orderBy('TglPencatatan', 'DESC')
+                    ->limit(1)
+                    ->update(['DocumentStatus' => 'O']);
+            }
+        }
+
+        // Removed dangerous auto-close logic that was closing active orders
 
         $subqueryPembayaran = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
                             SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran,
@@ -355,7 +358,6 @@ class TableOrderController extends Controller
                                   ->on('mastercontroller.RecordOwnerID', '=', 'serial_numbers.KodePartner');
                         })
                         ->where('titiklampu.RecordOwnerID', '=', $roid)
-                        ->whereIn(DB::raw("COALESCE(payment_summary.NoReff,'POS')"), ['POS','POS-FNB','POS-TAMBAHJAM'])
                         ->OrderBy('titiklampu.DigitalInput','ASC')
                         ->get();
 
@@ -373,7 +375,9 @@ class TableOrderController extends Controller
         $metodepembayaran = MetodePembayaran::where('RecordOwnerID','=',$roid)->get();
         $itemmaster = ItemMaster::select('KodeItem', 'NamaItem', 'HargaJual', 'Gambar', 'Stock', 'TypeItem')
                     ->where('RecordOwnerID', $roid)
-                    ->where('Active', 'Y');
+                    ->where('Active', 'Y')
+                    ->where('TypeItem', '<>', 4)
+                    ->orderBy('NamaItem', 'ASC');
         $midtransdata = MetodePembayaran::where('RecordOwnerID','=',$roid)
                             ->where('MetodeVerifikasi','=','AUTO')->first();
         $midtransclientkey = "";
@@ -410,16 +414,27 @@ class TableOrderController extends Controller
     public function ViewSelfService(Request $request)
     {
         $paket = Paket::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
+        $roid = Auth::user()->RecordOwnerID;
 
-        DB::table('tableorderheader')
-                    ->where('DocumentStatus','=', 'O')
-                    ->where('Status','=', '0')
-                    ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                    ->update(
-                        [
-                            'DocumentStatus'=>'C',
-                        ]
-                    );
+        // SELF-HEALING: Re-open latest orders for active tables
+        $activeTableIds = DB::table('titiklampu')
+            ->where('Status', 1)
+            ->where('RecordOwnerID', $roid)
+            ->pluck('id');
+
+        if ($activeTableIds->isNotEmpty()) {
+            foreach($activeTableIds as $tid) {
+                DB::table('tableorderheader')
+                    ->where('tableid', $tid)
+                    ->where('DocumentStatus', 'C')
+                    ->where('RecordOwnerID', $roid)
+                    ->orderBy('TglPencatatan', 'DESC')
+                    ->limit(1)
+                    ->update(['DocumentStatus' => 'O']);
+            }
+        }
+
+        // Removed auto-close logic
                     
         $subqueryPembayaran = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
                             SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran,
@@ -479,6 +494,7 @@ class TableOrderController extends Controller
                                 WHERE t2.tableid = titiklampu.id 
                                 AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
                                 AND t2.DocumentStatus IN ('O', 'D')
+                                AND DATE(t2.TglTransaksi) >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
                                 ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai DESC
                                 LIMIT 1
                             )");
@@ -520,8 +536,11 @@ class TableOrderController extends Controller
                                   ->on('mastercontroller.RecordOwnerID', '=', 'serial_numbers.KodePartner');
                         })
                         ->where('titiklampu.RecordOwnerID', '=', Auth::user()->RecordOwnerID)
-                        ->where(DB::raw("COALESCE(payment_summary.NoReff,'POS')"), 'POS')
                         ->get();
+        
+        $titiklampu = $titiklampu->unique('id')->values();
+
+        Log::info("ViewNew: Loaded " . $titiklampu->count() . " tables for " . Auth::user()->name);
         $titiklampuoption = TitikLampu::where('titiklampu.RecordOwnerID', '=', Auth::user()->RecordOwnerID)
                                 ->where('titiklampu.Status','=','0')->get();
         // $termin = $termin->paginate(4);
@@ -541,7 +560,7 @@ class TableOrderController extends Controller
         //                 ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
         //                 ->where('Active','=', 'Y')->get();
         $oItem = new ItemMaster();
-        $itemmaster = $oItem->GetItemData(Auth::user()->RecordOwnerID,"", "", "","", "Y", '', 0);
+        $itemmaster = $oItem->GetItemData(Auth::user()->RecordOwnerID,"", "", "", "1,2,3,5", "Y", '', 0);
 
         $midtransdata = MetodePembayaran::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
                             ->where('MetodeVerifikasi','=','AUTO')->first();
@@ -589,20 +608,23 @@ class TableOrderController extends Controller
         ]);
 
         try {
-            $currentDate = Carbon::now();
-			$Year = $currentDate->format('Y');
-			$Month = $currentDate->format('m');
+            $now = Carbon::now('Asia/Jakarta');
+            $roid = Auth::user()->RecordOwnerID;
 
-			$numberingData = new DocumentNumbering();
-            $random = random_int(10000, 99999);
-	        $NoTransaksi = $random . $numberingData->GetNewDoc("TRDR","tableorderheader","NoTransaksi");
-
+            // Custom Chronological NoTransaksi: YYYYMMDDHHmmXXXX (16 digits)
+            $prefixTrx = $now->format('Ymd');
+            $lastNoTRXCount = DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('NoTransaksi', 'like', $prefixTrx . '%')
+                ->count();
+            $NoTransaksi = $prefixTrx . str_pad($lastNoTRXCount + 1, 4, '0', STR_PAD_LEFT);
 
             $model = new TableOrderHeader;
             $model->NoTransaksi = $NoTransaksi;
-            $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi')) : Carbon::now();
+            $model->QueueNumber = intval(substr($NoTransaksi, -3));
+            $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi')) : $now;
             $model->TglTransaksi = $tglTransaksi;
-            $model->TglPencatatan = Carbon::now();
+            $model->TglPencatatan = $now;
             $model->JenisPaket = $request->input('JenisPaket');
             $model->paketid = $request->input('paketid');
             $model->tableid = $request->input('tableid');
@@ -626,35 +648,26 @@ class TableOrderController extends Controller
                 $jam = $request->input('JamMulai');
                 $model->JamMulai = Carbon::parse($tgl . ' ' . $jam);
             } else {
-                $now = Carbon::now();
                 $model->JamMulai = Carbon::parse($tglTransaksi->toDateString() . ' ' . $now->toTimeString());
             }
 
             if ($request->input('JenisPaket') == 'JAM' || $request->input('JenisPaket') == 'PAKETMEMBER' || $request->input('JenisPaket') == 'JAMREALTIME') {
-                 // JamSelesai Calculation
-                 // If frontend provided JamSelesai, we could uses it, BUT calculation based on Duration is safer/consistent
-                 // $model->JamSelesai = $currentDate->addHours($request->input('DurasiPaket'))->subMinute(); <--- This uses NOW, we must use Model's JamMulai
-                 
                  $jamMulai = $model->JamMulai->copy();
                  $model->JamSelesai = $jamMulai->addHours($request->input('DurasiPaket'))->subMinute();
-                 
-                // var_dump($currentDate->addHours($request->input('DurasiPaket')));
             }
 
             if ($request->input('JenisPaket') == 'MENIT') {
-                $model->JamSelesai = $currentDate->addMinutes($request->input('DurasiPaket'))->subMinute();
-                // var_dump($currentDate->addHours($request->input('DurasiPaket')));
-                // $model->Status = 1;
+                $model->JamSelesai = $model->JamMulai->copy()->addMinutes($request->input('DurasiPaket'))->subMinute();
             }
 
             if ($request->input('JenisPaket') == 'MENITREALTIME' || $request->input('JenisPaket') == 'JAMREALTIME' || $request->input('JenisPaket') == 'PAYPERUSE') {
                 $model->DocumentStatus = 'O';
-                // $model->Status = 1;
                 if ($request->input('JenisPaket') == 'MENITREALTIME' || $request->input('JenisPaket') == 'PAYPERUSE') {
-                    $model->JamMulai = Carbon::now();
+                    $model->JamMulai = $now;
                     $model->JamSelesai = null;
                 }
             }
+
 
 
 
@@ -1296,7 +1309,9 @@ class TableOrderController extends Controller
                 $layananRp = (float)($header->BiayaLayanan ?? 0);
                 $grandTotal = $dpp + $ppnRp + $pb1Rp + $layananRp + $adminFeeRp;
 
-                $invoicePaketNo = $numberingData->GetNewDoc("SIS", "fakturpenjualanheader", "NoTransaksi");
+                $prefixSIS = Carbon::now('Asia/Jakarta')->format('Ymd');
+                $countSIS = DB::table('fakturpenjualanheader')->where('NoTransaksi', 'like', $prefixSIS . '%')->count();
+                $invoicePaketNo = $prefixSIS . str_pad($countSIS + 1, 4, '0', STR_PAD_LEFT);
 
                 $fh = new FakturPenjualanHeader;
                 $fh->Periode         = $periode;
@@ -1468,7 +1483,9 @@ class TableOrderController extends Controller
                 $ppnFnb = $totalFnb * (($company->PPN ?? 0) / 100);
                 $grandFnb = $totalFnb + $ppnFnb;
 
-                $invoiceFnbNo = $numberingData->GetNewDoc("SIS", "fakturpenjualanheader", "NoTransaksi");
+                $prefixSIS = Carbon::now('Asia/Jakarta')->format('Ymd');
+                $countSIS = DB::table('fakturpenjualanheader')->where('NoTransaksi', 'like', $prefixSIS . '%')->count();
+                $invoiceFnbNo = $prefixSIS . str_pad($countSIS + 1, 4, '0', STR_PAD_LEFT);
                 $fhFnb = new FakturPenjualanHeader;
                 $fhFnb->Periode         = $periode;
                 $fhFnb->Transaksi       = "POS";
@@ -1945,28 +1962,51 @@ class TableOrderController extends Controller
             $errorCount = 0;
 
             if ($DetailParameter) {
+                $gudangPoS = $oCompany->GudangPoS ?? 'GDG01';
+
+                // 1. Restore stock of items being deleted (status 'O' only)
+                $oldItems = DB::table('tableorderfnb')
+                    ->where('NoTransaksi', $NoTransaksi)
+                    ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                    ->where('LineStatus', 'O')
+                    ->get();
+
+                foreach ($oldItems as $old) {
+                    if (!empty($gudangPoS)) {
+                        DB::table('itemwarehouses')
+                            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                            ->where('KodeItem', $old->KodeItem)
+                            ->where('KodeGudang', $gudangPoS)
+                            ->increment('Qty', $old->Qty);
+                    }
+                }
+
                 $delete = DB::table('tableorderfnb')
 		                ->where('NoTransaksi','=', $NoTransaksi)
 		                ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-                        ->where('LineStatus', '=', 'O') // Hanya hapus yang belum difakturkan
+                        ->where('LineStatus', '=', 'O') 
 		                ->delete();
 
                 $index = 0;
                 foreach ($DetailParameter as $dt) {
-                    if ($dt["Qty"] == 0) {
-                        $$data['message'] = "Qty Harus Lebih dari 0 ";
+                    $qty = floatval($dt["Qty"]);
+                    if ($qty == 0) {
+                        $data['message'] = "Qty Harus Lebih dari 0 ";
                         $errorCount +=1;
                         goto jump;
                     }
 
+                    // Stock Validation & Deduction
                     if ($oCompany->AllowNegativeInventory == NULL || $oCompany->AllowNegativeInventory == 'N') {
-                        $oItem = ItemMaster::where('RecordOwnerID',Auth::user()->RecordOwnerID)
-                                    ->where('KodeItem',$dt['KodeItem'])
-                                    ->where('Stock','>',0)
-                                    ->get();
-
-                        if (count($oItem) == 0) {
-                            $data['message'] = "Stock Item ".$dt['NamaItem']." Tidak Cukup";
+                        $stock = DB::table('itemwarehouses')
+                            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                            ->where('KodeItem', $dt['KodeItem'])
+                            ->where('KodeGudang', $gudangPoS)
+                            ->value('Qty');
+                        
+                        $currentStock = ($stock === null) ? 0 : floatval($stock);
+                        if ($currentStock < $qty) {
+                            $data['message'] = "Stock Item ".$dt['NamaItem']." Tidak Cukup (Tersedia: $currentStock)";
                             $errorCount += 1;
                             goto jump;		
                         }
@@ -1976,12 +2016,12 @@ class TableOrderController extends Controller
                     $detail->NoTransaksi = $NoTransaksi;
                     $detail->LineNumber = $index;
                     $detail->KodeItem = $dt['KodeItem'];
-                    $detail->Qty = $dt['Qty'];
+                    $detail->Qty = $qty;
                     $detail->Harga = $dt['Harga'];
                     $detail->Tax = 0;
                     $detail->Discount = $dt['Diskon'];
-                    $detail->LineTotal = $dt['Qty'] * $dt['Harga'];
-                    $detail->LineStatus = 'O'; // WAJIB: Agar terbaca saat checkout/bayar
+                    $detail->LineTotal = $qty * $dt['Harga'];
+                    $detail->LineStatus = 'O'; 
                     $detail->isCompleted = 0;
                     $detail->RecordOwnerID = Auth::user()->RecordOwnerID;
                     $detail->save();
@@ -1990,6 +2030,15 @@ class TableOrderController extends Controller
                         $data['message'] = "Menyimpan Data " . $dt["NamaItem"] . " Gagal dilakukan";
                         $errorCount +=1;
                         goto jump;
+                    }
+
+                    // Deduct Stock
+                    if (!empty($gudangPoS)) {
+                        DB::table('itemwarehouses')
+                            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                            ->where('KodeItem', $dt['KodeItem'])
+                            ->where('KodeGudang', $gudangPoS)
+                            ->decrement('Qty', $qty);
                     }
 
                     $index +=1;
@@ -2699,11 +2748,27 @@ class TableOrderController extends Controller
             $Year = $now->format('Y');
             $Month = $now->format('m');
 
-            $numberingData = new DocumentNumbering();
-            $NoTransaksi = $numberingData->GetNewDoc("TRDR", "tableorderheader", "NoTransaksi");
+            // MIGRATION: Ensure QueueNumber column exists (Safer check)
+            if (!Schema::hasColumn('tableorderheader', 'QueueNumber')) {
+                try {
+                    DB::statement("ALTER TABLE tableorderheader ADD COLUMN QueueNumber INT DEFAULT 0");
+                } catch (\Exception $e) {
+                    Log::error("Failed to add QueueNumber column: " . $e->getMessage());
+                }
+            }
 
+            $numberingData = new DocumentNumbering();
+            
+            // Custom Chronological NoTransaksi: YYYYMMDDHHmmXXXX (16 digits)
+            $prefixTrx = $now->format('Ymd');
+            $lastNoTRXCount = DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('NoTransaksi', 'like', $prefixTrx . '%')
+                ->count();
+            $NoTransaksi = $prefixTrx . str_pad($lastNoTRXCount + 1, 4, '0', STR_PAD_LEFT);
             $model = new TableOrderHeader;
             $model->NoTransaksi = $NoTransaksi;
+            $model->QueueNumber = intval(substr($NoTransaksi, -3));
             $tglTransaksi = $request->input('TglTransaksi');
             // Fallback: If time is missing (length <= 10), add current time
             if (strlen($tglTransaksi) <= 10) {
@@ -2948,9 +3013,10 @@ class TableOrderController extends Controller
                         'LineStatus' => ($opsiBayar === 'LANGSUNG' && !$isMidtrans) ? 'C' : 'O',
                         'LineTotal' => ($qty * $harga) + $tax + $service,
                         'isCompleted' => 0,
+                        'ServiceType' => $request->input('ServiceType', 'DINE_IN'),
                         'RecordOwnerID' => Auth::user()->RecordOwnerID,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'created_at' => $now,
+                        'updated_at' => $now,
                     ]);
 
                     // Deduct stock
@@ -2974,7 +3040,9 @@ class TableOrderController extends Controller
                     $grandTotal = $model->TotalTerbayar;
 
                     // Create FakturPenjualanHeader
-                    $invoiceNo = $numberingData->GetNewDoc("SIS", "fakturpenjualanheader", "NoTransaksi");
+                    $prefixSIS = Carbon::now('Asia/Jakarta')->format('Ymd');
+                    $countSIS = DB::table('fakturpenjualanheader')->where('NoTransaksi', 'like', $prefixSIS . '%')->count();
+                    $invoiceNo = $prefixSIS . str_pad($countSIS + 1, 4, '0', STR_PAD_LEFT);
                     $fakturHeader = new FakturPenjualanHeader;
                     $fakturHeader->Periode = $periode;
                     $fakturHeader->Transaksi = "POS";
@@ -3314,7 +3382,15 @@ public function getTableStatuses()
                     $join->on('titiklampu.id', '=', 'tableorderheader.tableid')
                          ->on('titiklampu.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID')
                          ->where('tableorderheader.RecordOwnerID', '=', $roid)
-                         ->whereIn('tableorderheader.DocumentStatus', ['O', 'D']);
+                         ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
+                         ->whereRaw("tableorderheader.NoTransaksi = (
+                             SELECT t2.NoTransaksi FROM tableorderheader t2 
+                             WHERE t2.tableid = titiklampu.id 
+                             AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
+                             AND t2.DocumentStatus IN ('O', 'D')
+                             ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai DESC
+                             LIMIT 1
+                         )");
                 })
                 ->leftJoin('pakettransaksi', function($join) use ($roid) {
                     $join->on('tableorderheader.paketid', '=', 'pakettransaksi.id')
@@ -3329,6 +3405,8 @@ public function getTableStatuses()
                 ->where('titiklampu.RecordOwnerID', '=', $roid)
                 ->orderBy('titiklampu.id')
                 ->get();
+
+            $titiklampu = $titiklampu->unique('id')->values();
 
             // Format data for response
             $titiklampu->transform(function ($item) {
@@ -3456,6 +3534,7 @@ public function getTableStatuses()
                     'LineStatus' => ($opsiBayar === 'LANGSUNG' && !$isMidtrans) ? 'C' : 'O',
                     'LineTotal' => $lineTotal + $tax + $service,
                     'isCompleted' => 0,
+                    'ServiceType' => $request->input('ServiceType', 'DINE_IN'),
                     'RecordOwnerID' => $recordOwnerID,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
@@ -3840,7 +3919,9 @@ public function getTableStatuses()
                 }
 
                 $numberingData = new DocumentNumbering();
-                $invoiceNo = $numberingData->GetNewDoc("SIS", "fakturpenjualanheader", "NoTransaksi");
+                $prefixSIS = Carbon::now('Asia/Jakarta')->format('Ymd');
+                $countSIS = DB::table('fakturpenjualanheader')->where('NoTransaksi', 'like', $prefixSIS . '%')->count();
+                $invoiceNo = $prefixSIS . str_pad($countSIS + 1, 4, '0', STR_PAD_LEFT);
 
                 // $mpId = $request->input('MetodePembayaran');
                 // $mp = MetodePembayaran::find($mpId);
@@ -4043,7 +4124,9 @@ public function getTableStatuses()
                     }
 
                     // Generate Real Invoice No
-                    $invoiceNo = $numberingData->GetNewDoc("SIS", "fakturpenjualanheader", "NoTransaksi");
+                    $prefixSIS = Carbon::now('Asia/Jakarta')->format('Ymd');
+                    $countSIS = DB::table('fakturpenjualanheader')->where('NoTransaksi', 'like', $prefixSIS . '%')->count();
+                    $invoiceNo = $prefixSIS . str_pad($countSIS + 1, 4, '0', STR_PAD_LEFT);
                     $metode = MetodePembayaran::find($sessionData['metodePembayaranId']);
 
                     // 1. Create Faktur Header
@@ -4264,7 +4347,9 @@ public function getTableStatuses()
                     $adminFeeRp = $grandTotal - $model->NetTotal;
                     if ($adminFeeRp < 0) $adminFeeRp = 0;
 
-                    $invoiceNo = $numberingData->GetNewDoc("SIS", "fakturpenjualanheader", "NoTransaksi");
+                    $prefixSIS = Carbon::now('Asia/Jakarta')->format('Ymd');
+                    $countSIS = DB::table('fakturpenjualanheader')->where('NoTransaksi', 'like', $prefixSIS . '%')->count();
+                    $invoiceNo = $prefixSIS . str_pad($countSIS + 1, 4, '0', STR_PAD_LEFT);
                     $fakturHeader = new FakturPenjualanHeader;
                     $fakturHeader->Periode = $periode;
                     $fakturHeader->Transaksi = "POS";
@@ -4461,7 +4546,9 @@ public function getTableStatuses()
                 $mp = MetodePembayaran::where('NamaMetodePembayaran', $mpNama)->where('MetodeVerifikasi', 'AUTO')->first();
                 $mpId = $mp ? $mp->id : 1;
 
-                $invoiceNo = $numberingData->GetNewDoc("SIS", "fakturpenjualanheader", "NoTransaksi"); // Initialize here for common use
+                $prefixSIS = Carbon::now('Asia/Jakarta')->format('Ymd');
+                $countSIS = DB::table('fakturpenjualanheader')->where('NoTransaksi', 'like', $prefixSIS . '%')->count();
+                $invoiceNo = $prefixSIS . str_pad($countSIS + 1, 4, '0', STR_PAD_LEFT);
 
                 if ($paymentType === 'ADD_DURATION') {
                     Log::info("handleMidtransSuccess: Processing ADD_DURATION");

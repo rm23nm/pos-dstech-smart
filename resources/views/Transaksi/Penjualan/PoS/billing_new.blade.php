@@ -834,7 +834,7 @@
                                          title="{{ $item->NamaTitikLampu }}"
                                          role="button">
                                         {{ $item->DigitalInput }}
-                                        @if(($item->TotalPembayaran ?? 0) > 0)
+                                        @if($item->Status != 0 && ($item->TotalPembayaran ?? 0) > 0)
                                             <div class="paid-badge" title="Sudah Ada Pembayaran">
                                                 PAID
                                             </div>
@@ -953,10 +953,10 @@
 
     // ===== CLOCK =====
     function updateClock() {
-        var now = new Date();
-        var h = String(now.getHours()).padStart(2, '0');
-        var m = String(now.getMinutes()).padStart(2, '0');
-        var s = String(now.getSeconds()).padStart(2, '0');
+        var _nowLocal = new Date();
+        var h = String(_nowLocal.getHours()).padStart(2, '0');
+        var m = String(_nowLocal.getMinutes()).padStart(2, '0');
+        var s = String(_nowLocal.getSeconds()).padStart(2, '0');
         document.getElementById('posHeaderClock').textContent = h + ':' + m + ':' + s;
     }
     setInterval(updateClock, 1000);
@@ -1022,14 +1022,14 @@
             const timerEl = el.querySelector('.table-timer');
             if (!timerEl) return;
 
-            const now = new Date();
+            var _nowLocal = new Date();
             let diffMs = 0;
             let label = "";
 
             if (rawSelesai && rawSelesai.trim() !== "" && rawSelesai !== "null") {
                 // Countdown Logic
                 const end = new Date(rawSelesai.replace(' ', 'T'));
-                diffMs = end - now;
+                diffMs = end - _nowLocal;
                 if (diffMs < 0) {
                     label = "TIME UP";
                     timerEl.style.color = "#d32f2f";
@@ -1110,7 +1110,7 @@
                 // Explicitly remove badge if status is 0 (Vacant/Booking)
                 if (status === 0) {
                     if (paidBadge) paidBadge.remove();
-                } else if (totalPay > 0) {
+                } else if (status !== 0 && totalPay > 0) {
                     // Show badge only for Active/Checkout if paid
                     if (!paidBadge) {
                         paidBadge = document.createElement('div');
@@ -1373,7 +1373,11 @@
         // Populate modal header
         document.getElementById('modalPaketTitikNama').textContent = selectedTitik.namatitiklampu;
         // Reset form fields
-        document.getElementById('ppTglTransaksi').valueAsDate = new Date();
+        const _nowLocal = new Date();
+        const year = _nowLocal.getFullYear();
+        const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
+        const day = String(_nowLocal.getDate()).padStart(2, '0');
+        document.getElementById('ppTglTransaksi').value = `${year}-${month}-${day}`;
         
         var selJenis = document.getElementById('ppJenisPaket');
         selJenis.value = 'JAM'; // Default to JAM for faster workflow
@@ -1383,7 +1387,7 @@
         document.getElementById('ppHargaNormal').value = '';
         document.getElementById('ppDurasi').value = '1';
         document.getElementById('ppMemberSearch').value = '';
-        document.getElementById('ppKodeSales').value = '';
+        // document.getElementById('ppKodeSales').value = '';
 
         // Reset FnB Cart
         ppFnbCart = [];
@@ -1536,7 +1540,12 @@
         window._mdJamSelesai = h.JamSelesai || null;
         window._mdHeaderStatus = h.Status;
 
-        $('#mdNoTransaksi').text(h.NoTransaksi);
+        const _nowLocal = new Date();
+        const year = _nowLocal.getFullYear();
+        const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
+        const day = String(_nowLocal.getDate()).padStart(2, '0');
+        const localDate = `${year}-${month}-${day}`;
+        $('#ppTglTransaksi').val(localDate);
         $('#mdNamaPelanggan').text(h.NamaPelanggan || 'Umum');
         $('#mdJamMulai').text(h.JamMulai || '-');
 
@@ -2049,10 +2058,10 @@
 
         // Determine if we need to ask about checkout
         const jamSelesaiStr = window._mdJamSelesai;
-        const now = new Date();
+        var _nowLocal = new Date();
         let jamSelesaiDt = jamSelesaiStr ? new Date(jamSelesaiStr) : null;
-        const isExpiredUnpaid = jamSelesaiDt && jamSelesaiDt < now && window._mdHeaderStatus == -1;
-        const shouldAskCheckout = !jamSelesaiDt || jamSelesaiDt > now;
+        const isExpiredUnpaid = jamSelesaiDt && jamSelesaiDt < _nowLocal && window._mdHeaderStatus == -1;
+        const shouldAskCheckout = !jamSelesaiDt || jamSelesaiDt > _nowLocal;
 
         function doSubmit(doCheckout) {
             const btn = document.getElementById('mdBtnCheckOut');
@@ -2370,7 +2379,8 @@
             items: fnbCart,
             OpsiBayar: $('input[name="FnbOpsiBayar"]:checked').val(),
             MetodePembayaran: $('#fnbMetodePembayaran').val(),
-            NominalBayar: parseFormattedRp($('#fnbNominalBayar').val() || '0')
+            NominalBayar: parseFormattedRp($('#fnbNominalBayar').val() || '0'),
+            ServiceType: $('input[name="fnbServiceType"]:checked').val()
         };
 
         if (payload.OpsiBayar === 'LANGSUNG') {
@@ -2790,7 +2800,7 @@
         document.getElementById('ppHargaNormal').value = '';
         document.getElementById('ppDurasi').value = '1';
         document.getElementById('ppMemberSearch').value = '';
-        document.getElementById('ppKodeSales').value = '';
+        // document.getElementById('ppKodeSales').value = '';
 
         // Tembak Jam Mulai dan KUNCI
         const elmJamMulai = document.getElementById('ppJamMulai');
@@ -2945,6 +2955,21 @@
                                     </div>
                                 </div>
                             @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Row: Service Type (Dine In / Take Away) -->
+                    <div class="pp-row" style="margin-top: 15px; background: #fffde7; padding: 10px; border-radius: 8px; border: 1px solid #fff9c4;">
+                        <div class="pp-field">
+                            <label class="pp-label" style="color: #f57f17;"><i class="fas fa-hand-holding-heart"></i> Tipe Layanan</label>
+                            <div style="display: flex; gap: 20px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; color: #1a237e;">
+                                    <input type="radio" name="ppServiceType" value="DINE_IN" checked> Makan di Tempat
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; color: #e65100;">
+                                    <input type="radio" name="ppServiceType" value="TAKE_AWAY"> Bawa Pulang
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -3105,6 +3130,21 @@
                             </div>
                             @endif
                         @endforeach
+                    </div>
+                </div>
+
+                <!-- Row: Service Type (Dine In / Take Away) -->
+                <div class="pp-row" style="margin-top: 15px; background: #fffde7; padding: 10px; border-radius: 8px; border: 1px solid #fff9c4;">
+                    <div class="pp-field">
+                        <label class="pp-label" style="color: #f57f17;"><i class="fas fa-hand-holding-heart"></i> Tipe Layanan</label>
+                        <div style="display: flex; gap: 20px; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; color: #1a237e;">
+                                <input type="radio" name="fnbServiceType" value="DINE_IN" checked> Makan di Tempat
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; color: #e65100;">
+                                <input type="radio" name="fnbServiceType" value="TAKE_AWAY"> Bawa Pulang
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -4371,7 +4411,7 @@
 
         btn.disabled = true; // Auto-disable by default
 
-        if (!jenisPaket || !kodePelanggan || !kodeSales) return;
+        if (!jenisPaket) return;
         if (jenisPaket !== 'PAKETMEMBER' && !paketId) return;
 
         if (jenisPaket === 'JAM' || jenisPaket === 'PAKETMEMBER') {
@@ -4484,6 +4524,7 @@
             MetodePembayaran: document.getElementById('ppMetodePembayaran').value,
             NominalBayar: parseFormattedRp(document.getElementById('ppNominalBayar').value),
             KodeVoucher: document.getElementById('ppKodeVoucher').value.trim(),
+            ServiceType: document.querySelector('input[name="ppServiceType"]:checked').value,
             fnbItems: ppFnbCart
         };
 

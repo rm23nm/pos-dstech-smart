@@ -221,6 +221,16 @@
     <!-- Audio for notification -->
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
+    <!-- Overlay for browser autoplay policy -->
+    <div id="audio-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer;" onclick="enableAudio()">
+        <div style="font-size: 5rem; color: var(--accent-ready); margin-bottom: 20px;">
+            <i class="bi bi-volume-up-fill"></i>
+        </div>
+        <h1 style="color: #fff; font-weight: 700;">KLIK UNTUK MENGAKTIFKAN SUARA</h1>
+        <p style="color: var(--text-muted); font-size: 1.2rem;">Browser memerlukan interaksi pengguna untuk memulai notifikasi suara.</p>
+    </div>
+
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=jn7RFIYJ"></script>
     <script>
         function updateClock(){
             const n=new Date();
@@ -231,6 +241,15 @@
 
         let lastSiapIds = [];
         let isFirstLoad = true;
+        let audioEnabled = false;
+
+        function enableAudio() {
+            audioEnabled = true;
+            document.getElementById('audio-overlay').style.display = 'none';
+            playNotif();
+            // Test voice
+            responsiveVoice.speak("Suara notifikasi telah diaktifkan.", "Indonesian Female");
+        }
 
         function fetchData() {
             $.ajax({
@@ -258,13 +277,21 @@
                 html = `<div class="text-center py-5 text-muted">Belum ada data</div>`;
             } else {
                 items.forEach(item => {
+                    const loc = item.TableName || 'Take Away';
+                    const service = item.ServiceType === 'TAKE_AWAY' ? 'Bawa Pulang' : 'Makan di Tempat';
+                    const badgeClass = item.ServiceType === 'TAKE_AWAY' ? 'bg-danger' : 'bg-primary';
+                    const qNum = item.QueueNumber ? String(item.QueueNumber).padStart(3, '0') : item.NoTransaksi;
+
                     html += `
                         <div class="order-card ${isReady ? 'new-ready' : ''}">
                             <div class="order-info">
-                                <div class="order-number">${item.NoTransaksi}</div>
+                                <div class="order-number">${qNum}</div>
                                 <div class="customer-name">${item.NamaPelanggan || 'Customer'}</div>
+                                <div style="margin-top: 5px;">
+                                    <span class="badge ${badgeClass}" style="font-size: 0.7rem;">${service}</span>
+                                </div>
                             </div>
-                            <div class="table-badge">${item.TableName || 'Ambil Sendiri'}</div>
+                            <div class="table-badge">${loc}</div>
                         </div>
                     `;
                 });
@@ -278,8 +305,10 @@
             if (!isFirstLoad) {
                 const newItems = siapItems.filter(i => !lastSiapIds.includes(i.NoTransaksi));
                 if (newItems.length > 0) {
-                    playNotif();
-                    announceOrders(newItems);
+                    if (audioEnabled) {
+                        playNotif();
+                        announceOrders(newItems);
+                    }
                 }
             }
             
@@ -292,14 +321,17 @@
         }
 
         function announceOrders(items) {
-            if (!('speechSynthesis' in window)) return;
-
             items.forEach(item => {
-                const text = `Pesanan nomor ${item.NoTransaksi} atas nama ${item.NamaPelanggan || 'Pelanggan'} telah siap. Silahkan diambil.`;
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'id-ID';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
+                const custName = item.NamaPelanggan || 'Pelanggan';
+                const serviceType = item.ServiceType === 'TAKE_AWAY' ? 'untuk dibawa pulang' : '';
+                const instruction = item.ServiceType === 'TAKE_AWAY' ? 'sudah siap. Silakan diambil di konter.' : 'sudah siap. Pelayan kami akan segera mengantarkannya.';
+                const qNum = item.QueueNumber ? String(item.QueueNumber).padStart(3, '0') : item.NoTransaksi;
+                
+                const text = `Panggilan untuk ${custName}. Pesanan nomor ${qNum} ${serviceType}, ${instruction} Terima kasih.`;
+                
+                if (window.responsiveVoice) {
+                    responsiveVoice.speak(text, "Indonesian Female", {rate: 0.9});
+                }
             });
         }
 

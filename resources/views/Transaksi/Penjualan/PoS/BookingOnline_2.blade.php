@@ -447,7 +447,11 @@
                 }
             });
             // Trigger fetch with new package
-            const dateStr = $('.date-btn.active').data('date') || new Date().toISOString().split('T')[0];
+            var _nowLocal = new Date();
+            const year = _nowLocal.getFullYear();
+            const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
+            const day = String(_nowLocal.getDate()).padStart(2, '0');
+            const dateStr = $('.date-btn.active').data('date') || `${year}-${month}-${day}`;
             fetchJadwal("{{ $company->KodePartner }}", $('#paketSelect').val(), dateStr);
         }
     });
@@ -921,7 +925,11 @@
     // fetchJadwal("{{ $company->KodePartner }}",$('#paketSelect').val(), currentSelectedDate.toISOString().split('T')[0]);
 
     $(document).on('change', '#paketSelect', function() {
-        const dateStr = $('.date-btn.active').data('date') || new Date().toISOString().split('T')[0];
+        var _nowLocal = new Date();
+        const year = _nowLocal.getFullYear();
+        const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
+        const day = String(_nowLocal.getDate()).padStart(2, '0');
+        const dateStr = $('.date-btn.active').data('date') || `${year}-${month}-${day}`;
         fetchJadwal("{{ $company->KodePartner }}", $(this).val(), dateStr);
     });
 

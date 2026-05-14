@@ -102,8 +102,8 @@ class QueueManagementController extends Controller
      */
     public function handleQueue(Request $request)
     {
-        $today = \Carbon\Carbon::today();
-        $now = \Carbon\Carbon::now();
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        $now = \Carbon\Carbon::now('Asia/Jakarta');
 
         // 1. AVAILABLE TABLES (Status 0)
         // Kita tidak butuh groupBy di sini karena meja dengan status 0 harusnya unik
