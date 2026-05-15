@@ -323,7 +323,7 @@
 
     <!-- MEJA TERSEDIA -->
     <div class="grid-box area-available">
-      <div class="box-header" style="background: var(--accent-success);">Meja Tersedia</div>
+      <div class="box-header" style="background: var(--accent-success);">Pesanan Makanan Siap</div>
       <div class="box-content" id="table-available"></div>
     </div>
 
@@ -443,6 +443,20 @@
       }
     };
     
+    const speakReadyOrders=(list)=>{
+      const now=Date.now();
+      list.forEach(r => {
+          const key = 'ready_' + r.NoTransaksi;
+          if (!spokenStages[key]) {
+              spokenStages[key] = now;
+              const qNum = r.QueueNumber ? String(r.QueueNumber).padStart(3, '0') : r.NoTransaksi;
+              const custName = r.NamaPelanggan || 'Pelanggan';
+              const msg = `Panggilan untuk ${custName}. Pesanan nomor ${qNum} sudah siap. Silakan diambil di konter. Terima kasih.`;
+              speakWithResponsiveVoice(msg);
+          }
+      });
+    };
+
     const speakQueueInIndonesian=(list)=>{
       const now=Date.now();
       list.forEach(r => {
@@ -450,27 +464,27 @@
           const tableName = r.NamaTitikLampu;
           const noTransaksi = r.NoTransaksi;
           
-          // Reset status jika transaksi baru atau berbeda
-          if (!spokenStages[tableName] || spokenStages[tableName].NoTransaksi !== noTransaksi) {
-              spokenStages[tableName] = { NoTransaksi: noTransaksi };
+          const key = 'table_' + noTransaksi;
+          if (!spokenStages[key]) {
+              spokenStages[key] = {};
           }
           
           let pesan = "";
           let stage = "";
           
           // Peringatan 10 Menit
-          if (menit <= 10 && menit > 0 && !spokenStages[tableName]['10m']) {
+          if (menit <= 10 && menit > 0 && !spokenStages[key]['10m']) {
               pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam sepuluh menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
               stage = '10m';
           } 
           // Waktu Habis (0 Menit)
-          else if (menit <= 0 && !spokenStages[tableName]['0m']) {
+          else if (menit <= 0 && !spokenStages[key]['0m']) {
               pesan = `Perhatian. Waktu penggunaan ${tableName} telah berakhir. Terima kasih atas kunjungan Anda.`;
               stage = '0m';
           }
           
           if (pesan && stage) {
-              spokenStages[tableName][stage] = now;
+              spokenStages[key][stage] = now;
               speakWithResponsiveVoice(pesan);
           }
       });
@@ -485,7 +499,7 @@
              let headers = '';
              if(type === 'active') headers = `<tr><th>Layanan</th><th>Nama Pelanggan</th><th>Selesai</th><th>Sisa</th></tr>`;
              if(type === 'warn') headers = `<tr><th>Layanan</th><th>Nama Pelanggan</th><th>Mulai</th><th>Selesai</th><th>Sisa</th></tr>`;
-             if(type === 'avail') headers = `<tr><th>Layanan Available</th></tr>`;
+             if(type === 'avail') headers = `<tr><th>No. Antrean</th><th>Pelanggan</th><th>Layanan</th></tr>`;
              if(type === 'booking') headers = `<tr><th>Tgl Transaksi</th><th>Nama Pelanggan</th><th>Layanan</th><th>Mulai</th><th>Selesai</th></tr>`;
              
              const body = rows.map(row => {
@@ -505,7 +519,10 @@
                                 <td>${row.JamSelesai}</td>
                                 <td><span class="time-badge text-warning">${sisa}${icon}</span></td>`;
                  } else if(type === 'avail') {
-                     content = `<td><span class="text-highlight">${row.NamaTitikLampu}</span></td>`;
+                     const qNum = row.QueueNumber ? String(row.QueueNumber).padStart(3, '0') : row.NoTransaksi;
+                     content = `<td><span class="text-highlight">${qNum}</span></td>
+                                <td>${row.NamaPelanggan || 'Umum'}</td>
+                                <td>${row.NamaTitikLampu || 'Take Away'}</td>`;
                  } else if(type === 'booking') {
                      content = `<td>${formatDate(row.TglTransaksi)}</td>
                                 <td>${row.NamaPelanggan}</td>
@@ -527,9 +544,10 @@
         
         // FNB READY REMOVED
 
-        // Voice trigger - Check both used and expiring tables
+        // Voice trigger - Check used, expiring, and ready orders
         const allOccupied = [...(data.usedTable || []), ...(data.hampirHabisTable || [])];
         if(allOccupied.length > 0) speakQueueInIndonesian(allOccupied);
+        if(data.availableTable && data.availableTable.length > 0) speakReadyOrders(data.availableTable);
 
     }
 

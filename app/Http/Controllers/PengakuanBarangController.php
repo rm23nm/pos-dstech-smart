@@ -175,7 +175,7 @@ class PengakuanBarangController extends Controller
 				$save = $modelDetail->save();
 
 				if (!$save) {
-					$data['message'] = "Gagal Menyimpan Data Detail di Row ".$key->NoUrut;
+					$data['message'] = "Gagal Menyimpan Data Detail di Row ". ($NoUrut + 1);
 					$errorCount += 1;
 					goto jump;
 				}
@@ -233,6 +233,7 @@ class PengakuanBarangController extends Controller
 
 		$errorCount = 0;
 		$jsonData = $request->json()->all();
+		$data = array('success' => false, 'message' => '', 'data' => array(), 'Kembalian' => "");
 
 		try {
 			$model = PengakuanBarangHeader::where('NoTransaksi','=',$jsonData['NoTransaksi'])
@@ -284,7 +285,7 @@ class PengakuanBarangController extends Controller
 						$save = $modelDetail->save();
 
 						if (!$save) {
-							$data['message'] = "Gagal Menyimpan Data Detail di Row ".$key->NoUrut;
+							$data['message'] = "Gagal Menyimpan Data Detail di Row ". ($NoUrut + 1);
 							$errorCount += 1;
 							goto jump;
 						}

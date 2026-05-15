@@ -233,7 +233,7 @@
 										<div>else lv1</div>
 									@endif
 
-									@if(strtolower($lv1['PermissionName']) == 'master')
+									@if(strtolower($lv1['PermissionName']) == 'master' && (count($cData) > 0 && $cData[0]->AllowMonitorAntrean == 1))
 										@php
 											$isDisplaiActive = request()->routeIs('infokitchen') || request()->routeIs('customerdisplay') || request()->is('queue/*') || request()->routeIs('fpenjualan-custdisplay') || request()->routeIs('countermonitor');
 										@endphp

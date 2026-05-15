@@ -3737,7 +3737,7 @@ class FakturPenjualanController extends Controller
             DB::table('tableorderheader')
                 ->where('NoTransaksi', $NoTransaksi)
                 ->where('RecordOwnerID', $RecordOwnerID)
-                ->update(['access_kitchen_order_status' => $Status]);
+                ->update(['kitchen_order_status' => $Status]);
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {

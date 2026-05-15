@@ -18,7 +18,12 @@
 - [x] **UI Enhancement (POS & Self-Service)**: Menambahkan radio button "Makan di Tempat" vs "Bawa Pulang" pada modal pesanan FnB.
 - [x] **Logic Synchronization**: Menjamin payload `ServiceType` terkirim dengan benar ke backend dari kedua modul (Utama & Self-Service).
 - [x] **KDS Integration**: Menampilkan label "MAKAN DI TEMPAT" (Biru) atau "BAWA PULANG" (Merah) di monitor dapur dan struk cetak dapur.
-- [x] **Queue Monitor Update**: Mengganti panel "Layanan Available" menjadi "Pesanan Makanan Siap" lengkap dengan notifikasi suara (TTS) yang memandu konsumen (contoh: "Silakan ambil di konter" untuk Take Away).
+- [x] **Bug Fix SQL Queue**: Memperbaiki error `Column not found` pada `QueueManagementController.php` dengan mengganti `orderBy` ke `TglPencatatan`.
+- [x] **Sinkronisasi Monitor Antrean**: Mengganti panel "Layanan Available" menjadi "Pesanan Makanan Siap" pada `QueueManagement_v3.blade.php` dan mengaktifkan TTS untuk pesanan siap.
+- [x] **Database Schema Alignment**: Sinkronisasi manual kolom `access_call_trigger` dan verifikasi penggunaan `kitchen_order_status`.
+- [x] **Queue Monitor Update**: Mengganti panel "Layanan Available" menjadi "Pesanan Makanan Siap" lengkap dengan notifikasi suara (TTS) yang memandu konsumen untuk mengambil pesanan di konter.
+- [x] **Penyelarasan Monitor Antrean**: Panel "Pesanan Makanan Siap" kini menampilkan Nomor Antrean dan Nama Pelanggan, sinkron dengan status KDS (Kitchen Display System).
+- [x] **Penyempurnaan TTS**: Menambahkan logika suara untuk panggilan pesanan siap di Monitor Antrean (TV).
 - [x] **FnB List Optimization**: Menyembunyikan item tipe "Jasa" dari daftar pemilihan FnB dan mengurutkan seluruh item secara alfabetis (A-Z) di modul POS Utama & Self-Service.
 
 ## 3. Langkah Berikutnya (Apa yang Harus Dikerjakan Selanjutnya)
