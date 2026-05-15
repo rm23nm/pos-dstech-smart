@@ -360,6 +360,8 @@ class TableOrderController extends Controller
                         ->where('titiklampu.RecordOwnerID', '=', $roid)
                         ->OrderBy('titiklampu.DigitalInput','ASC')
                         ->get();
+        
+        $titiklampu = $titiklampu->unique('id')->values();
 
         $titiklampuoption = TitikLampu::where('titiklampu.RecordOwnerID', '=', $roid)
                                 ->whereIn('titiklampu.Status',['0','-1', '1'])->get();
