@@ -1,7 +1,7 @@
 # Laporan Progres Perbaikan - POS DStech Smart
 
-**Status Terakhir**: 15 Mei 2026, 00:00 (WIB)
-**Agent**: Antigravity
+**Status Terakhir**: 15 Mei 2026, 18:30 (WIB)
+**Agent**: Antigravity (Claude Sonnet)
 
 ## 1. Rincian Perbaikan yang Sudah Dilakukan (Riwayat Permanen)
 *   **Integrasi FnB ke Faktur/Struk**: Sinkronisasi status pesanan makanan agar muncul di kasir saat checkout.
@@ -12,26 +12,48 @@
 *   **Sinkronisasi Waktu (Timezone)**: Mengatasi bug "Meja Otomatis Hijau" dengan memaksa `Asia/Jakarta` dan memberikan toleransi booking 15 menit.
 *   **Stok FnB & Inventori**: Memastikan pemotongan stok berjalan benar dan validasi stok mencegah checkout item kosong.
 *   **Fitur Dine-In / Take-Away**: Implementasi pemilihan tipe layanan di POS Utama & Self-Service, integrasi ke KDS (Monitor Dapur), Struk Dapur, dan Monitor Antrean (TV).
+*   **Kitchen Display Fix**: Memperbaiki bug di mana pesanan menghilang dari monitor dapur sebelum status menjadi "Siap" akibat adanya item tipe "Jasa/Sewa" (Type 4) yang tidak ditampilkan tapi ikut dihitung dalam progres penyelesaian.
+*   **Status Auto-Correction**: Menambahkan logika pengecekan item kitchen (Type != 4) dalam penentuan status "Siap" (2) dan memperbaiki data yang sempat tersangkut (stuck) di database.
+*   **Menu Display (Lokal)** *(15 Mei 2026)*: Membuat migration `2026_05_15_000001_add_display_menu_permissions.php` yang:
+    - Menambah parent menu "Display" (Level 1, Icon: fas fa-desktop)
+    - Memindahkan Info Kitchen (ID 113) ke bawah parent Display
+    - Menambah Monitor Antrean (ID 115) dan Monitor Counter (ID 116)
+    - Assign semua permission ini ke seluruh role yang sudah punya Info Kitchen
+    - Tambahkan ke subscriptiondetail paket 2003
 
-## 2. Pekerjaan yang Baru Saja Diselesaikan
-- [x] **Database Migration**: Menambahkan kolom `ServiceType` ke tabel `tableorderfnb`.
-- [x] **UI Enhancement (POS & Self-Service)**: Menambahkan radio button "Makan di Tempat" vs "Bawa Pulang" pada modal pesanan FnB.
-- [x] **Logic Synchronization**: Menjamin payload `ServiceType` terkirim dengan benar ke backend dari kedua modul (Utama & Self-Service).
-- [x] **KDS Integration**: Menampilkan label "MAKAN DI TEMPAT" (Biru) atau "BAWA PULANG" (Merah) di monitor dapur dan struk cetak dapur.
-- [x] **Bug Fix SQL Queue**: Memperbaiki error `Column not found` pada `QueueManagementController.php` dengan mengganti `orderBy` ke `TglPencatatan`.
-- [x] **Sinkronisasi Monitor Antrean**: Mengganti panel "Layanan Available" menjadi "Pesanan Makanan Siap" pada `QueueManagement_v3.blade.php` dan mengaktifkan TTS untuk pesanan siap.
-- [x] **Database Schema Alignment**: Sinkronisasi manual kolom `access_call_trigger` dan verifikasi penggunaan `kitchen_order_status`.
-- [x] **Queue Monitor Update**: Mengganti panel "Layanan Available" menjadi "Pesanan Makanan Siap" lengkap dengan notifikasi suara (TTS) yang memandu konsumen untuk mengambil pesanan di konter.
-- [x] **Penyelarasan Monitor Antrean**: Panel "Pesanan Makanan Siap" kini menampilkan Nomor Antrean dan Nama Pelanggan, sinkron dengan status KDS (Kitchen Display System).
-- [x] **Penyempurnaan TTS**: Menambahkan logika suara untuk panggilan pesanan siap di Monitor Antrean (TV).
-- [x] **FnB List Optimization**: Menyembunyikan item tipe "Jasa" dari daftar pemilihan FnB dan mengurutkan seluruh item secara alfabetis (A-Z) di modul POS Utama & Self-Service.
-- [x] **Kitchen Display Fix**: Memperbaiki bug di mana pesanan menghilang dari monitor dapur sebelum status menjadi "Siap" akibat adanya item tipe "Jasa/Sewa" (Type 4) yang tidak ditampilkan tapi ikut dihitung dalam progres penyelesaian.
-- [x] **Status Auto-Correction**: Menambahkan logika pengecekan item kitchen (Type != 4) dalam penentuan status "Siap" (2) dan memperbaiki data yang sempat tersangkut (stuck) di database.
+## 2. Pekerjaan yang Baru Saja Diselesaikan (15 Mei 2026)
+- [x] **Database Migration (Lokal)**: Migration menu Display berhasil dijalankan di lokal
+- [x] **Service Type Migration (Re-apply)**: Migration `add_service_type_to_tableorderfnb` yang sempat ter-rollback telah di-apply kembali
+- [x] **Diagnosa Root Cause**: Ditemukan bahwa menu Display dikontrol oleh kondisi `AllowMonitorAntrean == 1` di `subscriptionheader` DAN oleh hardcoded section di `header.blade.php`
+- [x] **Script Fix Live**: Dibuat file `fix_live_display_menu.sql` untuk dijalankan di live server
 
-## 3. Langkah Berikutnya (Apa yang Harus Dikerjakan Selanjutnya)
-1.  **Deployment Live**: Melakukan migrasi database di server live (`php artisan migrate --path=...`).
-2.  **Uji Coba End-to-End**: Melakukan transaksi dari Self-Service, pastikan di monitor dapur muncul label yang sesuai dan monitor antrean memanggil nama pelanggan saat pesanan diselesaikan (Mark Done).
-3.  **Monitoring Produksi**: Memastikan tidak ada kendala performa pada monitor antrean setelah penambahan fitur suara.
+## 3. Langkah Berikutnya (WAJIB DIKERJAKAN)
+
+### PRIORITAS 1: Deploy ke Live Server
+**Cara**: Push via GitHub Desktop, lalu di terminal live jalankan:
+```bash
+php artisan migrate --force
+# atau langsung jalankan SQL:
+mysql -u [user] -p [db_name] < fix_live_display_menu.sql
+```
+
+**Yang akan terjadi di live**:
+1. `AllowMonitorAntrean` di paket `2003` akan diset ke `1`
+2. Menu "Display" akan muncul di sidebar semua user dengan paket `2003`
+
+### PRIORITAS 2: Verifikasi Setelah Deploy
+- Cek apakah kolom `AllowMonitorAntrean` sudah ada di tabel `subscriptionheader` di live
+- Jika belum ada, tambahkan dulu via migration: `php artisan migrate --path=database/migrations/2026_05_14_220001_add_allow_monitor_antrean_to_subscription_header_table.php --force`
+- Login ke live dan verifikasi menu Display muncul di sidebar
+
+### PRIORITAS 3: Masalah Status Meja di Live (Belum Diselesaikan)
+- Client melaporkan status meja tidak berubah saat input transaksi
+- Perlu cek log di live setelah deploy: `tail -f storage/logs/laravel.log`
+- Kemungkinan masalah timezone antara server live dan `Carbon::now('Asia/Jakarta')`
 
 ---
-**Catatan Penting**: Fitur suara di monitor antrean menggunakan `ResponsiveVoice`. Pastikan koneksi internet stabil agar suara dapat terdengar.
+**File Penting**:
+- `fix_live_display_menu.sql` — Script SQL untuk fix live database
+- `database/migrations/2026_05_15_000001_add_display_menu_permissions.php` — Migration lokal yang sudah dijalankan
+- `resources/views/parts/header.blade.php` line 236 — Kondisi visibility menu Display
+- `app/Http/Controllers/TableOrderController.php` — Logic getTableStatuses (cek status meja)
