@@ -107,26 +107,15 @@ class QueueManagementController extends Controller
 
         // 1. AVAILABLE TABLES (Status 0)
         // Kita tidak butuh groupBy di sini karena meja dengan status 0 harusnya unik
-        // 1. READY FOOD ORDERS (Replaces Available Tables as per Progress Report)
-        $availableTable = DB::table('tableorderheader')
-            ->leftJoin('pelanggan', function($join) {
-                $join->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
-                     ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
+        $availableTable = TitikLampu::selectRaw("titiklampu.*, 'KOSONG' as StatusMeja, COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok")
+            ->leftjoin('tkelompoklampu', function ($value)  {
+                $value->on('titiklampu.KelompokLampu','=','tkelompoklampu.KodeKelompok')
+                ->on('titiklampu.RecordOwnerID','=','tkelompoklampu.RecordOwnerID');
             })
-            ->leftJoin('titiklampu', function($join) {
-                $join->on('tableorderheader.tableid', '=', 'titiklampu.id')
-                     ->on('tableorderheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
-            })
-            ->select(
-                'tableorderheader.NoTransaksi',
-                'tableorderheader.QueueNumber',
-                'pelanggan.NamaPelanggan',
-                'titiklampu.NamaTitikLampu'
-            )
-            ->where('tableorderheader.RecordOwnerID', $request->RecordOwnerID)
-            ->whereDate('tableorderheader.TglTransaksi', now()->toDateString())
-            ->where('tableorderheader.kitchen_order_status', 2)
-            ->get();
+            ->where('titiklampu.RecordOwnerID', '=', $request->RecordOwnerID)
+            ->where('titiklampu.Status', '=', '0')
+            ->get()->unique('id')->values();
+
 
         // 2. USED TABLES (Status 1 - Aktif)
         $usedTable = TitikLampu::selectRaw("titiklampu.*,

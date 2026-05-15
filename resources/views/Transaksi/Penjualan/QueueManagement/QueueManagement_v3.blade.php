@@ -323,7 +323,7 @@
 
     <!-- MEJA TERSEDIA -->
     <div class="grid-box area-available">
-      <div class="box-header" style="background: var(--accent-success);">Pesanan Makanan Siap</div>
+      <div class="box-header" style="background: var(--accent-success);">Layanan Tersedia</div>
       <div class="box-content" id="table-available"></div>
     </div>
 
@@ -499,7 +499,7 @@
              let headers = '';
              if(type === 'active') headers = `<tr><th>Layanan</th><th>Nama Pelanggan</th><th>Selesai</th><th>Sisa</th></tr>`;
              if(type === 'warn') headers = `<tr><th>Layanan</th><th>Nama Pelanggan</th><th>Mulai</th><th>Selesai</th><th>Sisa</th></tr>`;
-             if(type === 'avail') headers = `<tr><th>No. Antrean</th><th>Pelanggan</th><th>Layanan</th></tr>`;
+             if(type === 'avail') headers = `<tr><th colspan="4" class="text-center">Layanan</th></tr>`;
              if(type === 'booking') headers = `<tr><th>Tgl Transaksi</th><th>Nama Pelanggan</th><th>Layanan</th><th>Mulai</th><th>Selesai</th></tr>`;
              
              const body = rows.map(row => {
@@ -519,10 +519,7 @@
                                 <td>${row.JamSelesai}</td>
                                 <td><span class="time-badge text-warning">${sisa}${icon}</span></td>`;
                  } else if(type === 'avail') {
-                     const qNum = row.QueueNumber ? String(row.QueueNumber).padStart(3, '0') : row.NoTransaksi;
-                     content = `<td><span class="text-highlight">${qNum}</span></td>
-                                <td>${row.NamaPelanggan || 'Umum'}</td>
-                                <td>${row.NamaTitikLampu || 'Take Away'}</td>`;
+                     content = `<td colspan="4" class="text-center"><span class="text-highlight" style="font-size: 1.2rem;">${row.NamaTitikLampu}</span></td>`;
                  } else if(type === 'booking') {
                      content = `<td>${formatDate(row.TglTransaksi)}</td>
                                 <td>${row.NamaPelanggan}</td>
@@ -544,10 +541,9 @@
         
         // FNB READY REMOVED
 
-        // Voice trigger - Check used, expiring, and ready orders
+        // Voice trigger - Check used, expiring
         const allOccupied = [...(data.usedTable || []), ...(data.hampirHabisTable || [])];
         if(allOccupied.length > 0) speakQueueInIndonesian(allOccupied);
-        if(data.availableTable && data.availableTable.length > 0) speakReadyOrders(data.availableTable);
 
     }
 

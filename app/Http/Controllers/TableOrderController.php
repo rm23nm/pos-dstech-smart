@@ -224,10 +224,10 @@ class TableOrderController extends Controller
     public function ViewNew(Request $request)
     {
         $roid = Auth::user()->RecordOwnerID;
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Jakarta');
 
         $paket = Paket::where('RecordOwnerID','=',$roid)->get();
-        $today = Carbon::now()->format('Y-m-d');
+        $today = Carbon::now('Asia/Jakarta')->format('Y-m-d');
 
         // SELF-HEALING: Re-open orders that were accidentally closed but the table is still active
         $activeTableIds = DB::table('titiklampu')
@@ -624,6 +624,7 @@ class TableOrderController extends Controller
 
             $model = new TableOrderHeader;
             $model->NoTransaksi = $NoTransaksi;
+            $model->DocumentStatus = 'O'; // Default to Open
             $model->QueueNumber = intval(substr($NoTransaksi, -3));
             $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi')) : $now;
             $model->TglTransaksi = $tglTransaksi;
@@ -688,7 +689,7 @@ class TableOrderController extends Controller
             }
             // Future Booking Logic
             // If JamMulai > NOW, force Status to 0 (Booking/Scheduled)
-            $now = Carbon::now();
+            $now = Carbon::now('Asia/Jakarta');
             // dd($model->JamMulai->gt($now), $now, $model->JamMulai);
             if ($model->JamMulai->gt($now)) {
                 $model->Status = 0;
@@ -791,7 +792,7 @@ class TableOrderController extends Controller
             //             $pHeader = new PembayaranPenjualanHeader();
             //             $pHeader->Periode = $Year . $Month;
             //             $pHeader->NoTransaksi = $payNo;
-            //             $pHeader->TglTransaksi = Carbon::now();
+            //             $pHeader->TglTransaksi = Carbon::now('Asia/Jakarta');
             //             $pHeader->KodePelanggan = $pelanggan->KodePelanggan;
             //             $pHeader->TotalPembelian = $pricePerPlay;
             //             $pHeader->TotalPembayaran = $pricePerPlay;
@@ -5077,7 +5078,7 @@ public function getTableStatuses()
         $ppnPersen = floatval($company->PPN ?? 0);
         $servicePersen = floatval($company->ServiceCharge ?? 0);
         $periode = date('Ym');
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Jakarta');
 
         // Calculate totals
         $subtotal = 0;

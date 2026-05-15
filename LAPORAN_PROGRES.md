@@ -20,12 +20,17 @@
     - Menambah Monitor Antrean (ID 115) dan Monitor Counter (ID 116)
     - Assign semua permission ini ke seluruh role yang sudah punya Info Kitchen
     - Tambahkan ke subscriptiondetail paket 2003
+*   **Perbaikan Sinkronisasi Status Meja (Real-time)** *(15 Mei 2026)*:
+    - Menstandarisasi semua penggunaan `Carbon::now()` menjadi `Carbon::now('Asia/Jakarta')` di `TableOrderController` dan `FakturPenjualanController` untuk mencegah selisih waktu server vs aplikasi.
+    - Menambahkan default `DocumentStatus = 'O'` (Open) pada saat pembuatan transaksi baru di POS. Sebelumnya, transaksi tanpa tipe "REALTIME" tidak memiliki status dokumen yang valid, sehingga tidak terbaca oleh fungsi `getTableStatuses` (Meja tetap hijau padahal sudah diisi).
+    - Memastikan `titiklampu.Status` dan `tableorderheader.DocumentStatus` sinkron saat transaksi disimpan.
 
 ## 2. Pekerjaan yang Baru Saja Diselesaikan (15 Mei 2026)
 - [x] **Database Migration (Lokal)**: Migration menu Display berhasil dijalankan di lokal
 - [x] **Service Type Migration (Re-apply)**: Migration `add_service_type_to_tableorderfnb` yang sempat ter-rollback telah di-apply kembali
 - [x] **Diagnosa Root Cause**: Ditemukan bahwa menu Display dikontrol oleh kondisi `AllowMonitorAntrean == 1` di `subscriptionheader` DAN oleh hardcoded section di `header.blade.php`
 - [x] **Script Fix Live**: Dibuat file `fix_live_display_menu.sql` untuk dijalankan di live server
+- [x] **Fix Sinkronisasi Status Meja**: Standardisasi timezone Jakarta & perbaikan `DocumentStatus` (O) pada controller.
 
 ## 3. Langkah Berikutnya (WAJIB DIKERJAKAN)
 
@@ -46,10 +51,11 @@ mysql -u [user] -p [db_name] < fix_live_display_menu.sql
 - Jika belum ada, tambahkan dulu via migration: `php artisan migrate --path=database/migrations/2026_05_14_220001_add_allow_monitor_antrean_to_subscription_header_table.php --force`
 - Login ke live dan verifikasi menu Display muncul di sidebar
 
-### PRIORITAS 3: Masalah Status Meja di Live (Belum Diselesaikan)
-- Client melaporkan status meja tidak berubah saat input transaksi
-- Perlu cek log di live setelah deploy: `tail -f storage/logs/laravel.log`
-- Kemungkinan masalah timezone antara server live dan `Carbon::now('Asia/Jakarta')`
+### PRIORITAS 3: Deployment & Monitoring Live
+- [ ] Push perubahan terbaru ke GitHub (Termasuk fix `TableOrderController` & `FakturPenjualanController`).
+- [ ] Jalankan `php artisan migrate --force` di server live.
+- [ ] Monitor log di live: `tail -f storage/logs/laravel.log`.
+- [ ] Verifikasi status meja di live apakah sudah berubah menjadi MERAH (Aktif) secara real-time setelah input transaksi.
 
 ---
 **File Penting**:

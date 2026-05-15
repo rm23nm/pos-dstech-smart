@@ -271,7 +271,7 @@ class FakturPenjualanController extends Controller
 		$jsonData = $request->json()->all();
 		$IFP = array();
 		$RFP = array();
-		$currentDate = Carbon::now();
+		$currentDate = Carbon::now('Asia/Jakarta');
 
 		$oCompany = Company::where('KodePartner','=',Auth::user()->RecordOwnerID)->first();
 		$HargaPokokPenjualan = 0;
@@ -385,7 +385,7 @@ class FakturPenjualanController extends Controller
 				goto jump;
 			}
 			
-			$currentDate = Carbon::now();
+			$currentDate = Carbon::now('Asia/Jakarta');
 			$Year = $currentDate->format('Y');
 			$Month = $currentDate->format('m');
 
@@ -397,7 +397,7 @@ class FakturPenjualanController extends Controller
 
 				$IFP = array();
 				$RFP = array();
-				$currentDate = Carbon::now();
+				$currentDate = Carbon::now('Asia/Jakarta');
 
 				$oCompany = Company::where('KodePartner','=',Auth::user()->RecordOwnerID)->first();
 				$HargaPokokPenjualan = 0;
@@ -520,7 +520,7 @@ class FakturPenjualanController extends Controller
 			$tglTransaksi = $jsonData['TglTransaksi'];
 			// Fallback: If time is missing (length <= 10), add current time
 			if (strlen($tglTransaksi) <= 10) {
-				$tglTransaksi .= " " . Carbon::now()->format('H:i:s');
+				$tglTransaksi .= " " . Carbon::now('Asia/Jakarta')->format('H:i:s');
 			}
 			$model->TglTransaksi = $tglTransaksi;
 			$model->TglJatuhTempo = $jsonData['TglJatuhTempo'];
@@ -785,7 +785,7 @@ class FakturPenjualanController extends Controller
 		$baseReff = "";
 
 		try {
-			$currentDate = Carbon::now();
+			$currentDate = Carbon::now('Asia/Jakarta');
 			$Year = $currentDate->format('Y');
 			$Month = $currentDate->format('m');
 
@@ -1064,7 +1064,7 @@ class FakturPenjualanController extends Controller
 					->where('RecordOwnerID', Auth::user()->RecordOwnerID)
 					->where('NoTransaksi', $BaseReffTableOrder)
 					->whereNotNull('JamSelesai')
-					->where('JamSelesai', '<', Carbon::now())
+					->where('JamSelesai', '<', Carbon::now('Asia/Jakarta'))
 					->where(function ($query) {
 						$query->whereIn('JenisPaket', ['MENIT', 'MENITREALTIME'])
 							->orWhere('Status', -1);
@@ -1257,7 +1257,7 @@ class FakturPenjualanController extends Controller
 				goto jump;
 			}
 			
-			$currentDate = Carbon::now();
+			$currentDate = Carbon::now('Asia/Jakarta');
 			$Year = $currentDate->format('Y');
 			$Month = $currentDate->format('m');
 
@@ -1289,7 +1289,7 @@ class FakturPenjualanController extends Controller
 			$tglTransaksi = $jsonData['TglTransaksi'];
 			// Fallback: If time is missing (length <= 10), add current time
 			if (strlen($tglTransaksi) <= 10) {
-				$tglTransaksi .= " " . Carbon::now()->format('H:i:s');
+				$tglTransaksi .= " " . Carbon::now('Asia/Jakarta')->format('H:i:s');
 			}
 			$model->TglTransaksi = $tglTransaksi;
 			$model->TglJatuhTempo = $jsonData['TglJatuhTempo'];
@@ -1897,7 +1897,7 @@ class FakturPenjualanController extends Controller
 				goto jump;
 			}
 			
-			$currentDate = Carbon::now();
+			$currentDate = Carbon::now('Asia/Jakarta');
 			$Year = $currentDate->format('Y');
 			$Month = $currentDate->format('m');
 
@@ -2365,7 +2365,7 @@ class FakturPenjualanController extends Controller
 
 			$IFP = array();
 			$RFP = array();
-			$currentDate = Carbon::now();
+			$currentDate = Carbon::now('Asia/Jakarta');
 
 			$oCompany = Company::where('KodePartner','=',Auth::user()->RecordOwnerID)->first();
 			$HargaPokokPenjualan = 0;
@@ -3626,6 +3626,8 @@ class FakturPenjualanController extends Controller
                 )
                 ->where('tableorderheader.RecordOwnerID', $RecordOwnerID)
                 ->whereDate('tableorderheader.TglTransaksi', now()->toDateString())
+                ->where('tableorderheader.Status', '!=', 0)
+                ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
                 ->where(function($q) {
                     $q->where('tableorderheader.kitchen_order_status', '<', 3)
                       ->orWhereNull('tableorderheader.kitchen_order_status');
