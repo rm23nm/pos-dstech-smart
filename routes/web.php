@@ -1173,7 +1173,7 @@ Route::post('/queue/getData', [QueueManagementController::class, 'handleQueue'])
 
 // Redirect routes for Display/Monitor compatibility
 Route::get('/monitorantrean', function() {
-    return redirect('/queue/' . base64_encode(Auth::user()->RecordOwnerID));
+    return redirect('/queue/' . base64_encode(auth()->user()->RecordOwnerID));
 })->middleware(['auth', 'check.session']);
 
 Route::get('/monitorcounter', function() {
