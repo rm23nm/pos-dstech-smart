@@ -3436,6 +3436,19 @@ public function getTableStatuses()
                 DB::table('tableorderheader')->where('NoTransaksi', $ta->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'O']);
                 DB::table('titiklampu')->where('id', $ta->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
             }
+
+            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) if JamMulai > now
+            // Fixes data that was saved incorrectly before the bug fix.
+            $toDeactivate = DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('DocumentStatus', 'O')
+                ->where('JamMulai', '>', $now)
+                ->get();
+
+            foreach ($toDeactivate as $td) {
+                DB::table('tableorderheader')->where('NoTransaksi', $td->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'D', 'Status' => 0]);
+                DB::table('titiklampu')->where('id', $td->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+            }
             // B. (Removed optimized subqueries as we use TotalTerbayar now)
 
             // 3. MAIN STATUS QUERY (SUPER LIGHTWEIGHT)
