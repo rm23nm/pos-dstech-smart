@@ -756,6 +756,24 @@
                         <div class="detail-calc-row" style="font-weight:800; font-size:1.3rem; color:#e65100;"><span>TOTAL</span> <span id="jfGrandTotal">Rp 0</span></div>
                         
                         <div class="pp-row" style="margin-top:15px;">
+                            <label class="pp-label">MEMBER / PELANGGAN</label>
+                            <select class="pp-input" id="jfPelanggan" style="border:1.5px solid #ffcc80;">
+                                <option value="UMUM">-- Umum / Guest --</option>
+                                @foreach($pelanggan as $p)
+                                    <option value="{{ $p->KodePelanggan }}">{{ $p->NamaPelanggan }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="pp-row" style="margin-top:10px;">
+                            <label class="pp-label">VOUCHER / DISKON</label>
+                            <div style="display:flex; gap:5px;">
+                                <input type="text" id="jfVoucher" class="pp-input" placeholder="Kode Voucher" style="flex:1; border:1.5px solid #ffcc80; text-transform:uppercase;">
+                                <button onclick="applyJfVoucher()" style="background:#e65100; color:#fff; border:none; border-radius:8px; padding:0 15px; font-weight:700;">CEK</button>
+                            </div>
+                        </div>
+
+                        <div class="pp-row" style="margin-top:10px;">
                             <label class="pp-label">METODE PEMBAYARAN</label>
                             <select class="pp-input" id="jfMetodePembayaran" onchange="calculateJfTotal()" style="border:2px solid #e65100;">
                                 @foreach($metodepembayaran as $mp)

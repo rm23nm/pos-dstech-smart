@@ -4710,21 +4710,22 @@
                         </div>
                     </div>
                     
-                    <div class="fnb-selection-grid" id="jualFnbMenuGrid" style="flex:1; overflow-y:auto; align-content: flex-start; padding-bottom:20px;">
+                    <div style="padding:15px; display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:15px; overflow-y:auto;" id="fnbQuickGrid">
                         @foreach($itemmaster as $item)
-                            @if(in_array($item->TypeItem, [1,2,3,5]))
-                            <div class="fnb-card fnb-menu-item" data-name="{{ strtolower($item->NamaItem) }}" onclick='addJualFnbToCart(@json($item))' style="width:145px; height:200px;">
-                                <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
-                                     class="fnb-card-img" 
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='"
-                                     style="height:100px;">
-                                <div class="fnb-card-body">
-                                    <div class="fnb-card-name" style="height:40px; overflow:hidden; font-size:0.85rem;">{{ $item->NamaItem }}</div>
-                                    <div class="fnb-card-price" style="font-size:0.95rem; color:#e65100;">Rp {{ number_format($item->HargaJual) }}</div>
-                                    <div class="fnb-card-stock" style="font-size:0.75rem;">Stok: {{ $item->Stock }}</div>
-                                </div>
+                            @php $isHabis = ($item->Stock ?? 0) <= 0; @endphp
+                            <div class="fnb-card" 
+                                 onclick="{{ $isHabis ? "swal('Stok Habis', 'Menu tidak tersedia.', 'warning')" : 'addJualFnbToCart(' . json_encode($item) . ')' }}" 
+                                 style="background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.06); position:relative; {{ $isHabis ? 'opacity:0.6; filter:grayscale(0.9);' : '' }}">
+                                
+                                @if($isHabis)
+                                    <div style="position:absolute; top:40%; left:50%; transform:translate(-50%,-50%) rotate(-15deg); background:#d32f2f; color:#fff; padding:4px 8px; border-radius:4px; font-weight:800; font-size:0.75rem; z-index:10; border:1px solid #fff; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.3);">STOK HABIS</div>
+                                @endif
+
+                                <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" style="width:100px; height:100px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+                                <div style="font-weight:700; font-size:0.9rem; color:#333; height:40px; overflow:hidden; line-height:1.2;">{{ $item->NamaItem }}</div>
+                                <div style="font-weight:800; color:#e65100; margin-top:5px; font-size:1rem;">Rp {{ number_format($item->HargaJual) }}</div>
+                                <div style="font-size:0.75rem; color:{{ $isHabis ? '#d32f2f' : '#888' }}; margin-top:2px;">Stok: {{ number_format($item->Stock ?? 0) }}</div>
                             </div>
-                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -4785,6 +4786,12 @@
                                 <div id="jualFnbNewCustomerRow" style="display:none; margin-bottom:8px;">
                                     <input type="text" id="jualFnbNewNama" placeholder="Nama *" style="width:100%; padding:6px; margin-bottom:4px; border:1px solid #ddd; border-radius:4px; font-size:0.8rem;">
                                     <input type="text" id="jualFnbNewTlp" placeholder="WA *" style="width:100%; padding:6px; border:1px solid #ddd; border-radius:4px; font-size:0.8rem;">
+                                </div>
+
+                                <label style="font-size:0.75rem; color:#555; font-weight:700; display:block; margin-bottom:2px;">VOUCHER / DISKON</label>
+                                <div style="display:flex; gap:5px; margin-bottom:8px;">
+                                    <input type="text" id="jualFnbVoucher" placeholder="Kode Voucher" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:6px; font-size:0.85rem; text-transform:uppercase;">
+                                    <button onclick="applyJualFnbVoucher()" style="background:#1a237e; color:#fff; border:none; border-radius:6px; padding:0 12px; font-size:0.75rem; font-weight:700;">CEK</button>
                                 </div>
 
                                 <label style="font-size:0.75rem; color:#555; font-weight:700; display:block; margin-bottom:2px;">METODE BAYAR</label>
