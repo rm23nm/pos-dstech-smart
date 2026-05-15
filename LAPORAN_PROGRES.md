@@ -25,6 +25,8 @@
 - [x] **Penyelarasan Monitor Antrean**: Panel "Pesanan Makanan Siap" kini menampilkan Nomor Antrean dan Nama Pelanggan, sinkron dengan status KDS (Kitchen Display System).
 - [x] **Penyempurnaan TTS**: Menambahkan logika suara untuk panggilan pesanan siap di Monitor Antrean (TV).
 - [x] **FnB List Optimization**: Menyembunyikan item tipe "Jasa" dari daftar pemilihan FnB dan mengurutkan seluruh item secara alfabetis (A-Z) di modul POS Utama & Self-Service.
+- [x] **Kitchen Display Fix**: Memperbaiki bug di mana pesanan menghilang dari monitor dapur sebelum status menjadi "Siap" akibat adanya item tipe "Jasa/Sewa" (Type 4) yang tidak ditampilkan tapi ikut dihitung dalam progres penyelesaian.
+- [x] **Status Auto-Correction**: Menambahkan logika pengecekan item kitchen (Type != 4) dalam penentuan status "Siap" (2) dan memperbaiki data yang sempat tersangkut (stuck) di database.
 
 ## 3. Langkah Berikutnya (Apa yang Harus Dikerjakan Selanjutnya)
 1.  **Deployment Live**: Melakukan migrasi database di server live (`php artisan migrate --path=...`).

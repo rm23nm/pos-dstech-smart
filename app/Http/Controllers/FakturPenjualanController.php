@@ -3434,11 +3434,9 @@ class FakturPenjualanController extends Controller
             )
             ->where('itemmaster.TypeItem', '<>', 4)
             ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID)
-            ->where('tableorderheader.kitchen_order_status', '<', 3)
-            ->where(function($q) {
-                $q->where('tableorderfnb.isCompleted', 0)
-                  ->orWhere('tableorderheader.kitchen_order_status', 2);
-            });
+            ->where('tableorderheader.kitchen_order_status', '<', 3);
+            // Kita hilangkan filter isCompleted agar item tetap terlihat di card (dengan strikethrough)
+            // sampai seluruh order ditandai sebagai 'Diambil' (status 3).
 
         if (!empty($tgl)) {
             $query->whereDate('tableorderheader.TglTransaksi', $tgl);
@@ -3488,10 +3486,16 @@ class FakturPenjualanController extends Controller
                 ->update(['kitchen_order_status' => 1]);
 
             // Check if all items are done to auto-set status to "Siap" (2)
+            // Only count items that are relevant for the kitchen (TypeItem != 4)
             $remaining = DB::table('tableorderfnb')
-                ->where('NoTransaksi', $NoTransaksi)
-                ->where('RecordOwnerID', $RecordOwnerID)
-                ->where('isCompleted', 0)
+                ->join('itemmaster', function($join) {
+                    $join->on('tableorderfnb.KodeItem', '=', 'itemmaster.KodeItem')
+                         ->on('tableorderfnb.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+                })
+                ->where('tableorderfnb.NoTransaksi', $NoTransaksi)
+                ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID)
+                ->where('tableorderfnb.isCompleted', 0)
+                ->where('itemmaster.TypeItem', '<>', 4)
                 ->count();
 
             if ($remaining == 0) {
