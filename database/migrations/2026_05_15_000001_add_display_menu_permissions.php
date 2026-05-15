@@ -9,10 +9,7 @@ class AddDisplayMenuPermissions extends Migration
 {
     /**
      * Run the migrations.
-     * Menambahkan menu "Display" sebagai parent Level 1 dengan submenu:
-     * - Info Kitchen
-     * - Monitor Antrean (Queue Monitor)
-     * - Monitor Counter
+     * Menambahkan menu "Display" sebagai parent Level 1 dengan 6 submenu:
      */
     public function up()
     {
@@ -26,7 +23,6 @@ class AddDisplayMenuPermissions extends Migration
             $displayId = $existingDisplay->id;
             echo "Menu Display sudah ada dengan ID: {$displayId}\n";
         } else {
-            // Insert menu Display sebagai Level 1
             $displayId = DB::table('permission')->insertGetId([
                 'PermissionName' => 'Display',
                 'Link'           => '#',
@@ -34,7 +30,7 @@ class AddDisplayMenuPermissions extends Migration
                 'Level'          => 1,
                 'MenuInduk'      => 0,
                 'SubMenu'        => 1,
-                'Order'          => 26, // Antara Transaksi (18) dan Akutansi (38)
+                'Order'          => 26,
                 'Status'         => 1,
                 'isSuperAdmin'   => 0,
                 'created_at'     => now(),
@@ -43,91 +39,91 @@ class AddDisplayMenuPermissions extends Migration
             echo "Menu Display dibuat dengan ID: {$displayId}\n";
         }
 
-        // 2. Pindahkan Info Kitchen (113) dari parent Penjualan (25) ke Display
-        DB::table('permission')
-            ->where('id', 113)
-            ->update([
-                'MenuInduk'  => $displayId,
-                'Level'      => 2,
-                'Order'      => 26.1,
-                'updated_at' => now(),
-            ]);
-        echo "Info Kitchen (113) dipindahkan ke parent Display ({$displayId})\n";
+        // 2. Update/Insert 6 Submenu
+        $submenus = [
+            [
+                'id' => 113,
+                'name' => 'Info Kitchen',
+                'link' => 'infokitchen',
+                'icon' => 'fas fa-utensils',
+                'order' => 26.1
+            ],
+            [
+                'id' => 117, // ID baru
+                'name' => 'Queue Antrian FNB',
+                'link' => 'customerdisplay',
+                'icon' => 'fas fa-tv',
+                'order' => 26.2
+            ],
+            [
+                'id' => 116,
+                'name' => 'Monitor Counter (Recall)',
+                'link' => 'countermonitor',
+                'icon' => 'fas fa-headset',
+                'order' => 26.3
+            ],
+            [
+                'id' => 118, // ID baru
+                'name' => 'Antrian FNB Dapur',
+                'link' => 'infokitchen',
+                'icon' => 'fas fa-fire-alt',
+                'order' => 26.4
+            ],
+            [
+                'id' => 115,
+                'name' => 'Queue Lapangan',
+                'link' => 'monitorantrean', // Redirects to /queue/{id} via web.php
+                'icon' => 'fas fa-list-ol',
+                'order' => 26.5
+            ],
+            [
+                'id' => 119, // ID baru
+                'name' => 'Customer Display POS',
+                'link' => 'fpenjualan-custdisplay',
+                'icon' => 'fas fa-tablet-alt',
+                'order' => 26.6
+            ]
+        ];
 
-        // 3. Tambah Monitor Antrean jika belum ada
-        $existingAntrean = DB::table('permission')
-            ->where('Link', 'monitorantrean')
-            ->first();
-        if (!$existingAntrean) {
-            $antreanId = DB::table('permission')->insertGetId([
-                'PermissionName' => 'Monitor Antrean',
-                'Link'           => 'monitorantrean',
-                'Icon'           => 'fas fa-tv',
+        $allPermIds = [$displayId];
+
+        foreach ($submenus as $sub) {
+            $existing = DB::table('permission')->where('id', $sub['id'])->first();
+            
+            $data = [
+                'PermissionName' => $sub['name'],
+                'Link'           => $sub['link'],
+                'Icon'           => $sub['icon'],
                 'Level'          => 2,
                 'MenuInduk'      => $displayId,
                 'SubMenu'        => 2,
-                'Order'          => 26.2,
+                'Order'          => $sub['order'],
                 'Status'         => 1,
                 'isSuperAdmin'   => 0,
-                'created_at'     => now(),
                 'updated_at'     => now(),
-            ]);
-            echo "Monitor Antrean dibuat dengan ID: {$antreanId}\n";
-        } else {
-            $antreanId = $existingAntrean->id;
-            DB::table('permission')
-                ->where('id', $antreanId)
-                ->update([
-                    'MenuInduk'  => $displayId,
-                    'Level'      => 2,
-                    'updated_at' => now(),
-                ]);
-            echo "Monitor Antrean sudah ada dengan ID: {$antreanId}, dipindahkan ke parent Display\n";
+            ];
+
+            if ($existing) {
+                DB::table('permission')->where('id', $sub['id'])->update($data);
+                echo "Submenu '{$sub['name']}' diperbarui.\n";
+            } else {
+                $data['id'] = $sub['id'];
+                $data['created_at'] = now();
+                DB::table('permission')->insert($data);
+                echo "Submenu '{$sub['name']}' dibuat.\n";
+            }
+            $allPermIds[] = $sub['id'];
         }
 
-        // 4. Tambah Monitor Counter jika belum ada
-        $existingCounter = DB::table('permission')
-            ->where('Link', 'monitorcounter')
-            ->first();
-        if (!$existingCounter) {
-            $counterId = DB::table('permission')->insertGetId([
-                'PermissionName' => 'Monitor Counter',
-                'Link'           => 'monitorcounter',
-                'Icon'           => 'fas fa-headset',
-                'Level'          => 2,
-                'MenuInduk'      => $displayId,
-                'SubMenu'        => 2,
-                'Order'          => 26.3,
-                'Status'         => 1,
-                'isSuperAdmin'   => 0,
-                'created_at'     => now(),
-                'updated_at'     => now(),
-            ]);
-            echo "Monitor Counter dibuat dengan ID: {$counterId}\n";
-        } else {
-            $counterId = $existingCounter->id;
-            DB::table('permission')
-                ->where('id', $counterId)
-                ->update([
-                    'MenuInduk'  => $displayId,
-                    'Level'      => 2,
-                    'updated_at' => now(),
-                ]);
-            echo "Monitor Counter sudah ada dengan ID: {$counterId}, dipindahkan ke parent Display\n";
-        }
-
-        // 5. Pastikan semua permission ini ada di subscriptiondetail paket 2003
-        $permIds = [$displayId, 113, $antreanId, $counterId];
-        // Cek apakah kolom RecordOwnerID ada di subscriptiondetail
+        // 3. Pastikan semua permission ini ada di subscriptiondetail paket 2003
         $hasRecordOwnerID = Schema::hasColumn('subscriptiondetail', 'RecordOwnerID');
         
-        foreach ($permIds as $pid) {
+        foreach ($allPermIds as $pid) {
             $exists = DB::table('subscriptiondetail')
                 ->where('NoTransaksi', '2003')
                 ->where('PermissionID', $pid)
                 ->exists();
             if (!$exists) {
-                // Get next NoUrut
                 $maxNoUrut = DB::table('subscriptiondetail')
                     ->where('NoTransaksi', '2003')
                     ->max('NoUrut') ?? -1;
@@ -137,28 +133,24 @@ class AddDisplayMenuPermissions extends Migration
                     'NoUrut'      => $maxNoUrut + 1,
                     'PermissionID' => $pid,
                 ];
-                // Hanya tambah RecordOwnerID kalau kolom itu ada
                 if ($hasRecordOwnerID) {
                     $data['RecordOwnerID'] = '999999';
                 }
                 DB::table('subscriptiondetail')->insert($data);
                 echo "PermissionID {$pid} ditambahkan ke subscriptiondetail paket 2003\n";
-            } else {
-                echo "PermissionID {$pid} sudah ada di subscriptiondetail paket 2003\n";
             }
         }
 
-        // 6. Tambahkan permission Display, Monitor Antrean, Monitor Counter ke semua roles
-        //    yang sudah memiliki permission Info Kitchen (113)
+        // 4. Tambahkan ke permissionrole untuk roles yang sudah punya Info Kitchen (113)
         $rolesWithKitchen = DB::table('permissionrole')
             ->where('permissionid', 113)
             ->get();
 
-        $newPermIds = [$displayId, $antreanId, $counterId];
-        $inserted = 0;
+        $hasPROID = Schema::hasColumn('permissionrole', 'RecordOwnerID');
+        $insertedCount = 0;
 
         foreach ($rolesWithKitchen as $rp) {
-            foreach ($newPermIds as $pid) {
+            foreach ($allPermIds as $pid) {
                 $exists = DB::table('permissionrole')
                     ->where('roleid', $rp->roleid)
                     ->where('permissionid', $pid)
@@ -171,18 +163,17 @@ class AddDisplayMenuPermissions extends Migration
                         'created_at'    => now(),
                         'updated_at'    => now(),
                     ];
-                    // Hanya tambah RecordOwnerID kalau kolom itu ada
-                    if (Schema::hasColumn('permissionrole', 'RecordOwnerID')) {
+                    if ($hasPROID) {
                         $data['RecordOwnerID'] = $rp->RecordOwnerID;
                     }
                     DB::table('permissionrole')->insert($data);
-                    $inserted++;
+                    $insertedCount++;
                 }
             }
         }
-        echo "{$inserted} permissionrole entries ditambahkan untuk menu Display\n";
+        echo "{$insertedCount} entri permissionrole ditambahkan.\n";
 
-        echo "\n=== SELESAI: Menu Display dan submenu berhasil dikonfigurasi ===\n";
+        echo "\n=== SELESAI: 6 Monitor Berhasil Dikonfigurasi ===\n";
     }
 
     /**
@@ -190,27 +181,6 @@ class AddDisplayMenuPermissions extends Migration
      */
     public function down()
     {
-        // Kembalikan Info Kitchen ke parent Penjualan (25)
-        DB::table('permission')
-            ->where('id', 113)
-            ->update([
-                'MenuInduk'  => 25,
-                'Level'      => 3,
-                'Order'      => 28.2,
-                'updated_at' => now(),
-            ]);
-
-        // Hapus Monitor Antrean dan Monitor Counter
-        DB::table('permission')
-            ->whereIn('Link', ['monitorantrean', 'monitorcounter'])
-            ->delete();
-
-        // Hapus Display parent
-        DB::table('permission')
-            ->where('PermissionName', 'Display')
-            ->where('Level', 1)
-            ->delete();
-
-        echo "Rollback: Menu Display dan submenu dihapus\n";
+        // Cleanup logic if needed
     }
 }

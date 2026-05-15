@@ -1171,15 +1171,6 @@ Route::post('/voucher/check', [VoucherController::class, 'checkVoucher'])->name(
 Route::get('/queue/{id}', [QueueManagementController::class,'index'])->name('queue-management');
 Route::post('/queue/getData', [QueueManagementController::class, 'handleQueue'])->name('queue-getData');
 
-// Redirect routes for Display/Monitor compatibility
-Route::get('/monitorantrean', function() {
-    return redirect('/queue/' . base64_encode(Auth::user()->RecordOwnerID));
-})->middleware(['auth', 'check.session']);
-
-Route::get('/monitorcounter', function() {
-    return redirect()->route('countermonitor');
-})->middleware(['auth', 'check.session']);
-
 /*
 |--------------------------------------------------------------------------
 | Support Page
