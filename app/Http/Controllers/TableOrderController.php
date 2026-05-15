@@ -3415,6 +3415,7 @@ public function getTableStatuses()
             }
 
             // B. Flag Nearly Expired Tables (10 mins) - Bulk Update
+            // 1. Set to 99 if within 10 mins
             DB::table('titiklampu')
                 ->join('tableorderheader', 'titiklampu.id', '=', 'tableorderheader.tableid')
                 ->where('titiklampu.RecordOwnerID', $roid)
@@ -3424,6 +3425,17 @@ public function getTableStatuses()
                 ->whereNotNull('tableorderheader.JamSelesai')
                 ->whereBetween('tableorderheader.JamSelesai', [$now, $nearlyExpiredThreshold])
                 ->update(['titiklampu.Status' => 99]);
+
+            // 2. REVERT: Set back to 1 if > 10 mins (Fixes drift issues)
+            DB::table('titiklampu')
+                ->join('tableorderheader', 'titiklampu.id', '=', 'tableorderheader.tableid')
+                ->where('titiklampu.RecordOwnerID', $roid)
+                ->where('tableorderheader.RecordOwnerID', $roid)
+                ->where('tableorderheader.DocumentStatus', 'O')
+                ->where('titiklampu.Status', '99')
+                ->whereNotNull('tableorderheader.JamSelesai')
+                ->where('tableorderheader.JamSelesai', '>', $nearlyExpiredThreshold)
+                ->update(['titiklampu.Status' => 1]);
 
             // C. Auto-Activate Bookings (D -> O) when JamMulai <= now
             $toActivate = DB::table('tableorderheader')

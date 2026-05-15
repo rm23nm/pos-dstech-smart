@@ -474,7 +474,7 @@
           
           // Peringatan 10 Menit
           if (menit <= 10 && menit > 0 && !spokenStages[key]['10m']) {
-              pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam sepuluh menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
+              pesan = `Perhatian. Layanan ${tableName}, akan berakhir dalam ${menit} menit lagi. Harap segera bersiap-siap. Jika ada penambahan jam, harap segera menghubungi kasir. Terima kasih.`;
               stage = '10m';
           } 
           // Waktu Habis (0 Menit)
