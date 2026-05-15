@@ -2921,14 +2921,11 @@ class TableOrderController extends Controller
                 }
             }
 
-            // Booking Logic - Use a 5-minute tolerance for "now"
+            // Booking Logic
             $now = Carbon::now('Asia/Jakarta');
-            $dtStart = Carbon::parse($request->input('JamMulai'), 'Asia/Jakarta');
-            // Jika JamMulai diinput lebih dari 15 menit dari sekarang, anggap BOOKING. 
-            // Namun jika kurang dari itu, anggap AKTIF (O) untuk mengatasi selisih detik/menit server.
-            $toleranceTime = (clone $now)->addMinutes(15);
 
-            if ($dtStart->gt($toleranceTime) || $isMidtrans) {
+            // Use the JamMulai that already includes the date (from line 2867)
+            if ($model->JamMulai->gt($now) || $isMidtrans) {
                 // Future Booking
                 $model->Status = 0;
                 $model->DocumentStatus = 'D';
