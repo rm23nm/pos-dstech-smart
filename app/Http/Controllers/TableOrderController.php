@@ -701,7 +701,7 @@ class TableOrderController extends Controller
             // dd($model);
             $save = $model->save();
 
-            if ($save) {
+            if ($save && $model->DocumentStatus == 'O') {
                 // SINKRONISASI LAMPU: Meja menjadi terpakai
                 DB::table('titiklampu')
                     ->where('id', $model->tableid)

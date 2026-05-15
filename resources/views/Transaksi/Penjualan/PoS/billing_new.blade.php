@@ -1014,13 +1014,21 @@
 
     function updateTableTimers() {
         document.querySelectorAll('.titik-box').forEach(el => {
-            const status = parseInt(el.dataset.status);
-            if (status === 0) return; // Skip empty tables
-
+            const status = parseInt(el.dataset.status || 0);
             const rawMulai = el.dataset.rawjammulai;
             const rawSelesai = el.dataset.rawjamselesai;
             const timerEl = el.querySelector('.table-timer');
             if (!timerEl) return;
+
+            if (status === 0) {
+                if (rawMulai && rawMulai !== "") {
+                    timerEl.textContent = "Book: " + (el.dataset.jammulai || "");
+                    timerEl.style.color = "#1565c0"; // Blueish for booking
+                } else {
+                    timerEl.textContent = "";
+                }
+                return;
+            }
 
             var _nowLocal = new Date();
             let diffMs = 0;
