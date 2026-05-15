@@ -240,6 +240,7 @@
         setInterval(updateClock,1000); updateClock();
 
         let lastSiapIds = [];
+        let lastTriggerMap = {}; // Map NoTransaksi -> last call_trigger
         let isFirstLoad = true;
         let audioEnabled = false;
 
@@ -303,6 +304,7 @@
             const currentIds = siapItems.map(i => i.NoTransaksi);
             
             if (!isFirstLoad) {
+                // 1. Check for completely new items
                 const newItems = siapItems.filter(i => !lastSiapIds.includes(i.NoTransaksi));
                 if (newItems.length > 0) {
                     if (audioEnabled) {
@@ -310,6 +312,29 @@
                         announceOrders(newItems);
                     }
                 }
+
+                // 2. Check for Recall Trigger (existing items called again)
+                const recallItems = [];
+                siapItems.forEach(item => {
+                    const lastTrigger = lastTriggerMap[item.NoTransaksi] || 0;
+                    const currentTrigger = parseInt(item.call_trigger || 0);
+                    
+                    if (currentTrigger > lastTrigger) {
+                        recallItems.push(item);
+                    }
+                    // Always update current trigger value
+                    lastTriggerMap[item.NoTransaksi] = currentTrigger;
+                });
+
+                if (recallItems.length > 0 && audioEnabled) {
+                    playNotif();
+                    announceOrders(recallItems);
+                }
+            } else {
+                // Initial load: set base trigger values without calling
+                siapItems.forEach(item => {
+                    lastTriggerMap[item.NoTransaksi] = parseInt(item.call_trigger || 0);
+                });
             }
             
             lastSiapIds = currentIds;

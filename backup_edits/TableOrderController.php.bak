@@ -365,8 +365,6 @@ class TableOrderController extends Controller
                                 ->whereIn('titiklampu.Status',['0','-1', '1'])->get();
 
         $company = Company::Where('KodePartner','=',$roid)->get();
-        $gudangPoS = (count($company) > 0 && $company[0]->GudangPoS) ? $company[0]->GudangPoS : 'GDG01';
-
         $sales = Sales::Where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
         $sql = "pelanggan.KodePelanggan, pelanggan.NamaPelanggan, pelanggan.NoTlp1, pelanggan.NoTlp2, pelanggan.RecordOwnerID, 
@@ -375,18 +373,11 @@ class TableOrderController extends Controller
                     ->where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
         $metodepembayaran = MetodePembayaran::where('RecordOwnerID','=',$roid)->get();
-
-        $itemmaster = ItemMaster::selectRaw("itemmaster.KodeItem, itemmaster.NamaItem, itemmaster.HargaJual, itemmaster.Gambar, itemmaster.TypeItem, COALESCE(itemwarehouses.Qty, 0) as Stock")
-                    ->leftJoin('itemwarehouses', function($join) use ($roid, $gudangPoS) {
-                        $join->on('itemmaster.KodeItem', '=', 'itemwarehouses.KodeItem')
-                            ->on('itemmaster.RecordOwnerID', '=', 'itemwarehouses.RecordOwnerID')
-                            ->where('itemwarehouses.KodeGudang', '=', $gudangPoS);
-                    })
-                    ->where('itemmaster.RecordOwnerID', $roid)
-                    ->where('itemmaster.Active', 'Y')
-                    ->where('itemmaster.TypeItem', '<>', 4)
-                    ->orderBy('itemmaster.NamaItem', 'ASC')
-                    ->get();
+        $itemmaster = ItemMaster::select('KodeItem', 'NamaItem', 'HargaJual', 'Gambar', 'Stock', 'TypeItem')
+                    ->where('RecordOwnerID', $roid)
+                    ->where('Active', 'Y')
+                    ->where('TypeItem', '<>', 4)
+                    ->orderBy('NamaItem', 'ASC');
         $midtransdata = MetodePembayaran::where('RecordOwnerID','=',$roid)
                             ->where('MetodeVerifikasi','=','AUTO')->first();
         $midtransclientkey = "";
@@ -422,8 +413,28 @@ class TableOrderController extends Controller
 
     public function ViewSelfService(Request $request)
     {
+        $paket = Paket::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
         $roid = Auth::user()->RecordOwnerID;
-        $paket = Paket::where('RecordOwnerID','=',$roid)->get();
+
+        // SELF-HEALING: Re-open latest orders for active tables
+        $activeTableIds = DB::table('titiklampu')
+            ->where('Status', 1)
+            ->where('RecordOwnerID', $roid)
+            ->pluck('id');
+
+        if ($activeTableIds->isNotEmpty()) {
+            foreach($activeTableIds as $tid) {
+                DB::table('tableorderheader')
+                    ->where('tableid', $tid)
+                    ->where('DocumentStatus', 'C')
+                    ->where('RecordOwnerID', $roid)
+                    ->orderBy('TglPencatatan', 'DESC')
+                    ->limit(1)
+                    ->update(['DocumentStatus' => 'O']);
+            }
+        }
+
+        // Removed auto-close logic
                     
         $subqueryPembayaran = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
                             SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran,
@@ -596,21 +607,9 @@ class TableOrderController extends Controller
             'DurasiPaket'=>'required'
         ]);
 
-        DB::beginTransaction();
         try {
             $now = Carbon::now('Asia/Jakarta');
             $roid = Auth::user()->RecordOwnerID;
-
-            // ATOMIC LOCK: Check table availability
-            $table = DB::table('titiklampu')
-                        ->where('id', $request->input('tableid'))
-                        ->where('RecordOwnerID', $roid)
-                        ->lockForUpdate()
-                        ->first();
-
-            if (!$table) {
-                return response()->json(['success' => false, 'message' => 'Meja tidak ditemukan.']);
-            }
 
             // Custom Chronological NoTransaksi: YYYYMMDDHHmmXXXX (16 digits)
             $prefixTrx = $now->format('Ymd');
@@ -668,22 +667,10 @@ class TableOrderController extends Controller
                     $model->JamSelesai = null;
                 }
             }
-            // COLLISION DETECTION: Check for overlapping transactions on this table
-            $checkEnd = $model->JamSelesai ?? (clone $model->JamMulai)->addHours(24);
-            $overlap = DB::table('tableorderheader')
-                ->where('tableid', $model->tableid)
-                ->where('RecordOwnerID', $roid)
-                ->whereIn('DocumentStatus', ['O', 'D'])
-                ->where(function($q) use ($model, $checkEnd) {
-                    $q->where('JamMulai', '<', $checkEnd)
-                      ->where(DB::raw("COALESCE(JamSelesai, DATE_ADD(JamMulai, INTERVAL 24 HOUR))"), '>', $model->JamMulai);
-                })
-                ->exists();
 
-            if ($overlap) {
-                DB::rollBack();
-                return response()->json(['success' => false, 'message' => 'Meja sudah dipesan atau digunakan pada jam tersebut. Silakan pilih jam atau meja lain.']);
-            }
+
+
+
             // Future Booking Logic
             // If JamMulai > NOW, force Status to 0 (Booking/Scheduled)
             $now = Carbon::now();
@@ -697,14 +684,6 @@ class TableOrderController extends Controller
 
             // dd($model);
             $save = $model->save();
-
-            if ($save) {
-                // SINKRONISASI LAMPU: Meja menjadi terpakai
-                DB::table('titiklampu')
-                    ->where('id', $model->tableid)
-                    ->where('RecordOwnerID', $roid)
-                    ->update(['Status' => 1]);
-            }
 
             // if ($save && $request->input('JenisPaket') == 'PAKETMEMBER') {
             //     $pelanggan = Pelanggan::where('KodePelanggan', $request->input('KodePelanggan'))
@@ -829,15 +808,12 @@ class TableOrderController extends Controller
             //                 );
 
             if ($save) {
-                DB::commit();
                 $data['success'] = true;
                 $data['NoTransaksi'] = $NoTransaksi;
             }else{
-                DB::rollBack();
                 $data['message'] = 'Internal error, Contact System Administrator';
             }
         } catch (\Throwable $th) {
-            DB::rollBack();
             $data['message'] = 'Internal error, '. $th->getMessage() ;
         }
         return response()->json($data);
@@ -889,7 +865,7 @@ class TableOrderController extends Controller
         ]);
 
         try {
-            $model = TableOrderHeader::selectRaw("tableorderheader.NoTransaksi, tableorderheader.tableid, COALESCE(SUM(tableorderfnb.LineTotal),0) AS totalFNB, COALESCE(SUM(fakturpenjualanheader.TotalPembelian),0) AS TotalCostTable, COALESCE(SUM(fakturpenjualanheader.TotalPembayaran), 0) SumedPayment ")
+            $model = TableOrderHeader::selectRaw("tableorderheader.NoTransaksi,  COALESCE(SUM(tableorderfnb.LineTotal),0) AS totalFNB, COALESCE(SUM(fakturpenjualanheader.TotalPembelian),0) AS TotalCostTable, COALESCE(SUM(fakturpenjualanheader.TotalPembayaran), 0) SumedPayment ")
                         ->leftJoin('tableorderfnb', function ($value)  {
                             $value->on('tableorderfnb.NoTransaksi','=','tableorderheader.NoTransaksi')
                             ->on('tableorderfnb.RecordOwnerID','=','tableorderheader.RecordOwnerID');
@@ -906,7 +882,7 @@ class TableOrderController extends Controller
                         })
                         ->where('tableorderheader.NoTransaksi','=',$request->input('txtNoTransaksi_CheckOut'))
                         ->where('tableorderheader.RecordOwnerID','=', Auth::user()->RecordOwnerID)
-                        ->groupBy('tableorderheader.NoTransaksi', 'tableorderheader.tableid')->first();
+                        ->groupBy('tableorderheader.NoTransaksi')->first();
             
             $totalTransaksi = $model->totalFNB + $model->TotalCostTable;
             $Status = -1;
@@ -933,12 +909,6 @@ class TableOrderController extends Controller
                             );
 
                 if ($update) {
-                    // SINKRONISASI LAMPU
-                    DB::table('titiklampu')
-                        ->where('id', $model->tableid)
-                        ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-                        ->update(['Status' => $Status]);
-
                     $data['success'] = true;
                 }else{
                     $data['message']= 'Update Data Paket Gagal';
@@ -2487,24 +2457,10 @@ class TableOrderController extends Controller
                             'Status' => 1,
                             'DocumentStatus' => 'O'
                         ]);
-                    
-                    // SINKRONISASI LAMPU: Aktifkan kembali
-                    DB::table('titiklampu')
-                        ->where('id', $currentData->tableid)
-                        ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-                        ->update(['Status' => 1]);
-
                     alert()->success('Success', 'Controller berhasil direset (Fixed: Active Order Restored).');
                 } else {
                     // Tidak ada yang valid (Semua sudah expired) -> Tetap Closed semua.
-                    
-                    // SINKRONISASI LAMPU: Matikan
-                    DB::table('titiklampu')
-                        ->where('id', $currentData->tableid)
-                        ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-                        ->update(['Status' => 0]);
-
-                    alert()->success('Success', 'Controller berhasil direset (Fixed: All Expired).');
+                        alert()->success('Success', 'Controller berhasil direset (Fixed: All Expired).');
                 }
                 // 2. Jika record nya = 1 langsung update saja
                 // if (count($checkOrder) == 1) { 
@@ -2773,23 +2729,17 @@ class TableOrderController extends Controller
     public function storePaket(Request $request)
     {
         $roid = Auth::user()->RecordOwnerID;
-        Log::info("DEBUG storePaket REQUEST: " . json_encode($request->all()));
         $data = array('success' => false, 'message' => '', 'data' => array(), 'NoTransaksi' => "");
 
-        try {
-            $this->validate($request, [
-                'JenisPaket' => 'required',
-                'paketid' => $request->input('JenisPaket') === 'PAKETMEMBER' ? 'nullable' : 'required',
-                'tableid' => 'required',
-                'KodeSales' => 'required',
-                'DurasiPaket' => 'required',
-                'TglTransaksi' => 'required',
-                'JamMulai' => 'required'
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error("storePaket VALIDATION FAILED: " . json_encode($e->errors()) . " | Request: " . json_encode($request->all()));
-            return response()->json(['success' => false, 'message' => 'Validasi gagal: ' . implode(", ", array_keys($e->errors()))]);
-        }
+        $this->validate($request, [
+            'JenisPaket' => 'required',
+            'paketid' => $request->input('JenisPaket') === 'PAKETMEMBER' ? 'nullable' : 'required',
+            'tableid' => 'required',
+            'KodeSales' => 'required',
+            'DurasiPaket' => 'required',
+            'TglTransaksi' => 'required',
+            'JamMulai' => 'required'
+        ]);
 
         DB::beginTransaction();
         try {
@@ -2797,18 +2747,6 @@ class TableOrderController extends Controller
             $now = Carbon::now('Asia/Jakarta');
             $Year = $now->format('Y');
             $Month = $now->format('m');
-
-            // ATOMIC LOCK: Check table availability
-            $table = DB::table('titiklampu')
-                        ->where('id', $request->input('tableid'))
-                        ->where('RecordOwnerID', $roid)
-                        ->lockForUpdate()
-                        ->first();
-
-            if (!$table) {
-                DB::rollBack();
-                return response()->json(['success' => false, 'message' => 'Meja tidak ditemukan.']);
-            }
 
             // MIGRATION: Ensure QueueNumber column exists (Safer check)
             if (!Schema::hasColumn('tableorderheader', 'QueueNumber')) {
@@ -2874,29 +2812,6 @@ class TableOrderController extends Controller
                     $model->JamSelesai = (clone $dtStart)->addHours($model->DurasiPaket)->subMinute();
                 } else {
                     $model->JamSelesai = null;
-                }
-            }
-
-            // COLLISION DETECTION: Check for overlapping transactions on this table
-            if ($model->JamMulai && $model->JamSelesai) {
-                $overlap = DB::table('tableorderheader')
-                    ->where('tableid', $model->tableid)
-                    ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-                    ->whereIn('DocumentStatus', ['O', 'D'])
-                    ->where(function($q) use ($model) {
-                        $q->where(function($sub) use ($model) {
-                            $sub->where('JamMulai', '<', $model->JamSelesai)
-                                ->where(function($inner) use ($model) {
-                                    $inner->where('JamSelesai', '>', $model->JamMulai)
-                                          ->orWhereNull('JamSelesai');
-                                });
-                        });
-                    })
-                    ->exists();
-
-                if ($overlap) {
-                    DB::rollBack();
-                    return response()->json(['success' => false, 'message' => 'Meja sudah dipesan atau digunakan pada jam tersebut. Silakan pilih jam atau meja lain.']);
                 }
             }
 
@@ -3039,7 +2954,7 @@ class TableOrderController extends Controller
                     $currentStock = ($stock === null) ? 0 : floatval($stock);
                     if ($currentStock < $qty) {
                         $itemName = DB::table('itemmaster')->where('RecordOwnerID', Auth::user()->RecordOwnerID)->where('KodeItem', $kodeItem)->value('NamaItem') ?? $kodeItem;
-                        return response()->json(['success' => false, 'message' => "Stok item $itemName ($kodeItem) tidak mencukupi (Tersedia: $currentStock, Diminta: $qty)."]);
+                        return response()->json(['success' => false, 'message' => "Stok item $itemName ($kodeItem) tidak mencukupi (Tersedia: $currentStock, Diminta: $qty)."], 400);
                     }
                 }
 
@@ -3518,7 +3433,6 @@ public function getTableStatuses()
     public function storeFnBOrder(Request $request)
     {
         $recordOwnerID = Auth::user()->RecordOwnerID;
-        Log::info("DEBUG storeFnBOrder FULL REQUEST: " . json_encode($request->all()));
         Log::critical("storeFnBOrder REACHED - Request: " . json_encode($request->all()));
 
         DB::beginTransaction();
@@ -3527,7 +3441,6 @@ public function getTableStatuses()
             $items = $request->input('items', []);
             
             if (empty($items)) {
-                Log::error("storeFnBOrder FAILED: Items empty for NoTransaksi: $noTransaksi");
                 return response()->json(['success' => false, 'message' => 'Daftar pesanan makanan kosong. Silahkan pilih menu terlebih dahulu.'], 400);
             }
             $opsiBayar = $request->input('FnbOpsiBayar') ?? $request->input('OpsiBayar') ?? 'NANTI';
@@ -3592,11 +3505,9 @@ public function getTableStatuses()
 
                     if ($currentStock < $qty) {
                         DB::rollBack();
-                        $errMsg = "Stok item $namaItem ($kodeItem) tidak mencukupi di gudang $gudangPoS (Tersedia: $currentStock, Diminta: $qty). Silahkan isi stok atau aktifkan 'Allow Negative Inventory' di pengaturan.";
-                        Log::error("storeFnBOrder FAILED: $errMsg");
                         return response()->json([
                             'success' => false, 
-                            'message' => $errMsg
+                            'message' => "Stok item $namaItem ($kodeItem) tidak mencukupi di gudang $gudangPoS (Tersedia: $currentStock, Diminta: $qty). Silahkan isi stok atau aktifkan 'Allow Negative Inventory' di pengaturan."
                         ], 400);
                     }
                 }

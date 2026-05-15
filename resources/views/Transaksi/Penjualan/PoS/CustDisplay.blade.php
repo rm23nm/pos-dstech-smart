@@ -399,10 +399,13 @@ License: You must have a valid license purchased only from themeforest(the above
 	</div>
 </body>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/plugin.bundle.min.js')}}"></script>
+<script src="{{ asset('api/mcustomscrollbar/jquery.mCustomScrollbar.concat.min.js')}}"></script>
+<script src="{{ asset('api/datatable/jquery.dataTables.min.js')}}"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 <script src="{{ asset('js/bootstrap.bundle.min.js')}}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('js/script.bundle.js')}}"></script>
+
 <link href="{{ asset('devexpress/dx.light.css')}}" rel="stylesheet" type="text/css" />
 <script src="{{asset('devexpress/dx.all.js')}}"></script>
 <script src="{{asset('api/select2/select2.min.js')}}"></script>
@@ -434,7 +437,11 @@ License: You must have a valid license purchased only from themeforest(the above
 	window.addEventListener('beforeunload', function (e) {
 		// Lakukan sesuatu sebelum halaman ditutup
 		if (window.opener && !window.opener.closed) {
-            window.opener.postMessage('customer-display-closed', '*');
+            try {
+                window.opener.postMessage('customer-display-closed', '*');
+            } catch (err) {
+                console.error("Failed to postMessage:", err);
+            }
         }
 	});
 	window.addEventListener('message', function(event) {
@@ -447,7 +454,13 @@ License: You must have a valid license purchased only from themeforest(the above
 		}
 	});
 	function updateDisplay() {
-		window.opener.postMessage({ type: 'say-hello' }, '*');
+		if (window.opener && !window.opener.closed) {
+            try {
+                window.opener.postMessage({ type: 'say-hello' }, '*');
+            } catch (err) {
+                console.error("Failed to postMessage:", err);
+            }
+        }
 
 		const cart = JSON.parse(localStorage.getItem("PoSData"));
 		console.log(cart)

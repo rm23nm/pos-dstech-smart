@@ -1287,35 +1287,39 @@
             },
             success: function(response) {
                 if (response.success) {
-                    const h = response.header;
-                    const fnb = response.fnb;
-                    
-                    let fnbTotal = 0;
-                    fnb.forEach(item => {
-                        const sub = parseFloat(item.Harga || 0) * parseFloat(item.Qty || 0);
-                        fnbTotal += sub;
-                    });
-
-                    const syncData = {
-                        data: [],
-                        Total: (h.TotalPaket || 0) + fnbTotal,
-                        Discount: h.TotalDiskon || 0,
-                        Tax: (h.TotalPajak || 0) + (h.TotalPajakHiburan || 0) + (h.TotalLayanan || 0),
-                        Net: (h.GrandTotal || 0) + fnbTotal
-                    };
-
-                    if (h.NamaPaket) {
-                        syncData.data.push({ NamaItem: h.NamaPaket, Qty: 1, Harga: h.HargaPaket });
-                    }
-
-                    fnb.forEach(item => {
-                        syncData.data.push({ NamaItem: item.NamaItem || item.KodeItem, Qty: item.Qty, Harga: item.Harga });
-                    });
-
-                    syncCustomerDisplay(syncData);
+                    syncDisplayFromResponse(response);
                 }
             }
         });
+    }
+
+    function syncDisplayFromResponse(response) {
+        const h = response.header;
+        const fnb = response.fnb;
+        
+        let fnbTotal = 0;
+        fnb.forEach(item => {
+            const sub = parseFloat(item.Harga || 0) * parseFloat(item.Qty || 0);
+            fnbTotal += sub;
+        });
+
+        const syncData = {
+            data: [],
+            Total: (parseFloat(h.TotalPaket || 0)) + fnbTotal,
+            Discount: parseFloat(h.TotalDiskon || 0),
+            Tax: (parseFloat(h.TotalPajak || 0)) + (parseFloat(h.TotalPajakHiburan || 0)) + (parseFloat(h.TotalLayanan || 0)),
+            Net: (parseFloat(h.GrandTotal || 0)) + fnbTotal
+        };
+
+        if (h.NamaPaket) {
+            syncData.data.push({ NamaItem: h.NamaPaket, Qty: 1, Harga: h.HargaPaket });
+        }
+
+        fnb.forEach(item => {
+            syncData.data.push({ NamaItem: item.NamaItem || item.KodeItem, Qty: item.Qty, Harga: item.Harga });
+        });
+
+        syncCustomerDisplay(syncData);
     }
 
     let custDisplayWindow = null;
@@ -1516,6 +1520,7 @@
             success: function(response) {
                 swal.close();
                 if (response.success) {
+                    syncDisplayFromResponse(response);
                     populateDetailModal(response);
                     $('#modalDetailOrder').fadeIn();
                 } else {
@@ -2376,7 +2381,7 @@
 
         let payload = {
             NoTransaksi: selectedTitik.notransaksi,
-            items: fnbCart,
+            items: [...fnbCart],
             OpsiBayar: $('input[name="FnbOpsiBayar"]:checked').val(),
             MetodePembayaran: $('#fnbMetodePembayaran').val(),
             NominalBayar: parseFormattedRp($('#fnbNominalBayar').val() || '0'),
@@ -2404,6 +2409,8 @@
             const $btn = $('#btnConfirmFnb');
             const oldHtml = $btn.html();
             $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Memproses...');
+            console.log("SUBMITTING FNB ORDER - Payload:", payload);
+            console.log("FNB CART STATUS:", fnbCart);
 
             fetch("/billing/store-fnb", {
                 method: 'POST',
@@ -3074,10 +3081,10 @@
 
             <!-- Footer -->
             <div class="pp-footer">
-                <button class="pp-btn-cancel" onclick="closePilihPaketModal()">
+                <button type="button" class="pp-btn-cancel" onclick="closePilihPaketModal()">
                     <i class="fas fa-times"></i> Batal
                 </button>
-                <button class="pp-btn-confirm" id="ppBtnConfirm" onclick="onKonfirmasiPaket()">
+                <button type="button" class="pp-btn-confirm" id="ppBtnConfirm" onclick="onKonfirmasiPaket()">
                     <i class="fas fa-check"></i> Konfirmasi & Mulai
                 </button>
             </div>
@@ -4684,123 +4691,124 @@
     </script>
     <!-- ===== MODAL JUAL FnB STANDALONE ===== -->
     <div id="modalJualFnb" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:16px; width:96%; max-width:850px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;">
+        <div style="background:#fff; border-radius:16px; width:98%; max-width:1300px; height:92vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;">
             <!-- Header -->
             <div style="background:linear-gradient(135deg,#e65100,#ff8f00); color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center;">
                 <h2 style="margin:0; font-size:1.2rem;"><i class="fas fa-utensils"></i> Jual FnB Langsung</h2>
                 <button onclick="closeJualFnbModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
             </div>
             <!-- Body -->
-            <div style="flex:1; overflow-y:auto; padding:20px; display:flex; gap:16px;">
-                <!-- Left: Item Search & Grid -->
-                <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
+            <div style="flex:1; overflow:hidden; padding:20px; display:flex; gap:20px;">
+                <!-- Left: Item Search & Grid (Product Area) -->
+                <div style="flex:1; min-width:0; display:flex; flex-direction:column; border-right:1px solid #f0f0f0; padding-right:10px;">
                     <div style="margin-bottom:12px;">
-                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pilih Item</label>
+                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pilih Item / Produk</label>
                         <div style="position:relative; margin-top:4px;">
-                            <input type="text" id="jualFnbSearchInput" placeholder="Cari Menu..." onkeyup="filterFnbGrid(this.value, 'jualFnbMenuGrid')"
-                                style="width:100%; padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem; box-sizing:border-box; margin-bottom:10px;">
+                            <input type="text" id="jualFnbSearchInput" placeholder="Cari Nama Menu atau Barcode..." onkeyup="filterFnbGrid(this.value, 'jualFnbMenuGrid')"
+                                style="width:100%; padding:12px 15px; border:2px solid #ffcc80; border-radius:10px; font-size:1rem; box-sizing:border-box; margin-bottom:15px; outline:none; transition:0.3s;"
+                                onfocus="this.style.borderColor='#e65100'">
                         </div>
                     </div>
                     
-                    <div class="fnb-selection-grid" id="jualFnbMenuGrid" style="flex:1; max-height: 500px;">
+                    <div class="fnb-selection-grid" id="jualFnbMenuGrid" style="flex:1; overflow-y:auto; align-content: flex-start; padding-bottom:20px;">
                         @foreach($itemmaster as $item)
                             @if(in_array($item->TypeItem, [1,2,3,5]))
-                            <div class="fnb-card fnb-menu-item" data-name="{{ strtolower($item->NamaItem) }}" onclick='addJualFnbToCart(@json($item))'>
+                            <div class="fnb-card fnb-menu-item" data-name="{{ strtolower($item->NamaItem) }}" onclick='addJualFnbToCart(@json($item))' style="width:145px; height:200px;">
                                 <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
                                      class="fnb-card-img" 
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='"
+                                     style="height:100px;">
                                 <div class="fnb-card-body">
-                                    <div class="fnb-card-name">{{ $item->NamaItem }}</div>
-                                    <div class="fnb-card-price">Rp {{ number_format($item->HargaJual) }}</div>
-                                    <div class="fnb-card-stock">Stok: {{ $item->Stock }}</div>
+                                    <div class="fnb-card-name" style="height:40px; overflow:hidden; font-size:0.85rem;">{{ $item->NamaItem }}</div>
+                                    <div class="fnb-card-price" style="font-size:0.95rem; color:#e65100;">Rp {{ number_format($item->HargaJual) }}</div>
+                                    <div class="fnb-card-stock" style="font-size:0.75rem;">Stok: {{ $item->Stock }}</div>
                                 </div>
                             </div>
                             @endif
                         @endforeach
                     </div>
                 </div>
-                    <!-- Cart Table -->
-                    <div style="border:1px solid #eee; border-radius:8px; overflow:hidden;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <thead style="background:#f5f7fa;">
-                                <tr>
-                                    <th style="padding:10px 12px; text-align:left; font-size:0.8rem; color:#666;">Item</th>
-                                    <th style="padding:10px 8px; text-align:center; font-size:0.8rem; color:#666; width:110px;">Qty</th>
-                                    <th style="padding:10px 8px; text-align:right; font-size:0.8rem; color:#666;">Harga</th>
-                                    <th style="padding:10px 8px; text-align:right; font-size:0.8rem; color:#666;">Subtotal</th>
-                                    <th style="padding:10px 8px; width:36px;"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="jualFnbCartItems">
-                                <tr><td colspan="5" style="text-align:center; padding:20px; color:#90a4ae;">Belum ada item.</td></tr>
-                            </tbody>
-                        </table>
+
+                <!-- Right: Cart & Summary & Payment -->
+                <div style="width:450px; flex-shrink:0; display:flex; flex-direction:column; gap:16px;">
+                    <!-- Cart Table (Rincian) -->
+                    <div style="flex:1; border:1px solid #e0e0e0; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; background:#fff;">
+                        <div style="padding:10px 15px; background:#f5f7fa; border-bottom:1px solid #eee; font-weight:700; color:#444;">Rincian Pesanan</div>
+                        <div style="flex:1; overflow-y:auto;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <thead style="background:#fafafa; position:sticky; top:0; z-index:10;">
+                                    <tr>
+                                        <th style="padding:10px 12px; text-align:left; font-size:0.75rem; color:#888; text-transform:uppercase;">Item</th>
+                                        <th style="padding:10px 8px; text-align:center; font-size:0.75rem; color:#888; text-transform:uppercase; width:80px;">Qty</th>
+                                        <th style="padding:10px 8px; text-align:right; font-size:0.75rem; color:#888; text-transform:uppercase;">Total</th>
+                                        <th style="padding:10px 8px; width:36px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="jualFnbCartItems">
+                                    <tr><td colspan="4" style="text-align:center; padding:40px 20px; color:#90a4ae;">Belum ada item terpilih.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                <!-- Right: Payment -->
-                <div style="width:260px; flex-shrink:0;">
-                    <!-- Summary -->
-                    <div style="background:#f8f9ff; border:1px solid #e8eaf6; border-radius:10px; padding:16px; margin-bottom:16px;">
-                        <div style="font-weight:700; color:#1a237e; margin-bottom:12px; font-size:0.95rem;">Ringkasan</div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>Subtotal</span><span id="jualFnbSubtotal">Rp 0</span></div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>PPN</span><span id="jualFnbPpn">Rp 0</span></div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>Layanan</span><span id="jualFnbLayanan">Rp 0</span></div>
-                        <div id="jualFnbAdminRow" style="display:none; justify-content:space-between; margin-bottom:6px; font-size:0.88rem; color:#555;"><span>Admin Fee</span><span id="jualFnbAdminFee">Rp 0</span></div>
-                        <hr style="border:none; border-top:2px solid #3f51b5; margin:10px 0;">
-                        <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:800; color:#1a237e;"><span>TOTAL</span><span id="jualFnbGrandTotal">Rp 0</span></div>
-                    </div>
-                    <!-- Customer Selection -->
-                    <div style="margin-bottom:12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pelanggan</label>
-                            <div style="font-size:0.75rem;">
-                                <input type="checkbox" id="jualFnbIsNewCustomer" onchange="toggleJualFnbNewCustomer()">
-                                <label for="jualFnbIsNewCustomer" style="color:#1a237e; font-weight:600; cursor:pointer;">Baru?</label>
+
+                    <!-- Summary & Payment Details -->
+                    <div style="background:#fff; border:1.5px solid #e8eaf6; border-radius:12px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <!-- Summary -->
+                            <div>
+                                <div style="font-weight:700; color:#1a237e; margin-bottom:8px; font-size:0.9rem;">Ringkasan</div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8rem; color:#666;"><span>Subtotal</span><span id="jualFnbSubtotal">Rp 0</span></div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8rem; color:#666;"><span>PPN</span><span id="jualFnbPpn">Rp 0</span></div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8rem; color:#666;"><span>Layanan</span><span id="jualFnbLayanan">Rp 0</span></div>
+                                <div id="jualFnbAdminRow" style="display:none; justify-content:space-between; margin-bottom:4px; font-size:0.8rem; color:#666;"><span>Admin</span><span id="jualFnbAdminFee">Rp 0</span></div>
+                                <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:800; color:#e65100; margin-top:8px; border-top:1px dashed #ccc; padding-top:8px;">
+                                    <span>TOTAL</span><span id="jualFnbGrandTotal">Rp 0</span>
+                                </div>
+                            </div>
+
+                            <!-- Customer & Payment -->
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                    <label style="font-size:0.75rem; color:#555; font-weight:700;">PELANGGAN</label>
+                                    <div style="font-size:0.7rem;">
+                                        <input type="checkbox" id="jualFnbIsNewCustomer" onchange="toggleJualFnbNewCustomer()">
+                                        <label for="jualFnbIsNewCustomer" style="color:#e65100; font-weight:700; cursor:pointer;">BARU?</label>
+                                    </div>
+                                </div>
+                                <div id="jualFnbExistingCustomerRow" style="margin-bottom:8px;">
+                                    <select id="jualFnbPelanggan" class="js-select2" style="width:100%;">
+                                        @foreach($pelanggan as $p)
+                                            <option value="{{ $p->KodePelanggan }}">{{ $p->NamaPelanggan }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div id="jualFnbNewCustomerRow" style="display:none; margin-bottom:8px;">
+                                    <input type="text" id="jualFnbNewNama" placeholder="Nama *" style="width:100%; padding:6px; margin-bottom:4px; border:1px solid #ddd; border-radius:4px; font-size:0.8rem;">
+                                    <input type="text" id="jualFnbNewTlp" placeholder="WA *" style="width:100%; padding:6px; border:1px solid #ddd; border-radius:4px; font-size:0.8rem;">
+                                </div>
+
+                                <label style="font-size:0.75rem; color:#555; font-weight:700; display:block; margin-bottom:2px;">METODE BAYAR</label>
+                                <select id="jualFnbMetode" onchange="calculateJualFnbTotal()" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:6px; font-size:0.85rem; margin-bottom:8px;">
+                                    @foreach($metodepembayaran as $mp)
+                                        <option value="{{ $mp->id }}" data-percent="{{ $mp->AdminFeePercent ?? 0 }}" data-rupiah="{{ $mp->AdminFeeRupiah ?? 0 }}" data-tipe="{{ $mp->TipePembayaran ?? '' }}" data-nama="{{ $mp->NamaMetodePembayaran }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                    @endforeach
+                                </select>
+
+                                <label style="font-size:0.75rem; color:#555; font-weight:700; display:block; margin-bottom:2px;">NOMINAL BAYAR</label>
+                                <input type="text" id="jualFnbNominal" placeholder="0" oninput="onJualFnbNominalChange()" style="width:100%; padding:8px; border:1.5px solid #2e7d32; border-radius:6px; font-size:1rem; font-weight:700; text-align:right;">
+                                
+                                <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700; margin-top:8px;">
+                                    <span style="color:#555;">KEMBALI:</span>
+                                    <span id="jualFnbKembalian" style="color:#2e7d32;">Rp 0</span>
+                                </div>
                             </div>
                         </div>
-                        
-                        <div id="jualFnbExistingCustomerRow">
-                            <select id="jualFnbPelanggan" class="js-select2" style="width:100%;">
-                                @foreach($pelanggan as $p)
-                                    <option value="{{ $p->KodePelanggan }}">{{ $p->NamaPelanggan }} - {{ $p->NoTlp1 }}</option>
-                                @endforeach
-                            </select>
-                        </div>
 
-                        <div id="jualFnbNewCustomerRow" style="display:none; background:#fff3e0; padding:10px; border-radius:8px; border:1px solid #ffe0b2;">
-                            <input type="text" id="jualFnbNewNama" placeholder="Nama Pelanggan *" style="width:100%; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px; font-size:0.85rem;">
-                            <input type="text" id="jualFnbNewTlp" placeholder="No Tlp / WA *" style="width:100%; padding:8px; margin-bottom:6px; border:1px solid #ddd; border-radius:4px; font-size:0.85rem;">
-                            <input type="email" id="jualFnbNewEmail" placeholder="Email (Opsional)" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; font-size:0.85rem;">
-                        </div>
+                        <!-- Submit -->
+                        <button id="jualFnbBtnSubmit" onclick="submitJualFnb()" style="width:100%; background:linear-gradient(135deg,#2e7d32,#43a047); color:#fff; border:none; border-radius:10px; padding:14px; font-size:1.1rem; font-weight:800; cursor:pointer; margin-top:15px; box-shadow:0 4px 10px rgba(46,125,50,0.2);">
+                            <i class="fas fa-print"></i> PROSES TRANSAKSI
+                        </button>
                     </div>
-                    <!-- Payment Method -->
-                    <div style="margin-bottom:12px;">
-                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Metode Bayar <span style="color:red;">*</span></label>
-                        <select id="jualFnbMetode" onchange="calculateJualFnbTotal()" style="width:100%; padding:9px 10px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem;">
-                            @foreach($metodepembayaran as $mp)
-                                <option value="{{ $mp->id }}"
-                                    data-percent="{{ $mp->AdminFeePercent ?? 0 }}"
-                                    data-rupiah="{{ $mp->AdminFeeRupiah ?? 0 }}"
-                                    data-tipe="{{ $mp->TipePembayaran ?? '' }}"
-                                    data-nama="{{ $mp->NamaMetodePembayaran }}">{{ $mp->NamaMetodePembayaran }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <!-- Nominal Bayar -->
-                    <div style="margin-bottom:8px;">
-                        <label style="font-size:0.8rem; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Nominal Bayar</label>
-                        <input type="text" id="jualFnbNominal" placeholder="0" oninput="onJualFnbNominalChange()" style="width:100%; padding:9px 10px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:0.9rem; box-sizing:border-box;">
-                    </div>
-                    <!-- Kembalian -->
-                    <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:600; margin-bottom:16px;">
-                        <span style="color:#555;">Kembalian:</span>
-                        <span id="jualFnbKembalian" style="color:#2e7d32;">Rp 0</span>
-                    </div>
-                    <small style="color:#888; display:block; margin-bottom:16px;">PPN: <span id="jualFnbPpnPersen">{{ $company[0]['PPN'] ?? 0 }}</span>% | Layanan: <span id="jualFnbServicePersen">{{ $company[0]['ServiceCharge'] ?? 0 }}</span>%</small>
-                    <!-- Submit -->
-                    <button id="jualFnbBtnSubmit" onclick="submitJualFnb()" style="width:100%; background:linear-gradient(135deg,#e65100,#ff8f00); color:#fff; border:none; border-radius:8px; padding:12px; font-size:1rem; font-weight:700; cursor:pointer;">
-                        <i class="fas fa-check-circle"></i> Simpan & Bayar
-                    </button>
                 </div>
             </div>
         </div>
@@ -4843,9 +4851,14 @@
         let $results = $('#jualFnbSearchResults');
         if (query.length < 2) { $results.hide(); return; }
         $.ajax({
-            url: "{{ route('itemmaster-ViewJson') }}",
+            url: "{{ route('itemmaster-GetStockPerWhs') }}",
             method: 'POST',
-            data: { Scan: query, Active: 'Y', TipeItemIN: '1,2,3,5' },
+            data: { 
+                Scan: query, 
+                Active: 'Y', 
+                TipeItemIN: '1,2,3,5',
+                KodeGudang: "{{ $company[0]->GudangPoS ?? 'GDG01' }}"
+            },
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             success: function(res) {
                 if (res.data && res.data.length > 0) {
@@ -4895,22 +4908,24 @@
     function updateJualFnbCartTable() {
         let $body = $('#jualFnbCartItems');
         if (jualFnbCart.length === 0) {
-            $body.html('<tr><td colspan="5" style="text-align:center; padding:20px; color:#90a4ae;">Belum ada item.</td></tr>');
+            $body.html('<tr><td colspan="4" style="text-align:center; padding:40px 20px; color:#90a4ae;">Belum ada item terpilih.</td></tr>');
         } else {
             let html = jualFnbCart.map((item, i) => {
                 let sub = item.Qty * item.Harga;
                 return `<tr>
-                    <td style="padding:10px 12px; font-size:0.88rem;">${item.NamaItem}</td>
+                    <td style="padding:10px 12px; font-size:0.85rem;">
+                        <div style="font-weight:600;">${item.NamaItem}</div>
+                        <div style="font-size:0.75rem; color:#888;">@ ${formatRp(item.Harga)}</div>
+                    </td>
                     <td style="padding:8px;">
-                        <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
-                            <button type="button" class="pp-dur-btn" style="padding:2px 7px;" onclick="changeJualFnbQty(${i}, -1)">−</button>
-                            <input type="number" class="pp-input" style="width:46px; text-align:center; padding:4px;" value="${item.Qty}" onchange="setJualFnbQty(${i}, this.value)">
-                            <button type="button" class="pp-dur-btn" style="padding:2px 7px;" onclick="changeJualFnbQty(${i}, 1)">+</button>
+                        <div style="display:flex; align-items:center; gap:2px; justify-content:center;">
+                            <button type="button" class="pp-dur-btn" style="padding:2px 6px; font-size:0.7rem;" onclick="changeJualFnbQty(${i}, -1)">−</button>
+                            <input type="number" class="pp-input" style="width:36px; text-align:center; padding:2px; font-size:0.85rem; font-weight:700; border:none; background:transparent;" value="${item.Qty}" onchange="setJualFnbQty(${i}, this.value)">
+                            <button type="button" class="pp-dur-btn" style="padding:2px 6px; font-size:0.7rem;" onclick="changeJualFnbQty(${i}, 1)">+</button>
                         </div>
                     </td>
-                    <td style="padding:8px; text-align:right; font-size:0.88rem;">${formatRp(item.Harga)}</td>
-                    <td style="padding:8px; text-align:right; font-size:0.88rem; font-weight:600;">${formatRp(sub)}</td>
-                    <td style="padding:8px; text-align:center;"><button type="button" onclick="removeJualFnbItem(${i})" style="background:none; border:none; color:#e53935; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
+                    <td style="padding:8px; text-align:right; font-size:0.85rem; font-weight:700; color:#e65100;">${formatRp(sub)}</td>
+                    <td style="padding:8px; text-align:center;"><button type="button" onclick="removeJualFnbItem(${i})" style="background:none; border:none; color:#e53935; cursor:pointer; font-size:0.8rem;"><i class="fas fa-trash"></i></button></td>
                 </tr>`;
             }).join('');
             $body.html(html);

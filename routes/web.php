@@ -336,7 +336,7 @@ Route::post('/itemmaster/find', [ItemMasterController::class, 'Find'])->name('it
 Route::get('/itemmaster/form/{id}', [ItemMasterController::class,'Form'])->name('itemmaster-form')->middleware(['auth', 'check.session']);
 Route::post('/itemmaster/edit', [ItemMasterController::class, 'edit'])->name('itemmaster-edit')->middleware(['auth', 'check.session']);
 Route::post('/itemmaster/store', [ItemMasterController::class, 'store'])->name('itemmaster-store')->middleware(['auth', 'check.session']);
-Route::post('/itemmaster/readstockperwhs', [ItemMasterController::class, 'GetStockPerWhs'])->name('itemmaster-readstockperwhs')->middleware(['auth', 'check.session']);
+Route::post('/itemmaster/readstockperwhs', [ItemMasterController::class, 'GetStockPerWhs'])->name('itemmaster-GetStockPerWhs')->middleware(['auth', 'check.session']);
 /*
 |--------------------------------------------------------------------------
 | Setting
@@ -606,6 +606,8 @@ Route::post('/fpenjualan/infokitchen-updatestatus', [FakturPenjualanController::
 Route::get('/fpenjualan/infokitchen-print', [FakturPenjualanController::class, 'InfoKitchenPrint'])->name('infokitchen-print')->middleware(['auth', 'check.session']);
 Route::get('/fpenjualan/customerdisplay', [FakturPenjualanController::class, 'CustomerDisplay'])->name('customerdisplay')->middleware(['auth', 'check.session']);
 Route::post('/fpenjualan/customerdisplay-data', [FakturPenjualanController::class, 'CustomerDisplayData'])->name('customerdisplay-data')->middleware(['auth', 'check.session']);
+Route::get('/fpenjualan/countermonitor', [FakturPenjualanController::class, 'CounterMonitor'])->name('countermonitor')->middleware(['auth', 'check.session']);
+Route::post('/fpenjualan/recall-order', [FakturPenjualanController::class, 'RecallOrder'])->name('recall-order')->middleware(['auth', 'check.session']);
 
 /*
 |--------------------------------------------------------------------------
@@ -1190,5 +1192,4 @@ Route::post('/faq/editJson', [SupportPageController::class, 'editJson'])->name('
 Route::delete('/faq/delete/{id}', [SupportPageController::class, 'deletedata'])->name('faq-delete')->middleware(['auth', 'check.session']);
 Route::get('/faq/export', [SupportPageController::class,'Export'])->name('faq-export')->middleware(['auth', 'check.session']);
 
-
-Route::get('/log/{id}', [LogingController::class,'view'])->name('log');  
+Route::get('/log/{id}', [LogingController::class,'view'])->name('log');

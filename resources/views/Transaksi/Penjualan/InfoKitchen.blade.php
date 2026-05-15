@@ -339,7 +339,8 @@
             let statusClass = 'bg-secondary';
             let statusText = 'Masuk';
             if(group.OrderStatus == 1) { statusClass = 'bg-warning text-dark'; statusText = 'Diproses'; }
-            else if(group.OrderStatus == 2) { statusClass = 'bg-success'; statusText = 'Siap'; }
+            else if(group.OrderStatus == 2) { statusClass = 'bg-success'; statusText = 'Siap Diambil'; }
+            else if(group.OrderStatus == 3) { statusClass = 'bg-dark'; statusText = 'Selesai'; }
 
             let serviceBadge = group.ServiceType === 'TAKE_AWAY' 
                 ? '<span class="badge bg-danger" style="font-size:0.7rem;"><i class="bi bi-bag-check"></i> BAWA PULANG</span>'
@@ -361,6 +362,7 @@
                                 <button class="btn btn-outline-info ${group.OrderStatus == 0 ? 'active' : ''}" onclick="updateOrderStatus('${group.NoTransaksi}', 0)">Masuk</button>
                                 <button class="btn btn-outline-warning ${group.OrderStatus == 1 ? 'active' : ''}" onclick="updateOrderStatus('${group.NoTransaksi}', 1)">Proses</button>
                                 <button class="btn btn-outline-success ${group.OrderStatus == 2 ? 'active' : ''}" onclick="updateOrderStatus('${group.NoTransaksi}', 2)">Siap</button>
+                                ${group.OrderStatus == 2 ? `<button class="btn btn-dark" onclick="updateOrderStatus('${group.NoTransaksi}', 3)"><i class="bi bi-check-all"></i> DIAMBIL</button>` : ''}
                             </div>
                         </div>
                         <hr style="border-color: #444; margin-top: 5px; margin-bottom: 10px;">
@@ -379,9 +381,16 @@
                             `).join('')}
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <button class="btn btn-print btn-sm" onclick="printOrder('${group.NoTransaksi}', this)">
-                                <i class="bi bi-printer"></i> Print
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-print btn-sm" onclick="printOrder('${group.NoTransaksi}', this)">
+                                    <i class="bi bi-printer"></i> Print
+                                </button>
+                                ${group.OrderStatus == 2 ? `
+                                <button class="btn btn-danger btn-sm fw-bold" onclick="recallOrder('${group.NoTransaksi}')">
+                                    <i class="bi bi-megaphone-fill"></i> PANGGIL
+                                </button>
+                                ` : ''}
+                            </div>
                             <div class="item-detail" style="font-size: 0.75rem">
                                 Ordered at: ${group.created_at}
                             </div>
@@ -448,6 +457,30 @@
 
     // Auto refresh every 10 seconds
     setInterval(fetchKitchenData, 10000);
+
+    function recallOrder(noTrx) {
+        $.ajax({
+            url: "{{ route('recall-order') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                NoTransaksi: noTrx
+            },
+            success: function(res) {
+                if(res.success) {
+                    // Small visual feedback
+                    const btn = event.target.closest('button');
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check-circle"></i> Memanggil...';
+                    btn.classList.replace('btn-danger', 'btn-success');
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                        btn.classList.replace('btn-success', 'btn-danger');
+                    }, 2000);
+                }
+            }
+        });
+    }
 
   </script>
 </body>

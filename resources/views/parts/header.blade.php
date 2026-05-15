@@ -233,9 +233,9 @@
 										<div>else lv1</div>
 									@endif
 
-									@if($lv1['PermissionName'] == 'Master')
+									@if(strtolower($lv1['PermissionName']) == 'master')
 										@php
-											$isDisplaiActive = request()->routeIs('infokitchen') || request()->routeIs('customerdisplay') || request()->is('queue/*') || request()->routeIs('fpenjualan-custdisplay');
+											$isDisplaiActive = request()->routeIs('infokitchen') || request()->routeIs('customerdisplay') || request()->is('queue/*') || request()->routeIs('fpenjualan-custdisplay') || request()->routeIs('countermonitor');
 										@endphp
 										<li class="nav-item {{ $isDisplaiActive ? 'active' : '' }}">
 											<a class="nav-link {{ $isDisplaiActive ? '' : 'collapsed' }}" data-bs-toggle="collapse"  href="javascript:void(0)" data-bs-target="#DisplaiMenu" role="button" aria-expanded="{{ $isDisplaiActive ? 'true' : 'false' }}" aria-controls="DisplaiMenu">
@@ -270,6 +270,17 @@
 																</svg>
 															</span>
 															<span class="nav-text">Queue Antrian FNB</span>
+														</a>
+													</li>
+													<!-- Monitor Counter (Recall) -->
+													<li class="nav-item {{ request()->routeIs('countermonitor') ? 'active' : '' }}">
+														<a href="{{ route('countermonitor') }}" target="_blank" class="nav-link sub-nav-link">
+															<span class="svg-icon nav-icon d-flex justify-content-center">
+																<svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
+																	<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+																</svg>
+															</span>
+															<span class="nav-text" style="color: #ef4444; font-weight: 700;">Monitor Counter (Recall)</span>
 														</a>
 													</li>
 													<!-- Antrian FNB Dapur -->

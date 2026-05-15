@@ -439,18 +439,25 @@
                         </div>
                         <div class="fnb-list" id="ppFnbList">
                             @foreach($itemmaster as $item)
-                            <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
-                            <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" class="fnb-item-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
-                                <div class="fnb-item-info">
-                                    <div class="fnb-item-name">{{ $item->NamaItem }}</div>
-                                    <div class="fnb-item-price">Rp {{ number_format($item->HargaJual) }}</div>
+                                @php $isHabis = ($item->Stock ?? 0) <= 0; @endphp
+                                <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}" style="{{ $isHabis ? 'opacity:0.5; filter:grayscale(0.8);' : '' }}">
+                                    <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" class="fnb-item-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                    <div class="fnb-item-info">
+                                        <div class="fnb-item-name">{{ $item->NamaItem }}</div>
+                                        <div class="fnb-item-price">
+                                            Rp {{ number_format($item->HargaJual) }} 
+                                            <span style="margin-left:8px; color:{{ $isHabis ? '#d32f2f' : '#888' }}; font-weight:{{ $isHabis ? '700' : '400' }};">
+                                                Stok: {{ number_format($item->Stock ?? 0) }}
+                                                @if($isHabis) (HABIS) @endif
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="fnb-qty-ctrl">
+                                        <button type="button" class="fnb-qty-btn" onclick="{{ $isHabis ? "swal('Stok Habis','Item tidak tersedia','warning')" : "updateFnbQty('{$item->KodeItem}', -1, '{$item->NamaItem}', {$item->HargaJual}, 'ppFnbList')" }}">-</button>
+                                        <div class="fnb-qty-val" id="qty-{{ $item->KodeItem }}-ppFnbList">0</div>
+                                        <button type="button" class="fnb-qty-btn" onclick="{{ $isHabis ? "swal('Stok Habis','Item tidak tersedia','warning')" : "updateFnbQty('{$item->KodeItem}', 1, '{$item->NamaItem}', {$item->HargaJual}, 'ppFnbList')" }}">+</button>
+                                    </div>
                                 </div>
-                                <div class="fnb-qty-ctrl">
-                                    <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', -1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'ppFnbList')">-</button>
-                                    <div class="fnb-qty-val" id="qty-{{ $item->KodeItem }}-ppFnbList">0</div>
-                                    <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', 1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'ppFnbList')">+</button>
-                                </div>
-                            </div>
                             @endforeach
                         </div>
                     </div>
@@ -486,7 +493,9 @@
                             <label class="pp-label">Metode Pembayaran</label>
                             <select class="pp-input" id="ppMetodePembayaran" onchange="calculateTotal()">
                                 @foreach($metodepembayaran as $mp)
-                                    <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent ?? 0 }}" data-rupiah="{{ $mp->BiayaAdminRupiah ?? 0 }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                    @if(in_array($mp->TipePembayaran, ['QRIS', 'MIDTRANS']) || str_contains(strtoupper($mp->NamaMetodePembayaran), 'QRIS'))
+                                        <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent ?? 0 }}" data-rupiah="{{ $mp->BiayaAdminRupiah ?? 0 }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
@@ -528,18 +537,25 @@
                     </div>
                     <div class="fnb-list" id="fnbOnlyList" style="max-height: 400px;">
                         @foreach($itemmaster as $item)
-                        <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
-                            <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" class="fnb-item-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
-                            <div class="fnb-item-info">
-                                <div class="fnb-item-name">{{ $item->NamaItem }}</div>
-                                <div class="fnb-item-price">Rp {{ number_format($item->HargaJual) }}</div>
+                            @php $isHabis = ($item->Stock ?? 0) <= 0; @endphp
+                            <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}" style="{{ $isHabis ? 'opacity:0.5; filter:grayscale(0.8);' : '' }}">
+                                <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" class="fnb-item-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
+                                <div class="fnb-item-info">
+                                    <div class="fnb-item-name">{{ $item->NamaItem }}</div>
+                                    <div class="fnb-item-price">
+                                        Rp {{ number_format($item->HargaJual) }}
+                                        <span style="margin-left:8px; color:{{ $isHabis ? '#d32f2f' : '#888' }}; font-weight:{{ $isHabis ? '700' : '400' }};">
+                                            Stok: {{ number_format($item->Stock ?? 0) }}
+                                            @if($isHabis) (HABIS) @endif
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="fnb-qty-ctrl">
+                                    <button type="button" class="fnb-qty-btn" onclick="{{ $isHabis ? "swal('Stok Habis','Item tidak tersedia','warning')" : "updateFnbQty('{$item->KodeItem}', -1, '{$item->NamaItem}', {$item->HargaJual}, 'fnbOnlyList')" }}">-</button>
+                                    <div class="fnb-qty-val" id="qty-{{ $item->KodeItem }}-fnbOnlyList">0</div>
+                                    <button type="button" class="fnb-qty-btn" onclick="{{ $isHabis ? "swal('Stok Habis','Item tidak tersedia','warning')" : "updateFnbQty('{$item->KodeItem}', 1, '{$item->NamaItem}', {$item->HargaJual}, 'fnbOnlyList')" }}">+</button>
+                                </div>
                             </div>
-                            <div class="fnb-qty-ctrl">
-                                <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', -1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'fnbOnlyList')">-</button>
-                                <div class="fnb-qty-val" id="qty-{{ $item->KodeItem }}-fnbOnlyList">0</div>
-                                <button type="button" class="fnb-qty-btn" onclick="updateFnbQty('{{ $item->KodeItem }}', 1, '{{ $item->NamaItem }}', {{ $item->HargaJual }}, 'fnbOnlyList')">+</button>
-                            </div>
-                        </div>
                         @endforeach
                     </div>
                 </div>
@@ -554,7 +570,9 @@
                         <label class="pp-label">Metode Pembayaran</label>
                         <select class="pp-input" id="fnbOnlyMetode">
                             @foreach($metodepembayaran as $mp)
-                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                @if(in_array($mp->TipePembayaran, ['QRIS', 'MIDTRANS']) || str_contains(strtoupper($mp->NamaMetodePembayaran), 'QRIS'))
+                                    <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -597,7 +615,9 @@
                         <label class="pp-label">Metode Pembayaran</label>
                         <select class="pp-input" id="mdMetodePembayaran" onchange="onDetailMetodeChange()">
                             @foreach($metodepembayaran as $mp)
-                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                @if(in_array($mp->TipePembayaran, ['QRIS', 'MIDTRANS']) || str_contains(strtoupper($mp->NamaMetodePembayaran), 'QRIS'))
+                                    <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -656,7 +676,9 @@
                         <label class="pp-label">Metode Pembayaran</label>
                         <select class="pp-input" id="tjMetodePembayaran" onchange="calculateTambahJam()">
                             @foreach($metodepembayaran as $mp)
-                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                @if(in_array($mp->TipePembayaran, ['QRIS', 'MIDTRANS']) || str_contains(strtoupper($mp->NamaMetodePembayaran), 'QRIS'))
+                                    <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -671,53 +693,82 @@
 
     <!-- MODAL FnB STANDALONE (Beli Makanan) -->
     <div id="modalJualFnb" class="pp-overlay" style="z-index:9000;">
-        <div class="pp-modal" style="max-width:850px;">
+        <div class="pp-modal" style="width:98%; max-width:1300px; height:90vh;">
             <div class="pp-header" style="background:linear-gradient(135deg,#e65100,#ff8f00);">
                 <div class="pp-header-titik"><i class="fas fa-utensils"></i> Beli Makanan & Minuman</div>
                 <button class="pp-close" onclick="closeJualFnbModal()">&times;</button>
             </div>
-            <div class="pp-body" style="display:flex; gap:20px;">
-                <div style="flex:1;">
+            <div class="pp-body" style="display:flex; gap:20px; overflow:hidden; padding:20px;">
+                <div style="flex:1; display:flex; flex-direction:column; border-right:1px solid #eee; padding-right:15px;">
                     <div class="pp-row">
-                        <label class="pp-label">CARI MENU</label>
-                        <input type="text" id="jfSearchInput" class="pp-input" placeholder="Ketik nama menu..." oninput="searchJfItems(this.value)">
-                        <div id="jfSearchResults" style="display:none; position:absolute; background:#fff; border:1px solid #ddd; width:450px; max-height:250px; overflow-y:auto; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.1); border-radius:0 0 10px 10px;"></div>
+                        <label class="pp-label">PILIH MENU</label>
+                        <input type="text" id="jfSearchInput" class="pp-input" placeholder="Ketik nama menu atau scan barcode..." oninput="searchJfItems(this.value)" style="border:2px solid #ffcc80;">
+                        <div id="jfSearchResults" style="display:none; position:absolute; background:#fff; border:1px solid #ddd; width:500px; max-height:350px; overflow-y:auto; z-index:100; box-shadow:0 8px 24px rgba(0,0,0,0.15); border-radius:10px; margin-top:5px;"></div>
                     </div>
-                    <div style="border:1px solid #eee; border-radius:12px; overflow:hidden;">
-                        <table class="fnb-table" style="width:100%; border-collapse:collapse;">
-                            <thead style="background:#f5f5f5;">
-                                <tr>
-                                    <th style="padding:12px; text-align:left;">Menu</th>
-                                    <th style="padding:12px; text-align:center; width:120px;">Qty</th>
-                                    <th style="padding:12px; text-align:right;">Subtotal</th>
-                                    <th style="padding:12px; width:40px;"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="jfCartItems">
-                                <tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">Keranjang belanja masih kosong.</td></tr>
-                            </tbody>
-                        </table>
+                    <div style="flex:1; overflow-y:auto; border:1px solid #eee; border-radius:12px; margin-top:10px; background:#fafafa;">
+                         <div style="padding:15px; display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:15px;" id="jfQuickGrid">
+                            @foreach($itemmaster as $item)
+                                @php $isHabis = ($item->Stock ?? 0) <= 0; @endphp
+                                <div class="fnb-card" 
+                                     onclick="{{ $isHabis ? "swal('Stok Habis', 'Maaf, menu ini sedang tidak tersedia.', 'warning')" : 'addJfToCart(' . json_encode($item) . ')' }}" 
+                                     style="background:#fff; border:1px solid #eee; border-radius:12px; padding:10px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.05); position:relative; {{ $isHabis ? 'opacity:0.6; filter:grayscale(0.8);' : '' }}">
+                                    
+                                    @if($isHabis)
+                                        <div style="position:absolute; top:40%; left:50%; transform:translate(-50%,-50%) rotate(-15deg); background:#d32f2f; color:#fff; padding:4px 8px; border-radius:4px; font-weight:800; font-size:0.7rem; z-index:10; border:1px solid #fff; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.3);">STOK HABIS</div>
+                                    @endif
+
+                                    <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin-bottom:8px;">
+                                    <div style="font-weight:700; font-size:0.85rem; color:#333; height:34px; overflow:hidden; line-height:1.2;">{{ $item->NamaItem }}</div>
+                                    <div style="font-weight:800; color:#e65100; margin-top:5px; font-size:0.9rem;">Rp {{ number_format($item->HargaJual) }}</div>
+                                    <div style="font-size:0.7rem; color:{{ $isHabis ? '#d32f2f' : '#888' }}; margin-top:2px; font-weight:{{ $isHabis ? '700' : '400' }};">
+                                        Stok: {{ number_format($item->Stock ?? 0) }}
+                                    </div>
+                                </div>
+                            @endforeach
+                         </div>
                     </div>
                 </div>
-                <div style="width:280px; flex-shrink:0;">
-                    <div style="background:#fff3e0; padding:20px; border-radius:12px; border:1px solid #ffe0b2;">
-                        <div style="font-weight:700; color:#e65100; margin-bottom:12px;">RINGKASAN</div>
-                        <div class="detail-calc-row"><span>Item Total</span> <span id="jfSubtotal">Rp 0</span></div>
+                <div style="width:450px; flex-shrink:0; display:flex; flex-direction:column; gap:15px;">
+                    <div style="flex:1; border:1px solid #e0e0e0; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; background:#fff;">
+                        <div style="padding:10px 15px; background:#f5f7fa; border-bottom:1px solid #eee; font-weight:700; color:#444;">Rincian Pesanan</div>
+                        <div style="flex:1; overflow-y:auto;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <thead style="background:#fafafa; position:sticky; top:0; z-index:10;">
+                                    <tr>
+                                        <th style="padding:10px 12px; text-align:left; font-size:0.75rem; color:#888; text-transform:uppercase;">Item</th>
+                                        <th style="padding:10px 8px; text-align:center; font-size:0.75rem; color:#888; text-transform:uppercase; width:80px;">Qty</th>
+                                        <th style="padding:10px 8px; text-align:right; font-size:0.75rem; color:#888; text-transform:uppercase;">Total</th>
+                                        <th style="padding:10px 8px; width:36px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="jfCartItems">
+                                    <tr><td colspan="4" style="text-align:center; padding:40px; color:#999;">Keranjang belanja masih kosong.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="background:#fff3e0; padding:20px; border-radius:12px; border:1px solid #ffe0b2; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                        <div style="font-weight:700; color:#e65100; margin-bottom:12px; font-size:1rem;">RINGKASAN PEMBAYARAN</div>
+                        <div class="detail-calc-row"><span>Subtotal Menu</span> <span id="jfSubtotal">Rp 0</span></div>
                         <div class="detail-calc-row"><span>Pajak & Layanan</span> <span id="jfTax">Rp 0</span></div>
-                        <hr style="border:none; border-top:1px solid #ffcc80; margin:10px 0;">
-                        <div class="detail-calc-row" style="font-weight:800; font-size:1.1rem; color:#e65100;"><span>GRAND TOTAL</span> <span id="jfGrandTotal">Rp 0</span></div>
+                        <hr style="border:none; border-top:2px dashed #ffcc80; margin:10px 0;">
+                        <div class="detail-calc-row" style="font-weight:800; font-size:1.3rem; color:#e65100;"><span>TOTAL</span> <span id="jfGrandTotal">Rp 0</span></div>
+                        
+                        <div class="pp-row" style="margin-top:15px;">
+                            <label class="pp-label">METODE PEMBAYARAN</label>
+                            <select class="pp-input" id="jfMetodePembayaran" onchange="calculateJfTotal()" style="border:2px solid #e65100;">
+                                @foreach($metodepembayaran as $mp)
+                                    @if(in_array($mp->TipePembayaran, ['QRIS', 'MIDTRANS']) || str_contains(strtoupper($mp->NamaMetodePembayaran), 'QRIS'))
+                                        <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <button id="jfBtnSubmit" class="pp-btn-confirm" style="width:100%; background:linear-gradient(135deg,#e65100,#ff8f00); margin-top:15px; padding:15px; font-size:1.1rem; border-radius:10px; box-shadow:0 4px 10px rgba(230,81,0,0.3);" onclick="submitJfStandalone()">
+                            <i class="fas fa-qrcode"></i> BAYAR & PESAN SEKARANG
+                        </button>
                     </div>
-                    <div class="pp-row" style="margin-top:15px;">
-                        <label class="pp-label">Metode Pembayaran</label>
-                        <select class="pp-input" id="jfMetodePembayaran" onchange="calculateJfTotal()">
-                            @foreach($metodepembayaran as $mp)
-                                <option value="{{ $mp->id }}" data-tipe="{{ $mp->TipePembayaran }}" data-percent="{{ $mp->BiayaAdminPercent }}" data-rupiah="{{ $mp->BiayaAdminRupiah }}">{{ $mp->NamaMetodePembayaran }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button id="jfBtnSubmit" class="pp-btn-confirm" style="width:100%; background:#e65100; margin-top:10px; padding:15px;" onclick="submitJfStandalone()">
-                        BAYAR & PESAN SEKARANG
-                    </button>
                 </div>
             </div>
         </div>
@@ -1438,13 +1489,26 @@
     function searchJfItems(q) {
         if (q.length < 2) { $('#jfSearchResults').hide(); return; }
         $.ajax({
-            url: "/itemmaster/ViewJson",
+            url: "{{ route('itemmaster-GetStockPerWhs') }}",
             method: 'POST',
-            data: { Scan: q, Active: 'Y', TipeItemIN: '1,2,3,5' },
+            data: { 
+                Scan: q, 
+                Active: 'Y', 
+                TipeItemIN: '1,2,3,5',
+                KodeGudang: "{{ $company[0]->GudangPoS ?? 'GDG01' }}"
+            },
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
             success: function(res) {
                 if (res.data) {
-                    let html = res.data.map(i => `<div onclick='addJfToCart(${JSON.stringify(i).replace(/"/g, "&quot;")})' style="padding:12px; cursor:pointer; border-bottom:1px solid #f5f5f5; font-size:0.9rem;"><strong>${i.NamaItem}</strong><br><span style="color:#2e7d32; font-weight:700;">${formatRp(i.HargaJual)}</span></div>`).join('');
+                    let html = res.data.map(i => `
+                        <div onclick='addJfToCart(${JSON.stringify(i).replace(/"/g, "&quot;")})' 
+                             style="padding:15px; cursor:pointer; border-bottom:1px solid #f5f5f5; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong style="font-size:1rem; color:#333;">${i.NamaItem}</strong><br>
+                                <span style="font-size:0.8rem; color:#888;">Stok: ${i.Stock}</span>
+                            </div>
+                            <span style="color:#e65100; font-weight:800; font-size:1.1rem;">${formatRp(i.HargaJual)}</span>
+                        </div>`).join('');
                     $('#jfSearchResults').html(html).show();
                 }
             }
@@ -1471,19 +1535,22 @@
     function updateJfTable() {
         let html = jfCart.map((i, idx) => `
             <tr>
-                <td style="padding:12px;">${i.NamaItem}</td>
-                <td style="padding:12px; text-align:center;">
-                    <div class="pp-durasi-wrap" style="justify-content:center;">
-                        <button type="button" class="pp-dur-btn" onclick="changeJfQty(${idx},-1)" style="width:28px; height:28px; font-size:1rem;">-</button>
-                        <span>${i.Qty}</span>
-                        <button type="button" class="pp-dur-btn" onclick="changeJfQty(${idx},1)" style="width:28px; height:28px; font-size:1rem;">+</button>
+                <td style="padding:12px; border-bottom:1px solid #f9f9f9;">
+                    <div style="font-weight:700; color:#333; font-size:0.9rem;">${i.NamaItem}</div>
+                    <div style="font-size:0.75rem; color:#888;">@ ${formatRp(i.Harga)}</div>
+                </td>
+                <td style="padding:12px; text-align:center; border-bottom:1px solid #f9f9f9;">
+                    <div class="pp-durasi-wrap" style="justify-content:center; gap:5px;">
+                        <button type="button" class="pp-dur-btn" onclick="changeJfQty(${idx},-1)" style="width:26px; height:26px; font-size:0.9rem; border-color:#e65100; color:#e65100;">-</button>
+                        <span style="font-weight:800; min-width:20px;">${i.Qty}</span>
+                        <button type="button" class="pp-dur-btn" onclick="changeJfQty(${idx},1)" style="width:26px; height:26px; font-size:0.9rem; border-color:#e65100; color:#e65100;">+</button>
                     </div>
                 </td>
-                <td style="padding:12px; text-align:right;">${formatRp(i.Qty*i.Harga)}</td>
-                <td style="padding:12px; text-align:center;"><i class="fas fa-trash" style="color:#d32f2f; cursor:pointer;" onclick="removeJfItem(${idx})"></i></td>
+                <td style="padding:12px; text-align:right; font-weight:800; color:#e65100; border-bottom:1px solid #f9f9f9;">${formatRp(i.Qty*i.Harga)}</td>
+                <td style="padding:12px; text-align:center; border-bottom:1px solid #f9f9f9;"><i class="fas fa-trash-alt" style="color:#e53935; cursor:pointer;" onclick="removeJfItem(${idx})"></i></td>
             </tr>
         `).join('');
-        $('#jfCartItems').html(html || '<tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">Keranjang belanja masih kosong.</td></tr>');
+        $('#jfCartItems').html(html || '<tr><td colspan="4" style="text-align:center; padding:40px; color:#999;">Keranjang belanja masih kosong.</td></tr>');
         calculateJfTotal();
     }
 

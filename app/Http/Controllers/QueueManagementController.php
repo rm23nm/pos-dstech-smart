@@ -157,12 +157,9 @@ class QueueManagementController extends Controller
                             COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0) as TotalPembayaran,
                             COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok
                         ")
-                        ->join('tableorderheader', function ($value) use ($today, $now) {
+                        ->join(DB::raw("(SELECT * FROM tableorderheader WHERE Status != 0 AND RecordOwnerID = '$request->RecordOwnerID' AND DATE(TglTransaksi) = '".$today->toDateString()."' AND JamSelesai >= '".$now->toTimeString()."') as tableorderheader"), function ($value) {
                             $value->on('titiklampu.id','=','tableorderheader.tableid')
-                            ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID')
-                            ->where('tableorderheader.Status','!=', 0)
-                            ->whereDate('tableorderheader.TglTransaksi', $today)
-                            ->where('tableorderheader.JamSelesai', '>=', $now);
+                            ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
                         ->leftJoin('pakettransaksi', function ($value)  {
                             $value->on('tableorderheader.paketid','=','pakettransaksi.id')
@@ -184,13 +181,13 @@ class QueueManagementController extends Controller
                             $value->on('bookingtableonline.NoTransaksi','=','tableorderheader.NoTransaksi')
                             ->on('bookingtableonline.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
-                        ->leftJoin('fakturpenjualandetail', function ($value)  {
-                            $value->on('fakturpenjualandetail.BaseReff','=','tableorderheader.NoTransaksi')
-                            ->on('fakturpenjualandetail.RecordOwnerID','=','tableorderheader.RecordOwnerID');
+                        ->leftJoin(DB::raw("(SELECT BaseReff, NoTransaksi, RecordOwnerID FROM fakturpenjualandetail GROUP BY BaseReff, NoTransaksi, RecordOwnerID) as fpd"), function ($value)  {
+                            $value->on('fpd.BaseReff','=','tableorderheader.NoTransaksi')
+                            ->on('fpd.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
                         ->leftJoin('fakturpenjualanheader', function ($value)  {
-                            $value->on('fakturpenjualanheader.NoTransaksi','=','fakturpenjualandetail.NoTransaksi')
-                            ->on('fakturpenjualanheader.RecordOwnerID','=','fakturpenjualandetail.RecordOwnerID')
+                            $value->on('fakturpenjualanheader.NoTransaksi','=','fpd.NoTransaksi')
+                            ->on('fakturpenjualanheader.RecordOwnerID','=','fpd.RecordOwnerID')
                             ->where('fakturpenjualanheader.Status', '=', 'C')
                             ->where('fakturpenjualanheader.TotalPembayaran', '>', 0);
                         })
@@ -224,12 +221,9 @@ class QueueManagementController extends Controller
                             COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0) as TotalPembayaran,
                             COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok
                         ")
-                        ->join('tableorderheader', function ($value) use ($today, $now) {
+                        ->join(DB::raw("(SELECT * FROM tableorderheader WHERE Status != 0 AND RecordOwnerID = '$request->RecordOwnerID' AND DATE(TglTransaksi) = '".$today->toDateString()."' AND JamSelesai >= '".$now->toTimeString()."') as tableorderheader"), function ($value) {
                             $value->on('titiklampu.id','=','tableorderheader.tableid')
-                            ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID')
-                            ->where('tableorderheader.Status','!=', 0)
-                            ->whereDate('tableorderheader.TglTransaksi', $today)
-                            ->where('tableorderheader.JamSelesai', '>=', $now);
+                            ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
                         ->leftJoin('pakettransaksi', function ($value)  {
                             $value->on('tableorderheader.paketid','=','pakettransaksi.id')
@@ -251,13 +245,13 @@ class QueueManagementController extends Controller
                             $value->on('bookingtableonline.NoTransaksi','=','tableorderheader.NoTransaksi')
                             ->on('bookingtableonline.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
-                        ->leftJoin('fakturpenjualandetail', function ($value)  {
-                            $value->on('fakturpenjualandetail.BaseReff','=','tableorderheader.NoTransaksi')
-                            ->on('fakturpenjualandetail.RecordOwnerID','=','tableorderheader.RecordOwnerID');
+                        ->leftJoin(DB::raw("(SELECT BaseReff, NoTransaksi, RecordOwnerID FROM fakturpenjualandetail GROUP BY BaseReff, NoTransaksi, RecordOwnerID) as fpd"), function ($value)  {
+                            $value->on('fpd.BaseReff','=','tableorderheader.NoTransaksi')
+                            ->on('fpd.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
                         ->leftJoin('fakturpenjualanheader', function ($value)  {
-                            $value->on('fakturpenjualanheader.NoTransaksi','=','fakturpenjualandetail.NoTransaksi')
-                            ->on('fakturpenjualanheader.RecordOwnerID','=','fakturpenjualandetail.RecordOwnerID')
+                            $value->on('fakturpenjualanheader.NoTransaksi','=','fpd.NoTransaksi')
+                            ->on('fakturpenjualanheader.RecordOwnerID','=','fpd.RecordOwnerID')
                             ->where('fakturpenjualanheader.Status', '=', 'C')
                             ->where('fakturpenjualanheader.TotalPembayaran', '>', 0);
                         })
@@ -328,13 +322,13 @@ class QueueManagementController extends Controller
                             $value->on('bookingtableonline.NoTransaksi','=','tableorderheader.NoTransaksi')
                             ->on('bookingtableonline.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
-                        ->leftJoin('fakturpenjualandetail', function ($value)  {
-                            $value->on('fakturpenjualandetail.BaseReff','=','tableorderheader.NoTransaksi')
-                            ->on('fakturpenjualandetail.RecordOwnerID','=','tableorderheader.RecordOwnerID');
+                        ->leftJoin(DB::raw("(SELECT BaseReff, NoTransaksi, RecordOwnerID FROM fakturpenjualandetail GROUP BY BaseReff, NoTransaksi, RecordOwnerID) as fpd"), function ($value)  {
+                            $value->on('fpd.BaseReff','=','tableorderheader.NoTransaksi')
+                            ->on('fpd.RecordOwnerID','=','tableorderheader.RecordOwnerID');
                         })
                         ->leftJoin('fakturpenjualanheader', function ($value)  {
-                            $value->on('fakturpenjualanheader.NoTransaksi','=','fakturpenjualandetail.NoTransaksi')
-                            ->on('fakturpenjualanheader.RecordOwnerID','=','fakturpenjualandetail.RecordOwnerID')
+                            $value->on('fakturpenjualanheader.NoTransaksi','=','fpd.NoTransaksi')
+                            ->on('fakturpenjualanheader.RecordOwnerID','=','fpd.RecordOwnerID')
                             ->where('fakturpenjualanheader.Status', '=', 'C')
                             ->where('fakturpenjualanheader.TotalPembayaran', '>', 0);
                         })
@@ -344,7 +338,8 @@ class QueueManagementController extends Controller
                         })
                         ->where('titiklampu.RecordOwnerID', '=', $request->RecordOwnerID)
                         ->where('tableorderheader.Status', 0)
-                        ->where('tableorderheader.DocumentStatus', 'D');
+                        ->where('tableorderheader.DocumentStatus', 'D')
+                        ->whereDate('tableorderheader.TglTransaksi', '=', $today->toDateString());
 
         $bookingTablePart2 = DB::table('bookingtableonline')
                         ->selectRaw("titiklampu.*,
@@ -400,7 +395,8 @@ class QueueManagementController extends Controller
                             ->on('titiklampu.RecordOwnerID','=','tkelompoklampu.RecordOwnerID');
                         })
                         ->where('bookingtableonline.RecordOwnerID', '=', $request->RecordOwnerID)
-                        ->where('bookingtableonline.StatusTransaksi', '=', '0');
+                        ->where('bookingtableonline.StatusTransaksi', '=', '0')
+                        ->whereDate('bookingtableonline.TglBooking', '=', $today->toDateString());
 
             $bookingTable = $bookingTablePart1->unionAll($bookingTablePart2)->orderBy('JamMulai', 'DESC')->get();
 

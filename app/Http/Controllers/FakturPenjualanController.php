@@ -3432,9 +3432,13 @@ class FakturPenjualanController extends Controller
                 'titiklampu.NamaTitikLampu',
                 'tableorderheader.TglTransaksi'
             )
-            ->where('tableorderfnb.isCompleted', 0)
             ->where('itemmaster.TypeItem', '<>', 4)
-            ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID);
+            ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID)
+            ->where('tableorderheader.kitchen_order_status', '<', 3)
+            ->where(function($q) {
+                $q->where('tableorderfnb.isCompleted', 0)
+                  ->orWhere('tableorderheader.kitchen_order_status', 2);
+            });
 
         if (!empty($tgl)) {
             $query->whereDate('tableorderheader.TglTransaksi', $tgl);
@@ -3597,45 +3601,47 @@ class FakturPenjualanController extends Controller
 
     public function CustomerDisplayData()
     {
-        $RecordOwnerID = Auth::user()->RecordOwnerID;
-        $today = date('Y-m-d');
+        try {
+            $RecordOwnerID = Auth::user()->RecordOwnerID;
+            $data = DB::table('tableorderheader')
+                ->leftJoin('pelanggan', function($join) {
+                    $join->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
+                         ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
+                })
+                ->leftJoin('titiklampu', function($join) {
+                    $join->on('tableorderheader.tableid', '=', 'titiklampu.id')
+                         ->on('tableorderheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
+                })
+                ->select(
+                    'tableorderheader.NoTransaksi',
+                    'tableorderheader.QueueNumber',
+                    DB::raw('COALESCE(tableorderheader.kitchen_order_status, 0) as status'),
+                    'tableorderheader.call_trigger',
+                    'pelanggan.NamaPelanggan',
+                    'titiklampu.NamaTitikLampu as TableName'
+                )
+                ->where('tableorderheader.RecordOwnerID', $RecordOwnerID)
+                ->whereDate('tableorderheader.TglTransaksi', now()->toDateString())
+                ->where(function($q) {
+                    $q->where('tableorderheader.kitchen_order_status', '<', 3)
+                      ->orWhereNull('tableorderheader.kitchen_order_status');
+                })
+                ->distinct()
+                ->get();
 
-        $data = DB::table('tableorderheader')
-            ->leftJoin('pelanggan', function($join) {
-                $join->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
-                     ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
-            })
-            ->leftJoin('titiklampu', function($join) {
-                $join->on('tableorderheader.tableid', '=', 'titiklampu.id')
-                     ->on('tableorderheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
-            })
-            ->leftJoin('tableorderfnb', function($join) {
-                $join->on('tableorderheader.NoTransaksi', '=', 'tableorderfnb.NoTransaksi')
-                     ->on('tableorderheader.RecordOwnerID', '=', 'tableorderfnb.RecordOwnerID');
-            })
-            ->select(
-                'tableorderheader.NoTransaksi',
-                'tableorderheader.QueueNumber',
-                'tableorderheader.kitchen_order_status as status',
-                'pelanggan.NamaPelanggan',
-                'titiklampu.NamaTitikLampu as TableName',
-                'tableorderfnb.ServiceType'
-            )
-            ->where('tableorderheader.RecordOwnerID', $RecordOwnerID)
-            ->whereDate('tableorderheader.TglTransaksi', $today)
-            ->whereIn('tableorderheader.kitchen_order_status', [0, 1, 2])
-            ->distinct()
-            ->get();
+            $masuk = $data->where('status', 0)->values();
+            $proses = $data->where('status', 1)->values();
+            $siap = $data->where('status', 2)->values();
 
-        $masuk = $data->where('status', 0)->values();
-        $proses = $data->where('status', 1)->values();
-        $siap = $data->where('status', 2)->values();
-
-        return response()->json([
-            'masuk' => $masuk,
-            'proses' => $proses,
-            'siap' => $siap
-        ]);
+            return response()->json([
+                'masuk' => $masuk,
+                'proses' => $proses,
+                'siap' => $siap
+            ]);
+        } catch (\Exception $e) {
+            Log::error("CustomerDisplayData ERROR: " . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function InfoKitchenUpdateStatus(Request $request)
@@ -3655,5 +3661,87 @@ class FakturPenjualanController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-}
 
+    public function CounterMonitor()
+    {
+        return view('Transaksi.Penjualan.CounterMonitor');
+    }
+
+    public function getBillingData()
+    {
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+        
+        $tables = DB::table('titiklampu')
+            ->leftJoin(DB::raw("(SELECT * FROM tableorderheader WHERE isCompleted = 0 AND RecordOwnerID = '$RecordOwnerID' GROUP BY tableid) as toh"), function($join) {
+                $join->on('titiklampu.id', '=', 'toh.tableid');
+            })
+            ->where('titiklampu.RecordOwnerID', $RecordOwnerID)
+            ->select(
+                'titiklampu.*',
+                'toh.NoTransaksi',
+                'toh.TglTransaksi',
+                'toh.StartTime',
+                'toh.EndTime',
+                'toh.TotalMenit',
+                'toh.isPaid'
+            )
+            ->orderBy('titiklampu.id', 'asc')
+            ->get();
+
+        return response()->json($tables);
+    }
+
+    public function RecallOrder(Request $request)
+    {
+        $NoTransaksi = $request->input('NoTransaksi');
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+
+        try {
+            DB::table('tableorderheader')
+                ->where('NoTransaksi', $NoTransaksi)
+                ->where('RecordOwnerID', $RecordOwnerID)
+                ->increment('call_trigger');
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function MarkItemDone(Request $request)
+    {
+        $NoTransaksi = $request->input('NoTransaksi');
+        $ItemMasterID = $request->input('ItemMasterID');
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+
+        try {
+            DB::table('tableorderfnb')
+                ->where('NoTransaksi', $NoTransaksi)
+                ->where('ItemMasterID', $ItemMasterID)
+                ->where('RecordOwnerID', $RecordOwnerID)
+                ->update(['isCompleted' => 1]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function UpdateKitchenStatus(Request $request)
+    {
+        $NoTransaksi = $request->input('NoTransaksi');
+        $Status = $request->input('Status');
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+
+        try {
+            DB::table('tableorderheader')
+                ->where('NoTransaksi', $NoTransaksi)
+                ->where('RecordOwnerID', $RecordOwnerID)
+                ->update(['access_kitchen_order_status' => $Status]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+}
