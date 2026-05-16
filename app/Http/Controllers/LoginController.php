@@ -36,7 +36,12 @@ class LoginController extends Controller
     {
 
     }
-    public function landing_page() {
+    public function landing_page(Request $request) {
+        $roid = $request->attributes->get('detected_roid');
+        if ($roid) {
+            return app(\App\Http\Controllers\FnBStoreController::class)->indexCustomDomain($request);
+        }
+        
         $subscriptionheader = SubscriptionHeader::all();
         return view("welcome",[
             'subscriptionheader' => $subscriptionheader

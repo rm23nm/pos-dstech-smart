@@ -86,7 +86,9 @@ use App\Http\Controllers\SerialNumberController;
 |
 */
 
-Route::get('/', [LoginController::class, 'landing_page'])->name('landingpage');
+Route::middleware([\App\Http\Middleware\DomainDetectionMiddleware::class])->group(function () {
+    Route::get('/', [LoginController::class, 'landing_page'])->name('landingpage');
+});
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::get('/daftar', [LoginController::class,'Register'])->name('daftar');
 Route::post('/action-login', [LoginController::class, 'action_login'])->name('action-login');
@@ -1217,7 +1219,6 @@ Route::get('/log/{id}', [LogingController::class,'view'])->name('log');/*
 */
 // Support for Custom Domains (e.g. ordermakanan.com/)
 Route::middleware([\App\Http\Middleware\DomainDetectionMiddleware::class])->group(function () {
-    Route::get('/', [\App\Http\Controllers\FnBStoreController::class, 'indexCustomDomain'])->name('fnb-store.custom');
     Route::get('/login', [\App\Http\Controllers\FnBStoreController::class, 'showLoginCustom'])->name('fnb-store.login.custom');
     Route::post('/login', [\App\Http\Controllers\FnBStoreController::class, 'loginCustom'])->name('fnb-store.login.post.custom');
     Route::post('/logout', [\App\Http\Controllers\FnBStoreController::class, 'logoutCustom'])->name('fnb-store.logout.custom');
