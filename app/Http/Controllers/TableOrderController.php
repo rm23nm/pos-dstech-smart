@@ -657,11 +657,11 @@ class TableOrderController extends Controller
 
             if ($request->input('JenisPaket') == 'JAM' || $request->input('JenisPaket') == 'PAKETMEMBER' || $request->input('JenisPaket') == 'JAMREALTIME') {
                  $jamMulai = $model->JamMulai->copy();
-                 $model->JamSelesai = $jamMulai->addHours($request->input('DurasiPaket'))->subMinute();
+                 $model->JamSelesai = $jamMulai->addHours($request->input('DurasiPaket'));
             }
 
             if ($request->input('JenisPaket') == 'MENIT') {
-                $model->JamSelesai = $model->JamMulai->copy()->addMinutes($request->input('DurasiPaket'))->subMinute();
+                $model->JamSelesai = $model->JamMulai->copy()->addMinutes($request->input('DurasiPaket'));
             }
 
             if ($request->input('JenisPaket') == 'MENITREALTIME' || $request->input('JenisPaket') == 'JAMREALTIME' || $request->input('JenisPaket') == 'PAYPERUSE') {
@@ -697,8 +697,12 @@ class TableOrderController extends Controller
             }
             
             $model->RecordOwnerID = Auth::user()->RecordOwnerID;
+            
+            // Force Status = 1 if DocumentStatus is O (Open)
+            if ($model->DocumentStatus == 'O') {
+                $model->Status = 1;
+            }
 
-            // dd($model);
             $save = $model->save();
 
             if ($save && $model->DocumentStatus == 'O') {
@@ -859,6 +863,9 @@ class TableOrderController extends Controller
                         ->where('RecordOwnerID','=', Auth::user()->RecordOwnerID);
 
             if ($model) {
+                $jenis = $model->first()->JenisPaket;
+                $intervalUnit = ($jenis == 'MENIT' || $jenis == 'MENITREALTIME') ? 'MINUTE' : 'HOUR';
+
                 $update = DB::table('tableorderheader')
                             ->where('NoTransaksi','=', $request->input('txtNoTransaksi_RubahDurasi'))
                             ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
@@ -866,7 +873,7 @@ class TableOrderController extends Controller
                                 [
                                     'Status' => '1',
                                     'DurasiPaket' => DB::raw('DurasiPaket + ' . $request->input('txtDurasiPaket_RubahDurasi')),
-                                    'JamSelesai' => DB::raw('DATE_ADD(JamMulai, INTERVAL DurasiPaket HOUR)')
+                                    'JamSelesai' => DB::raw("DATE_ADD(JamMulai, INTERVAL (DurasiPaket + " . $request->input('txtDurasiPaket_RubahDurasi') . ") " . $intervalUnit . ")")
                                 ]
                             );
 
@@ -930,8 +937,7 @@ class TableOrderController extends Controller
                             ->update(
                                 [
                                     'Status' => $Status,
-                                    'JamSelesai' => DB::raw("CASE WHEN JamSelesai IS NULL THEN NOW() ELSE JamSelesai END")
-                                    // 'JamSelesai' => DB::raw("CASE WHEN '" . $request->input('txtJenisPaket_CheckOut') . "' = 'MENIT' OR '" . $request->input('txtJenisPaket_CheckOut') . "' = 'MENITREALTIME' THEN NOW() ELSE JamSelesai END")
+                                    'JamSelesai' => DB::raw("CASE WHEN JamSelesai IS NULL THEN '" . Carbon::now('Asia/Jakarta')->toDateTimeString() . "' ELSE JamSelesai END")
                                 ]
                             );
 
@@ -3432,6 +3438,13 @@ public function getTableStatuses()
                 })
                 ->where('JamMulai', '>', $now)
                 ->update(['DocumentStatus' => 'D', 'Status' => 0]);
+
+            // Auto-Activate Bookings ('D' -> 'O') if JamMulai <= now
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('DocumentStatus', 'D')
+                ->where('JamMulai', '<=', $now)
+                ->update(['DocumentStatus' => 'O', 'Status' => 1]);
 
             foreach ($expiredTables as $et) {
                 $netTotal = floatval($et->NetTotal ?? 0);
