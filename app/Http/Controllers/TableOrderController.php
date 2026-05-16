@@ -3612,7 +3612,10 @@ public function getTableStatuses()
                              WHERE t2.tableid = titiklampu.id 
                              AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
                              AND t2.DocumentStatus IN ('O', 'D')
-                             ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai DESC
+                             ORDER BY 
+                                CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC,
+                                CASE WHEN t2.JamMulai <= '{$now->toDateTimeString()}' THEN 0 ELSE 1 END ASC,
+                                ABS(TIMESTAMPDIFF(SECOND, t2.JamMulai, '{$now->toDateTimeString()}')) ASC
                              LIMIT 1
                          )");
                 })
@@ -3634,8 +3637,21 @@ public function getTableStatuses()
 
             // Format data for response
             $titiklampu->transform(function ($item) {
-                $item->JamMulaiParsed = $item->JamMulai ? Carbon::parse($item->JamMulai)->format('H:i') : '-';
-                $item->JamSelesaiParsed = $item->JamSelesai ? Carbon::parse($item->JamSelesai)->format('H:i') : '-';
+                $mulai = $item->JamMulai ? Carbon::parse($item->JamMulai) : null;
+                $selesai = $item->JamSelesai ? Carbon::parse($item->JamSelesai) : null;
+                
+                if ($mulai) {
+                    $item->JamMulaiParsed = $mulai->isToday() ? $mulai->format('H:i') : $mulai->format('d/m H:i');
+                } else {
+                    $item->JamMulaiParsed = '-';
+                }
+
+                if ($selesai) {
+                    $item->JamSelesaiParsed = $selesai->isToday() ? $selesai->format('H:i') : $selesai->format('d/m H:i');
+                } else {
+                    $item->JamSelesaiParsed = '-';
+                }
+
                 $item->Status = intval($item->Status ?? $item->status ?? 0);
                 return $item;
             });
