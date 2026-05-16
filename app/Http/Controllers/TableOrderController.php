@@ -3412,16 +3412,26 @@ public function getTableStatuses()
                 ->where('JamSelesai', '<', $now)
                 ->get();
 
-            // 0. Repair missing DocumentStatus (Force to 'O' if it looks like an active order)
+            // 0. Repair missing DocumentStatus (Force to 'O' if it looks like an active order, or 'D' if booking)
             // This fixes tables like "Basket 5" that might have been created with empty DocumentStatus
+            // Force 'O' ONLY if JamMulai <= now
             DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where(function($q) {
-                    $q->whereNull('DocumentStatus')
-                      ->orWhere('DocumentStatus', '');
+                    $q->whereNull('DocumentStatus')->orWhere('DocumentStatus', '');
                 })
                 ->where('Status', '!=', 0)
+                ->where('JamMulai', '<=', $now)
                 ->update(['DocumentStatus' => 'O']);
+
+            // Force 'D' if JamMulai > now
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where(function($q) {
+                    $q->whereNull('DocumentStatus')->orWhere('DocumentStatus', '');
+                })
+                ->where('JamMulai', '>', $now)
+                ->update(['DocumentStatus' => 'D', 'Status' => 0]);
 
             foreach ($expiredTables as $et) {
                 $netTotal = floatval($et->NetTotal ?? 0);
@@ -3437,14 +3447,14 @@ public function getTableStatuses()
                 }
             }
 
-            // A.1. Repair: If table is in Checkout status (-1) but already PAID and time is not up yet, 
-            // revert it back to ACTIVE (1) so it stays RED.
+            // A.1. Repair: If table is in Checkout status (-1) but already PAID (with rounding) 
+            // and time is not up yet, revert it back to ACTIVE (1) so it stays RED.
             DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('Status', -1)
                 ->where('DocumentStatus', 'O')
                 ->where('JamSelesai', '>', $now)
-                ->whereRaw('COALESCE(TotalTerbayar, 0) >= COALESCE(NetTotal, 0)')
+                ->whereRaw('ROUND(COALESCE(TotalTerbayar, 0), 0) >= ROUND(COALESCE(NetTotal, 0), 0)')
                 ->update(['Status' => 1]);
 
             // B. Flag Nearly Expired Tables (10 mins) - Bulk Update
@@ -3454,7 +3464,7 @@ public function getTableStatuses()
                 ->where('titiklampu.RecordOwnerID', $roid)
                 ->where('tableorderheader.RecordOwnerID', $roid)
                 ->where('tableorderheader.DocumentStatus', 'O')
-                ->where('titiklampu.Status', '1')
+                ->where('titiklampu.Status', 1)
                 ->whereNotNull('tableorderheader.JamSelesai')
                 ->whereBetween('tableorderheader.JamSelesai', [$now, $nearlyExpiredThreshold])
                 ->update(['titiklampu.Status' => 99]);
@@ -3465,7 +3475,7 @@ public function getTableStatuses()
                 ->where('titiklampu.RecordOwnerID', $roid)
                 ->where('tableorderheader.RecordOwnerID', $roid)
                 ->where('tableorderheader.DocumentStatus', 'O')
-                ->where('titiklampu.Status', '99')
+                ->where('titiklampu.Status', 99)
                 ->whereNotNull('tableorderheader.JamSelesai')
                 ->where('tableorderheader.JamSelesai', '>', $nearlyExpiredThreshold)
                 ->update(['titiklampu.Status' => 1]);
@@ -3508,15 +3518,15 @@ public function getTableStatuses()
                 }
             }
 
-            // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF or incorrectly in Checkout status
-            // This fixes cases where status became 0 or -1 incorrectly.
+            // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF or incorrectly in Checkout/NearlyExp status
+            // This fixes cases where status became 0, -1, or 99 incorrectly.
             $shouldBeRed = DB::table('tableorderheader')
                 ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
                 ->where('tableorderheader.RecordOwnerID', $roid)
                 ->where('titiklampu.RecordOwnerID', $roid)
                 ->where('tableorderheader.DocumentStatus', 'O')
                 ->where('tableorderheader.Status', 1)
-                ->whereIn('titiklampu.Status', [0, -1]) // Fix if Green or Yellow
+                ->whereIn('titiklampu.Status', [0, -1, 99]) // Fix if Green, Yellow(Checkout), or Yellow(NearlyExp)
                 ->where('tableorderheader.JamMulai', '<=', $now)
                 ->where(function($q) use ($now) {
                     $q->where('tableorderheader.JamSelesai', '>=', $now)
@@ -3556,7 +3566,7 @@ public function getTableStatuses()
                         ->from('tableorderheader')
                         ->whereColumn('tableorderheader.tableid', 'titiklampu.id')
                         ->where('tableorderheader.RecordOwnerID', $roid)
-                        ->whereIn('tableorderheader.DocumentStatus', ['O', 'D']);
+                        ->where('tableorderheader.DocumentStatus', 'O'); // Only allow light if there is an ACTIVE order
                 })
                 ->select('id')
                 ->get();
