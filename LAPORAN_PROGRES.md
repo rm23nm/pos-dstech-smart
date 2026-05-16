@@ -27,13 +27,13 @@
 *   **Penguatan Aturan Dokumentasi** *(16 Mei 2026)*: Menambahkan protokol ketat pada `ATURAN_PENGEMBANGAN_AI.md` yang mewajibkan pencatatan rencana kerja di laporan sebelum eksekusi dan update segera setelah selesai.
 
 ## 2. Pekerjaan yang Sedang/Akan Dilakukan (16 Mei 2026)
-### Task: Verifikasi Sinkronisasi Pesanan QR Scan ke FnB Display
-- [x] **Identifikasi Flow**: Mencari controller yang menangani pesanan dari QR Scan (`TitikLampuController@storeOrder`).
-- [x] **Sinkronisasi Status Dapur**: Menambahkan update `kitchen_order_status = 0` pada header saat pesanan QR masuk agar muncul di KDS.
-- [x] **Standardisasi Data FnB**: Menambahkan `ServiceType`, `isCompleted`, dan update total ke `tableorderfnb` sesuai standar POS.
-- [x] **Pemberian Tanda/Source**: Menambahkan indikator "QR-SCAN" & "WEB" agar dapur tahu asal pesanan.
-- [x] **Verifikasi Query KDS**: Memastikan `FakturPenjualanController@InfoKitchenData` dapat menampilkan pesanan ini dengan benar.
 - [x] **Fix Bug Booking Online**: Memperbaiki bug nama kolom dan sinkronisasi status pada saat check-in booking online.
+
+### Task: Fix Sinkronisasi Lampu Meja (Status Light) Live
+- [x] **Identifikasi Masalah**: Menganalisa mengapa lampu meja "Basket 1" mati (hijau) padahal baru mulai (seharusnya merah). Teridentifikasi kemungkinan akibat logika *Self-Healing* yang terlalu agresif terhadap perbedaan waktu server/client.
+- [x] **Optimasi Self-Healing**: Menambahkan toleransi 5 menit pada logika `toDeactivate` dan `toActivate` di `getTableStatuses` untuk menghindari flickering akibat perbedaan waktu server/client.
+- [x] **Validasi Status Agregat**: Memastikan update status `titiklampu` tidak mematikan lampu jika masih ada transaksi aktif lainnya pada meja yang sama.
+- [x] **Deployment & Test**: Perbaikan telah diterapkan di file controller. Menunggu konfirmasi dari live.
 
 ## 3. Pekerjaan yang Baru Saja Diselesaikan (15-16 Mei 2026)
 - [x] **Update Protokol Ketat**: Memperbarui `ATURAN_PENGEMBANGAN_AI.md` (16 Mei).

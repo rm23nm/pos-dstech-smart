@@ -3437,29 +3437,42 @@ public function getTableStatuses()
                 ->where('tableorderheader.JamSelesai', '>', $nearlyExpiredThreshold)
                 ->update(['titiklampu.Status' => 1]);
 
-            // C. Auto-Activate Bookings (D -> O) when JamMulai <= now
+            // C. Auto-Activate Bookings (D -> O) when JamMulai <= now (+ 5 mins tolerance)
             $toActivate = DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('DocumentStatus', 'D')
-                ->where('JamMulai', '<=', $now)
+                ->where('JamMulai', '<=', (clone $now)->addMinutes(5))
                 ->get();
             
             foreach ($toActivate as $ta) {
                 DB::table('tableorderheader')->where('NoTransaksi', $ta->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'O']);
+                // Always turn ON if activating
                 DB::table('titiklampu')->where('id', $ta->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
             }
 
-            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) if JamMulai > now
-            // Fixes data that was saved incorrectly before the bug fix.
+            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) if JamMulai > now (+ 5 mins tolerance)
             $toDeactivate = DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('DocumentStatus', 'O')
-                ->where('JamMulai', '>', $now)
+                ->where('JamMulai', '>', (clone $now)->addMinutes(5))
                 ->get();
 
             foreach ($toDeactivate as $td) {
+                // Check if there is ANOTHER truly active order for this table
+                $hasOtherActive = DB::table('tableorderheader')
+                    ->where('tableid', $td->tableid)
+                    ->where('RecordOwnerID', $roid)
+                    ->where('DocumentStatus', 'O')
+                    ->where('NoTransaksi', '!=', $td->NoTransaksi)
+                    ->where('JamMulai', '<=', $now)
+                    ->exists();
+
                 DB::table('tableorderheader')->where('NoTransaksi', $td->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'D', 'Status' => 0]);
-                DB::table('titiklampu')->where('id', $td->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+                
+                // Only turn OFF if no other active transaction exists
+                if (!$hasOtherActive) {
+                    DB::table('titiklampu')->where('id', $td->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+                }
             }
             // B. (Removed optimized subqueries as we use TotalTerbayar now)
 
