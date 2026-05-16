@@ -28,18 +28,17 @@
 
 ## 2. Pekerjaan yang Sedang/Akan Dilakukan (16 Mei 2026)
 - [x] **Fix Bug Booking Online**: Memperbaiki bug nama kolom dan sinkronisasi status pada saat check-in booking online.
-
-### Task: Fix Sinkronisasi Lampu Meja (Status Light) Live
-- [x] **Identifikasi Masalah**: Menganalisa mengapa lampu meja "Basket 1" mati (hijau) padahal baru mulai (seharusnya merah). Teridentifikasi kemungkinan akibat logika *Self-Healing* yang terlalu agresif terhadap perbedaan waktu server/client.
-- [x] **Optimasi Self-Healing**: Menambahkan toleransi 5 menit pada logika `toDeactivate` dan `toActivate` di `getTableStatuses` untuk menghindari flickering akibat perbedaan waktu server/client.
-- [x] **Validasi Status Agregat**: Memastikan update status `titiklampu` tidak mematikan lampu jika masih ada transaksi aktif lainnya pada meja yang sama.
-- [x] **Deployment & Test**: Perbaikan telah diterapkan di file controller. Menunggu konfirmasi dari live.
+- [ ] **Sinkronisasi Status Checkout (Kuning/Hijau)**:
+    - [ ] Update `processCheckOut` agar sinkron dengan `titiklampu` (Status -1 untuk Checkout, Status 0 untuk Lunas).
+    - [ ] Verifikasi logic repair di `getTableStatuses` agar mendukung status `-1`.
+    - [ ] Pastikan frontend merespon perubahan status `-1` dengan warna kuning/orange yang sesuai.
 
 ## 3. Pekerjaan yang Baru Saja Diselesaikan (15-16 Mei 2026)
 - [x] **Update Protokol Ketat**: Memperbarui `ATURAN_PENGEMBANGAN_AI.md` (16 Mei).
 - [x] **Database Migration (Lokal)**: Migration menu Display berhasil dijalankan di lokal.
 - [x] **Service Type Migration (Re-apply)**: Migration `add_service_type_to_tableorderfnb` telah di-apply kembali.
 - [x] **Fix Sinkronisasi Status Meja**: Standardisasi timezone Jakarta & perbaikan `DocumentStatus` (O).
+- [x] **Self-Healing Lampu (Force OFF)**: Implementasi logic "Repair" di `getTableStatuses` untuk mematikan lampu yang "stuck".
 
 ## 3. Langkah Berikutnya (WAJIB DIKERJAKAN)
 
@@ -60,7 +59,8 @@ mysql -u [user] -p [db_name] < fix_live_display_menu.sql
 - Jika belum ada, tambahkan dulu via migration: `php artisan migrate --path=database/migrations/2026_05_14_220001_add_allow_monitor_antrean_to_subscription_header_table.php --force`
 - Login ke live dan verifikasi menu Display muncul di sidebar
 
-### PRIORITAS 3: Deployment & Monitoring Live
+### PRIORITAS 3: Sinkronisasi Checkout & Monitoring Live
+- [ ] Implementasi update `titiklampu` di `processCheckOut`.
 - [ ] Push perubahan terbaru ke GitHub (Termasuk fix `TitikLampuController`, `BookingOnlineController`, `TableOrderController`, `FakturPenjualanController` & `InfoKitchen.blade.php`).
 - [ ] Jalankan `php artisan migrate --force` di server live untuk menambah kolom `OrderSource`.
 - [ ] Monitor log di live: `tail -f storage/logs/laravel.log`.

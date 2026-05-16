@@ -1920,6 +1920,12 @@ class TableOrderController extends Controller
                         'DocumentStatus' => 'C',
                         'TotalTerbayar' => $totalTerbayar
                     ]);
+                
+                // Sinkronisasi Lampu: Langsung Matikan (Hijau)
+                DB::table('titiklampu')
+                    ->where('id', $order->tableid)
+                    ->where('RecordOwnerID', $recordOwnerID)
+                    ->update(['Status' => 0]);
             } else {
                 // Jika belum bayar
                 DB::table('tableorderheader')
@@ -1930,6 +1936,12 @@ class TableOrderController extends Controller
                         'Status' => -1,
                         'TotalTerbayar' => $totalTerbayar
                     ]);
+                
+                // Sinkronisasi Lampu: Set ke Status Checkout (Kuning/Status -1)
+                DB::table('titiklampu')
+                    ->where('id', $order->tableid)
+                    ->where('RecordOwnerID', $recordOwnerID)
+                    ->update(['Status' => -1]);
             }
 
             return response()->json([
@@ -3400,6 +3412,17 @@ public function getTableStatuses()
                 ->where('JamSelesai', '<', $now)
                 ->get();
 
+            // 0. Repair missing DocumentStatus (Force to 'O' if it looks like an active order)
+            // This fixes tables like "Basket 5" that might have been created with empty DocumentStatus
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where(function($q) {
+                    $q->whereNull('DocumentStatus')
+                      ->orWhere('DocumentStatus', '');
+                })
+                ->where('Status', '!=', 0)
+                ->update(['DocumentStatus' => 'O']);
+
             foreach ($expiredTables as $et) {
                 $netTotal = floatval($et->NetTotal ?? 0);
                 $totalPaid = floatval($et->TotalTerbayar ?? 0);
@@ -3474,7 +3497,67 @@ public function getTableStatuses()
                     DB::table('titiklampu')->where('id', $td->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
                 }
             }
-            // B. (Removed optimized subqueries as we use TotalTerbayar now)
+
+            // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF
+            // This fixes cases where status became 0 incorrectly or was never turned on.
+            $shouldBeRed = DB::table('tableorderheader')
+                ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
+                ->where('tableorderheader.RecordOwnerID', $roid)
+                ->where('titiklampu.RecordOwnerID', $roid)
+                ->where('tableorderheader.DocumentStatus', 'O')
+                ->where('tableorderheader.JamMulai', '<=', $now)
+                ->where(function($q) use ($now) {
+                    $q->where('tableorderheader.JamSelesai', '>=', $now)
+                      ->orWhereNull('tableorderheader.JamSelesai');
+                })
+                ->where(function($q) {
+                    $q->where('titiklampu.Status', 0)
+                      ->orWhere('tableorderheader.Status', 0);
+                })
+                ->select('titiklampu.id', 'tableorderheader.NoTransaksi')
+                ->get();
+
+            foreach ($shouldBeRed as $sbr) {
+                DB::table('titiklampu')->where('id', $sbr->id)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
+                DB::table('tableorderheader')->where('NoTransaksi', $sbr->NoTransaksi)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
+            }
+
+            // F. Data Consistency Repair (Checkout Status):
+            // Force status -1 (Checkout/Yellow) if tableorderheader status is -1
+            $shouldBeYellow = DB::table('tableorderheader')
+                ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
+                ->where('tableorderheader.RecordOwnerID', $roid)
+                ->where('titiklampu.RecordOwnerID', $roid)
+                ->where('tableorderheader.Status', -1)
+                ->where('titiklampu.Status', '!=', -1)
+                ->select('titiklampu.id')
+                ->get();
+            
+            foreach ($shouldBeYellow as $sby) {
+                DB::table('titiklampu')->where('id', $sby->id)->where('RecordOwnerID', $roid)->update(['Status' => -1]);
+            }
+
+            // G. Data Consistency Repair (Force OFF): 
+            // Turn OFF if light is ON (1, 99, -1) but NO active transaction ('O' or 'D') exists.
+            // This prevents lights from being "stuck" ON after an order is manually deleted or closed incorrectly.
+            $stuckOn = DB::table('titiklampu')
+                ->where('RecordOwnerID', $roid)
+                ->whereIn('Status', [1, 99, -1]) 
+                ->whereNotExists(function($query) use ($roid) {
+                    $query->select(DB::raw(1))
+                        ->from('tableorderheader')
+                        ->whereColumn('tableorderheader.tableid', 'titiklampu.id')
+                        ->where('tableorderheader.RecordOwnerID', $roid)
+                        ->whereIn('tableorderheader.DocumentStatus', ['O', 'D']);
+                })
+                ->select('id')
+                ->get();
+
+            foreach ($stuckOn as $so) {
+                DB::table('titiklampu')->where('id', $so->id)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+            }
+
+            // H. (Removed optimized subqueries as we use TotalTerbayar now)
 
             // 3. MAIN STATUS QUERY (SUPER LIGHTWEIGHT)
             $titiklampu = DB::table('titiklampu')
