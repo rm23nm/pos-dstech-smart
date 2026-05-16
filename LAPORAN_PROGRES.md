@@ -24,13 +24,22 @@
     - Menstandarisasi semua penggunaan `Carbon::now()` menjadi `Carbon::now('Asia/Jakarta')` di `TableOrderController` dan `FakturPenjualanController` untuk mencegah selisih waktu server vs aplikasi.
     - Menambahkan default `DocumentStatus = 'O'` (Open) pada saat pembuatan transaksi baru di POS. Sebelumnya, transaksi tanpa tipe "REALTIME" tidak memiliki status dokumen yang valid, sehingga tidak terbaca oleh fungsi `getTableStatuses` (Meja tetap hijau padahal sudah diisi).
     - Memastikan `titiklampu.Status` dan `tableorderheader.DocumentStatus` sinkron saat transaksi disimpan.
+
+| Tanggal | Fitur / Bug | Detail Perbaikan |
+| :--- | :--- | :--- |
+| 16 Mei 2026 | Perbaikan FnB Sync (KDS) | Memperbaiki nama kolom `ItemMasterID` di `BookingOnlineController` agar pesanan FnB dari web muncul di KDS. |
+| 16 Mei 2026 | Self-Healing Lampu (Force OFF) | Implementasi logic "Repair" di `getTableStatuses` untuk mematikan lampu yang "stuck" menyala tanpa transaksi aktif. |
+| 16 Mei 2026 | Checkout Status Sync | (Proses) Menyamakan status `titiklampu` saat proses checkout di `processCheckOut`. |
+| 16 Mei 2026 | DocumentStatus Repair | Menambahkan perbaikan otomatis untuk transaksi dengan `DocumentStatus` kosong (Kasus Basket 5) agar tidak dimatikan paksa oleh sistem. |
+
 *   **Penguatan Aturan Dokumentasi** *(16 Mei 2026)*: Menambahkan protokol ketat pada `ATURAN_PENGEMBANGAN_AI.md` yang mewajibkan pencatatan rencana kerja di laporan sebelum eksekusi dan update segera setelah selesai.
 
 ## 2. Pekerjaan yang Sedang/Akan Dilakukan (16 Mei 2026)
 - [x] **Fix Bug Booking Online**: Memperbaiki bug nama kolom dan sinkronisasi status pada saat check-in booking online.
+- [x] **Repair DocumentStatus**: Menambahkan perbaikan otomatis untuk transaksi dengan `DocumentStatus` kosong (Kasus Basket 5).
 - [ ] **Sinkronisasi Status Checkout (Kuning/Hijau)**:
-    - [ ] Update `processCheckOut` agar sinkron dengan `titiklampu` (Status -1 untuk Checkout, Status 0 untuk Lunas).
-    - [ ] Verifikasi logic repair di `getTableStatuses` agar mendukung status `-1`.
+    - [x] Update `processCheckOut` agar sinkron dengan `titiklampu` (Status -1 untuk Checkout, Status 0 untuk Lunas).
+    - [x] Verifikasi logic repair di `getTableStatuses` agar mendukung status `-1`.
     - [ ] Pastikan frontend merespon perubahan status `-1` dengan warna kuning/orange yang sesuai.
 
 ## 3. Pekerjaan yang Baru Saja Diselesaikan (15-16 Mei 2026)
