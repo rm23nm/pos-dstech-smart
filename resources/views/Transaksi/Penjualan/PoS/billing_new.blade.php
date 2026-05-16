@@ -150,6 +150,18 @@
             box-shadow: 0 3px 7px rgba(0,0,0,0.22);
             position: relative;
             user-select: none;
+            padding: 4px;
+        }
+        .titik-nama {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.2;
+            word-break: break-word;
+            max-width: 100%;
+            padding: 0 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         .titik-box:hover {
             transform: scale(1.1);
@@ -833,7 +845,7 @@
                                          onclick="selectTitikLampu(this)"
                                          title="{{ $item->NamaTitikLampu }}"
                                          role="button">
-                                        {{ $item->DigitalInput }}
+                                        <div class="titik-nama">{{ $item->NamaTitikLampu }}</div>
                                         @if($item->Status != 0 && ($item->TotalPembayaran ?? 0) > 0)
                                             <div class="paid-badge" title="Sudah Ada Pembayaran">
                                                 PAID

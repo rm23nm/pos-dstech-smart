@@ -1210,4 +1210,35 @@ Route::post('/faq/editJson', [SupportPageController::class, 'editJson'])->name('
 Route::delete('/faq/delete/{id}', [SupportPageController::class, 'deletedata'])->name('faq-delete')->middleware(['auth', 'check.session']);
 Route::get('/faq/export', [SupportPageController::class,'Export'])->name('faq-export')->middleware(['auth', 'check.session']);
 
-Route::get('/log/{id}', [LogingController::class,'view'])->name('log');
+Route::get('/log/{id}', [LogingController::class,'view'])->name('log');/*
+|--------------------------------------------------------------------------
+| FnB Store (Website Tambahan khusus Order FnB)
+|--------------------------------------------------------------------------
+*/
+// Support for Custom Domains (e.g. ordermakanan.com/)
+Route::middleware([\App\Http\Middleware\DomainDetectionMiddleware::class])->group(function () {
+    Route::get('/', [\App\Http\Controllers\FnBStoreController::class, 'indexCustomDomain'])->name('fnb-store.custom');
+    Route::get('/login', [\App\Http\Controllers\FnBStoreController::class, 'showLoginCustom'])->name('fnb-store.login.custom');
+    Route::post('/login', [\App\Http\Controllers\FnBStoreController::class, 'loginCustom'])->name('fnb-store.login.post.custom');
+    Route::post('/logout', [\App\Http\Controllers\FnBStoreController::class, 'logoutCustom'])->name('fnb-store.logout.custom');
+    
+    Route::middleware([\App\Http\Middleware\CustomerAuth::class])->group(function () {
+        Route::get('/menu', [\App\Http\Controllers\FnBStoreController::class, 'menuCustom'])->name('fnb-store.menu.custom');
+        Route::post('/checkout', [\App\Http\Controllers\FnBStoreController::class, 'checkoutCustom'])->name('fnb-store.checkout.custom');
+        Route::get('/status/{orderId}', [\App\Http\Controllers\FnBStoreController::class, 'statusCustom'])->name('fnb-store.status.custom');
+    });
+});
+
+Route::prefix('fnb-store')->group(function () {
+    Route::get('/{id}', [\App\Http\Controllers\FnBStoreController::class, 'index'])->name('fnb-store.index');
+    Route::get('/{id}/login', [\App\Http\Controllers\FnBStoreController::class, 'showLogin'])->name('fnb-store.login');
+    Route::post('/{id}/login', [\App\Http\Controllers\FnBStoreController::class, 'login'])->name('fnb-store.login.post');
+    Route::post('/{id}/logout', [\App\Http\Controllers\FnBStoreController::class, 'logout'])->name('fnb-store.logout');
+    
+    // Protected routes (Must be logged in as customer)
+    Route::middleware([\App\Http\Middleware\CustomerAuth::class])->group(function () {
+        Route::get('/{id}/menu', [\App\Http\Controllers\FnBStoreController::class, 'menu'])->name('fnb-store.menu');
+        Route::post('/{id}/checkout', [\App\Http\Controllers\FnBStoreController::class, 'checkout'])->name('fnb-store.checkout');
+        Route::get('/{id}/status/{orderId}', [\App\Http\Controllers\FnBStoreController::class, 'status'])->name('fnb-store.status');
+    });
+});
