@@ -315,11 +315,18 @@ class TableOrderController extends Controller
                             COALESCE(serial_numbers.isBlocked, 0) as isBlocked,
                             COALESCE(serial_numbers.BlockedReason, '') as BlockedReason
                         ")
-                        ->leftJoin('tableorderheader', function ($value) use ($roid) {
-                            $value->on('titiklampu.id','=','tableorderheader.tableid')
-                            ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID')
-                            ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
-                            ->where('tableorderheader.RecordOwnerID', '=', $roid);
+                        ->leftJoin('tableorderheader', function($join) use ($roid) {
+                            $join->on('titiklampu.id', '=', 'tableorderheader.tableid')
+                                 ->on('titiklampu.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID')
+                                 ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
+                                 ->whereRaw("tableorderheader.NoTransaksi = (
+                                     SELECT t2.NoTransaksi FROM tableorderheader t2 
+                                     WHERE t2.tableid = titiklampu.id 
+                                     AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
+                                     AND t2.DocumentStatus IN ('O', 'D')
+                                     ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, id DESC
+                                     LIMIT 1
+                                 )");
                         })
                         ->leftJoin('pakettransaksi', function ($value)  {
                             $value->on('tableorderheader.paketid','=','pakettransaksi.id')
@@ -626,8 +633,8 @@ class TableOrderController extends Controller
             $model->NoTransaksi = $NoTransaksi;
             $model->DocumentStatus = 'O'; // Default to Open
             $model->QueueNumber = intval(substr($NoTransaksi, -3));
-            $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi')) : $now;
-            $model->TglTransaksi = $tglTransaksi;
+            $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi'), 'Asia/Jakarta') : $now;
+            $model->TglTransaksi = $tglTransaksi->toDateString();
             $model->TglPencatatan = $now;
             $model->JenisPaket = $request->input('JenisPaket');
             $model->paketid = $request->input('paketid');
@@ -636,23 +643,30 @@ class TableOrderController extends Controller
             $model->DurasiPaket = $request->input('DurasiPaket');
             $model->Status = $request->input('Status');
             $model->KodePelanggan = $request->input('KodePelanggan');
-            $model->TaxTotal = 0;//$request->input('TaxTotal');
-            $model->GrossTotal = 0; //$request->input('GrossTotal');
-            $model->DiscTotal = 0;// $request->input('DiscTotal');
-            $model->NetTotal = 0;//$request->input('NetTotal');
+            $paket = DB::table('pakettransaksi')->where('id', $request->input('paketid'))->where('RecordOwnerID', $roid)->first();
+            $hargaPaket = $paket ? $paket->HargaNormal : 0;
+
+            $model->TaxTotal = 0;
+            $model->GrossTotal = $hargaPaket;
+            $model->DiscTotal = 0;
+            $model->NetTotal = $hargaPaket;
             
             // JamMulai Handling
-            // If provided from frontend (Slot selected), use it.
-            // If not provided (Flexible, or Menit), use NOW with the selected date.
             if ($request->input('JenisPaket') == 'DAILY' || $request->input('JenisPaket') == 'MONTHLY' || $request->input('JenisPaket') == 'YEARLY') {
-                $model->JamMulai = Carbon::parse($request->input('JamMulai'));
-                $model->JamSelesai = Carbon::parse($request->input('JamSelesai'));
+                $model->JamMulai = Carbon::parse($request->input('JamMulai'), 'Asia/Jakarta');
+                $model->JamSelesai = Carbon::parse($request->input('JamSelesai'), 'Asia/Jakarta');
             } elseif ($request->has('JamMulai') && $request->input('JamMulai') != "") {
                 $tgl = $request->input('TglBooking') ?? $tglTransaksi->toDateString();
                 $jam = $request->input('JamMulai');
-                $model->JamMulai = Carbon::parse($tgl . ' ' . $jam);
+                $jamMulaiParsed = Carbon::parse($tgl . ' ' . $jam, 'Asia/Jakarta');
+                
+                if ($jamMulaiParsed->lt($now) && $jamMulaiParsed->gt($now->copy()->subMinutes(60))) {
+                    $model->JamMulai = $now;
+                } else {
+                    $model->JamMulai = $jamMulaiParsed;
+                }
             } else {
-                $model->JamMulai = Carbon::parse($tglTransaksi->toDateString() . ' ' . $now->toTimeString());
+                $model->JamMulai = $now;
             }
 
             if ($request->input('JenisPaket') == 'JAM' || $request->input('JenisPaket') == 'PAKETMEMBER' || $request->input('JenisPaket') == 'JAMREALTIME') {
@@ -3497,11 +3511,11 @@ public function getTableStatuses()
                 ->where('tableorderheader.JamSelesai', '>', $nearlyExpiredThreshold)
                 ->update(['titiklampu.Status' => 1]);
 
-            // C. Auto-Activate Bookings (D -> O) when JamMulai <= now (+ 5 mins tolerance)
+            // C. Auto-Activate Bookings (D -> O) when JamMulai <= now (+ 60 mins tolerance)
             $toActivate = DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('DocumentStatus', 'D')
-                ->where('JamMulai', '<=', (clone $now)->addMinutes(5))
+                ->where('JamMulai', '<=', (clone $now)->addMinutes(60))
                 ->get();
             
             foreach ($toActivate as $ta) {
@@ -3510,11 +3524,11 @@ public function getTableStatuses()
                 DB::table('titiklampu')->where('id', $ta->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
             }
 
-            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) if JamMulai > now (+ 5 mins tolerance)
+            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) if JamMulai > now (+ 60 mins tolerance)
             $toDeactivate = DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('DocumentStatus', 'O')
-                ->where('JamMulai', '>', (clone $now)->addMinutes(5))
+                ->where('JamMulai', '>', (clone $now)->addMinutes(60))
                 ->get();
 
             foreach ($toDeactivate as $td) {
@@ -3654,8 +3668,8 @@ public function getTableStatuses()
 
             // Format data for response
             $titiklampu->transform(function ($item) {
-                $mulai = $item->JamMulai ? Carbon::parse($item->JamMulai) : null;
-                $selesai = $item->JamSelesai ? Carbon::parse($item->JamSelesai) : null;
+                $mulai = $item->JamMulai ? Carbon::parse($item->JamMulai, 'Asia/Jakarta') : null;
+                $selesai = $item->JamSelesai ? Carbon::parse($item->JamSelesai, 'Asia/Jakarta') : null;
                 
                 if ($mulai) {
                     $item->JamMulaiParsed = $mulai->isToday() ? $mulai->format('H:i') : $mulai->format('d/m H:i');

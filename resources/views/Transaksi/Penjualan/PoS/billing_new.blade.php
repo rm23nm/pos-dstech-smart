@@ -1062,7 +1062,7 @@
             } else if (rawMulai && rawMulai.trim() !== "" && rawMulai !== "null") {
                 // Count-up Logic
                 const start = new Date(rawMulai.replace(' ', 'T'));
-                diffMs = now - start;
+                diffMs = _nowLocal - start;
                 label = formatDuration(diffMs);
                 timerEl.style.color = "inherit";
             }
@@ -1093,6 +1093,7 @@
                 el.dataset.jamselesai = item.JamSelesaiParsed || '-';
                 el.dataset.statuslabel = item.StatusMeja || 'KOSONG';
                 el.dataset.totalPembayaran = item.TotalPembayaran || 0;
+                el.dataset.nettotal = item.NetTotal || 0;
                 el.dataset.rawjammulai = item.JamMulai || '';
                 el.dataset.rawjamselesai = item.JamSelesai || '';
                 el.dataset.namakelompok = item.NamaKelompok || '';
@@ -1162,7 +1163,8 @@
                         namakelompok:   mockEl.dataset.namakelompok,
                         gambar:         mockEl.dataset.gambar,
                         statuslabel:    mockEl.dataset.statuslabel,
-                        totalPembayaran: parseFloat(mockEl.dataset.totalPembayaran || 0)
+                        totalPembayaran: parseFloat(mockEl.dataset.totalPembayaran || 0),
+                        nettotal:        parseFloat(mockEl.dataset.nettotal || 0)
                     };
                     selectedTitik = newData;
                     renderRightPanel(newData);
