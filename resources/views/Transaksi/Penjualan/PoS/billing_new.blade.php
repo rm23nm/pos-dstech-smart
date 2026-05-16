@@ -989,27 +989,37 @@
     function refreshTableStatuses() {
         if (isRefreshing) return;
         isRefreshing = true;
+        console.log("Auto-refresh: Fetching latest statuses from server...");
 
         fetch('/billing/get-table-statuses')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
+                return res.json();
+            })
             .then(res => {
                 if (res.success) {
-                    console.log("Auto-refresh data received:", res.data);
+                    console.log("Auto-refresh: Data received successfully (" + res.data.length + " tables)");
                     updateUIWithLatestData(res.data);
+                } else {
+                    console.error("Auto-refresh: Server returned error:", res.message);
                 }
             })
             .catch(err => {
-                console.warn("Auto-refresh skipped due to network or server delay.");
+                console.error("Auto-refresh: Fetch failed:", err);
             })
             .finally(() => {
                 isRefreshing = false;
             });
     }
     
-    // Initial start
-    onRefreshIntervalChange();
+    // Initial start - tunggu sampai DOM siap baru jalankan auto-refresh
+    document.addEventListener('DOMContentLoaded', function() {
+        onRefreshIntervalChange();
+        // Langsung ambil data awal saat halaman pertama dibuka
+        refreshTableStatuses();
+    });
 
-    // Timer Heartbeat
+    // Timer Heartbeat - hitung mundur setiap detik
     setInterval(updateTableTimers, 1000);
 
     function updateTableTimers() {

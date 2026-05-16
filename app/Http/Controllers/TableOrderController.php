@@ -3633,7 +3633,7 @@ public function getTableStatuses()
                     COALESCE(tableorderheader.NetTotal, 0) as NetTotal,
                     COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok
                 ")
-                ->leftJoin('tableorderheader', function($join) use ($roid) {
+                ->leftJoin('tableorderheader', function($join) use ($roid, $now) {
                     $join->on('titiklampu.id', '=', 'tableorderheader.tableid')
                          ->on('titiklampu.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID')
                          ->where('tableorderheader.RecordOwnerID', '=', $roid)
