@@ -3506,7 +3506,9 @@ public function getTableStatuses()
                 if (!$hasOtherActive) {
                     DB::table('titiklampu')->where('id', $td->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
                 }
-                       // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF or incorrectly in Checkout status
+            }
+
+            // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF or incorrectly in Checkout status
             // This fixes cases where status became 0 or -1 incorrectly.
             $shouldBeRed = DB::table('tableorderheader')
                 ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
