@@ -1221,6 +1221,8 @@ Route::get('/log/{id}', [LogingController::class,'view'])->name('log');/*
 Route::middleware([\App\Http\Middleware\DomainDetectionMiddleware::class])->group(function () {
     Route::get('/login', [\App\Http\Controllers\FnBStoreController::class, 'showLoginCustom'])->name('fnb-store.login.custom');
     Route::post('/login', [\App\Http\Controllers\FnBStoreController::class, 'loginCustom'])->name('fnb-store.login.post.custom');
+    Route::get('/register', [\App\Http\Controllers\FnBStoreController::class, 'showRegisterCustom'])->name('fnb-store.register.custom');
+    Route::post('/register', [\App\Http\Controllers\FnBStoreController::class, 'registerCustom'])->name('fnb-store.register.post.custom');
     Route::post('/logout', [\App\Http\Controllers\FnBStoreController::class, 'logoutCustom'])->name('fnb-store.logout.custom');
     
     Route::middleware([\App\Http\Middleware\CustomerAuth::class])->group(function () {
@@ -1234,6 +1236,8 @@ Route::prefix('fnb-store')->group(function () {
     Route::get('/{id}', [\App\Http\Controllers\FnBStoreController::class, 'index'])->name('fnb-store.index');
     Route::get('/{id}/login', [\App\Http\Controllers\FnBStoreController::class, 'showLogin'])->name('fnb-store.login');
     Route::post('/{id}/login', [\App\Http\Controllers\FnBStoreController::class, 'login'])->name('fnb-store.login.post');
+    Route::get('/{id}/register', [\App\Http\Controllers\FnBStoreController::class, 'showRegister'])->name('fnb-store.register');
+    Route::post('/{id}/register', [\App\Http\Controllers\FnBStoreController::class, 'register'])->name('fnb-store.register.post');
     Route::post('/{id}/logout', [\App\Http\Controllers\FnBStoreController::class, 'logout'])->name('fnb-store.logout');
     
     // Protected routes (Must be logged in as customer)

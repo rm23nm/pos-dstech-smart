@@ -66,6 +66,8 @@ class FnBStoreController extends Controller
     public function menuCustom() { return $this->menu(null); }
     public function checkoutCustom(Request $request) { return $this->checkout($request, null); }
     public function statusCustom($orderId) { return $this->status(null, $orderId); }
+    public function showRegisterCustom(Request $request) { return $this->showRegister(null, $request); }
+    public function registerCustom(Request $request) { return $this->register($request, null); }
 
     public function showLogin($id)
     {
@@ -94,10 +96,55 @@ class FnBStoreController extends Controller
             session(['customer_name' => $customer->NamaPelanggan]);
             session(['customer_email' => $customer->Email]);
             session(['roid' => $roid]);
-            return redirect()->route('fnb-store.menu', ['id' => $id]);
+            return redirect()->route($id ? 'fnb-store.menu' : 'fnb-store.menu.custom', $id ? ['id' => $id] : []);
         }
 
-        return back()->with('error', 'Data pelanggan tidak ditemukan. Silakan hubungi kasir.');
+        // Redirect to register if not found
+        return redirect()->route($id ? 'fnb-store.register' : 'fnb-store.register.custom', $id ? ['id' => $id, 'identifier' => $request->identifier] : ['identifier' => $request->identifier])
+            ->with('info', 'Data Anda belum terdaftar. Silakan lengkapi data berikut.');
+    }
+
+    public function showRegister($id, Request $request)
+    {
+        $roid = $this->decodeId($id);
+        $company = Company::where('KodePartner', $roid)->first();
+        $identifier = $request->input('identifier');
+        
+        return view('fnb_store.register', compact('company', 'id', 'identifier'));
+    }
+
+    public function register(Request $request, $id)
+    {
+        $roid = $this->decodeId($id);
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'identifier' => 'required',
+        ]);
+
+        // Generate KodePelanggan
+        $prefix = "CUST-";
+        $lastNo = Pelanggan::where('RecordOwnerID', $roid)->count() + 1;
+        $kodePelanggan = $prefix . str_pad($lastNo, 5, '0', STR_PAD_LEFT);
+
+        $isEmail = filter_var($request->identifier, FILTER_VALIDATE_EMAIL);
+
+        $customer = new Pelanggan();
+        $customer->KodePelanggan = $kodePelanggan;
+        $customer->NamaPelanggan = $request->nama;
+        $customer->RecordOwnerID = $roid;
+        if ($isEmail) {
+            $customer->Email = $request->identifier;
+        } else {
+            $customer->NoTlp1 = $request->identifier;
+        }
+        $customer->save();
+
+        session(['customer_id' => $customer->KodePelanggan]);
+        session(['customer_name' => $customer->NamaPelanggan]);
+        session(['customer_email' => $customer->Email]);
+        session(['roid' => $roid]);
+
+        return redirect()->route($id ? 'fnb-store.menu' : 'fnb-store.menu.custom', $id ? ['id' => $id] : []);
     }
 
     public function logout($id)

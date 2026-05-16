@@ -16,7 +16,7 @@ class FirebaseService
     public function __construct()
     {
         $this->client = new Client();
-        $this->serviceAccountFile = base_path('\config\firebase_credentials.json');
+        $this->serviceAccountFile = base_path('config/firebase_credentials.json');
         $this->projectId = json_decode(file_get_contents($this->serviceAccountFile), true)['project_id'];
         $this->authToken = $this->getAccessToken();
     }
