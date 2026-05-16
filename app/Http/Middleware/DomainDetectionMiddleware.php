@@ -18,21 +18,29 @@ class DomainDetectionMiddleware
     public function handle(Request $request, Closure $next)
     {
         $host = $request->getHost();
-        
-        // Skip for main domain
         $mainDomain = parse_url(config('app.url'), PHP_URL_HOST);
         
         if ($host !== $mainDomain && $host !== 'localhost' && $host !== '127.0.0.1') {
             $company = DB::table('company')
                 ->where('CustomDomain', $host)
+                ->orWhere('CustomDomainBooking', $host)
+                ->orWhere('CustomDomainQueue', $host)
+                ->orWhere('CustomDomainKDS', $host)
                 ->first();
                 
             if ($company) {
-                // Store detected ROID in request attributes for easy access
                 $request->attributes->set('detected_roid', $company->KodePartner);
                 
-                // If it's a custom domain, we might want to override some routes 
-                // but for now we just make the ROID available.
+                // Determine the context type
+                if ($host === $company->CustomDomain) {
+                    $request->attributes->set('domain_context', 'STORE');
+                } elseif ($host === $company->CustomDomainBooking) {
+                    $request->attributes->set('domain_context', 'BOOKING');
+                } elseif ($host === $company->CustomDomainQueue) {
+                    $request->attributes->set('domain_context', 'QUEUE');
+                } elseif ($host === $company->CustomDomainKDS) {
+                    $request->attributes->set('domain_context', 'KDS');
+                }
             }
         }
 

@@ -30,12 +30,24 @@ class FnBStoreController extends Controller
     public function indexCustomDomain(Request $request)
     {
         $roid = $request->attributes->get('detected_roid');
+        $context = $request->attributes->get('domain_context');
+        
         if (!$roid) {
-            // If no custom domain and no ID, redirect to main site or abort
             return redirect(config('app.url'));
         }
-        
-        return $this->index($roid);
+
+        $encodedRoid = base64_encode($roid);
+
+        switch ($context) {
+            case 'BOOKING':
+                return redirect()->route('booking-index', ['id' => $encodedRoid]);
+            case 'QUEUE':
+                return redirect()->route('queue-management', ['id' => $encodedRoid]);
+            case 'KDS':
+                return redirect()->route('infokitchen');
+            default:
+                return $this->index(null);
+        }
     }
 
     public function index($id)
