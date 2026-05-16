@@ -1127,35 +1127,49 @@ class FakturPenjualanController extends Controller
 					goto jump;
 				}
 
-				// $update = DB::table('tableorderheader')
-				// 			->where('NoTransaksi','=', $baseReff)
-				// 			->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-				// 			->whereNotIn('JenisPaket', ['JAM', 'MENIT','MENITREALTIME','DAILY', 'MONTHLY', 'YEARLY'])
-				// 			->update(
-				// 				[
-				// 					'Status'=>1,
-				// 				]
-				// 			);
+				// SINKRONISASI KE TABLEORDERHEADER
+				if ($baseReff != "") {
+					// Hitung total semua pembayaran untuk pesanan ini
+					$totalBayarSekarang = DB::table('pembayaranpenjualandetail')
+						->where('BaseReff', $baseReff)
+						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+						->sum('TotalPembayaran');
+					
+					// Ambil info header untuk pengecekan pelunasan
+					$header = DB::table('tableorderheader')
+						->where('NoTransaksi', $baseReff)
+						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+						->first();
 
-				$update = DB::table('tableorderheader')
+					if ($header) {
+						$isPaid = ($totalBayarSekarang >= $header->NetTotal);
+						$isExpired = ($header->JamSelesai && Carbon::parse($header->JamSelesai, 'Asia/Jakarta')->lt(Carbon::now('Asia/Jakarta')));
+
+						DB::table('tableorderheader')
+							->where('NoTransaksi', $baseReff)
+							->update([
+								'TotalTerbayar' => $totalBayarSekarang,
+								'Status' => ($isExpired && $isPaid) ? 0 : (($isExpired && !$isPaid) ? -1 : 1),
+								'DocumentStatus' => ($isPaid && ($isExpired || $header->JenisPaket != 'MENITREALTIME')) ? 'C' : 'O'
+							]);
+
+						// Jika sudah lunas dan waktu habis (atau paket non-realtime), matikan lampu
+						if ($isPaid && ($isExpired || $header->JenisPaket != 'MENITREALTIME')) {
+							DB::table('titiklampu')
+								->where('id', $header->tableid)
+								->update(['Status' => 0]);
+						}
+					}
+				}
+
+				DB::table('tableorderfnb')
 							->where('NoTransaksi','=', $baseReff)
 							->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-							// ->whereNotIn('JenisPaket', ['JAM', 'MENIT','MENITREALTIME','DAILY', 'MONTHLY', 'YEARLY'])
-							// ->where(DB::Raw("COALESCE(JamSelesai, NOW())"),'<', DB::raw("NOW()"))
 							->update(
 								[
-									'Status'=>DB::raw("CASE WHEN COALESCE(JamSelesai, NOW()) < NOW() THEN 0 ELSE 1 END "),
+									'LineStatus'=>'C',
 								]
 							);
-
-				// DB::table('tableorderfnb')
-				// 			->where('NoTransaksi','=', $baseReff)
-				// 			->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
-				// 			->update(
-				// 				[
-				// 					'LineStatus'=>'C',
-				// 				]
-				// 			);
 			}
 
 			if ($oCompany->isPostingAkutansi == 1) {
