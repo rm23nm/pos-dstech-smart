@@ -3649,6 +3649,7 @@ public function getTableStatuses()
                     'LineTotal' => $lineTotal + $tax + $service,
                     'isCompleted' => 0,
                     'ServiceType' => $request->input('ServiceType', 'DINE_IN'),
+                    'OrderSource' => 'POS',
                     'RecordOwnerID' => $recordOwnerID,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),

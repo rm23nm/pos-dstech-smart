@@ -24,13 +24,22 @@
     - Menstandarisasi semua penggunaan `Carbon::now()` menjadi `Carbon::now('Asia/Jakarta')` di `TableOrderController` dan `FakturPenjualanController` untuk mencegah selisih waktu server vs aplikasi.
     - Menambahkan default `DocumentStatus = 'O'` (Open) pada saat pembuatan transaksi baru di POS. Sebelumnya, transaksi tanpa tipe "REALTIME" tidak memiliki status dokumen yang valid, sehingga tidak terbaca oleh fungsi `getTableStatuses` (Meja tetap hijau padahal sudah diisi).
     - Memastikan `titiklampu.Status` dan `tableorderheader.DocumentStatus` sinkron saat transaksi disimpan.
+*   **Penguatan Aturan Dokumentasi** *(16 Mei 2026)*: Menambahkan protokol ketat pada `ATURAN_PENGEMBANGAN_AI.md` yang mewajibkan pencatatan rencana kerja di laporan sebelum eksekusi dan update segera setelah selesai.
 
-## 2. Pekerjaan yang Baru Saja Diselesaikan (15 Mei 2026)
-- [x] **Database Migration (Lokal)**: Migration menu Display berhasil dijalankan di lokal
-- [x] **Service Type Migration (Re-apply)**: Migration `add_service_type_to_tableorderfnb` yang sempat ter-rollback telah di-apply kembali
-- [x] **Diagnosa Root Cause**: Ditemukan bahwa menu Display dikontrol oleh kondisi `AllowMonitorAntrean == 1` di `subscriptionheader` DAN oleh hardcoded section di `header.blade.php`
-- [x] **Script Fix Live**: Dibuat file `fix_live_display_menu.sql` untuk dijalankan di live server
-- [x] **Fix Sinkronisasi Status Meja**: Standardisasi timezone Jakarta & perbaikan `DocumentStatus` (O) pada controller.
+## 2. Pekerjaan yang Sedang/Akan Dilakukan (16 Mei 2026)
+### Task: Verifikasi Sinkronisasi Pesanan QR Scan ke FnB Display
+- [x] **Identifikasi Flow**: Mencari controller yang menangani pesanan dari QR Scan (`TitikLampuController@storeOrder`).
+- [x] **Sinkronisasi Status Dapur**: Menambahkan update `kitchen_order_status = 0` pada header saat pesanan QR masuk agar muncul di KDS.
+- [x] **Standardisasi Data FnB**: Menambahkan `ServiceType`, `isCompleted`, dan update total ke `tableorderfnb` sesuai standar POS.
+- [x] **Pemberian Tanda/Source**: Menambahkan indikator "QR-SCAN" & "WEB" agar dapur tahu asal pesanan.
+- [x] **Verifikasi Query KDS**: Memastikan `FakturPenjualanController@InfoKitchenData` dapat menampilkan pesanan ini dengan benar.
+- [x] **Fix Bug Booking Online**: Memperbaiki bug nama kolom dan sinkronisasi status pada saat check-in booking online.
+
+## 3. Pekerjaan yang Baru Saja Diselesaikan (15-16 Mei 2026)
+- [x] **Update Protokol Ketat**: Memperbarui `ATURAN_PENGEMBANGAN_AI.md` (16 Mei).
+- [x] **Database Migration (Lokal)**: Migration menu Display berhasil dijalankan di lokal.
+- [x] **Service Type Migration (Re-apply)**: Migration `add_service_type_to_tableorderfnb` telah di-apply kembali.
+- [x] **Fix Sinkronisasi Status Meja**: Standardisasi timezone Jakarta & perbaikan `DocumentStatus` (O).
 
 ## 3. Langkah Berikutnya (WAJIB DIKERJAKAN)
 
@@ -52,10 +61,11 @@ mysql -u [user] -p [db_name] < fix_live_display_menu.sql
 - Login ke live dan verifikasi menu Display muncul di sidebar
 
 ### PRIORITAS 3: Deployment & Monitoring Live
-- [ ] Push perubahan terbaru ke GitHub (Termasuk fix `TableOrderController` & `FakturPenjualanController`).
-- [ ] Jalankan `php artisan migrate --force` di server live.
+- [ ] Push perubahan terbaru ke GitHub (Termasuk fix `TitikLampuController`, `BookingOnlineController`, `TableOrderController`, `FakturPenjualanController` & `InfoKitchen.blade.php`).
+- [ ] Jalankan `php artisan migrate --force` di server live untuk menambah kolom `OrderSource`.
 - [ ] Monitor log di live: `tail -f storage/logs/laravel.log`.
-- [ ] Verifikasi status meja di live apakah sudah berubah menjadi MERAH (Aktif) secara real-time setelah input transaksi.
+- [ ] Verifikasi pesanan QR Scan & Web Booking muncul di KDS dengan badge sumber yang benar.
+- [ ] Verifikasi status meja di live apakah sudah berubah menjadi MERAH (Aktif) secara real-time setelah input transaksi QR/Web.
 
 ---
 **File Penting**:

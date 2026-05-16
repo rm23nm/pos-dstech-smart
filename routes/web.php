@@ -1103,6 +1103,7 @@ Route::get('/booking/get-meja-by-transaksi/{noTransaksi}', [BookingOnlineControl
 Route::post('/booking/insert-tableorderheader', [BookingOnlineController::class, 'insertTableOrder'])->name('booking-insertTableorderheader');
 Route::post('/get-BookingsList', [BookingOnlineController::class, 'getBookingsList'])->name('booking-getBookingsList')->middleware(['auth', 'check.session']);
 Route::post('/getjadwal', [BookingOnlineController::class, 'getjadwalMeja'])->name('booking-getjadwal')->middleware(['auth', 'check.session']);
+Route::post('/get-FnBItems', [BookingOnlineController::class, 'getFnBItems'])->name('booking-getFnBItems');
 
 /*
 |--------------------------------------------------------------------------

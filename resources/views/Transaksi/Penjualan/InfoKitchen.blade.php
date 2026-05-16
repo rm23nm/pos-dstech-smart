@@ -366,6 +366,7 @@
                     created_at: item.created_at,
                     OrderStatus: item.OrderStatus || 0,
                     ServiceType: item.ServiceType || 'DINE_IN',
+                    OrderSource: item.OrderSource || 'POS',
                     details: []
                 };
             }
@@ -383,6 +384,13 @@
             let serviceBadge = group.ServiceType === 'TAKE_AWAY' 
                 ? '<span class="badge bg-danger" style="font-size:0.7rem;"><i class="bi bi-bag-check"></i> BAWA PULANG</span>'
                 : '<span class="badge bg-primary" style="font-size:0.7rem;"><i class="bi bi-house-door"></i> MAKAN DI TEMPAT</span>';
+
+            let sourceBadge = '';
+            if (group.OrderSource === 'QR-SCAN') {
+                sourceBadge = '<span class="badge bg-info text-dark" style="font-size:0.7rem;"><i class="bi bi-qr-code-scan"></i> QR-SCAN</span>';
+            } else if (group.OrderSource === 'WEB') {
+                sourceBadge = '<span class="badge bg-warning text-dark" style="font-size:0.7rem;"><i class="bi bi-globe"></i> WEB</span>';
+            }
 
             // Prep time banner logic based on JamMulai
             let prepBanner = '';
@@ -425,6 +433,7 @@
                         </div>
                         <div class="mb-2 d-flex gap-2 flex-wrap">
                             ${serviceBadge}
+                            ${sourceBadge}
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="item-detail">${group.NoTransaksi}</div>

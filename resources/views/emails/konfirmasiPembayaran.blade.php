@@ -50,6 +50,19 @@
                     <div class="clear"></div>
                 </div>
             </div>
+            
+            @if(isset($fnbItems) && count($fnbItems) > 0)
+            <div class="receipt-card" style="border-left-color: #198754;">
+                <h3 style="color: #198754;">Pesanan Makanan & Minuman</h3>
+                @foreach($fnbItems as $item)
+                <div class="info-row">
+                    <span class="info-label">{{ $item->NamaItem }} (x{{ number_format($item->Qty) }})</span>
+                    <span class="info-value">Rp {{ number_format($item->LineTotal) }}</span>
+                    <div class="clear"></div>
+                </div>
+                @endforeach
+            </div>
+            @endif
 
             <div class="instructions">
                 <h4>📌 Tata Cara Kedatangan:</h4>

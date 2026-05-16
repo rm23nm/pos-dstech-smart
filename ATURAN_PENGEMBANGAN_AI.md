@@ -28,16 +28,19 @@ Dokumen ini berisi aturan fundamental yang **HARUS** dipatuhi oleh setiap Agen A
 *   **Prosedur Backup:** Sebelum mengedit file, buat salinan cadangan di folder `_backup_perbaikan/`. Jika setelah edit sistem berjalan normal selama beberapa waktu, file backup baru boleh dihapus.
 *   **Lokal Sebelum Live:** Perbaikan **WAJIB** dilakukan dan diuji di lingkungan lokal (`http://127.0.0.1:8000`) sebelum diunggah ke server Live.
 
-## 4. Dokumentasi Progres (Source of Truth)
-*   **Laporan Progres:** Gunakan file `LAPORAN_PROGRES.md` sebagai catatan utama.
-*   **Urutan Kerja:**
-    1.  Cek `LAPORAN_PROGRES.md` untuk melihat apa yang sudah dilakukan agen sebelumnya.
-    2.  Tuliskan rencana langkah-langkah kerja (step-by-step) sebelum memulai.
-    3.  Update status menjadi "SELESAI" setelah berhasil.
-*   **Dilarang Menghapus:** Jangan pernah menghapus riwayat perbaikan yang sudah dilakukan sebelumnya. Hanya tambahkan list baru di bawahnya.
+## 4. Dokumentasi Progres & Pelaporan (WAJIB & KETAT)
+*   **Laporan Progres sebagai Kompas:** File `LAPORAN_PROGRES.md` adalah satu-satunya sumber kebenaran untuk status pekerjaan.
+*   **Prosedur Wajib Sebelum Bekerja:**
+    1.  **Baca:** Cek `LAPORAN_PROGRES.md` untuk memahami progres terakhir.
+    2.  **Catat:** Tuliskan daftar rincian pekerjaan (step-by-step) yang AKAN dilakukan ke dalam laporan sebelum menyentuh kode satu baris pun.
+*   **Prosedur Selama & Setelah Bekerja:**
+    1.  **Update Segera:** Segera setelah satu poin pekerjaan selesai, beri tanda centang atau update statusnya di laporan.
+    2.  **Jangan Lewatkan:** Dilarang keras melakukan pekerjaan tanpa mencatatnya terlebih dahulu di laporan, meskipun pekerjaan tersebut kecil.
+*   **Dilarang Menghapus:** Jangan pernah menghapus riwayat perbaikan yang sudah dilakukan sebelumnya. Riwayat harus tetap ada sebagai referensi permanen.
+*   **Antrean Pesan:** Jika ada permintaan baru saat pekerjaan lama belum selesai, catat sebagai antrean pekerjaan ke depan di laporan, jangan langsung dikerjakan sebelum pekerjaan saat ini tuntas.
 
 ## 5. Konfigurasi Model AI
-*   **Default Version:** Tetap gunakan konfigurasi default (Versi 2.5 atau yang sudah ditentukan User). Jangan mengganti versi model utama kecuali diminta untuk pengujian spesifik.
+*   **Default Version:** Tetap gunakan konfigurasi default (Versi 2.5 atau yang sudah ditentukan User). Sediakan opsi dari versi 1.5 sampai 3.5, namun jangan ganti default utama tanpa persetujuan.
 
 ---
 

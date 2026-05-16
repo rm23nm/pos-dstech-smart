@@ -14,12 +14,14 @@ class KonfirmasiPembayaranMail extends Mailable
     public $booking;
     public $emailPelanggan;
     public $company;
+    public $fnbItems;
 
-    public function __construct($booking, $emailPelanggan, $company = null)
+    public function __construct($booking, $emailPelanggan, $company = null, $fnbItems = [])
     {
         $this->booking = $booking;
         $this->emailPelanggan = $emailPelanggan;
         $this->company = $company;
+        $this->fnbItems = $fnbItems;
     }
 
     public function build()
@@ -30,6 +32,7 @@ class KonfirmasiPembayaranMail extends Mailable
                         'booking' => $this->booking,
                         'emailPelanggan' => $this->emailPelanggan,
                         'company' => $this->company,
+                        'fnbItems' => $this->fnbItems,
                     ]);
     }
 }

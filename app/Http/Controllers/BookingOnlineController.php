@@ -40,6 +40,12 @@ class BookingOnlineController extends Controller
         $paketTransaksi = Paket::where('RecordOwnerID','=',$idE)
                             ->where(DB::RAW("COALESCE(BisaDipesan, 'N')"), 'Y')->get();
         $user= User::where('RecordOwnerID','=',$idE)->first();
+
+        // Fetch FnB Categories and initial products for online booking
+        $fnbCategories = DB::table('jenisitem')
+                            ->where('RecordOwnerID', $idE)
+                            ->get();
+
         $titikLampu = TitikLampu::selectRaw("titiklampu.*, tkelompoklampu.NamaKelompok")
                     ->leftjoin('tkelompoklampu', function ($value)  {
                         $value->on('titiklampu.KelompokLampu','=','tkelompoklampu.KodeKelompok')
@@ -110,17 +116,36 @@ class BookingOnlineController extends Controller
         switch ($company->DefaultLandingPages) {
             case 'bo1':
                 $Tahun = Carbon::now()->year;
-                return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu','gallery','paketTransaksi','user', 'midtransclientkey', 'today', 'groupedLampu', 'userdata', 'Tahun'));
+                return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu','gallery','paketTransaksi','user', 'midtransclientkey', 'today', 'groupedLampu', 'userdata', 'Tahun', 'fnbCategories'));
                 break;
             case 'bo2':
                 $hargaMinimal = $paketTransaksi->min('HargaNormal');
                 $Tahun = Carbon::now()->year;
-                return view("Transaksi.Penjualan.PoS.BookingOnline_2", compact('company', 'titikLampu', 'gallery', 'paketTransaksi', 'user', 'midtransclientkey', 'today', 'groupedLampu', 'videoDisplay', 'hargaMinimal', 'galleryImages', 'userdata', 'Tahun'));
+                return view("Transaksi.Penjualan.PoS.BookingOnline_2", compact('company', 'titikLampu', 'gallery', 'paketTransaksi', 'user', 'midtransclientkey', 'today', 'groupedLampu', 'videoDisplay', 'hargaMinimal', 'galleryImages', 'userdata', 'Tahun', 'fnbCategories'));
                 break;
             default:
                 return redirect()->action([BookingOnlineController::class, 'index'], ['id' => $id]);
                 break;
         }
+    }
+
+    public function getFnBItems(Request $request)
+    {
+        $RecordOwnerID = $request->input('RecordOwnerID');
+        $KodeKelompok = $request->input('KodeKelompok');
+
+        $query = DB::table('itemmaster')
+            ->where('RecordOwnerID', $RecordOwnerID)
+            ->where('Active', 'Y')
+            ->whereIn('TypeItem', [1, 2]); // Food & Drink
+
+        if ($KodeKelompok && $KodeKelompok != 'all') {
+            $query->where('KodeJenisItem', $KodeKelompok);
+        }
+
+        $items = $query->get();
+
+        return response()->json($items);
     }
 
     public function getjadwalMeja(Request $request){
@@ -440,15 +465,29 @@ function SimpanPembayaranJson(Request $request) {
             }
         }
 
-         // Update kuota voucher jika ada
-         if (isset($jsonData['VoucherCode'])) {
-           
-            $update = DB::table('discountvoucher')
-            ->where('VoucherCode', '=', $request->input('VoucherCode'))
-            ->update(['DiscountQuota' => 0]);
-        
-            if (!$update) {
-                throw new \Exception('Gagal menggunakan voucher Diskon.');
+        // SAVE FnB ITEMS
+        if (isset($jsonData['fnbCart']) && count($jsonData['fnbCart']) > 0) {
+            // Check if table exists, create if not
+            DB::statement("CREATE TABLE IF NOT EXISTS bookingtablefnb (
+                NoTransaksi VARCHAR(50),
+                ItemMasterID VARCHAR(50),
+                Qty DECIMAL(18,2),
+                Harga DECIMAL(18,2),
+                Diskon DECIMAL(18,2),
+                LineTotal DECIMAL(18,2),
+                RecordOwnerID VARCHAR(50)
+            )");
+
+            foreach ($jsonData['fnbCart'] as $fnbItem) {
+                DB::table('bookingtablefnb')->insert([
+                    'NoTransaksi' => $NoTransaksi,
+                    'ItemMasterID' => $fnbItem['KodeItem'],
+                    'Qty' => $fnbItem['qty'],
+                    'Harga' => $fnbItem['harga'],
+                    'Diskon' => 0,
+                    'LineTotal' => $fnbItem['harga'] * $fnbItem['qty'],
+                    'RecordOwnerID' => $roid
+                ]);
             }
         }
 
@@ -485,7 +524,14 @@ function SimpanPembayaranJson(Request $request) {
 
             if ($emailPelanggan) {
                 $oCompany = Company::where('KodePartner','=',$jsonData['kodePartner'])->first();
-                Mail::to($emailPelanggan->Email)->send(new KonfirmasiPembayaranMail($booking, $emailPelanggan, $oCompany));
+                $fnbItems = DB::table('bookingtablefnb')
+                    ->join('itemmaster', 'bookingtablefnb.ItemMasterID', '=', 'itemmaster.KodeItem')
+                    ->where('bookingtablefnb.NoTransaksi', $NoTransaksi)
+                    ->where('bookingtablefnb.RecordOwnerID', $jsonData['kodePartner'])
+                    ->select('bookingtablefnb.*', 'itemmaster.NamaItem')
+                    ->get();
+
+                Mail::to($emailPelanggan->Email)->send(new KonfirmasiPembayaranMail($booking, $emailPelanggan, $oCompany, $fnbItems));
             }
         } catch (\Throwable $th) {
             $data['message'] = $th->getMessage();
@@ -788,6 +834,8 @@ public function insertTableOrder(Request $request)
         // }
 
         $model->RecordOwnerID = Auth::user()->RecordOwnerID;
+        $model->DocumentStatus = 'O'; // Standardize for active table
+        $model->kitchen_order_status = 0; // Ensure appears in KDS
 
         if (!$model->save()) {
             throw new \Exception('Gagal menyimpan data ke tableorderheader.');
@@ -797,6 +845,29 @@ public function insertTableOrder(Request $request)
         $update = DB::table('bookingtableonline')
             ->where('NoTransaksi', '=', $request->input('NoTransaksi'))
             ->update(['StatusTransaksi' => 1]);
+
+        // MOVE FnB ITEMS TO tableorderfnb
+        $fnbBookings = DB::table('bookingtablefnb')
+            ->where('NoTransaksi', $request->input('NoTransaksi'))
+            ->get();
+
+        foreach ($fnbBookings as $fb) {
+            DB::table('tableorderfnb')->insert([
+                'NoTransaksi' => $request->input('NoTransaksi'),
+                'KodeItem' => $fb->ItemMasterID,
+                'Qty' => $fb->Qty,
+                'Harga' => $fb->Harga,
+                'Diskon' => $fb->Diskon,
+                'LineTotal' => $fb->LineTotal,
+                'RecordOwnerID' => $fb->RecordOwnerID,
+                'isCompleted' => 0,
+                'LineStatus' => 'O',
+                'ServiceType' => 'DINE_IN',
+                'OrderSource' => 'WEB',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
 
         if (!$update) {
             throw new \Exception('Gagal memperbarui bookingtableonline.');

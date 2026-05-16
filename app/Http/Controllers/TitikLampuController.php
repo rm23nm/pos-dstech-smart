@@ -689,6 +689,7 @@ class TitikLampuController extends Controller
                     $model->NetTotal = 0;
 
                     $model->KodeSales = "";
+                    $model->kitchen_order_status = 0; // Ensure it appears in KDS
                     $model->save();
 
                     // Update Table Status to 1 (Active)
@@ -737,12 +738,25 @@ class TitikLampuController extends Controller
                 $modelDetail->Harga = $item['price'];
                 $modelDetail->Tax = 0;
                 $modelDetail->Discount = 0;
-                $modelDetail->BiayaLayanan = $itemServiceFee; // Link the service fee here
+                $modelDetail->BiayaLayanan = $itemServiceFee; 
                 $modelDetail->LineTotal = $itemSubtotal;
                 $modelDetail->RecordOwnerID = $roid;
-                $modelDetail->LineStatus = 'O'; // Added LineStatus = 'O'
+                $modelDetail->LineStatus = 'O'; 
+                $modelDetail->isCompleted = 0; // Ensure it's active for KDS
+                $modelDetail->ServiceType = 'DINE_IN'; // Default to DINE_IN for QR Scan
+                $modelDetail->OrderSource = 'QR-SCAN'; // Identify as QR Scan order
                 $modelDetail->save();
                 Log::debug('EMenu storeOrder: Saved item', ['id' => $id, 'qty' => $item['qty'], 'price' => $item['price']]);
+            }
+
+            // Update Header Totals & Status
+            $header = \App\Models\TableOrderHeader::where('NoTransaksi', $NoTransaksi)
+                ->where('RecordOwnerID', $roid)
+                ->first();
+            if ($header) {
+                $header->TotalMakanan = ($header->TotalMakanan ?? 0) + $subtotalCart;
+                $header->kitchen_order_status = 0; // Reset status to "Masuk" for new items
+                $header->save();
             }
 
             DB::commit();

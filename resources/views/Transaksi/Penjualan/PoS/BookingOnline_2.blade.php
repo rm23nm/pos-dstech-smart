@@ -189,6 +189,94 @@
     body.dark-mode footer a {
       color: #ddd;
     }
+
+    /* Compact Meja Grid */
+    .col-10-custom {
+      flex: 0 0 10%;
+      max-width: 10%;
+      padding: 5px;
+    }
+    .card-meja-compact {
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(var(--theme-color-rgb), 0.2);
+      border-radius: 8px;
+      padding: 10px 5px;
+      text-align: center;
+      background: rgba(var(--theme-color-rgb), 0.03);
+    }
+    .card-meja-compact:hover {
+      background: var(--theme-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+    .card-meja-compact.active {
+      background: var(--theme-color);
+      color: white;
+      border-color: var(--theme-color);
+      box-shadow: 0 4px 10px rgba(var(--theme-color-rgb), 0.3);
+    }
+    .card-meja-compact .meja-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: block;
+    }
+    .card-meja-compact .meja-status {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    /* Duration Tabs */
+    .duration-tabs {
+        border-bottom: 2px solid rgba(var(--theme-color-rgb), 0.1);
+        margin-bottom: 20px;
+    }
+    .duration-tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        font-weight: 600;
+        color: #666;
+    }
+    .duration-tab.active {
+        color: var(--theme-color);
+        border-bottom-color: var(--theme-color);
+    }
+    body.dark-mode .duration-tab { color: #aaa; }
+    body.dark-mode .duration-tab.active { color: var(--theme-color); }
+
+    .paket-langganan-card {
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 15px;
+        transition: all 0.2s;
+        cursor: pointer;
+        height: 100%;
+    }
+    .paket-langganan-card:hover {
+        border-color: var(--theme-color);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    body.dark-mode .paket-langganan-card {
+        background: #222;
+        border-color: #333;
+    }
+
+    @media (max-width: 1200px) { .col-10-custom { flex: 0 0 12.5%; max-width: 12.5%; } }
+    @media (max-width: 992px) { .col-10-custom { flex: 0 0 20%; max-width: 20%; } }
+    @media (max-width: 768px) { .col-10-custom { flex: 0 0 25%; max-width: 25%; } }
+    @media (max-width: 576px) { .col-10-custom { flex: 0 0 33.33%; max-width: 33.33%; } }
+
+    #jadwalCollapseContainer {
+      background: rgba(var(--theme-color-rgb), 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+      border: 1px dashed var(--theme-color);
+    }
   </style>
 </head>
 <body>
@@ -297,11 +385,28 @@
       <input type="date" id="manualDate" class="form-control" style="max-width: 300px;">
     </div>
 
-    <div class="mb-4">
+    <div class="mb-4 d-none"> <!-- Hidden as requested, handled automatically -->
       <label for="paketSelect" class="form-label">Pilih Paket Bermain:</label>
       <select id="paketSelect" class="form-select">
         @foreach($paketTransaksi as $paket)
-          <option value="{{ $paket->id }}">{{ $paket->NamaPaket }} - Rp {{ number_format($paket->HargaNormal) }}</option>
+          @php
+            $cat = 'all';
+            $pName = strtolower($paket->NamaPaket);
+            if(str_contains($pName, 'billiar') || str_contains($pName, 'biliar')) $cat = 'billiar';
+            elseif(str_contains($pName, 'basket')) $cat = 'basket';
+            elseif(str_contains($pName, 'futsal')) $cat = 'futsal';
+            elseif(str_contains($pName, 'badminton')) $cat = 'badminton';
+            
+            $jenis = 'jam';
+            if(str_contains($pName, 'hari')) $jenis = 'hari';
+            elseif(str_contains($pName, 'bulan')) $jenis = 'bulan';
+            elseif(str_contains($pName, 'tahun')) $jenis = 'tahun';
+          @endphp
+          <option value="{{ $paket->id }}" 
+                  data-category="{{ $cat }}" 
+                  data-jenis="{{ $jenis }}"
+                  data-name="{{ $paket->NamaPaket }}"
+                  data-price="{{ $paket->HargaNormal }}">{{ $paket->NamaPaket }} - Rp {{ number_format($paket->HargaNormal) }}</option>
         @endforeach
       </select>
     </div>
@@ -319,7 +424,56 @@
       </div>
     </div>
 
-    <div id="mejaContainer" class="row g-4"></div>
+    <div id="mejaContainer" class="row g-2"></div>
+    
+    <!-- Container untuk jadwal yang muncul saat meja diklik -->
+    <div id="jadwalCollapseContainer">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0 text-theme fw-bold" id="selectedMejaName">Pilih Jadwal</h5>
+        <button class="btn btn-sm btn-outline-secondary" onclick="$('#jadwalCollapseContainer').slideUp()">Tutup</button>
+      </div>
+
+      <!-- Duration Selection Tabs -->
+      <div class="d-flex duration-tabs">
+        <div class="duration-tab active" data-type="jam">Sewa Per Jam</div>
+        <div class="duration-tab" data-type="langganan">Paket Langganan</div>
+      </div>
+
+      <!-- Jam Section -->
+      <div id="jamSection">
+        <div id="jadwalSlotContainer" class="row g-2"></div>
+      </div>
+
+      <!-- Langganan Section (Hari, Bulan, Tahun) -->
+      <div id="langgananSection" style="display:none;">
+        <div id="langgananPackageContainer" class="row g-3"></div>
+      </div>
+    </div>
+
+    <!-- Section FnB -->
+    <div class="mt-5 pt-5 border-top">
+      <h3 class="mb-4 text-theme">Pesan Makanan & Minuman (Opsional)</h3>
+      <div class="row">
+        <!-- Sidebar Category FnB -->
+        <div class="col-md-3">
+          <div class="card card-custom p-3">
+            <h6 class="mb-3">Kategori Menu</h6>
+            <div class="list-group list-group-flush" id="fnbCategoryList">
+              <button type="button" class="list-group-item list-group-item-action active fnb-filter-btn" data-category="all">Semua Menu</button>
+              @foreach($fnbCategories as $fnbCat)
+                <button type="button" class="list-group-item list-group-item-action fnb-filter-btn" data-category="{{ $fnbCat->KodeJenis }}">{{ $fnbCat->NamaJenis }}</button>
+              @endforeach
+            </div>
+          </div>
+        </div>
+        <!-- Product List FnB -->
+        <div class="col-md-9">
+          <div id="fnbItemContainer" class="row g-3">
+            <!-- Items will be loaded here via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   
   <!-- Keranjang -->
@@ -422,9 +576,83 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-  mejaData = [];
-  
-    // Category Filter Logic
+  let mejaData = [];
+  let pendingMejaId = null; // Untuk menyimpan meja mana yang harus dibuka setelah re-fetch
+
+  function populateDateList() {
+    const $dateList = $('#dateList');
+    $dateList.empty();
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(today.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayName = date.toLocaleDateString('id-ID', { weekday: 'short' });
+      const dayNum = date.getDate();
+      const monthName = date.toLocaleDateString('id-ID', { month: 'short' });
+      
+      const $btn = $(`
+        <button class="btn btn-outline-secondary date-btn me-2 ${i === 0 ? 'active' : ''}" data-date="${dateStr}">
+          <div class="small">${dayName}</div>
+          <div class="fw-bold">${dayNum}</div>
+          <div class="small">${monthName}</div>
+        </button>
+      `);
+      $dateList.append($btn);
+    }
+  }
+
+  function fetchJadwal(RecordOwnerID, PaketID, TglBooking) {
+    if (!PaketID || !TglBooking) return;
+
+    $.ajax({
+      url: "{{ url('getjadwal') }}",
+      method: 'POST',
+      data: {
+        _token: '{{ csrf_token() }}',
+        RecordOwnerID: RecordOwnerID,
+        PaketID: PaketID,
+        TglBooking: TglBooking
+      },
+      beforeSend: function() {
+        $('#mejaContainer').html('<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div><br><span class="mt-2 d-block">Memuat Jadwal...</span></div>');
+      },
+      success: function(response) {
+        mejaData = response;
+        renderMeja();
+        
+        // Jika ada meja yang tertunda pengaktifannya (setelah ganti paket otomatis)
+        if (pendingMejaId) {
+            const meja = mejaData.find(m => m.id == pendingMejaId);
+            if (meja) {
+                $('.card-meja-compact[data-id="'+pendingMejaId+'"]').addClass('active');
+                showJadwalForMeja(meja);
+            }
+            pendingMejaId = null;
+        }
+      },
+      error: function(xhr) {
+        console.error(xhr.responseText);
+        $('#mejaContainer').html('<div class="col-12 text-center py-5 text-danger">Gagal memuat jadwal. Silakan coba lagi.</div>');
+      }
+    });
+  }
+
+  // Date Selection Logic
+  $(document).on('click', '.date-btn', function() {
+    $('.date-btn').removeClass('active');
+    $(this).addClass('active');
+    const date = $(this).data('date');
+    fetchJadwal("{{ $company->KodePartner }}", $('#paketSelect').val(), date);
+  });
+
+  // Package Change Logic
+  $(document).on('change', '#paketSelect', function() {
+    const date = $('.date-btn.active').data('date');
+    fetchJadwal("{{ $company->KodePartner }}", $(this).val(), date);
+  });
+
+  // Category Filter Logic
     $(document).on('click', '.filter-btn', function() {
         $('.filter-btn').removeClass('active btn-primary').addClass('btn-outline-primary');
         $(this).addClass('active btn-primary').removeClass('btn-outline-primary');
@@ -438,20 +666,17 @@
             $('.portfolio-group').hide();
             $(`.portfolio-group[data-category="${filter}"]`).fadeIn();
             
-            // Auto-select package based on category name
+            // Auto-select package based on category slug
             $("#paketSelect option").each(function() {
-                let paketName = $(this).text().toLowerCase();
-                if (paketName.includes(filterName)) {
+                let paketCat = $(this).data('category');
+                if (paketCat === filter) {
                     $(this).prop('selected', true);
                     return false; // break loop
                 }
             });
+
             // Trigger fetch with new package
-            var _nowLocal = new Date();
-            const year = _nowLocal.getFullYear();
-            const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
-            const day = String(_nowLocal.getDate()).padStart(2, '0');
-            const dateStr = $('.date-btn.active').data('date') || `${year}-${month}-${day}`;
+            const dateStr = $('.date-btn.active').data('date') || new Date().toISOString().split('T')[0];
             fetchJadwal("{{ $company->KodePartner }}", $('#paketSelect').val(), dateStr);
         }
     });
@@ -461,116 +686,194 @@
   let voucherDiscount = 0; // Default diskon voucher
 
   let cart = JSON.parse(localStorage.getItem('booking_cart')) || [];
+  let fnbCart = JSON.parse(localStorage.getItem('fnb_cart')) || [];
   let currentSelectedDate = new Date();
 
-  function fetchJadwal(RecordOwnerID, PaketID, TglBooking) {
-    const apiUrl = "{{ url('api/getjadwal') }}";
+  // Load initial data
+  $(document).ready(function() {
+    populateDateList();
+    fetchFnBItems('all');
+    updateCartUI();
+    
+    // Initial schedule load
+    const initialDate = $('.date-btn.active').data('date');
+    const initialPaket = $('#paketSelect').val();
+    fetchJadwal("{{ $company->KodePartner }}", initialPaket, initialDate);
+
+    // Auto-select first available category if none active
+    if ($('.filter-btn.active').data('filter') === 'all') {
+        // Find first category button that isn't 'all'
+        const firstCat = $('.filter-btn').not('[data-filter="all"]').first();
+        if (firstCat.length) firstCat.trigger('click');
+    }
+  });
+
+  // FnB Filter Logic
+  $(document).on('click', '.fnb-filter-btn', function() {
+    $('.fnb-filter-btn').removeClass('active');
+    $(this).addClass('active');
+    const category = $(this).data('category');
+    fetchFnBItems(category);
+  });
+
+  function fetchFnBItems(category) {
     $.ajax({
-      url: apiUrl,
+      url: "{{ route('booking-getFnBItems') }}",
       method: 'POST',
       data: {
         _token: '{{ csrf_token() }}',
-        RecordOwnerID: RecordOwnerID,
-        PaketID: PaketID,
-        TglBooking: TglBooking
+        RecordOwnerID: "{{ $company->KodePartner }}",
+        KodeKelompok: category
       },
-      beforeSend: function () {
-        $('#mejaContainer').html('<div class="text-center py-5">Loading...</div>');
+      beforeSend: function() {
+        $('#fnbItemContainer').html('<div class="col-12 text-center py-5">Memuat Menu...</div>');
       },
-      success: function (response) {
-        mejaData = response; // asumsi response JSON punya field data
-        console.log(mejaData)
-        renderMeja();
-      },
-      error: function (xhr) {
-        console.error(xhr.responseText);
-        alert('Gagal memuat jadwal meja.');
+      success: function(response) {
+        renderFnBItems(response);
       }
     });
   }
 
-  function generateDateList(centerDate) {
-    const $dateList = $('#dateList').empty();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-
-    for (let i = -3; i <= 3; i++) {
-      const d = new Date(centerDate);
-      d.setDate(d.getDate() + i);
-      d.setHours(0, 0, 0, 0);
-
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-      const day = String(d.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-
-      const label = d.toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short' });
-
-      const $btn = $('<button>')
-        .addClass('btn btn-outline-dark btn-sm rounded-pill date-btn')
-        .text(label)
-        .attr('data-date', dateStr)
-        .on('click', function () {
-          if ($(this).hasClass('disabled')) {
-            return;
-          }
-          $('.date-btn').removeClass('active');
-          $(this).addClass('active');
-
-          currentSelectedDate = d;
-          fetchJadwal("{{ $company->KodePartner }}",$('#paketSelect').val(), dateStr);
-        });
-
-      if (d < tomorrow) {
-        $btn.addClass('disabled').css('pointer-events', 'none').css('opacity', '0.5');
-      }
-
-      if (d.getTime() === centerDate.getTime()) {
-        $btn.addClass('active');
-      }
-
-      $dateList.append($btn);
+  function renderFnBItems(items) {
+    const $container = $('#fnbItemContainer').empty();
+    if(items.length === 0) {
+      $container.append('<div class="col-12 text-center py-5">Tidak ada menu tersedia.</div>');
+      return;
     }
+
+    items.forEach(item => {
+      const imageUrl = item.Gambar ? `{{ asset('storage/items') }}/${item.Gambar}` : 'https://placehold.co/300x200?text=Menu';
+      const $col = $(`
+        <div class="col-md-4 col-6">
+          <div class="card h-100 card-custom overflow-hidden">
+            <img src="${imageUrl}" class="card-img-top" style="height: 150px; object-fit: cover;" onerror="this.src='https://placehold.co/300x200?text=Food'">
+            <div class="card-body p-3 d-flex flex-column">
+              <h6 class="card-title mb-1">${item.NamaItem}</h6>
+              <p class="text-success fw-bold mb-3 mt-auto">Rp ${item.HargaJual.toLocaleString()}</p>
+              <button class="btn btn-sm btn-primary add-fnb-btn" data-id="${item.KodeItem}">
+                <i class="bi bi-plus-lg"></i> Tambah
+              </button>
+            </div>
+          </div>
+        </div>
+      `);
+
+      $col.find('.add-fnb-btn').on('click', function() {
+        addFnBToCart(item);
+      });
+
+      $container.append($col);
+    });
+  }
+
+  function addFnBToCart(item) {
+    const existingIndex = fnbCart.findIndex(i => i.KodeItem === item.KodeItem);
+    if (existingIndex > -1) {
+      fnbCart[existingIndex].qty += 1;
+    } else {
+      fnbCart.push({
+        KodeItem: item.KodeItem,
+        NamaItem: item.NamaItem,
+        harga: item.HargaJual,
+        qty: 1
+      });
+    }
+    updateCartUI();
+    
+    // Quick notification
+    Swal.fire({
+      toast: true,
+      position: 'bottom-end',
+      icon: 'success',
+      title: `${item.NamaItem} ditambahkan`,
+      showConfirmButton: false,
+      timer: 1500
+    });
   }
 
   function updateCartUI() {
     const $cartList = $('#cartListModal').empty();
     const $cartBadge = $('#cartBadge');
-    const $totalDisplay = $('#cartTotalDisplay');
-    let subtotal = 0;
+    let subtotalMeja = 0;
+    let subtotalFnB = 0;
 
+    // 1. Render Meja
     cart.forEach((item, index) => {
-      const $li = $(` <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div><strong>${item.meja}</strong><br><small>${item.jam}</small></div>
+      const $li = $(`
+        <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+          <div><span class="badge bg-danger me-2">Booking</span> <strong>${item.meja}</strong><br><small>${item.jam}</small></div>
           <div class="text-end">
             <div>Rp${item.harga.toLocaleString()}</div>
-            <button class="btn btn-sm btn-outline-danger mt-1">
+            <button class="btn btn-sm btn-outline-danger mt-1 btn-remove-meja">
               <i class="bi bi-trash"></i>
             </button>
           </div>
         </li>
       `);
-      $li.find('button').on('click', () => removeCartItem(index));
+      $li.find('.btn-remove-meja').on('click', () => removeCartItem(index));
       $cartList.append($li);
-      subtotal += item.harga;
+      subtotalMeja += item.harga;
     });
+
+    // 2. Render FnB
+    if(fnbCart.length > 0) {
+      $cartList.append('<li class="list-group-item bg-secondary text-white py-1 small">Menu Pesanan</li>');
+      fnbCart.forEach((item, index) => {
+        const itemTotal = item.harga * item.qty;
+        const $li = $(`
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong>${item.NamaItem}</strong><br>
+              <div class="input-group input-group-sm mt-1" style="width: 100px;">
+                <button class="btn btn-outline-secondary btn-minus" type="button">-</button>
+                <input type="text" class="form-control text-center py-0" value="${item.qty}" readonly>
+                <button class="btn btn-outline-secondary btn-plus" type="button">+</button>
+              </div>
+            </div>
+            <div class="text-end">
+              <div>Rp${itemTotal.toLocaleString()}</div>
+              <button class="btn btn-sm text-danger mt-1 btn-remove-fnb"><i class="bi bi-x-circle"></i></button>
+            </div>
+          </li>
+        `);
+        
+        $li.find('.btn-minus').on('click', () => updateFnBQty(index, -1));
+        $li.find('.btn-plus').on('click', () => updateFnBQty(index, 1));
+        $li.find('.btn-remove-fnb').on('click', () => removeFnBItem(index));
+        
+        $cartList.append($li);
+        subtotalFnB += itemTotal;
+      });
+    }
+
+    const subtotal = subtotalMeja + subtotalFnB;
 
     // Hitung pajak & net total
     const ppn = Math.round((subtotal - voucherDiscount) * (ppnPercent / 100));
-    const hiburan = Math.round((subtotal - voucherDiscount) * (hiburanPercent / 100));
+    const hiburan = Math.round((subtotalMeja - voucherDiscount) * (hiburanPercent / 100)); // Pajak hiburan hanya dari meja
     const netTotal = subtotal - voucherDiscount + ppn + hiburan;
 
     // Tampilkan
     $('#subtotalDisplay').text(`Rp${subtotal.toLocaleString()}`);
-    $('#voucherDiscountDisplay').text(`Rp${voucherDiscount.toLocaleString()}`);
+    $('#voucherDisplay').text(`- Rp${voucherDiscount.toLocaleString()}`);
     $('#ppnDisplay').text(`Rp${ppn.toLocaleString()}`);
     $('#hiburanDisplay').text(`Rp${hiburan.toLocaleString()}`);
     $('#netTotalDisplay').text(`Rp${netTotal.toLocaleString()}`);
-    $totalDisplay.text(`Rp${netTotal.toLocaleString()}`);
 
-    $cartBadge.text(cart.length);
+    $cartBadge.text(cart.length + fnbCart.reduce((a, b) => a + b.qty, 0));
     localStorage.setItem('booking_cart', JSON.stringify(cart));
+    localStorage.setItem('fnb_cart', JSON.stringify(fnbCart));
+  }
+
+  function updateFnBQty(index, delta) {
+    fnbCart[index].qty += delta;
+    if (fnbCart[index].qty < 1) fnbCart[index].qty = 1;
+    updateCartUI();
+  }
+
+  function removeFnBItem(index) {
+    fnbCart.splice(index, 1);
+    updateCartUI();
   }
 
   function removeCartItem(index) {
@@ -584,115 +887,177 @@
 
   function renderMeja() {
     const $container = $('#mejaContainer').empty();
+    $('#jadwalCollapseContainer').hide(); // Sembunyikan jadwal saat render ulang
 
     // Group meja by KelompokMeja
     const groupedMeja = mejaData.reduce((acc, meja) => {
-      const group = meja.KelompokMeja || 'Lainnya'; // Default group if not specified
-      if (!acc[group]) {
-        acc[group] = [];
-      }
+      const group = meja.KelompokMeja || 'Lainnya';
+      if (!acc[group]) acc[group] = [];
       acc[group].push(meja);
       return acc;
     }, {});
 
-    // Render each group
     for (const groupName in groupedMeja) {
       const categorySlug = groupedMeja[groupName][0].KelompokMejaSlug || 'lainnya';
-      const $groupWrapper = $('<div>').addClass('portfolio-group row g-4').attr('data-category', categorySlug);
+      const $groupWrapper = $('<div>').addClass('portfolio-group row g-2 mb-4').attr('data-category', categorySlug);
       
-      // Periksa filter aktif agar tidak semua kategori muncul kembali setelah render
       const currentFilter = $('.filter-btn.active').data('filter');
-      if (currentFilter !== 'all' && currentFilter !== categorySlug) {
-          $groupWrapper.hide();
-      }
+      if (currentFilter !== 'all' && currentFilter !== categorySlug) $groupWrapper.hide();
 
-      // Add group title
-      $groupWrapper.append(`<div class="col-12"><h4 class="text-primary mt-4">${groupName}</h4><hr></div>`);
+      $groupWrapper.append(`<div class="col-12"><h6 class="text-muted fw-bold text-uppercase small mb-2">${groupName}</h6></div>`);
 
-      const mejasInGroup = groupedMeja[groupName];
-      mejasInGroup.forEach((meja, idx) => {
-        const uniqueId = `${groupName.replace(/\s+/g, '-')}-${idx}`; // Create a unique ID for collapse
-        const $col = $('<div>').addClass('col-lg-6');
-        const $card = $('<div>').addClass('card card-custom');
-        const $body = $('<div>').addClass('card-body');
-        $body.append(`<h5>${meja.nama}</h5>`);
-        $body.append(`<p class="text-muted">${meja.deskripsi}</p>`);
-
-        const $fiturList = $('<ul class="list-unstyled">');
-        if(meja.fitur) {
-            meja.fitur.forEach(f => $fiturList.append(`<li><i class="bi bi-dot"></i> ${f}</li>`));
-        }
-        $body.append($fiturList);
-        
+      groupedMeja[groupName].forEach((meja) => {
         const availableCount = meja.jadwal.filter(j => j.status === 'available').length;
+        const $col = $('<div>').addClass('col-10-custom');
+        const $card = $(`
+          <div class="card-meja-compact" data-id="${meja.id}">
+            <span class="meja-name">${meja.nama}</span>
+            <span class="meja-status">${availableCount} Jam</span>
+          </div>
+        `);
 
-        const $toggleBtn = $('<button>')
-          .addClass('btn btn-danger btn-sm mt-2')
-          .attr('data-bs-toggle', 'collapse')
-          .attr('data-bs-target', `#jadwal${uniqueId}`)
-          .html(`${availableCount} Jadwal Tersedia <i class="bi bi-chevron-down"></i>`);
-        $body.append($toggleBtn);
+        $card.on('click', function() {
+          const mejaCategory = categorySlug; // Slug dari kelompok meja
+          const currentPaketCat = $('#paketSelect option:selected').data('category');
 
-        const $jadwalDiv = $(`<div class="collapse mt-3" id="jadwal${uniqueId}">`);
-        const $row = $('<div class="row g-2">');
+          // Jika paket yang terpilih tidak sesuai dengan kategori meja
+          if (currentPaketCat !== 'all' && currentPaketCat !== mejaCategory) {
+              // Cari paket pertama yang sesuai dengan kategori meja
+              let targetPaket = null;
+              $('#paketSelect option').each(function() {
+                  if ($(this).data('category') === mejaCategory) {
+                      targetPaket = $(this).val();
+                      return false;
+                  }
+              });
 
-        meja.jadwal.forEach(j => {
-          const $slot = $('<div class="col-md-4">');
-          const $slotCard = $(`
-            <div class="border p-2 text-center slot-card">
-              <small>60 Menit</small><br><strong>${j.jam}</strong><br>Rp${j.harga.toLocaleString()}
-            </div>
-          `);
-
-          if (j.status === 'booked') {
-            $slotCard.addClass('bg-light text-muted').append('<br><em>Booked</em>');
-          } else {
-            $slotCard.on('click', function () {
-              const selectedDate = $('.date-btn.active').data('date');
-              const newItem = { id:meja.id,meja: meja.nama, jam: j.jam, harga: j.harga, date: selectedDate, jammulai:j.jammulai, jamselesai:j.jamselesai };
-              
-              if (cart.length > 0 && !isJamValid(j.jam)) {
-                alert('Anda hanya dapat memilih jadwal yang berurutan di hari yang sama.');
-                return;
+              if (targetPaket) {
+                  pendingMejaId = meja.id;
+                  $('#paketSelect').val(targetPaket).trigger('change');
+                  return; // Berhenti dulu, fetchJadwal akan dipicu oleh trigger('change')
               }
-
-              $(this).toggleClass('selected');
-              // Simple add/remove from cart
-              const existingItemIndex = cart.findIndex(item => item.id === newItem.id && item.jam === newItem.jam);
-              if (existingItemIndex > -1) {
-                cart.splice(existingItemIndex, 1); // Remove if already selected
-              } else {
-                cart.push(newItem); // Add if not selected
-              }
-              updateCartUI();
-            });
           }
 
-          $slot.append($slotCard);
-          $row.append($slot);
+          $('.card-meja-compact').removeClass('active');
+          $(this).addClass('active');
+          showJadwalForMeja(meja);
         });
 
-        $jadwalDiv.append($row);
-        $body.append($jadwalDiv);
-        $card.append($body);
-        $col.append($card); // <-- FIXED: Card must be appended to column
+        $col.append($card);
         $groupWrapper.append($col);
       });
       $container.append($groupWrapper);
     }
   }
 
-  function parseHour(jamStr) {
-    const [start] = jamStr.split(' - ');
-    const [hour, minute] = start.split(':').map(Number);
-    return hour + minute / 60;
+  function showJadwalForMeja(meja) {
+    $('#selectedMejaName').text(`Layanan: ${meja.nama}`);
+    const $slotContainer = $('#jadwalSlotContainer').empty();
+    const $langgananContainer = $('#langgananPackageContainer').empty();
+    
+    // 1. Render Hourly Slots
+    meja.jadwal.forEach(j => {
+      const $slot = $('<div class="col-lg-2 col-md-3 col-6">');
+      const $slotCard = $(`
+        <div class="border p-2 text-center slot-card">
+          <small>60 Menit</small><br><strong>${j.jam}</strong><br>Rp${j.harga.toLocaleString()}
+        </div>
+      `);
+
+      if (j.status === 'booked') {
+        $slotCard.addClass('bg-light text-muted').append('<br><em>Booked</em>');
+      } else {
+        const isInCart = cart.find(item => item.id === meja.id && item.jam === j.jam);
+        if (isInCart) $slotCard.addClass('selected');
+
+        $slotCard.on('click', function () {
+          const selectedDate = $('.date-btn.active').data('date');
+          const newItem = { id:meja.id, meja: meja.nama, jam: j.jam, harga: j.harga, date: selectedDate, jammulai:j.jammulai, jamselesai:j.jamselesai, type:'jam' };
+          
+          if (cart.length > 0 && !isJamValid(j.jam, selectedDate)) {
+            Swal.fire('Info', 'Anda hanya dapat memilih jadwal yang berurutan di hari yang sama.', 'info');
+            return;
+          }
+
+          $(this).toggleClass('selected');
+          const idx = cart.findIndex(item => item.id === newItem.id && item.jam === newItem.jam);
+          if (idx > -1) cart.splice(idx, 1);
+          else cart.push(newItem);
+          
+          updateCartUI();
+        });
+      }
+      $slot.append($slotCard);
+      $slotContainer.append($slot);
+    });
+
+    // 2. Render Other Packages (Harian, Bulanan, Tahunan)
+    const currentCategory = $('.filter-btn.active').data('filter');
+    $('#paketSelect option').each(function() {
+        const pCat = $(this).data('category');
+        const pJenis = $(this).data('jenis');
+        const pName = $(this).data('name');
+        const pPrice = parseFloat($(this).data('price'));
+        const pId = $(this).val();
+
+        if (pCat === currentCategory && pJenis !== 'jam') {
+            const $col = $('<div class="col-md-4">');
+            const $card = $(`
+                <div class="paket-langganan-card">
+                    <h6 class="fw-bold mb-1">${pName}</h6>
+                    <div class="text-success fw-bold mb-2">Rp ${pPrice.toLocaleString()}</div>
+                    <button class="btn btn-sm btn-primary w-100">Pilih Paket</button>
+                </div>
+            `);
+
+            $card.on('click', function() {
+                const selectedDate = $('.date-btn.active').data('date');
+                // Harian/Bulanan/Tahunan biasanya satu item saja
+                const newItem = { 
+                    id: meja.id + '-' + pId, 
+                    meja: meja.nama, 
+                    jam: pName, 
+                    harga: pPrice, 
+                    date: selectedDate, 
+                    type: pJenis 
+                };
+                
+                // Clear cart if mixed types or dates (Optional logic, usually best to clear if switching to long term)
+                cart.push(newItem);
+                updateCartUI();
+                Swal.fire('Berhasil', `${pName} ditambahkan ke keranjang`, 'success');
+            });
+
+            $col.append($card);
+            $langgananContainer.append($col);
+        }
+    });
+
+    // 3. Setup Duration Tabs
+    $('.duration-tab').off('click').on('click', function() {
+        $('.duration-tab').removeClass('active');
+        $(this).addClass('active');
+        const type = $(this).data('type');
+        if (type === 'jam') {
+            $('#jamSection').show();
+            $('#langgananSection').hide();
+        } else {
+            $('#jamSection').hide();
+            $('#langgananSection').show();
+        }
+    });
+
+    // Reset view
+    $('.duration-tab[data-type="jam"]').trigger('click');
+
+    $('#jadwalCollapseContainer').slideDown();
+    $('html, body').animate({
+        scrollTop: $("#jadwalCollapseContainer").offset().top - 100
+    }, 500);
   }
 
-  function isJamValid(newJam) {
-    const selectedDate = $('.date-btn.active').data('date');
+  function isJamValid(newJam, selectedDate) {
     const sameDate = cart.every(item => item.date === selectedDate);
-    console.log(selectedDate);
-    // const sameDate = cart.every(item => item.date === currentSelectedDate.toISOString().split('T')[0]);
     if (!sameDate) return false;
     const times = cart.map(i => parseHour(i.jam)).concat(parseHour(newJam)).sort((a, b) => a - b);
     for (let i = 1; i < times.length; i++) {
@@ -777,7 +1142,8 @@
                             "NoTlp1": formData.noTelp,
                             "VoucherCode" : formData.voucherCode,
                             "kodePartner": "{{ $company->KodePartner }}",
-                            "ExtraRequest" : formData.extraRequest
+                            "ExtraRequest" : formData.extraRequest,
+                            "fnbCart": fnbCart // Send FnB items
                         };
                         
                         fetch("{{route('booking-pay-gateway')}}", {
@@ -884,14 +1250,17 @@
   }
 
   function recalculateTotal() {
-    const subtotal = cart.reduce((total, item) => total + item.harga, 0);
+    const subtotalMeja = cart.reduce((total, item) => total + item.harga, 0);
+    const subtotalFnB = fnbCart.reduce((total, item) => total + (item.harga * item.qty), 0);
+    const subtotal = subtotalMeja + subtotalFnB;
+    
     const voucher = parseInt($('#voucherDisplay').data('value')) || 0;
 
-    const ppnPersen = {{ $company->PPN }};
-    const hiburanPersen = {{ $company->PajakHiburan }};
+    const ppnPersen = {{ $company->PPN ?? 0 }};
+    const hiburanPersen = {{ $company->PajakHiburan ?? 0 }};
 
     const ppn = Math.round((subtotal - voucher) * ppnPersen / 100);
-    const hiburan = Math.round((subtotal - voucher) * hiburanPersen / 100);
+    const hiburan = Math.round((subtotalMeja - voucher) * hiburanPersen / 100); // Pajak hiburan hanya dari meja
     const totalNet = subtotal - voucher + ppn + hiburan;
 
     $('#subtotalDisplay').text(`Rp${subtotal.toLocaleString()}`);
@@ -904,79 +1273,20 @@
     return new Date(`${tanggal}T${jam}:00`);
   }
 
-
-
   $(function () {
-    // Set min date for manualDate input
-    var today = new Date();
-    today.setDate(today.getDate() + 1);
-    var yyyy = today.getFullYear();
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    var dd = String(today.getDate()).padStart(2, '0');
-    var minDate = yyyy + '-' + mm + '-' + dd;
-    $('#manualDate').attr('min', minDate);
-
-    currentSelectedDate = new Date();
-    currentSelectedDate.setDate(currentSelectedDate.getDate() + 1);
-    currentSelectedDate.setHours(0, 0, 0, 0);
-
-
-    // Panggil API pertama kali
-    // fetchJadwal("{{ $company->KodePartner }}",$('#paketSelect').val(), currentSelectedDate.toISOString().split('T')[0]);
-
-    $(document).on('change', '#paketSelect', function() {
-        var _nowLocal = new Date();
-        const year = _nowLocal.getFullYear();
-        const month = String(_nowLocal.getMonth() + 1).padStart(2, '0');
-        const day = String(_nowLocal.getDate()).padStart(2, '0');
-        const dateStr = $('.date-btn.active').data('date') || `${year}-${month}-${day}`;
-        fetchJadwal("{{ $company->KodePartner }}", $(this).val(), dateStr);
-    });
-
-    renderMeja();
-    generateDateList(currentSelectedDate);
-    updateCartUI();
-
-    // Auto-click the active (tomorrow) date button to load schedule
-    $('#dateList .date-btn.active').click();
-
-    const savedColor = localStorage.getItem('theme_color');
-    if (savedColor) applyThemeColor(savedColor);
-
-    const isDark = localStorage.getItem('is_dark_mode') === 'true';
-    setDarkMode(isDark);
-
-    $('#themeToggleBtn').on('click', function () {
-      setDarkMode(!$('body').hasClass('dark-mode'));
-    });
-
-    // Contoh event tanggal berubah
-    $('#manualDate').on('change', function () {
-      const tgl = $(this).val(); // format 'YYYY-MM-DD'
-      const selected = new Date(tgl);
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-
-      if (selected < tomorrow) {
-        $(this).val(tomorrow.toISOString().split('T')[0]);
-        currentSelectedDate = tomorrow;
-      } else {
-        currentSelectedDate = selected;
-      }
-      
-      generateDateList(currentSelectedDate);
-
-      fetchJadwal("{{ $company->KodePartner }}",$('#paketSelect').val(), $(this).val()); // ganti 1 & 1 sesuai PaketID & RecordOwnerID dari data kamu
-    });
-
+    // ... existing setup code ...
+    
     $('#btModalCheckout').click(function () {
       const nama = $('#namaPelanggan').val().trim();
       const telp = $('#telpPelanggan').val().trim();
       const email = $('#emailPelanggan').val().trim();
       const extra = $('#extraRequest').val().trim();
       const voucherCode = $('#voucherCode').val().trim();
-      const totalAsli = cart.reduce((sum, item) => sum + item.harga, 0);
+      
+      const subtotalMeja = cart.reduce((sum, item) => sum + item.harga, 0);
+      const subtotalFnB = fnbCart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
+      const totalAsli = subtotalMeja + subtotalFnB;
+      
       const diskon = parseInt($('#voucherDisplay').data('value')) || 0;
 
       if (!nama || !telp) {
@@ -989,18 +1299,7 @@
         return;
       }
 
-      // const jamMulai = cart
-      //   .map(c => c.jammulai)
-      //   .sort((a, b) => a.localeCompare(b))[0];
-
-      // const jamSelesai = cart
-      //   .map(c => c.jamselesai)
-      //   .sort((a, b) => b.localeCompare(a))[0];
-
       const tanggal = cart[0].date;
-      // const mulaiDateTime = new Date(`${tanggal}T${jamMulai}:00`);
-      // const akhirDateTime = new Date(`${tanggal}T${jamSelesai}:00`);
-
       const jamMulaiTerdepan = cart.reduce((min, item) => {
         const current = combineDateTime(tanggal, item.jammulai);
         const minTime = combineDateTime(tanggal, min.jammulai);
@@ -1016,14 +1315,9 @@
       const jamMulaiFull = `${tanggal} ${jamMulaiTerdepan.jammulai}:00`;
       const jamSelesaiFull = `${tanggal} ${jamSelesaiTerakhir.jamselesai}:00`;
 
-      console.log(jamMulaiFull)
-
-      const netTotal = totalAsli - diskon +
-        Math.round((totalAsli - diskon) * (ppnPercent / 100)) +
-        Math.round((totalAsli - diskon) * (hiburanPercent / 100));
-
       const totalTax = Math.round((totalAsli - diskon) * (ppnPercent / 100));
-      const totalPajakHiburan = Math.round((totalAsli - diskon) * (hiburanPercent / 100));
+      const totalPajakHiburan = Math.round((subtotalMeja - diskon) * (hiburanPercent / 100));
+      const netTotal = totalAsli - diskon + totalTax + totalPajakHiburan;
 
       let formData = {
         namaLengkap: nama,
@@ -1039,9 +1333,9 @@
         kodePartner: "{{ $company->KodePartner }}",
         jamMulai: jamMulaiFull,
         jamAkhir: jamSelesaiFull,
-        detail : cart
+        detail : cart,
+        fnbCart: fnbCart
       };
-      // console.log(formData);
 
       PaymentGateWay($(this), 'Bayar', formData);
     });
