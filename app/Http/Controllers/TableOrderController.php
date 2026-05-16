@@ -691,9 +691,13 @@ class TableOrderController extends Controller
             // If JamMulai > NOW, force Status to 0 (Booking/Scheduled)
             $now = Carbon::now('Asia/Jakarta');
             // dd($model->JamMulai->gt($now), $now, $model->JamMulai);
-            if ($model->JamMulai->gt($now)) {
+            if ($model->JamMulai->gt($now->copy()->addMinutes(60))) {
                 $model->Status = 0;
                 $model->DocumentStatus = 'D';
+            } else {
+                // Jika selisihnya di bawah 60 menit, paksa jadi Open
+                $model->DocumentStatus = 'O';
+                $model->Status = 1;
             }
             
             $model->RecordOwnerID = Auth::user()->RecordOwnerID;
