@@ -3511,11 +3511,11 @@ public function getTableStatuses()
                 ->where('tableorderheader.JamSelesai', '>', $nearlyExpiredThreshold)
                 ->update(['titiklampu.Status' => 1]);
 
-            // C. Auto-Activate Bookings (D -> O) when JamMulai <= now (+ 60 mins tolerance)
+            // C. Auto-Activate Bookings (D -> O) TEPAT saat JamMulai <= now
             $toActivate = DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('DocumentStatus', 'D')
-                ->where('JamMulai', '<=', (clone $now)->addMinutes(60))
+                ->where('JamMulai', '<=', $now)
                 ->get();
             
             foreach ($toActivate as $ta) {
@@ -3524,11 +3524,11 @@ public function getTableStatuses()
                 DB::table('titiklampu')->where('id', $ta->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
             }
 
-            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) if JamMulai > now (+ 60 mins tolerance)
+            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) jika JamMulai masih di masa depan
             $toDeactivate = DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('DocumentStatus', 'O')
-                ->where('JamMulai', '>', (clone $now)->addMinutes(60))
+                ->where('JamMulai', '>', $now)
                 ->get();
 
             foreach ($toDeactivate as $td) {
