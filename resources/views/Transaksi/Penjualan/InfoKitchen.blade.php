@@ -200,6 +200,41 @@
     .item-row:last-child {
         border-bottom: none;
     }
+
+    /* === PREP TIME BANNER === */
+    .prep-time-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    .prep-time-banner.urgent {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #ef4444;
+    }
+    .prep-time-banner.booking {
+        background: rgba(124, 58, 237, 0.2);
+        border: 1px solid #7c3aed;
+        color: #c4b5fd;
+    }
+    .prep-time-banner .prep-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+    .prep-time-banner .prep-time {
+        font-size: 1.3rem;
+        font-family: 'Courier New', monospace;
+    }
+    .prep-time-banner .prep-countdown {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
   </style>
 </head>
 <body>
@@ -208,6 +243,7 @@
   <header>
     <div id="company-name">INFO KITCHEN</div>
     <div class="d-flex align-items-center gap-3">
+        <div class="text-muted small">Server Time: {{ \Carbon\Carbon::now('Asia/Jakarta')->format('H:i:s') }}</div>
         <div id="clock">--:--:--</div>
     </div>
   </header>
@@ -325,6 +361,8 @@
                     NoTransaksi: item.NoTransaksi,
                     NamaTitikLampu: item.NamaTitikLampu || 'Take Away',
                     TglTransaksi: item.TglTransaksi,
+                    JamMulai: item.JamMulai || null,
+                    DocumentStatus: item.DocumentStatus || 'O',
                     created_at: item.created_at,
                     OrderStatus: item.OrderStatus || 0,
                     ServiceType: item.ServiceType || 'DINE_IN',
@@ -346,14 +384,46 @@
                 ? '<span class="badge bg-danger" style="font-size:0.7rem;"><i class="bi bi-bag-check"></i> BAWA PULANG</span>'
                 : '<span class="badge bg-primary" style="font-size:0.7rem;"><i class="bi bi-house-door"></i> MAKAN DI TEMPAT</span>';
 
+            // Prep time banner logic based on JamMulai
+            let prepBanner = '';
+            const nowTime = new Date();
+            let jamMulaiDate = null;
+            if (group.JamMulai) {
+                // Handle different date formats (might be HH:mm:ss or YYYY-MM-DD HH:mm:ss)
+                const jamParts = group.JamMulai.split(' ');
+                const timePart = jamParts.length > 1 ? jamParts[1] : jamParts[0];
+                const datePart = jamParts.length > 1 ? jamParts[0] : group.TglTransaksi;
+                jamMulaiDate = new Date(`${datePart} ${timePart}`);
+            }
+
+            if (jamMulaiDate && jamMulaiDate > nowTime) {
+                const jamMulaiStr = group.JamMulai.includes(' ') ? group.JamMulai.split(' ')[1].substring(0, 5) : group.JamMulai.substring(0, 5);
+                prepBanner = `<div class="prep-time-banner booking" id="prep-${group.NoTransaksi}">
+                    <div>
+                        <div class="prep-label"><i class="bi bi-clock-history"></i> Siapkan Sebelum</div>
+                        <div class="prep-time">JAM ${jamMulaiStr}</div>
+                    </div>
+                    <div class="prep-countdown" id="countdown-${group.NoTransaksi}">Menghitung...</div>
+                </div>`;
+            } else {
+                prepBanner = `<div class="prep-time-banner urgent">
+                    <div>
+                        <div class="prep-label"><i class="bi bi-lightning-fill"></i> Siapkan</div>
+                        <div class="prep-time">SEGERA</div>
+                    </div>
+                    <div class="prep-countdown" style="font-size:1rem;">Meja sudah aktif</div>
+                </div>`;
+            }
+
             html += `
                 <div class="col-md-6 col-lg-4">
                     <div class="kitchen-card fade-in" style="border-left-color: ${group.OrderStatus == 2 ? '#22c55e' : (group.OrderStatus == 1 ? '#fbbf24' : '#1d8cf8')}">
+                        ${prepBanner}
                         <div class="d-flex justify-content-between align-items-center mb-2">
                              <div class="table-name">MEJA: ${group.NamaTitikLampu}</div>
                              <div class="badge ${statusClass}">${statusText}</div>
                         </div>
-                        <div class="mb-2">
+                        <div class="mb-2 d-flex gap-2 flex-wrap">
                             ${serviceBadge}
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -401,6 +471,61 @@
         });
         html += '</div>';
         container.html(html);
+
+        // Start countdowns for booking orders
+        initCountdowns();
+    }
+
+    let countdownIntervals = {};
+
+    function initCountdowns() {
+        // Clear old intervals
+        Object.values(countdownIntervals).forEach(id => clearInterval(id));
+        countdownIntervals = {};
+
+        // Find all countdown elements
+        document.querySelectorAll('[id^="countdown-"]').forEach(el => {
+            const noTrx = el.id.replace('countdown-', '');
+            const prepBanner = document.getElementById('prep-' + noTrx);
+            if (!prepBanner) return;
+
+            // Extract JamMulai from the prep-time div inside the banner
+            const prepTimeEl = prepBanner.querySelector('.prep-time');
+            if (!prepTimeEl) return;
+            const jamText = prepTimeEl.innerText.replace('JAM ', '').trim(); // "11:00"
+            const [hh, mm] = jamText.split(':').map(Number);
+
+            const tick = () => {
+                const now = new Date();
+                const target = new Date();
+                target.setHours(hh, mm, 0, 0);
+
+                const diffMs = target - now;
+                const countdownEl = document.getElementById('countdown-' + noTrx);
+                if (!countdownEl) return;
+
+                if (diffMs <= 0) {
+                    countdownEl.innerHTML = '⚠️ SUDAH WAKTUNYA!';
+                    countdownEl.style.color = '#ef4444';
+                    countdownEl.style.fontWeight = 'bold';
+                    countdownEl.style.fontSize = '0.95rem';
+                    prepBanner.classList.remove('booking');
+                    prepBanner.classList.add('urgent');
+                } else {
+                    const totalMins = Math.floor(diffMs / 60000);
+                    const hours = Math.floor(totalMins / 60);
+                    const mins = totalMins % 60;
+                    if (hours > 0) {
+                        countdownEl.innerText = `dalam ${hours} jam ${mins} menit`;
+                    } else {
+                        countdownEl.innerText = `dalam ${mins} menit`;
+                    }
+                }
+            };
+
+            tick(); // immediate first tick
+            countdownIntervals[noTrx] = setInterval(tick, 1000);
+        });
     }
 
     function updateOrderStatus(noTrx, status) {

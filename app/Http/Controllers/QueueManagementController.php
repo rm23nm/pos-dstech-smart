@@ -320,10 +320,13 @@ class QueueManagementController extends Controller
                             $value->on('titiklampu.KelompokLampu','=','tkelompoklampu.KodeKelompok')
                             ->on('titiklampu.RecordOwnerID','=','tkelompoklampu.RecordOwnerID');
                         })
-                        ->where('titiklampu.RecordOwnerID', '=', $request->RecordOwnerID)
+                        ->where('tableorderheader.RecordOwnerID', '=', $request->RecordOwnerID)
                         ->where('tableorderheader.Status', 0)
                         ->where('tableorderheader.DocumentStatus', 'D')
-                        ->whereDate('tableorderheader.TglTransaksi', '=', $today->toDateString());
+                        ->where(function($q) use ($today) {
+                            $q->whereDate('tableorderheader.TglTransaksi', '=', $today->toDateString())
+                              ->orWhereDate('tableorderheader.JamMulai', '=', $today->toDateString());
+                        });
 
         $bookingTablePart2 = DB::table('bookingtableonline')
                         ->selectRaw("titiklampu.*,
@@ -384,11 +387,51 @@ class QueueManagementController extends Controller
 
             $bookingTable = $bookingTablePart1->unionAll($bookingTablePart2)->orderBy('JamMulai', 'DESC')->get();
 
+            // 4. READY FOOD ORDERS (kitchen_order_status = 2)
+            $readyFoodOrders = DB::table('tableorderheader')
+                ->selectRaw("tableorderheader.NoTransaksi,
+                             tableorderheader.tableid,
+                             titiklampu.NamaTitikLampu,
+                             pelanggan.NamaPelanggan,
+                             tableorderheader.kitchen_order_status,
+                             COALESCE(tipeorderresto.DineIn, 1) as DineIn,
+                             COALESCE(tipeorderresto.NamaJenisOrder, 'Dine In') as NamaJenisOrder")
+                ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
+                ->leftJoin('pelanggan', function($q) {
+                    $q->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
+                      ->on('tableorderheader.RecordOwnerID', '=', 'pelanggan.RecordOwnerID');
+                })
+                ->leftJoin('fakturpenjualandetail as fpd2', function($q) {
+                    $q->on('fpd2.BaseReff', '=', 'tableorderheader.NoTransaksi')
+                      ->on('fpd2.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID');
+                })
+                ->leftJoin('fakturpenjualanheader as fph2', function($q) {
+                    $q->on('fph2.NoTransaksi', '=', 'fpd2.NoTransaksi')
+                      ->on('fph2.RecordOwnerID', '=', 'fpd2.RecordOwnerID');
+                })
+                ->leftJoin('tipeorderresto', function($q) {
+                    $q->on('fph2.TipeOrder', '=', 'tipeorderresto.id')
+                      ->on('fph2.RecordOwnerID', '=', 'tipeorderresto.RecordOwnerID');
+                })
+                ->where('tableorderheader.RecordOwnerID', '=', $request->RecordOwnerID)
+                ->where('tableorderheader.kitchen_order_status', '=', 2)
+                ->where(function($q) use ($today) {
+                    $q->whereDate('tableorderheader.TglTransaksi', '=', $today->toDateString())
+                      ->orWhereDate('tableorderheader.JamMulai', '=', $today->toDateString());
+                })
+                ->groupBy('tableorderheader.NoTransaksi', 'tableorderheader.tableid',
+                          'titiklampu.NamaTitikLampu', 'pelanggan.NamaPelanggan',
+                          'tableorderheader.kitchen_order_status',
+                          'tipeorderresto.DineIn', 'tipeorderresto.NamaJenisOrder')
+                ->get();
+
+
             return response()->json([
                 'availableTable' => $availableTable,
                 'usedTable' => $usedTable,
                 'hampirHabisTable' => $hampirHabisTable,
                 'bookingTable' => $bookingTable,
+                'readyFoodOrders' => $readyFoodOrders,
                 'message' => 'Queue processed successfully'
             ]);
     }

@@ -65,7 +65,7 @@
     .main-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      grid-template-rows: 30% 30% 1fr;
+      grid-template-rows: 1fr 1fr;
       gap: 15px;
       padding: 15px;
       flex: 1;
@@ -130,21 +130,24 @@
       color: white;
     }
 
-    .area-available .box-header {
-      background: var(--accent-success);
+    .area-food-ready .box-header {
+      background: #e65100; /* Orange for food */
       color: white;
     }
 
     /* === GRID PLACEMENT === */
-    .area-active { grid-column: 1 / 2; grid-row: 1 / 3; }
-    .area-booking { grid-column: 2 / 3; grid-row: 1 / 3; }
+    /* Top row */
+    .area-active  { grid-column: 1; grid-row: 1; }
+    .area-booking { grid-column: 2; grid-row: 1; }
     .area-promo {
-      grid-column: 3 / 4;
-      grid-row: 1 / 2;
+      grid-column: 3;
+      grid-row: 1;
       background: #000;
     }
-    .area-hampir-habis { grid-column: 1 / 3; grid-row: 3 / 4; }
-    .area-available { grid-column: 3 / 4; grid-row: 2 / 4; }
+    /* Bottom row: 3 equal sections */
+    .area-hampir-habis { grid-column: 1; grid-row: 2; }
+    .area-available    { grid-column: 2; grid-row: 2; }
+    .area-food-ready   { grid-column: 3; grid-row: 2; }
 
     /* === TABLE STYLES === */
     .custom-table {
@@ -327,6 +330,12 @@
       <div class="box-content" id="table-available"></div>
     </div>
 
+    <!-- PESANAN MAKANAN SIAP -->
+    <div class="grid-box area-food-ready">
+      <div class="box-header">Pesanan Makanan Siap</div>
+      <div class="box-content" id="table-foodReady"></div>
+    </div>
+
   </div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
@@ -443,19 +452,25 @@
       }
     };
     
-    const speakReadyOrders=(list)=>{
+        const speakReadyOrders=(list)=>{
       const now=Date.now();
       list.forEach(r => {
           const key = 'ready_' + r.NoTransaksi;
           if (!spokenStages[key]) {
               spokenStages[key] = now;
-              const qNum = r.QueueNumber ? String(r.QueueNumber).padStart(3, '0') : r.NoTransaksi;
               const custName = r.NamaPelanggan || 'Pelanggan';
-              const msg = `Panggilan untuk ${custName}. Pesanan nomor ${qNum} sudah siap. Silakan diambil di konter. Terima kasih.`;
+              const tableName = r.NamaTitikLampu || '';
+              const isDineIn = parseInt(r.DineIn ?? 1) === 1;
+              let msg = '';
+              if (isDineIn) {
+                  msg = `Perhatian. Pesanan untuk ${custName} di ${tableName} sudah siap. Pesanan sedang dalam perjalanan ke meja Anda. Mohon ditunggu. Terima kasih.`;
+              } else {
+                  msg = `Panggilan untuk ${custName}. Pesanan Anda sudah siap untuk dibawa pulang. Silakan diambil di konter. Terima kasih.`;
+              }
               speakWithResponsiveVoice(msg);
           }
       });
-    };
+    }
 
     const speakQueueInIndonesian=(list)=>{
       const now=Date.now();
@@ -499,7 +514,8 @@
              let headers = '';
              if(type === 'active') headers = `<tr><th>Layanan</th><th>Nama Pelanggan</th><th>Selesai</th><th>Sisa</th></tr>`;
              if(type === 'warn') headers = `<tr><th>Layanan</th><th>Nama Pelanggan</th><th>Mulai</th><th>Selesai</th><th>Sisa</th></tr>`;
-             if(type === 'avail') headers = `<tr><th colspan="4" class="text-center">Layanan</th></tr>`;
+             if(type === 'avail') headers = `<tr><th colspan="2" class="text-center">Layanan</th></tr>`;
+             if(type === 'food') headers = `<tr><th>Layanan</th><th>Nama Pelanggan</th><th>Status</th></tr>`;
              if(type === 'booking') headers = `<tr><th>Tgl Transaksi</th><th>Nama Pelanggan</th><th>Layanan</th><th>Mulai</th><th>Selesai</th></tr>`;
              
              const body = rows.map(row => {
@@ -519,7 +535,13 @@
                                 <td>${row.JamSelesai}</td>
                                 <td><span class="time-badge text-warning">${sisa}${icon}</span></td>`;
                  } else if(type === 'avail') {
-                     content = `<td colspan="4" class="text-center"><span class="text-highlight" style="font-size: 1.2rem;">${row.NamaTitikLampu}</span></td>`;
+                     content = `<td colspan="2" class="text-center"><span class="text-highlight" style="font-size:1.1rem">${row.NamaTitikLampu}</span></td>`;
+                 } else if(type === 'food') {
+                      const foodKey = 'ready_' + row.NoTransaksi;
+                      const spokenFood = spokenStages[foodKey] ? ' <span class="spoken-indicator">&#x1F50A;</span>' : '';
+                       content = `<td><span class="text-highlight">${row.NamaTitikLampu}</span></td>
+                                  <td>${row.NamaPelanggan || '-'}</td>
+                                  <td><span class="badge bg-success">SIAP DIAMBIL</span>${spokenFood}</td>`;
                  } else if(type === 'booking') {
                      content = `<td>${formatDate(row.TglTransaksi)}</td>
                                 <td>${row.NamaPelanggan}</td>
@@ -537,11 +559,22 @@
         document.getElementById('table-hampirHabis').innerHTML = createTable(data.hampirHabisTable, 'warn');
         document.getElementById('table-used').innerHTML = createTable(data.usedTable, 'active');
         document.getElementById('table-available').innerHTML = createTable(data.availableTable, 'avail');
+        document.getElementById('table-foodReady').innerHTML = createTable(data.readyFoodOrders, 'food');
         document.getElementById('table-booking').innerHTML = createTable(data.bookingTable, 'booking');
-        
-        // FNB READY REMOVED
 
-        // Voice trigger - Check used, expiring
+        // Voice trigger - Ready Food Orders
+        const readyOrders = data.readyFoodOrders || [];
+        if (readyOrders.length > 0) speakReadyOrders(readyOrders);
+
+        // Cleanup spokenStages for orders that have been taken (no longer in readyFoodOrders list)
+        const activeReadyKeys = new Set(readyOrders.map(r => 'ready_' + r.NoTransaksi));
+        Object.keys(spokenStages).forEach(key => {
+            if (key.startsWith('ready_') && !activeReadyKeys.has(key)) {
+                delete spokenStages[key]; // Hapus agar bisa diumumkan lagi kalau muncul kembali
+            }
+        });
+
+        // Voice trigger - Check used, expiring tables
         const allOccupied = [...(data.usedTable || []), ...(data.hampirHabisTable || [])];
         if(allOccupied.length > 0) speakQueueInIndonesian(allOccupied);
 

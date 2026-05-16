@@ -3413,6 +3413,9 @@ class FakturPenjualanController extends Controller
         $searchTerm = $request->input('searchTerm');
         $tgl = $request->input('tgl', date('Y-m-d'));
 
+        $now = \Carbon\Carbon::now('Asia/Jakarta');
+        $kitchenCutoffTime = $now->copy()->addMinutes(30); // Tampilkan 30 menit sebelum JamMulai
+
         $query = DB::table('tableorderfnb')
             ->join('itemmaster', function($join) {
                 $join->on('tableorderfnb.KodeItem', '=', 'itemmaster.KodeItem')
@@ -3430,16 +3433,22 @@ class FakturPenjualanController extends Controller
                 'tableorderfnb.*',
                 'itemmaster.NamaItem',
                 'titiklampu.NamaTitikLampu',
-                'tableorderheader.TglTransaksi'
+                'tableorderheader.TglTransaksi',
+                'tableorderheader.JamMulai',
+                'tableorderheader.DocumentStatus'
             )
             ->where('itemmaster.TypeItem', '<>', 4)
             ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID)
-            ->where('tableorderheader.kitchen_order_status', '<', 3);
-            // Kita hilangkan filter isCompleted agar item tetap terlihat di card (dengan strikethrough)
+            ->where('tableorderheader.kitchen_order_status', '<', 3)
+            ->where('tableorderheader.JamMulai', '<=', $kitchenCutoffTime);
+
             // sampai seluruh order ditandai sebagai 'Diambil' (status 3).
 
         if (!empty($tgl)) {
-            $query->whereDate('tableorderheader.TglTransaksi', $tgl);
+            $query->where(function($q) use ($tgl) {
+                $q->whereDate('tableorderheader.TglTransaksi', $tgl)
+                  ->orWhereDate('tableorderheader.JamMulai', $tgl);
+            });
         }
 
         if (!empty($KodeJenisItem)) {
@@ -3607,6 +3616,9 @@ class FakturPenjualanController extends Controller
     {
         try {
             $RecordOwnerID = Auth::user()->RecordOwnerID;
+            $now = \Carbon\Carbon::now('Asia/Jakarta');
+            $cutoff = $now->copy()->addMinutes(30);
+
             $data = DB::table('tableorderheader')
                 ->leftJoin('pelanggan', function($join) {
                     $join->on('tableorderheader.KodePelanggan', '=', 'pelanggan.KodePelanggan')
@@ -3616,18 +3628,36 @@ class FakturPenjualanController extends Controller
                     $join->on('tableorderheader.tableid', '=', 'titiklampu.id')
                          ->on('tableorderheader.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
                 })
+                ->leftJoin('fakturpenjualandetail as fpd3', function($q) {
+                    $q->on('fpd3.BaseReff', '=', 'tableorderheader.NoTransaksi')
+                      ->on('fpd3.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID');
+                })
+                ->leftJoin('fakturpenjualanheader as fph3', function($q) {
+                    $q->on('fph3.NoTransaksi', '=', 'fpd3.NoTransaksi')
+                      ->on('fph3.RecordOwnerID', '=', 'fpd3.RecordOwnerID');
+                })
+                ->leftJoin('tipeorderresto', function($q) {
+                    $q->on('fph3.TipeOrder', '=', 'tipeorderresto.id')
+                      ->on('fph3.RecordOwnerID', '=', 'tipeorderresto.RecordOwnerID');
+                })
                 ->select(
                     'tableorderheader.NoTransaksi',
                     'tableorderheader.QueueNumber',
                     DB::raw('COALESCE(tableorderheader.kitchen_order_status, 0) as status'),
                     'tableorderheader.call_trigger',
                     'pelanggan.NamaPelanggan',
-                    'titiklampu.NamaTitikLampu as TableName'
+                    'titiklampu.NamaTitikLampu as TableName',
+                    DB::raw("CASE WHEN COALESCE(tipeorderresto.DineIn, 1) = 1 THEN 'DINE_IN' ELSE 'TAKE_AWAY' END as ServiceType")
                 )
                 ->where('tableorderheader.RecordOwnerID', $RecordOwnerID)
-                ->whereDate('tableorderheader.TglTransaksi', now()->toDateString())
+                ->where(function($q) use ($now) {
+                    $q->whereDate('tableorderheader.TglTransaksi', $now->toDateString())
+                      ->orWhereDate('tableorderheader.JamMulai', $now->toDateString());
+                })
                 ->where('tableorderheader.Status', '!=', 0)
                 ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
+                // Smart Timing: Only show if JamMulai <= 30 mins
+                ->where('tableorderheader.JamMulai', '<=', $cutoff)
                 ->where(function($q) {
                     $q->where('tableorderheader.kitchen_order_status', '<', 3)
                       ->orWhereNull('tableorderheader.kitchen_order_status');

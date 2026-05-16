@@ -599,15 +599,23 @@ Route::post('/billing/send-receipt-email', [TableOrderController::class, 'sendRe
 
 Route::get('/daftartableorder', [TableOrderController::class, 'DaftarTableOrder'])->name('daftartableorder')->middleware(['auth', 'check.session']);
 Route::post('/daftartableorder/reset', [TableOrderController::class, 'ResetController'])->name('daftartableorder-reset')->middleware(['auth', 'check.session']);
-Route::get('/fpenjualan/infokitchen', [FakturPenjualanController::class, 'InfoKitchen'])->name('infokitchen')->middleware(['auth', 'check.session']);
-Route::post('/fpenjualan/infokitchen-data', [FakturPenjualanController::class, 'InfoKitchenData'])->name('infokitchen-data')->middleware(['auth', 'check.session']);
-Route::post('/fpenjualan/infokitchen-markdone', [FakturPenjualanController::class, 'InfoKitchenMarkDone'])->name('infokitchen-markdone')->middleware(['auth', 'check.session']);
-Route::post('/fpenjualan/infokitchen-updatestatus', [FakturPenjualanController::class, 'InfoKitchenUpdateStatus'])->name('infokitchen-updatestatus')->middleware(['auth', 'check.session']);
-Route::get('/fpenjualan/infokitchen-print', [FakturPenjualanController::class, 'InfoKitchenPrint'])->name('infokitchen-print')->middleware(['auth', 'check.session']);
-Route::get('/fpenjualan/customerdisplay', [FakturPenjualanController::class, 'CustomerDisplay'])->name('customerdisplay')->middleware(['auth', 'check.session']);
-Route::post('/fpenjualan/customerdisplay-data', [FakturPenjualanController::class, 'CustomerDisplayData'])->name('customerdisplay-data')->middleware(['auth', 'check.session']);
-Route::get('/fpenjualan/countermonitor', [FakturPenjualanController::class, 'CounterMonitor'])->name('countermonitor')->middleware(['auth', 'check.session']);
-Route::post('/fpenjualan/recall-order', [FakturPenjualanController::class, 'RecallOrder'])->name('recall-order')->middleware(['auth', 'check.session']);
+// DISPLAY MODULES (SHORT URLS)
+Route::get('/infokitchen', [FakturPenjualanController::class, 'InfoKitchen'])->name('infokitchen')->middleware(['auth', 'check.session']);
+Route::post('/infokitchen-data', [FakturPenjualanController::class, 'InfoKitchenData'])->name('infokitchen-data')->middleware(['auth', 'check.session']);
+Route::post('/infokitchen-markdone', [FakturPenjualanController::class, 'InfoKitchenMarkDone'])->name('infokitchen-markdone')->middleware(['auth', 'check.session']);
+Route::post('/infokitchen-updatestatus', [FakturPenjualanController::class, 'InfoKitchenUpdateStatus'])->name('infokitchen-updatestatus')->middleware(['auth', 'check.session']);
+Route::get('/infokitchen-print', [FakturPenjualanController::class, 'InfoKitchenPrint'])->name('infokitchen-print')->middleware(['auth', 'check.session']);
+
+Route::get('/customerdisplay', [FakturPenjualanController::class, 'CustomerDisplay'])->name('customerdisplay')->middleware(['auth', 'check.session']);
+Route::post('/customerdisplay-data', [FakturPenjualanController::class, 'CustomerDisplayData'])->name('customerdisplay-data')->middleware(['auth', 'check.session']);
+
+Route::get('/countermonitor', [FakturPenjualanController::class, 'CounterMonitor'])->name('countermonitor')->middleware(['auth', 'check.session']);
+Route::post('/recall-order', [FakturPenjualanController::class, 'RecallOrder'])->name('recall-order')->middleware(['auth', 'check.session']);
+
+// Compatibility Redirects (Old to New)
+Route::get('/fpenjualan/infokitchen', function() { return redirect()->route('infokitchen'); });
+Route::get('/fpenjualan/customerdisplay', function() { return redirect()->route('customerdisplay'); });
+Route::get('/fpenjualan/countermonitor', function() { return redirect()->route('countermonitor'); });
 
 /*
 |--------------------------------------------------------------------------
