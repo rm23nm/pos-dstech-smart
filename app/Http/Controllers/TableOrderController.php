@@ -3437,6 +3437,16 @@ public function getTableStatuses()
                 }
             }
 
+            // A.1. Repair: If table is in Checkout status (-1) but already PAID and time is not up yet, 
+            // revert it back to ACTIVE (1) so it stays RED.
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('Status', -1)
+                ->where('DocumentStatus', 'O')
+                ->where('JamSelesai', '>', $now)
+                ->whereRaw('COALESCE(TotalTerbayar, 0) >= COALESCE(NetTotal, 0)')
+                ->update(['Status' => 1]);
+
             // B. Flag Nearly Expired Tables (10 mins) - Bulk Update
             // 1. Set to 99 if within 10 mins
             DB::table('titiklampu')
@@ -3496,31 +3506,27 @@ public function getTableStatuses()
                 if (!$hasOtherActive) {
                     DB::table('titiklampu')->where('id', $td->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
                 }
-            }
-
-            // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF
-            // This fixes cases where status became 0 incorrectly or was never turned on.
+                       // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF or incorrectly in Checkout status
+            // This fixes cases where status became 0 or -1 incorrectly.
             $shouldBeRed = DB::table('tableorderheader')
                 ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
                 ->where('tableorderheader.RecordOwnerID', $roid)
                 ->where('titiklampu.RecordOwnerID', $roid)
                 ->where('tableorderheader.DocumentStatus', 'O')
+                ->where('tableorderheader.Status', 1)
+                ->whereIn('titiklampu.Status', [0, -1]) // Fix if Green or Yellow
                 ->where('tableorderheader.JamMulai', '<=', $now)
                 ->where(function($q) use ($now) {
                     $q->where('tableorderheader.JamSelesai', '>=', $now)
                       ->orWhereNull('tableorderheader.JamSelesai');
                 })
-                ->where(function($q) {
-                    $q->where('titiklampu.Status', 0)
-                      ->orWhere('tableorderheader.Status', 0);
-                })
                 ->select('titiklampu.id', 'tableorderheader.NoTransaksi')
                 ->get();
-
+            
             foreach ($shouldBeRed as $sbr) {
                 DB::table('titiklampu')->where('id', $sbr->id)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
-                DB::table('tableorderheader')->where('NoTransaksi', $sbr->NoTransaksi)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
             }
+
 
             // F. Data Consistency Repair (Checkout Status):
             // Force status -1 (Checkout/Yellow) if tableorderheader status is -1

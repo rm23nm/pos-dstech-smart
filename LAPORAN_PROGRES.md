@@ -37,9 +37,9 @@
 ## 2. Pekerjaan yang Sedang/Akan Dilakukan (16 Mei 2026)
 - [x] **Fix Bug Booking Online**: Memperbaiki bug nama kolom dan sinkronisasi status pada saat check-in booking online.
 - [x] **Repair DocumentStatus**: Menambahkan perbaikan otomatis untuk transaksi dengan `DocumentStatus` kosong (Kasus Basket 5).
-- [ ] **Sinkronisasi Status Checkout (Kuning/Hijau)**:
     - [x] Update `processCheckOut` agar sinkron dengan `titiklampu` (Status -1 untuk Checkout, Status 0 untuk Lunas).
     - [x] Verifikasi logic repair di `getTableStatuses` agar mendukung status `-1`.
+    - [x] **Fix Checkout Lunas**: Meja yang sudah lunas (PAID) namun masih dalam waktu sewa akan dikembalikan ke status Merah (Aktif).
     - [ ] Pastikan frontend merespon perubahan status `-1` dengan warna kuning/orange yang sesuai.
 
 ## 3. Pekerjaan yang Baru Saja Diselesaikan (15-16 Mei 2026)
