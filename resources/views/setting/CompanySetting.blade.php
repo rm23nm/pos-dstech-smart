@@ -129,6 +129,9 @@
 													<li class="nav-item" >
 														<a class="nav-link disabled" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Customer Display</a>
 													</li>
+													<li class="nav-item" >
+														<a class="nav-link" id="domain-tab" data-bs-toggle="pill" href="#domain" role="tab" aria-controls="domain" aria-selected="false">Domain & Midtrans</a>
+													</li>
 													
 													@if ($company[0]['JenisUsaha'] == "Hiburan")
 													<li class="nav-item" >
@@ -161,6 +164,9 @@
 													</li>
 													<li class="nav-item" >
 														<a class="nav-link" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Customer Display</a>
+													</li>
+													<li class="nav-item" >
+														<a class="nav-link" id="domain-tab" data-bs-toggle="pill" href="#domain" role="tab" aria-controls="domain" aria-selected="false">Domain & Midtrans</a>
 													</li>
 													@if ($company[0]['JenisUsaha'] == "Hiburan")
 													<li class="nav-item" >
@@ -736,6 +742,66 @@
 															</div>
 
 					                            		</div>
+													</div>
+												</div>
+												<div class="tab-pane fade " id="domain" role="tabpanel" aria-labelledby="domain-tab">
+													<div class="row">
+														<div class="col-md-12">
+															<h4 class="mb-4">Pengaturan Domain Kustom</h4>
+															<div class="alert alert-light-primary py-2 px-3 mb-4">
+																<small><i class="fas fa-info-circle me-1"></i> Gunakan domain kustom (contoh: <b>order.kantin.com</b>) untuk memberikan pengalaman brand sendiri kepada pelanggan.</small>
+															</div>
+														</div>
+														
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Domain Toko FnB (Store)</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="CustomDomain" placeholder="contoh: order.gorfit.com" value="{{ count($company) > 0 ? $company[0]['CustomDomain'] : '' }}">
+															</fieldset>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Domain Booking Online</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="CustomDomainBooking" placeholder="contoh: booking.gorfit.com" value="{{ count($company) > 0 ? $company[0]['CustomDomainBooking'] : '' }}">
+															</fieldset>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Domain Monitor Antrean (Queue)</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="CustomDomainQueue" placeholder="contoh: antrean.gorfit.com" value="{{ count($company) > 0 ? $company[0]['CustomDomainQueue'] : '' }}">
+															</fieldset>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Domain Kitchen Display (KDS)</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="CustomDomainKDS" placeholder="contoh: dapur.gorfit.com" value="{{ count($company) > 0 ? $company[0]['CustomDomainKDS'] : '' }}">
+															</fieldset>
+														</div>
+
+														<div class="col-md-12 mt-4">
+															<hr>
+															<h4 class="mb-4">Integrasi Pembayaran Midtrans</h4>
+															<div class="alert alert-light-warning py-2 px-3 mb-4">
+																<small><i class="fas fa-key me-1"></i> Masukkan Server Key & Client Key dari Dashboard Midtrans Anda untuk mengaktifkan pembayaran otomatis.</small>
+															</div>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Midtrans Client Key</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="MidtransClientKey" placeholder="SB-Mid-client-..." value="{{ count($company) > 0 ? $company[0]['MidtransClientKey'] : '' }}">
+															</fieldset>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Midtrans Server Key</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="MidtransServerKey" placeholder="SB-Mid-server-..." value="{{ count($company) > 0 ? $company[0]['MidtransServerKey'] : '' }}">
+															</fieldset>
+														</div>
 													</div>
 												</div>
 

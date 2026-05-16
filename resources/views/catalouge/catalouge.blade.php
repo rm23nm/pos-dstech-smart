@@ -1,1235 +1,600 @@
 <!DOCTYPE html>
-<html class="no-js" lang="zxx">
-
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Katalog Produk Digital</title>
-  <meta name="description"
-    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sed nibh vel tellus tincidunt molestie. Ut in libero ac elit pharetra auctor a eget nunc.">
-  <meta name="keywords" content="HTML,CSS,XML,JavaScript">
-  <meta name="author" content="">
-
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <link rel="icon" type="image/png" href="{{asset('front/images/miscellaneous/fav.png')}}">
-
-  <!-- Fontawesome CSS Files -->
-  <link rel="stylesheet" href="{{asset('front/css/all.css')}}"
-    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-
-  <!-- Core CSS Files -->
-  <link rel="stylesheet" type="text/css" href="{{asset('front/css/style.css')}}">
-
-  <!-- Slider Revolution CSS Files -->
-  <link rel="stylesheet" type="text/css" href="{{asset('front/revolution/css/settings.css')}}">
-  <link rel="stylesheet" type="text/css" href="{{asset('front/revolution/css/layers.css')}}">
-  <link rel="stylesheet" type="text/css" href="{{asset('front/revolution/css/navigation.css')}}">
-
-  <style>
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
-    .pagination .page-item .page-link {
-        color: #007bff;
-    }
-    .pagination .page-item.active .page-link {
-        background-color: #e9ecef;
-        color: #007bff;
-        border-color: #dee2e6;
-    }
-    .pagination .page-item .page-link:hover {
-        background-color: #e9ecef;
-        color: #007bff;
-    }
-    .pagination .page-item:first-child .page-link, 
-    .pagination .page-item:last-child .page-link {
-        border-radius: 0.25rem;
-    }
-  </style>
-</head>
-
-<body class="home10 index-page-10">
-  <div class="se-pre-con">
-    <div class="pre-loader">
-      <div class="">
-        <header id="headerten" class="header-area header-ten header-desktop">
-          <div class="headermidium">
-            <div class="container">
-              <div class="row align-items-center">
-                <div class="col-12 col-xl-2 col-lg-1">
-                  <div class="logo">
-                    <a href="index.html">
-                      <img class="img-fluid" src="{{asset('front/images/logo/logo2.png')}}" alt="logo here">
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-        <header class="header-area header-mobile">
-
-          <div class="header-maxi bg-header-bar ">
-            <div class="container">
-
-              <div class="row align-items-center">
-                <div class="col-6 pr-0 flex-col">
-                  <div class="navigation-mobile-container">
-                    <a href="" class="navigation-mobile-">
-                      <span class="fas fa-bars"></span>
-                    </a>
-
-                  </div>
-                  <a href="" class="logo">
-                    <img class="img-fluid" src="{{asset('front/images/logo/logo2.png')}}" alt="logo here">
-                  </a>
-                </div>
-
-              </div>
-            </div>
-          </div>
-          <div class="header-navbar bg-menu-bar">
-            <div class="container">
-              <form class="form-inline">
-                <div class="search-field-module">
-
-                  <div class="search-field-wrap">
-                    <input type="search" placeholder="Search Products..." readonly>
-                    <button class="btn btn-secondary swipe-to-top">
-                      <i class="fa fa-search"></i></button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </header>
-        <div class="home-slider">
-          <div class="home  "></div>
-        </div>
-        <section class="banners-content4 pro-content pb-0">
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-4 ">
-                <div class="banner-image">
-
-                </div>
-                <div class="banner-caption left-caption">
-                  <h1 class=""></h1>
-                  <h1 class=""></h1>
-                  <a href="" class="btn btn-link border-0 "></a>
-                </div>
-
-              </div>
-              <div class="col-12 col-md-4 ">
-                <div class="banner-image">
-
-                </div>
-                <div class="banner-caption left-caption">
-                  <h1 class=""></h1>
-                  <h1 class=""></h1>
-                  <a href="" class="btn btn-link border-0 "></a>
-                </div>
-
-              </div>
-              <div class="col-12 col-md-4 ">
-                <div class="banner-image">
-
-                </div>
-                <div class="banner-caption left-caption">
-                  <h1 class=""></h1>
-                  <h1 class=""></h1>
-                  <a href="" class="btn btn-link border-0 "></a>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </section>
-        <div class="pro-content">
-          <div class="pro-content pre-slick cardwithbg">
-            <div class="container">
-              <div class="row">
-                <div class="col-12 col-lg-4 cardcarousel">
-                  <div class="row">
-                    <div class="col-12 px-4">
-                      <div class="pro-heading-title">
-                        <h2 class="justify-content-center">
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12 col-lg-6 ">
-                      <div class="product  mb-2">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                    <div class="col-12 col-lg-6 ">
-                      <div class="product ">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                    <div class="col-12 col-lg-6 d-none d-lg-block">
-                      <div class="product ">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                    <div class="col-12 col-lg-6 mt-2 d-none d-lg-block">
-                      <div class="product ">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-                <div class="col-12 col-lg-4 cardcarousel">
-                  <div class="row">
-                    <div class="col-12 px-4">
-                      <div class="pro-heading-title">
-                        <h2 class="justify-content-center">
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12 px-4">
-                      <div class="product ">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-
-                  </div>
-
-                </div>
-                <div class="col-12 col-lg-4 cardcarousel">
-                  <div class="row">
-                    <div class="col-12 px-4">
-                      <div class="pro-heading-title">
-                        <h2 class="justify-content-center">
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
-                  <div class=" row">
-                    <div class="col-12 col-lg-6 ">
-                      <div class="product  mb-2">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                    <div class="col-12 col-lg-6 ">
-                      <div class="product ">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                    <div class="col-12 col-lg-6 d-none d-lg-block">
-                      <div class="product ">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                    <div class="col-12 col-lg-6 mt-2 d-none d-lg-block">
-                      <div class="product ">
-                        <article>
-                          <div class="pro-thumb">
-                          </div>
-                          <div class="pro-info ">
-                            <div class="pro-category">
-
-                            </div>
-                            <h3></h3>
-
-                            <div class="pro-price bg-no">
-
-                              <ins>
-                                <del>
-
-                                </del>
-                              </ins>
-
-                              <button class="btn-light icon " onclick="notificationWishlist();" tabindex="0">
-
-                              </button>
-                            </div>
-
-
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="pro-banners-content pre-slick  pro-content ">
-          <div class="tabs-content2 bg-paralex pro-content  d-flex align-items-center">
-            <div class=" container">
-              <div class="bannerbg">
-                <div class="parallax-banner-text">
-                  <h2 class=""></h2>
-                  <p class=""> </p>
-                  <button class="btn "> </button>
-
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-        <div class="brands-content pro-content">
-          <div class="container">
-            <div class="row">
-              <div class="col-6 col-lg-2 col-md-3 col-sm-4 ">
-                <div class="brands-skul "></div>
-              </div>
-              <div class="col-6 col-lg-2 col-md-3  col-sm-4">
-                <div class="brands-skul "></div>
-              </div>
-              <div class="col-12 col-lg-2 col-md-3 col-sm-4  d-sm-block d-none">
-                <div class="brands-skul "></div>
-              </div>
-              <div class="col-12 col-lg-2 col-md-3 d-md-block d-none">
-                <div class="brands-skul "></div>
-              </div>
-              <div class="col-12 col-lg-2 col-md-3 d-lg-block d-none">
-                <div class="brands-skul "></div>
-              </div>
-              <div class="col-12 col-lg-2 col-md-3 d-lg-block d-none">
-                <div class="brands-skul "></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="footerAndNewslater">
-          <footer class="footer10 pro-content">
-            <div class="container">
-              <div class="row">
-                <div class="col-12 col-lg-2 navigation">
-                  <h1 class=""> </h1>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-
-                </div>
-                <div class="col-12 col-lg-2">
-                  <h1 class=""> </h1>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-
-                </div>
-                <div class="col-12 col-lg-2">
-                  <h1 class=""> </h1>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-
-                </div>
-                <div class="col-12 col-lg-2">
-                  <h1 class=""> </h1>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-
-                </div>
-                <div class="col-12 col-lg-2">
-                  <h1 class=""> </h1>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-
-                </div>
-                <div class="col-12 col-lg-2">
-                  <h1 class=""> </h1>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-                  <h3 class=""> </h3>
-
-                </div>
-              </div>
-            </div>
-          </footer>
-          <div class="newsletter-1 pro-content">
-            <div class="container">
-              <div class="newslaterinner bg-light">
-                <div class="row justify-content-center">
-                  <div class="col-12 col-lg-6">
-                    <div class=titled>
-                      <h5 class="">
-
-                      </h5>
-                      <p class="">
-
-                      </p>
-                    </div>
-                  </div>
-                  
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="wrapper" style="display: none;">
-    <!-- //header style One-->
-    <header id="headerten" class="header-area header-ten header-desktop">
-      <div class="headermidium">
-        <div class="container">
-          <div class="row align-items-center">
-            <div class="col-12 col-xl-2 col-lg-1">
-              <div class="logo">
-                <a href="index.html">
-                  <img class="img-fluid" src="{{asset('front/images/logo/logo2.png')}}" alt="logo here">
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-    </header>
-
-    <!-- //Sticky Header -->
-    <header id="stickyHeader" class="header-area header-sticky d-none  bg-sticky-bar">
-      <div class="container">
-
-        <div class="row align-items-center">
-          <div class="col-12 col-xl-2 col-lg-1">
-            <div class="logo">
-              <a href="index.html">
-                <img class="img-fluid" src="{{asset('front/images/logo/logo2.png')}}" alt="logo here">
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- //Mobile Header -->
-    <header id="headerMobile" class="header-area header-mobile">
-      <div class="header-navbar bg-menu-bar">
-        <div class="container">
-          <form class="form-inline">
-            <div class="search-field-module">
-
-              <div class="search-field-wrap">
-                <input type="search" placeholder="Search Products..." data-bs-toggle="tooltip"
-                  data-bs-placement="bottom" title="search item">
-                <button class="btn btn-secondary swipe-to-top" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                  title="Search Products">
-                  <i class="fa fa-search"></i></button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </header>
-    <!-- Revolution Layer Slider -->
-    <div id="rev_slider_1077_1_wrapper" class="rev_slider_wrapper fullscreen-container" data-alias="scroll-effect136"
-      data-source="gallery" style="padding:0px;">
-      <!-- START REVOLUTION SLIDER 5.4.1 fullscreen mode -->
-      <div id="rev_slider_1077_1" class="rev_slider fullscreenbanner" style="display:none;" data-version="5.4.1">
-        <ul>
-          <!-- SLIDE  3-->
-          <li data-index="rs-3045" data-transition="slideoverhorizontal" data-slotamount="default"
-            data-hideafterloop="0" data-hideslideonmobile="off" data-easein="Power4.easeInOut"
-            data-easeout="Power4.easeInOut" data-masterspeed="1000" data-thumb="" data-rotate="0"
-            data-fstransition="fade" data-fsmasterspeed="1500" data-fsslotamount="7" data-saveperformance="off"
-            data-title="Big &amp; Bold" data-param1="" data-param2="" data-param3="" data-param4="" data-param5=""
-            data-param6="" data-param7="" data-param8="" data-param9="" data-param10="" data-description="">
-            <!-- MAIN IMAGE -->
-            @if ($company[0]["Banner1"] == "")
-              <img src="{{asset('front/images/index-10/banner-1.jpg')}}" alt="" data-bgposition="top center"
-            data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
-            @else
-              <img src="{{ $company[0]["Banner1"] }}" alt="" data-bgposition="top center"
-            data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
-            @endif
-            <!-- LAYERS -->
-
-            <div class="container" style="position: relative;">
-
-              <!-- LAYER NR. 1 -->
-              <div class="tp-caption BigBold-SubTitle  " id="slide-3043-layer-2" data-x="['left','left','left','left']"
-                data-hoffset="['603','480','300','20']" data-y="['top','top','top','top']"
-                data-voffset="['150','90','60','40']" data-fontsize="['18','18','18','14']"
-                data-width="['580','580','100%','100%']" data-height="none" data-whitespace="normal" data-type="text"
-                data-basealign="slide" data-responsive_offset="off" data-responsive="off" data-frames='[{"from":"y:[-100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;",
-                "speed":1500,"to":"o:1;","delay":650,"ease":"Power3.easeInOut"},
-                {"delay":"wait","speed":1000,"to":"y:50px;opacity:0;","ease":"Power2.easeInOut"}]'
-                data-textAlign="['left','left','left','left']" data-paddingtop="[0,0,0,0]" data-paddingright="[0,0,0,0]"
-                data-paddingbottom="[0,0,0,0]" data-paddingleft="[0,0,0,0]"
-                style="z-index: 12;  white-space: normal;  line-height: 1.5;">
-                
-                @if ($company[0]["BannerText1"] == "")
-                  {{ "BANNER TEXT" }}
-                @else
-                  {{ $company[0]["BannerText1"] }}
-                @endif
-              </div>
-
-
-              <!-- LAYER NR. 2 -->
-
-              <div class="tp-caption BigBold-Title   tp-resizeme" id="slide-3043-layer-b"
-                data-x="['left','left','left','left']" data-hoffset="['602','480','300','20']"
-                data-y="['top','top','top','top']" data-voffset="['170','120','90','70']"
-                data-fontsize="['50','40','30','24']" data-lineheight="['70','50','40','30']"
-                data-width="['580','580','100%','100%']" data-height="none"
-                data-whitespace="['nowrap','nowrap','nowrap','normal']" data-type="text" data-basealign="slide"
-                data-responsive_offset="off"
-                data-frames='[{"from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;",
-                  "mask":"x:0px;y:[-100%];s:inherit;e:inherit;","speed":1500,"to":"o:1;",
-                  "delay":500,"ease":"Power3.easeInOut"},{"delay":"wait","speed":1000,"to":"y:[-100%];","mask":"x:inherit;y:inherit;s:inherit;e:inherit;","ease":"Power2.easeInOut"}]'
-                data-textAlign="['left','left','left','left']" data-paddingtop="[0,0,0,0]" data-paddingright="[0,0,0,0]"
-                data-paddingbottom="[0,0,0,0]" data-paddingleft="[0,0,0,0]"
-                style="z-index: 11; white-space: nowrap; color:#212121; ">
-                @if ($company[0]["BannerHeader1"] == "")
-                  {{ "BANNER Header" }}
-                @else
-                  {{ $company[0]["BannerHeader1"] }}
-                @endif
-              </div>
-
-            </div>
-          </li>
-          <!-- SLIDE  2-->
-          <li data-index="rs-3044" data-transition="slideoverhorizontal" data-slotamount="default"
-            data-hideafterloop="0" data-hideslideonmobile="off" data-easein="Power4.easeInOut"
-            data-easeout="Power4.easeInOut" data-masterspeed="1000" data-thumb="" data-rotate="0"
-            data-fstransition="fade" data-fsmasterspeed="1500" data-fsslotamount="7" data-saveperformance="off"
-            data-title="Big &amp; Bold" data-param1="" data-param2="" data-param3="" data-param4="" data-param5=""
-            data-param6="" data-param7="" data-param8="" data-param9="" data-param10="" data-description="">
-            <!-- MAIN IMAGE -->
-            @if ($company[0]["Banner2"] == "")
-              <img src="{{asset('front/images/index-10/banner-1.jpg')}}" alt="" data-bgposition="top center"
-            data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
-            @else
-              <img src="{{ $company[0]["Banner2"] }}" alt="" data-bgposition="top center"
-            data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
-            @endif
-            <!-- LAYERS -->
-
-            <div class="container" style="position: relative;">
-
-              <!-- LAYER NR. 1 -->
-              <div class="tp-caption BigBold-SubTitle  " id="slide-3043-layer-8" data-x="['left','left','left','left']"
-                data-hoffset="['0','0','0','0']" data-y="['top','top','top','top']"
-                data-voffset="['150','90','60','40']" data-fontsize="['18','18','18','14']"
-                data-width="['100%','100%','100%','100%']" data-height="none" data-whitespace="normal" data-type="text"
-                data-basealign="slide" data-responsive_offset="off" data-responsive="off" data-frames='[{"from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;",
-                "speed":1500,"to":"o:1;","delay":650,"ease":"Power3.easeInOut"},
-                {"delay":"wait","speed":1000,"to":"y:50px;opacity:0;","ease":"Power2.easeInOut"}]'
-                data-textAlign="['center','center','center','center']" data-paddingtop="[0,0,0,0]"
-                data-paddingright="[0,0,0,0]" data-paddingbottom="[0,0,0,0]" data-paddingleft="[0,0,0,0]"
-                style="z-index: 12;  white-space: normal; line-height: 1.5;">
-                @if ($company[0]["BannerText2"] == "")
-                  {{ "BANNER TEXT" }}
-                @else
-                  {{ $company[0]["BannerText2"] }}
-                @endif
-              </div>
-
-
-              <!-- LAYER NR. 2 -->
-
-              <div class="tp-caption BigBold-Title   tp-resizeme" id="slide-3043-layer-a"
-                data-x="['left','left','left','left']" data-hoffset="['0','0','0','0']"
-                data-y="['top','top','top','top']" data-voffset="['170','120','90','70']"
-                data-fontsize="['50','40','30','24']" data-lineheight="['70','50','40','30']"
-                data-width="['100%','100%','100%','100%']" data-height="none"
-                data-whitespace="['nowrap','nowrap','nowrap','normal']" data-type="text" data-basealign="slide"
-                data-responsive_offset="off"
-                data-frames='[{"from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;",
-                  "mask":"x:0px;y:[-100%];s:inherit;e:inherit;","speed":1500,"to":"o:1;",
-                  "delay":500,"ease":"Power3.easeInOut"},{"delay":"wait","speed":1000,"to":"y:[-100%];","mask":"x:inherit;y:inherit;s:inherit;e:inherit;","ease":"Power2.easeInOut"}]'
-                data-textAlign="['center','center','center','center']" data-paddingtop="[0,0,0,0]"
-                data-paddingright="[0,0,0,0]" data-paddingbottom="[0,0,0,0]" data-paddingleft="[0,0,0,0]"
-                style="z-index: 11; white-space: nowrap; color:#000; ">
-                @if ($company[0]["BannerHeader2"] == "")
-                  {{ "BANNER Header" }}
-                @else
-                  {{ $company[0]["BannerHeader2"] }}
-                @endif
-              </div>
-
-
-
-              <!-- LAYER NR. 3 -->
-              <div class="tp-caption BigBold-Button rev-btn " id="slide-3043-layer-7"
-                data-x="['left','left','left','left']" data-hoffset="['0','0','0','0']"
-                data-y="['top','top','top','top']" data-voffset="['330','250','200','150']" data-height="none"
-                data-whitespace="nowrap" data-type="button"
-                data-actions='[{"event":"click","action":"simplelink","target": "_self","url":"shop-4cols.html"}]'
-                data-basealign="slide" data-responsive_offset="off" data-responsive="off" data-frames='[{"from":"y:[100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;",
-                    "speed":1500,"to":"o:1;","delay":650,"ease":"Power3.easeInOut"},
-                    {"delay":"wait","speed":1000,"to":"y:50px;opacity:0;","ease":"Power2.easeInOut"},
-                    {"frame":"hover","speed":"300","ease":"Power1.easeInOut",
-                    "to":"o:1;rX:0;rY:0;rZ:0;z:0;",
-                    "style":"c:rgba(255, 255, 255, 1.00);bc:rgba(255, 255, 255, 1.00);bw:1px 1px 1px 1px;"}]'
-                data-textAlign="['center','center','center','center']" data-paddingtop="[13,13,13,13]"
-                data-paddingright="[25,25,25,25]" data-paddingbottom="[13,13,13,13]" data-paddingleft="[25,25,25,25]"
-                style="z-index: 13; text-transform: uppercase; white-space: nowrap;outline:none;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;cursor:pointer; border-radius: 3px;">
-                Shop Now
-              </div>
-
-            </div>
-          </li>
-          <!-- SLIDE 1 -->
-          <li data-index="rs-3042" data-transition="slideoverhorizontal" data-slotamount="default"
-            data-hideafterloop="0" data-hideslideonmobile="off" data-easein="Power4.easeInOut"
-            data-easeout="Power4.easeInOut" data-masterspeed="1000" data-thumb="" data-rotate="0"
-            data-fstransition="fade" data-fsmasterspeed="1500" data-fsslotamount="7" data-saveperformance="off"
-            data-title="Big &amp; Bold" data-param1="" data-param2="" data-param3="" data-param4="" data-param5=""
-            data-param6="" data-param7="" data-param8="" data-param9="" data-param10="" data-description="">
-            <!-- MAIN IMAGE -->
-            @if ($company[0]["Banner3"] == "")
-              <img src="{{asset('front/images/index-10/banner-1.jpg')}}" alt="" data-bgposition="top center"
-            data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
-            @else
-              <img src="{{ $company[0]["Banner3"] }}" alt="" data-bgposition="top center"
-            data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
-            @endif
-            <!-- LAYERS -->
-
-            <div class="container" style="position: relative;">
-
-              <!-- LAYER NR. 1 -->
-              <div class="tp-caption BigBold-SubTitle  " id="slide-3043-layer-c" data-x="['left','left','left','left']"
-                data-hoffset="['15','15','15','15']" data-y="['top','top','top','top']"
-                data-voffset="['150','90','60','40']" data-fontsize="['18','18','18','14']"
-                data-width="['100%','100%','100%','100%']" data-height="none" data-whitespace="normal" data-type="text"
-                data-basealign="slide" data-responsive_offset="off" data-responsive="off" data-frames='[{"from":"y:[-100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;",
-                "speed":1500,"to":"o:1;","delay":650,"ease":"Power3.easeInOut"},
-                {"delay":"wait","speed":1000,"to":"y:50px;opacity:0;","ease":"Power2.easeInOut"}]'
-                data-textAlign="['left','left','left','left']" data-paddingtop="[0,0,0,0]" data-paddingright="[0,0,0,0]"
-                data-paddingbottom="[0,0,0,0]" data-paddingleft="[0,0,0,0]"
-                style="z-index: 12;  white-space: normal; line-height: 1.5;">
-                @if ($company[0]["BannerText3"] == "")
-                  {{ "BANNER TEXT" }}
-                @else
-                  {{ $company[0]["BannerText3"] }}
-                @endif
-              </div>
-
-
-              <!-- LAYER NR. 2 -->
-
-              <div class="tp-caption BigBold-Title   tp-resizeme" id="slide-3043-layer-1"
-                data-x="['left','left','left','left']" data-hoffset="['15','15','15','15']"
-                data-y="['top','top','top','top']" data-voffset="['170','120','90','70']"
-                data-fontsize="['50','40','30','24']" data-lineheight="['70','50','40','30']"
-                data-width="['100%','100%','100%','100%']" data-height="none"
-                data-whitespace="['nowrap','nowrap','nowrap','normal']" data-type="text" data-basealign="slide"
-                data-responsive_offset="off"
-                data-frames='[{"from":"y:[-100%];z:0;rX:0deg;rY:0;rZ:0;sX:1;sY:1;skX:0;skY:0;opacity:0;",
-                  "mask":"x:0px;y:[-100%];s:inherit;e:inherit;","speed":1500,"to":"o:1;",
-                  "delay":500,"ease":"Power3.easeInOut"},{"delay":"wait","speed":1000,"to":"y:[-100%];","mask":"x:inherit;y:inherit;s:inherit;e:inherit;","ease":"Power2.easeInOut"}]'
-                data-textAlign="['left','left','left','left']" data-paddingtop="[0,0,0,0]" data-paddingright="[0,0,0,0]"
-                data-paddingbottom="[0,0,0,0]" data-paddingleft="[0,0,0,0]"
-                style="z-index: 11; white-space: nowrap; color:#212121; ">
-                @if ($company[0]["BannerHeader3"] == "")
-                  {{ "BANNER Header" }}
-                @else
-                  {{ $company[0]["BannerHeader3"] }}
-                @endif
-              </div>
-
-            </div>
-          </li>
-        </ul>
-        <div class="tp-bannertimer tp-bottom" style="visibility: hidden !important; color: red"></div>
-      </div>
-    </div><!-- END REVOLUTION SLIDER -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $company[0]['NamaPartner'] ?? 'Marketplace' }} | Belanja Online Aman & Nyaman</title>
     
-    <div class="pro-banners-content pre-slick ">
-      <div class="pro-content cardwithbg">
-        <div class=" tabssect ">
-          <div class="container">
-            <div class="row ">
-              <div class="col-12 col-md-12 d-flex  clcicklinkM">
-                <ul class="nav nav-pills" id="pills-tab1" role="tablist">
-                  <li class="nav-item me-2">
-                    <a class="nav-link   shadow-none" id="home-tab-basic" data-bs-toggle="pill" href="#home-basic"
-                      role="tab" aria-controls="home-basic" aria-selected="true" attr-Kode="" attr-RecOID="{{ $RecOID }}">
-                      All
-                    </a>
-                  </li>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
 
-                  @if (count($jenisitem) > 0)
-                    @foreach ($jenisitem as $item)
-                        <li class="nav-item me-2">
-                            <a class="nav-link shadow-none" id="{{ str_replace(' ', '', $item->NamaJenis)."tab" }}" data-bs-toggle="pill" href="#{{ str_replace(' ', '', $item->NamaJenis)."idx" }}"
-                                role="tab" aria-controls="{{ str_replace(' ', '', $item->NamaJenis)."idx" }}" aria-selected="false" attr-Kode="{{ $item->KodeJenis }}" attr-RecOID="{{ $item->RecordOwnerID }}">
-                                {{ $item->NamaJenis." > " }}
-                            </a>
-                        </li>
-                    @endforeach
-                  @endif
-                </ul>
-              </div>
-
-            </div>
-
-            @if (count($jenisitem) > 0)
-                <div class="tab-content" id="v-pills-tabContent1">
-                  <div class="tab-pane fade show active" id="home-basic" role="tabpanel" aria-labelledby="home-tab-basic">
-                    <div id="{{$RecOID }}"></div>
-                  </div>
-                </div>
-                @foreach ($jenisitem as $item)
-                <div class="tab-content" id="v-pills-tabContent1">
-                    <div class="tab-pane fade" id="{{ str_replace(' ', '', $item->NamaJenis)."idx" }}" role="tabpanel" aria-labelledby="{{ str_replace(' ', '', $item->NamaJenis)."tab" }}">
-                        <div id="{{ $item->KodeJenis."_".$item->RecordOwnerID }}"></div>
-                    </div>
-                </div>
-                @endforeach
-
-                <nav>
-                  <ul id="pagination-controls" class="pagination"></ul>
-                </nav>
-            @endif
-          </div>
-        </div>
-      </div>
-
-    </div>
-    <div class="footerAndNewslater">
-      <footer class="footer10">
-        <div class="container">
-            <p class="mb-0 mt-3">©2020-2023 Kundol.com all rights reserved</p>
-        </div>
-      </footer>
-    </div>
-  </div>
-
-  <div class="mobile-overlay"></div>
-  <a href="#" class="btn-secondary " id="back-to-top" title="Back to top">&uarr;</a>
-
-  <div class="notifications" id="notificationWishlist">Product Added To Wishlist</div>
-  <div class="notifications" id="notificationCart">Product Added To Cart</div>
-  <div class="notifications" id="notificationCompare">Product Added For Compare</div>
-
-  
-
-  <button class="switch btn btn-secondary btn-sm" data-switch-dark>Dark Mode</button>
-
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <!-- All custom scripts here -->
-  <script src="{{asset('front/js/scripts.js')}}"></script>
-
-  <!-- Slider Revolution core JavaScript files -->
-  <script src="{{asset('front/revolution/js/jquery.themepunch.tools.min.js')}}"></script>
-  <script src="{{asset('front/revolution/js/jquery.themepunch.revolution.min.js')}}"></script>
-
-  <!-- Slider Revolution extension scripts. ONLY NEEDED FOR LOCAL TESTING -->
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.actions.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.carousel.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.kenburn.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.layeranimation.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.migration.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.navigation.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.parallax.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.slideanims.min')}}.js"></script>
-  <script src="{{asset('front/revolution/js/extensions/revolution.extension.video.min')}}.js"></script>
-
-
-</body>
-
-<script>
-    jQuery(document).ready(function() {
-      // jQuery('#home-tab-basic').click();
-      // jQuery('a[attr-Kode=""]').click();
-      let allData = [];
-      let itemsPerPage = 30;
-      let currentPage = 1;
-
-      const renderItems = (data, page) => {
-        const start = (page - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const itemsToDisplay = data.slice(start, end);
-
-        let xHTML = '<div class="row">';
-        let url = "{{ url('') }}" + "/front/images/index-10/26.jpg";
-
-        itemsToDisplay.forEach(item => {
-            xHTML += '<div class="col-12 col-md-6 col-lg-4">';
-            xHTML += '<figure class="banner-withimage hvr-vibrate">';
-            xHTML += '<div class="imgs">';
-            if (item["Gambar"] == "") {
-                xHTML += "<img class='img-fluid' src='" + url + "' alt='Banner Image'>";
-            } else {
-                xHTML += "<img class='img-fluid' src='" + item["Gambar"] + "' alt='Banner Image'>";
-            }
-            xHTML += '</div>';
-            xHTML += "<div class='banner-caption right-caption'>";
-            xHTML += "<h3><a href='#'>" + item["NamaItem"] + "</a></h3>";
-            xHTML += '<div class="pro-price"><ins>Rp. ' + item["HargaJual"].toLocaleString() + '</ins></div>';
-            if (item["Stock"] > 0) {
-                xHTML += '<h3>Tersedia: ' + item["Stock"].toLocaleString() + ' ' + item["Satuan"] + '</h3>';
-            } else {
-                xHTML += '<div class="pro-price"><del>Stock Kosong</del></div>';
-            }
-            xHTML += '</div>';
-            xHTML += '</figure>';
-            xHTML += '</div>';
-        });
-
-        xHTML += '</div>';
-
-        return xHTML;
-      };
-
-      const _renderPaginationOld_ = (totalItems, KodeJenis, RecordOwnerID) => {
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-        let paginationHTML = `
-            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" aria-label="Previous" data-page="${currentPage - 1}">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-        `;
-
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHTML += `
-                <li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" data-page="${i}">${i}</a>
-                </li>
-            `;
+    <style>
+        :root {
+            --primary-blue: #0d47a1; /* Royal Blue - Identitas Perusahaan */
+            --primary-red: #d32f2f;  /* Strong Red - Untuk Flash Sale & Promo */
+            --bg-light: #f4f7f6;
+            --text-dark: #1a237e;
+            --text-muted: #546e7a;
+            --border-color: #cfd8dc;
         }
 
-        paginationHTML += `
-            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="#" aria-label="Next" data-page="${currentPage + 1}">
-                    <span aria-hidden="true">&raquo;</span>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding-top: 120px;
+        }
+
+        /* TOP NAVIGATION */
+        .top-nav {
+            background-color: var(--primary-blue);
+            color: white;
+            font-size: 0.8rem;
+            padding: 5px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1100;
+        }
+
+        .main-header {
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+            position: fixed;
+            top: 30px;
+            width: 100%;
+            z-index: 1050;
+        }
+
+        .search-bar {
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 2px;
+            display: flex;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .search-bar:focus-within {
+            background: white;
+            border-color: var(--primary-blue);
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 10px 15px;
+            outline: none;
+        }
+
+        .search-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 6px;
+            margin: 2px;
+            font-weight: 600;
+        }
+
+        .cart-icon {
+            font-size: 1.6rem;
+            color: var(--primary-blue);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background: var(--primary-red);
+            color: white;
+            font-size: 0.7rem;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        /* BANNER SLIDER */
+        .banner-slider {
+            margin-bottom: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .banner-item img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+        }
+
+        /* CATEGORY ICONS */
+        .category-grid {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            overflow-x: auto;
+            gap: 25px;
+            scrollbar-width: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .category-grid::-webkit-scrollbar { display: none; }
+
+        .cat-item {
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-dark);
+            min-width: 90px;
+            transition: all 0.2s;
+        }
+
+        .cat-item:hover { transform: translateY(-3px); color: var(--primary-red); }
+
+        .cat-icon {
+            width: 60px;
+            height: 60px;
+            background: #e3f2fd;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: var(--primary-blue);
+            font-size: 1.6rem;
+            border: 1px solid #bbdefb;
+            transition: all 0.2s;
+        }
+
+        .cat-item:hover .cat-icon { background: var(--primary-blue); color: white; }
+
+        /* FLASH SALE SECTION */
+        .flash-sale-section {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border-top: 4px solid var(--primary-red);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .fs-header {
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(to right, #fff, #fff5f5);
+        }
+
+        .fs-title {
+            color: var(--primary-red);
+            font-weight: 800;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fs-timer { display: flex; gap: 8px; }
+        .timer-box {
+            background: var(--primary-red);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .fs-slider { padding: 20px; }
+        .fs-card { padding: 10px; text-align: center; text-decoration: none; color: inherit; display: block; }
+        .fs-img-wrap { position: relative; padding-top: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+        .fs-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .fs-price { color: var(--primary-red); font-weight: 700; font-size: 1.1rem; }
+        .fs-discount-tag {
+            position: absolute;
+            top: 0; right: 0;
+            background: var(--primary-red);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            font-weight: 700;
+            border-bottom-left-radius: 8px;
+        }
+
+        /* SECTION TITLE */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 12px 12px 0 0;
+            border-left: 5px solid var(--primary-blue);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .section-title { font-size: 1.2rem; font-weight: 700; color: var(--primary-blue); text-transform: uppercase; }
+
+        /* PRODUCT CARDS */
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .product-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+
+        .card-img-wrap { position: relative; padding-top: 100%; background: #f9f9f9; }
+        .card-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+
+        .card-content { padding: 15px; flex-grow: 1; }
+        .card-title {
+            font-size: 0.9rem; font-weight: 500; height: 2.6rem; overflow: hidden;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            margin-bottom: 10px; color: #333;
+        }
+
+        .card-price { color: var(--primary-blue); font-weight: 700; font-size: 1.1rem; }
+        .card-footer-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: #78909c; margin-top: 12px; }
+
+        /* LOAD MORE */
+        .load-more-container { margin: 40px 0 80px; text-align: center; }
+        .btn-load-more {
+            background: white;
+            border: 2px solid var(--primary-blue);
+            padding: 12px 60px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+
+        .btn-load-more:hover { background: var(--primary-blue); color: white; }
+
+        @media (max-width: 768px) {
+            body { padding-top: 140px; }
+            .top-nav { display: none; }
+            .main-header { top: 0; padding: 15px 0; }
+            .banner-item img { height: 200px; }
+            .fs-title { font-size: 1.1rem; }
+            .category-grid { padding: 15px; gap: 15px; }
+            .cat-icon { width: 50px; height: 50px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAV -->
+    <nav class="top-nav">
+        <div class="container d-flex justify-content-between">
+            <div>
+                <a href="#" class="text-white text-decoration-none me-3"><i class="fas fa-store me-1"></i> Seller Centre</a>
+                <a href="#" class="text-white text-decoration-none"><i class="fas fa-mobile-alt me-1"></i> Download App</a>
+            </div>
+            <div>
+                @if(Auth::guard('pelanggan')->check())
+                    <a href="#" class="text-white text-decoration-none fw-bold"><i class="fas fa-user-circle me-1"></i> {{ Auth::guard('pelanggan')->user()->NamaPelanggan }}</a>
+                @else
+                    <a href="#" class="text-white text-decoration-none me-3 fw-bold" onclick="showLoginModal()">LOGIN MEMBER</a>
+                    <a href="#" class="text-white text-decoration-none fw-bold" onclick="showLoginModal()">DAFTAR</a>
+                @endif
+            </div>
+        </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="main-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-6 col-md-3 mb-3 mb-md-0">
+                    <a href="#" class="text-decoration-none d-flex align-items-center gap-2">
+                        @if(!empty($company[0]['icon']))
+                            <img src="{{ $company[0]['icon'] }}" height="45" alt="Logo">
+                        @else
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                        @endif
+                        <span class="fs-4 fw-bold" style="color: var(--primary-blue)">{{ $company[0]['NamaPartner'] }}</span>
+                    </a>
+                </div>
+                <div class="col-12 col-md-7 order-3 order-md-2">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Cari produk impian Anda di sini...">
+                        <button class="search-btn"><i class="fas fa-search me-2"></i> CARI</button>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 order-2 order-md-3 text-end">
+                    <div class="cart-icon d-inline-block">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="cartCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mt-3">
+        <!-- Banners -->
+        <div class="banner-slider">
+            <div class="banner-item"><img src="{{ $company[0]['Banner1'] ?: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80' }}" alt="Banner 1"></div>
+            @if(!empty($company[0]['Banner2'])) <div class="banner-item"><img src="{{ $company[0]['Banner2'] }}" alt="Banner 2"></div> @endif
+        </div>
+
+        <!-- Flash Sale -->
+        @if(count($flashSales) > 0)
+        <div class="flash-sale-section">
+            <div class="fs-header">
+                <div class="fs-title"><i class="fas fa-bolt animate__animated animate__flash animate__infinite"></i> FLASH SALE</div>
+                <div class="fs-timer" id="flashTimer">
+                    <div class="timer-box" id="timer-h">00</div>
+                    <div class="timer-box" id="timer-m">00</div>
+                    <div class="timer-box" id="timer-s">00</div>
+                </div>
+            </div>
+            <div class="fs-slider">
+                @foreach($flashSales as $fs)
+                <a href="#" class="fs-card">
+                    <div class="fs-img-wrap">
+                        <img src="{{ $fs->Gambar ?: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' }}" class="fs-img" alt="">
+                        <div class="fs-discount-tag">SPECIAL PRICE</div>
+                    </div>
+                    <div class="fs-price">Rp {{ number_format($fs->FlashSalePrice ?: $fs->HargaJual * 0.8, 0, ',', '.') }}</div>
+                    <div class="small text-muted text-decoration-line-through">Rp {{ number_format($fs->HargaJual, 0, ',', '.') }}</div>
                 </a>
-            </li>
-        `;
+                @endforeach
+            </div>
+        </div>
+        @endif
 
-        jQuery('#pagination-controls').html(paginationHTML);
+        <!-- Best Sellers -->
+        @if(count($bestSellers) > 0)
+        <div class="section-header">
+            <div class="section-title"><i class="fas fa-fire me-2 text-danger"></i> Produk Terlaris</div>
+        </div>
+        <div class="best-seller-slider mb-4">
+            @foreach($bestSellers as $bs)
+            <div class="px-2">
+                <div class="product-card">
+                    <div class="card-img-wrap">
+                        <img src="{{ $bs->Gambar ?: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' }}" class="card-img">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title text-center">{{ $bs->NamaItem }}</div>
+                        <div class="card-price text-center">Rp {{ number_format($bs->HargaJual, 0, ',', '.') }}</div>
+                        <div class="card-footer-info">
+                            <span><i class="fas fa-star text-warning"></i> 5.0</span>
+                            <span>Terjual 1rb+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
 
+        <!-- Category Icons -->
+        <div class="category-grid" id="categoryIcons">
+            <a href="#" class="cat-item active" data-kode="">
+                <div class="cat-icon"><i class="fas fa-th-large"></i></div>
+                <div class="cat-name">Semua Produk</div>
+            </a>
+            @foreach ($jenisitem as $item)
+                <a href="#" class="cat-item" data-kode="{{ $item->KodeJenis }}">
+                    <div class="cat-icon"><i class="fas fa-tag"></i></div>
+                    <div class="cat-name">{{ $item->NamaJenis }}</div>
+                </a>
+            @endforeach
+        </div>
 
-        jQuery('.page-link').on('click', function(event) {
-            event.preventDefault();
-            const page = $(this).data('page');
-            if (page > 0 && page <= totalPages) {
-                currentPage = page;
-                // $('#content').html(renderItems(allData, currentPage));
-                if(KodeJenis == ""){
-                    jQuery("#"+RecordOwnerID).html(renderItems(allData, currentPage));
-                }
-                else{
-                    jQuery("#"+KodeJenis+"_"+RecordOwnerID).html(renderItems(allData, currentPage));
-                }
-                renderPagination(allData.length, KodeJenis, RecordOwnerID);
+        <!-- Recommendation Section -->
+        <div class="section-header">
+            <div class="section-title"><i class="fas fa-thumbs-up me-2"></i> Rekomendasi Untuk Anda</div>
+        </div>
+
+        <div id="productGrid" class="row g-3 product-grid">
+            <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+        </div>
+
+        <div class="load-more-container d-none" id="loadMoreSection">
+            <button class="btn btn-load-more" id="btnLoadMore">LIHAT LEBIH BANYAK PRODUK</button>
+        </div>
+    </main>
+
+    <footer class="mt-5 py-5 border-top bg-white text-start">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--primary-blue)">KONTAK KAMI</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-3"><i class="fas fa-map-marker-alt me-2 text-danger"></i> {{ $company[0]['Alamat'] }}</li>
+                        <li class="mb-3"><i class="fas fa-phone-alt me-2 text-success"></i> {{ $company[0]['NoTlp1'] }}</li>
+                        <li class="mb-3"><i class="fas fa-envelope me-2 text-primary"></i> {{ $company[0]['Email'] }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--primary-blue)">MEDIA SOSIAL</h6>
+                    <div class="d-flex gap-3 fs-3 mt-2">
+                        @if(!empty($company[0]['FB']))
+                            <a href="{{ $company[0]['FB'] }}" target="_blank" style="color: #3b5998"><i class="fab fa-facebook"></i></a>
+                        @endif
+                        @if(!empty($company[0]['Instagram']))
+                            <a href="{{ $company[0]['Instagram'] }}" target="_blank" style="color: #e4405f"><i class="fab fa-instagram"></i></a>
+                        @endif
+                        @if(!empty($company[0]['Twitter']))
+                            <a href="{{ $company[0]['Twitter'] }}" target="_blank" style="color: #1da1f2"><i class="fab fa-twitter"></i></a>
+                        @endif
+                        @if(!empty($company[0]['Youtube']))
+                            <a href="{{ $company[0]['Youtube'] }}" target="_blank" style="color: #cd201f"><i class="fab fa-youtube"></i></a>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--primary-blue)">TENTANG KAMI</h6>
+                    <p class="small text-muted">
+                        {{ $company[0]['NamaPartner'] }} adalah solusi terpercaya untuk kebutuhan belanja Anda. Kami mengutamakan kualitas dan kepuasan pelanggan.
+                    </p>
+                    @if(!empty($company[0]['Website']))
+                        <a href="{{ $company[0]['Website'] }}" target="_blank" class="btn btn-sm btn-primary rounded-pill px-4">Kunjungi Website</a>
+                    @endif
+                </div>
+            </div>
+            <hr>
+            <div class="text-center text-muted small">
+                &copy; {{ date('Y') }} {{ $company[0]['NamaPartner'] }}. Official Marketplace Platform.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                <div class="modal-body p-5">
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold" style="color: var(--primary-blue)">LOGIN MEMBER</h4>
+                        <p class="small text-muted">Masuk untuk pengalaman belanja lebih baik</p>
+                    </div>
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email / No. HP</label>
+                            <input type="text" class="form-control form-control-lg" placeholder="Masukkan ID Anda" style="border-radius: 10px;" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" class="form-control form-control-lg" placeholder="Masukkan Password" style="border-radius: 10px;" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow" style="border-radius: 10px; background: var(--primary-blue)">MASUK SEKARANG</button>
+                    </form>
+                    <div class="text-center mt-4 small">
+                        Belum punya akun? <a href="#" class="text-decoration-none fw-bold" style="color: var(--primary-red)">Daftar Member</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            let allData = [];
+            let itemsPerPage = 12;
+            let currentOffset = 0;
+            let currentROID = "{{ $RecOID }}";
+            let defaultPlaceholder = "https://images.unsplash.com/photo-1560343090-f0409e92791a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80";
+
+            // Initialize Banners & Sliders
+            $('.banner-slider').slick({ dots: true, autoplay: true, autoplaySpeed: 4000, arrows: false, fade: true });
+            $('.fs-slider').slick({ slidesToShow: 5, slidesToScroll: 2, arrows: true, responsive: [{ breakpoint: 1024, settings: { slidesToShow: 3 } }, { breakpoint: 768, settings: { slidesToShow: 2 } }] });
+            $('.best-seller-slider').slick({ slidesToShow: 6, slidesToScroll: 2, arrows: true, responsive: [{ breakpoint: 1024, settings: { slidesToShow: 4 } }, { breakpoint: 768, settings: { slidesToShow: 2 } }] });
+
+            // Flash Sale Timer Logic
+            function startTimer() {
+                let fsUntil = "{{ count($flashSales) > 0 ? $flashSales[0]->FlashSaleUntil : '' }}";
+                let endTime = fsUntil ? new Date(fsUntil).getTime() : new Date().getTime() + (3 * 60 * 60 * 1000);
+
+                setInterval(function() {
+                    let now = new Date().getTime();
+                    let distance = endTime - now;
+                    if (distance < 0) {
+                        $('#flashTimer').html('<span class="badge bg-secondary">PROMO BERAKHIR</span>');
+                        return;
+                    }
+
+                    let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    let s = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    $('#timer-h').text(h.toString().padStart(2, '0'));
+                    $('#timer-m').text(m.toString().padStart(2, '0'));
+                    $('#timer-s').text(s.toString().padStart(2, '0'));
+                }, 1000);
             }
+            startTimer();
+
+            // Product Fetching
+            fetchProducts("");
+
+            $('.cat-item').on('click', function(e) {
+                e.preventDefault();
+                $('.cat-item').removeClass('active');
+                $(this).addClass('active');
+                fetchProducts($(this).data('kode'));
+            });
+
+            $('#btnLoadMore').on('click', function() { renderBatch(); });
+
+            function fetchProducts(kodeJenis) {
+                $('#productGrid').html('<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>');
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('cat-itemmaster') }}",
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    data: { 'KodeJenis': kodeJenis, 'RecordOwnerID': currentROID, 'Active': 'Y' },
+                    success: function(response) {
+                        allData = response.data;
+                        currentOffset = 0;
+                        $('#productGrid').empty();
+                        renderBatch();
+                    }
+                });
+            }
+
+            function renderBatch() {
+                const nextBatch = allData.slice(currentOffset, currentOffset + itemsPerPage);
+                let html = '';
+                nextBatch.forEach(item => {
+                    const imgSrc = item.Gambar ? item.Gambar : defaultPlaceholder;
+                    const priceFormatted = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.HargaJual);
+                    html += `
+                        <div class="col-6 col-md-4 col-lg-2 mb-3">
+                            <div class="product-card">
+                                <div class="card-img-wrap"><img src="${imgSrc}" class="card-img" onerror="this.src='${defaultPlaceholder}'"></div>
+                                <div class="card-content">
+                                    <div class="card-title">${item.NamaItem}</div>
+                                    <div class="card-price">${priceFormatted}</div>
+                                    <div class="card-footer-info"><span>⭐ 4.9</span><span>Terjual 500+</span></div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                $('#productGrid').append(html);
+                currentOffset += itemsPerPage;
+                if (currentOffset < allData.length) $('#loadMoreSection').removeClass('d-none');
+                else $('#loadMoreSection').addClass('d-none');
+            }
+
+            window.showLoginModal = function() { new bootstrap.Modal(document.getElementById('loginModal')).show(); };
         });
-      };
-
-
-      const renderPagination = (totalItems, KodeJenis, RecordOwnerID) => {
-          const totalPages = Math.ceil(totalItems / itemsPerPage);
-          const maxVisiblePages = getMaxVisiblePages();
-          let paginationHTML = '';
-
-          paginationHTML += `
-              <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                  <a class="page-link" href="#" aria-label="Previous" data-page="${currentPage - 1}">
-                      <span aria-hidden="true">&laquo;</span>
-                  </a>
-              </li>
-          `;
-
-          if (totalPages <= maxVisiblePages) {
-              for (let i = 1; i <= totalPages; i++) {
-                  paginationHTML += `
-                      <li class="page-item ${i === currentPage ? 'active' : ''}">
-                          <a class="page-link" href="#" data-page="${i}">${i}</a>
-                      </li>
-                  `;
-              }
-          } else {
-              const visiblePages = getVisiblePages(currentPage, totalPages, maxVisiblePages);
-              visiblePages.forEach(page => {
-                  if (page === '...') {
-                      paginationHTML += `<li class="page-item disabled"><a class="page-link" href="#">${page}</a></li>`;
-                  } else {
-                      paginationHTML += `
-                          <li class="page-item ${page === currentPage ? 'active' : ''}">
-                              <a class="page-link" href="#" data-page="${page}">${page}</a>
-                          </li>
-                      `;
-                  }
-              });
-          }
-
-          paginationHTML += `
-              <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                  <a class="page-link" href="#" aria-label="Next" data-page="${currentPage + 1}">
-                      <span aria-hidden="true">&raquo;</span>
-                  </a>
-              </li>
-          `;
-
-          jQuery('#pagination-controls').html(paginationHTML);
-
-          jQuery('.page-link').on('click', function(event) {
-              event.preventDefault();
-              const page = $(this).data('page');
-              if (page > 0 && page <= totalPages) {
-                  currentPage = page;
-                  // $('#content').html(renderItems(allData, currentPage));
-                  if(KodeJenis == ""){
-                      jQuery("#"+RecordOwnerID).html(renderItems(allData, currentPage));
-                  }
-                  else{
-                      jQuery("#"+KodeJenis+"_"+RecordOwnerID).html(renderItems(allData, currentPage));
-                  }
-                  renderPagination(allData.length, KodeJenis, RecordOwnerID);
-              }
-          });
-      };
-
-      const getMaxVisiblePages = () => {
-          const width = $(window).width();
-          if (width >= 1200) return 7;
-          if (width >= 992) return 5;
-          if (width >= 768) return 5;
-          return 3;
-      };
-
-      const getVisiblePages = (currentPage, totalPages, maxVisiblePages) => {
-          const half = Math.floor(maxVisiblePages / 2);
-          let start = currentPage - half;
-          let end = currentPage + half;
-
-          if (start < 1) {
-              start = 1;
-              end = maxVisiblePages;
-          }
-
-          if (end > totalPages) {
-              start = totalPages - maxVisiblePages + 1;
-              end = totalPages;
-          }
-
-          const pages = [];
-          if (start > 1) {
-              pages.push(1);
-              if (start > 2) {
-                  pages.push('...');
-              }
-          }
-
-          for (let i = start; i <= end; i++) {
-              pages.push(i);
-          }
-
-          if (end < totalPages) {
-              if (end < totalPages - 1) {
-                  pages.push('...');
-              }
-              pages.push(totalPages);
-          }
-
-          return pages;
-      };
-
-      jQuery(window).on('resize', function() {
-          renderPagination(allData.length);
-      });
-
-      jQuery('a[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
-          var target = jQuery(e.target).attr("href"); // activated tab
-          var KodeJenis = jQuery(e.target).attr("attr-Kode");
-          var RecordOwnerID = jQuery(e.target).attr("attr-RecOID");
-
-          // GetItemDetails
-          $.ajax({
-            async:false,
-            type: 'post',
-            url: "{{route('cat-itemmaster')}}",
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include the CSRF token in the headers
-            },
-            data: {
-                'KodeJenis' : KodeJenis,
-                  'Merk' 		: '',
-                  'TipeItem' 	: '',
-                  'Active' 	: 'Y',
-                  'Scan'		: '',
-                  'TipeItemIN' : '',
-                  'RecordOwnerID' : RecordOwnerID
-            },
-            dataType: 'json',
-            success: function(response) {
-              if(response.data.length > 0){
-                allData = response.data;
-                currentPage = 1;
-                if(KodeJenis == ""){
-                    jQuery("#"+RecordOwnerID).html(renderItems(allData, currentPage));
-                }
-                else{
-                    jQuery("#"+KodeJenis+"_"+RecordOwnerID).html(renderItems(allData, currentPage));
-                }
-                renderPagination(allData.length, KodeJenis, RecordOwnerID);
-                //       var xHTML = "";
-                //       let url = "{{ url('') }}";
-                //       // url.searchParams.append('NoTransaksi', NoTransaksi);
-                // url += "/front/images/index-10/26.jpg";
-                //       jQuery("#"+KodeJenis+"_"+RecordOwnerID).empty();
-                //       var xHTML = '<div class="row">';
-                //       for (let index = 0; index < response.data.length; index++) {
-                //           xHTML += '<div class="col-12 col-md-6 col-lg-4">';
-                //               xHTML += '<figure class="banner-withimage hvr-vibrate">';
-                //                   xHTML+='<div class="imgs">';
-                //                       if(response.data[index]["Gambar"] == ""){
-                //                           xHTML+="<img class='img-fluid' src='"+url+"' alt='Banner Image'>";
-                //                       }
-                //                       else{
-                //                           xHTML+="<img class='img-fluid' src='"+response.data[index]["Gambar"]+"' alt='Banner Image'>";
-                //                       }
-                //                   xHTML+='</div>';
-
-                //                   xHTML+="<div class='banner-caption right-caption'>"
-                //                       xHTML += "<h3> <a href='#'>"+response.data[index]["NamaItem"]+"</a></h3>";
-                //                       xHTML += '<div class="pro-price"> <ins>Rp. '+response.data[index]["HargaJual"].toLocaleString() +' </ins> </div>'
-                //                       if(response.data[index]["Stock"] > 0){
-                //                           xHTML += '<h3>Tersedia : '+response.data[index]["Stock"].toLocaleString()+' '+response.data[index]["Satuan"]+'</h3>'
-                //                       }
-                //                       else{
-                //                           xHTML += '<div class="pro-price"> <del>Stock Kosong </del> </div>'
-                //                       }
-                //                   xHTML+='</div>';
-
-                //               xHTML += '</figure>';
-                //           xHTML += '</div>';
-                //       }
-                //       xHTML += '</div>';
-
-                //       if(KodeJenis == ""){
-                //           jQuery("#"+RecordOwnerID).html(xHTML);
-                //       }
-                //       else{
-                //           jQuery("#"+KodeJenis+"_"+RecordOwnerID).html(xHTML);
-                //       }
-              }
-                  
-            }
-        })
-      });
-  });
-</script>
-
+    </script>
+</body>
 </html>

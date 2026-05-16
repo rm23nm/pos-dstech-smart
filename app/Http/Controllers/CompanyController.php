@@ -378,7 +378,13 @@ class CompanyController extends Controller
                     'KitchenBackgraund' => empty($request->input('KitchenBackgraundBase64')) ? $request->input('KitchenBackgraund') : $request->input('KitchenBackgraundBase64'),
                     'RunningTextSelfServices' => empty($request->input('RunningTextSelfServices')) ? $request->input('RunningTextSelfServices') : $request->input('RunningTextSelfServices'),
                     'QueueDesignSetting' => empty($request->input('QueueDesignSetting')) ? "QueueManagement" : $request->input('QueueDesignSetting'),
-                    'ShowMetodePembayaran' => ($request->has('showBayarDiMeja') ? "1" : "0") . ($request->has('showLangsungBayar') ? "1" : "0")
+                    'ShowMetodePembayaran' => ($request->has('showBayarDiMeja') ? "1" : "0") . ($request->has('showLangsungBayar') ? "1" : "0"),
+                    'CustomDomain' => $request->input('CustomDomain'),
+                    'CustomDomainBooking' => $request->input('CustomDomainBooking'),
+                    'CustomDomainQueue' => $request->input('CustomDomainQueue'),
+                    'CustomDomainKDS' => $request->input('CustomDomainKDS'),
+                    'MidtransClientKey' => $request->input('MidtransClientKey'),
+                    'MidtransServerKey' => $request->input('MidtransServerKey'),
                 ]);
             
                 

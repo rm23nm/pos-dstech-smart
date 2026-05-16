@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use DB;
 use Log;
+use Illuminate\Support\Facades\Schema;
 
 use App\Models\JenisItem;
 use App\Models\ItemMaster;
@@ -20,10 +21,33 @@ class KatalogController extends Controller
                         ->get(); 
         $company = Company::where("KodePartner", $RecordOwnerID)
                         ->get();
+
+        // Check if new columns exist to prevent errors before migration
+        $flashSales = [];
+        $bestSellers = [];
+
+        if (Schema::hasColumn('itemmaster', 'isFlashSale')) {
+            $flashSales = ItemMaster::where('RecordOwnerID', $RecordOwnerID)
+                            ->where('isFlashSale', 'Y')
+                            ->where('Active', 'Y')
+                            ->limit(10)
+                            ->get();
+        }
+
+        if (Schema::hasColumn('itemmaster', 'isBestSeller')) {
+            $bestSellers = ItemMaster::where('RecordOwnerID', $RecordOwnerID)
+                            ->where('isBestSeller', 'Y')
+                            ->where('Active', 'Y')
+                            ->limit(12)
+                            ->get();
+        }
+
         return view("catalouge.catalouge",[
             'jenisitem' => $jenisitem,
             'RecOID' => $RecordOwnerID,
-            'company' => $company
+            'company' => $company,
+            'flashSales' => $flashSales,
+            'bestSellers' => $bestSellers
 	    ]);
     }
 

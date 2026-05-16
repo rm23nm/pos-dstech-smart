@@ -551,6 +551,17 @@
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="{{asset('js/plugin.bundle.min.js')}}"></script>
 	<script src="{{asset('js/bootstrap.bundle.min.js')}}"></script>
+	<script>
+		// Shim for Bootstrap 5 compatibility with older template scripts
+		if (typeof jQuery !== 'undefined' && typeof bootstrap !== 'undefined' && !jQuery.fn.tab) {
+			jQuery.fn.tab = function (action) {
+				return this.each(function () {
+					const tab = bootstrap.Tab.getOrCreateInstance(this);
+					if (action === 'show') tab.show();
+				});
+			};
+		}
+	</script>
 	
 	<!-- Dev Express -->
 	<link href="{{ asset('devexpress/dx.light.css')}}" rel="stylesheet" type="text/css" />

@@ -1,14 +1,18 @@
 <?php
-
+ 
 namespace App\Models;
-
+ 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Pelanggan extends BaseModel
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+ 
+class Pelanggan extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
+    
     protected $table = 'pelanggan';
+    protected $primaryKey = 'PelangganID'; // Ensure this matches your PK
+ 
     protected $fillable = [
         'KodePelanggan',
         'NamaPelanggan',
@@ -19,6 +23,7 @@ class Pelanggan extends BaseModel
         'KelID',
         'KecID',
         'Email',
+        'password', // Added for Login
         'NoTlp1',
         'NoTlp2',
         'Alamat',
@@ -34,5 +39,10 @@ class Pelanggan extends BaseModel
         'RecordOwnerID',
         'created_at',
         'updated_at'
+    ];
+ 
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 }

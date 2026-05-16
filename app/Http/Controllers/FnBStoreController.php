@@ -194,7 +194,11 @@ class FnBStoreController extends Controller
             ->where('MetodeVerifikasi', 'AUTO')
             ->get();
 
-        $midtransclientkey = $company->MidtransClientKey ?? '';
+        // Use key from company first, then fallback to first AUTO payment method
+        $midtransclientkey = $company->MidtransClientKey;
+        if (empty($midtransclientkey) && $paymentMethods->count() > 0) {
+            $midtransclientkey = $paymentMethods->first()->ClientKey;
+        }
 
         return view('fnb_store.menu', compact('company', 'menus', 'paymentMethods', 'midtransclientkey', 'id'));
     }
@@ -205,6 +209,7 @@ class FnBStoreController extends Controller
         $total = $request->input('total');
         $paymentId = $request->input('payment_id');
         $roid = $this->decodeId($id);
+        $company = Company::where('KodePartner', $roid)->first();
         $customerId = session('customer_id');
 
         if (empty($cart)) {
@@ -270,7 +275,11 @@ class FnBStoreController extends Controller
             }
 
             $pm = DB::table('metodepembayaran')->where('id', $paymentId)->first();
-            Config::$serverKey = $pm->ServerKey;
+            
+            // Prioritize keys from company table if available
+            $serverKey = !empty($company->MidtransServerKey) ? $company->MidtransServerKey : ($pm->ServerKey ?? '');
+            
+            Config::$serverKey = $serverKey;
             Config::$isProduction = config('midtrans.is_production', false);
             Config::$isSanitized = true;
             Config::$is3ds = true;
