@@ -174,14 +174,16 @@ class KatalogController extends Controller
     public function CatCheckout(Request $request)
     {
         $cart           = $request->input('cart'); // Array of objects
-        $total          = $request->input('total');
+        $total          = (float)$request->input('total');
         $roid           = $request->input('RecordOwnerID');
         $customerId     = session('customer_id');
         $deliveryType   = $request->input('delivery_type', 'PICKUP'); // PICKUP | DELIVERY
         $deliveryAddr   = $request->input('delivery_address', '');
         $deliveryCost   = (float)$request->input('delivery_cost', 0);
         $deliveryNotes  = $request->input('delivery_notes', '');
-        $grandTotal     = $total + $deliveryCost;
+        $voucherCode    = strtoupper(trim($request->input('voucher_code', '')));
+        $discountAmount = (float)$request->input('discount_amount', 0);
+        $grandTotal     = max(0, $total - $discountAmount) + $deliveryCost;
 
         if (empty($cart) || empty($customerId)) {
             return response()->json(['success' => false, 'message' => 'Keranjang kosong atau Anda belum login.']);
@@ -231,7 +233,7 @@ class KatalogController extends Controller
                 'DurasiPaket'   => 0,
                 'TaxTotal'      => 0,
                 'GrossTotal'    => $total,
-                'DiscTotal'     => 0,
+                'DiscTotal'     => $discountAmount,
                 'TotalMakanan'  => $total,
                 'NetTotal'      => $grandTotal,
                 'kitchen_order_status' => 0,
@@ -380,5 +382,51 @@ class KatalogController extends Controller
         }
 
         return view('catalouge.status', compact('order', 'company', 'RecordOwnerID'));
+    }
+
+    public function CatValidateVoucher(Request $request)
+    {
+        $code  = strtoupper(trim($request->input('voucher_code', '')));
+        $roid  = $request->input('RecordOwnerID');
+        $total = (float)$request->input('total', 0);
+        $today = \Carbon\Carbon::now('Asia/Jakarta')->toDateString();
+
+        if (empty($code)) {
+            return response()->json(['success' => false, 'message' => 'Kode voucher tidak boleh kosong.']);
+        }
+
+        $voucher = DB::table('discountvoucher')
+            ->where('VoucherCode', $code)
+            ->where('RecordOwnerID', $roid)
+            ->where('StartDate', '<=', $today)
+            ->where('EndDate', '>=', $today)
+            ->first();
+
+        if (!$voucher) {
+            return response()->json(['success' => false, 'message' => 'Kode voucher tidak valid atau sudah kadaluarsa.']);
+        }
+
+        if ($voucher->DiscountQuota <= 0) {
+            return response()->json(['success' => false, 'message' => 'Kuota voucher ini sudah habis.']);
+        }
+
+        // Hitung diskon
+        $discountAmount = $total * ($voucher->DiscountPercent / 100);
+        if ($voucher->MaximalDiscount > 0 && $discountAmount > $voucher->MaximalDiscount) {
+            $discountAmount = $voucher->MaximalDiscount;
+        }
+        $discountAmount = round($discountAmount);
+        $finalTotal     = max(0, $total - $discountAmount);
+
+        return response()->json([
+            'success'          => true,
+            'message'          => '✅ Voucher berhasil diterapkan!',
+            'voucher_code'     => $voucher->VoucherCode,
+            'discount_percent' => $voucher->DiscountPercent,
+            'max_discount'     => $voucher->MaximalDiscount,
+            'discount_amount'  => $discountAmount,
+            'final_total'      => $finalTotal,
+            'description'      => $voucher->DiscountDescription,
+        ]);
     }
 }

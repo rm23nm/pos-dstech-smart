@@ -652,6 +652,16 @@
                         <input type="text" id="deliveryNotes" class="form-control" placeholder="Contoh: Pintu biru, belakang gang kiri..." style="border-radius: 10px;">
                     </div>
 
+                    <!-- Voucher Section (Tahap 5) -->
+                    <div class="p-3 rounded-3 mb-2" style="background: #fff8e1; border: 1px dashed #f9a825;">
+                        <label class="form-label fw-bold small mb-2"><i class="fas fa-ticket-alt me-1" style="color:#f9a825;"></i>Kode Promo / Voucher</label>
+                        <div class="input-group">
+                            <input type="text" id="voucherCode" class="form-control text-uppercase fw-bold" placeholder="Masukkan kode voucher..." style="border-radius: 8px 0 0 8px; letter-spacing: 2px;">
+                            <button class="btn fw-bold px-3" id="btnApplyVoucher" onclick="applyVoucher()" style="background: #f9a825; color: white; border-radius: 0 8px 8px 0;">PAKAI</button>
+                        </div>
+                        <div id="voucherResult" class="mt-2 small" style="display:none;"></div>
+                    </div>
+
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
                     <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Kembali ke Keranjang</button>
@@ -919,6 +929,11 @@
                     selectDelivery('PICKUP');
                     $('#deliveryAddress').val('');
                     $('#deliveryNotes').val('');
+                    // Reset voucher
+                    $('#voucherCode').val('');
+                    $('#voucherResult').hide();
+                    $('#deliveryModalDiscountRow').remove();
+                    window._appliedVoucher = null;
 
                     // Tutup keranjang & buka modal pengiriman
                     $('#cartSidebar').removeClass('open');
@@ -931,6 +946,74 @@
                     Swal.fire('Silakan Login', 'Anda harus login member dulu untuk melakukan pemesanan.', 'warning');
                 @endif
             };
+
+            // ===== TAHAP 5: VOUCHER =====
+            window._appliedVoucher = null; // simpan hasil voucher yang valid
+
+            window.applyVoucher = function() {
+                let code = $('#voucherCode').val().trim().toUpperCase();
+                let totalPrice = cart.reduce((sum, item) => sum + (item.HargaJual * item.qty), 0);
+                let btn = $('#btnApplyVoucher');
+                let resultEl = $('#voucherResult');
+
+                if (!code) {
+                    resultEl.html('<span class="text-danger">⚠️ Masukkan kode voucher.</span>').show();
+                    return;
+                }
+
+                btn.prop('disabled', true).text('...');
+                resultEl.hide();
+
+                $.ajax({
+                    url: "{{ route('cat-validate-voucher') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        voucher_code: code,
+                        RecordOwnerID: currentROID,
+                        total: totalPrice
+                    },
+                    success: function(res) {
+                        btn.prop('disabled', false).text('PAKAI');
+                        if (res.success) {
+                            window._appliedVoucher = res;
+                            let fmt = v => 'Rp ' + new Intl.NumberFormat('id-ID').format(v);
+                            resultEl.html(`<span class="text-success fw-bold">✅ ${res.message}</span><br>
+                                <span class="text-muted">Hemat ${fmt(res.discount_amount)} (${res.discount_percent}%)</span>`).show();
+
+                            // Update ringkasan di modal
+                            let deliveryCost = window._selectedDeliveryCost || 0;
+                            let grandTotal = res.final_total + deliveryCost;
+                            $('#deliveryModalSubtotal').text(fmt(totalPrice));
+                            // Tambah baris diskon jika belum ada
+                            if ($('#deliveryModalDiscountRow').length === 0) {
+                                $('.modal-body .p-3.mb-4').find('hr').before(
+                                    `<div class="d-flex justify-content-between align-items-center mt-1" id="deliveryModalDiscountRow">
+                                        <span class="text-muted small">Diskon Voucher</span>
+                                        <span class="fw-bold text-danger" id="deliveryModalDiscount">-${fmt(res.discount_amount)}</span>
+                                    </div>`
+                                );
+                            } else {
+                                $('#deliveryModalDiscount').text('-' + fmt(res.discount_amount));
+                            }
+                            $('#deliveryModalGrandTotal').text(fmt(grandTotal));
+                        } else {
+                            window._appliedVoucher = null;
+                            resultEl.html(`<span class="text-danger">❌ ${res.message}</span>`).show();
+                        }
+                    },
+                    error: function() {
+                        btn.prop('disabled', false).text('PAKAI');
+                        resultEl.html('<span class="text-danger">❌ Terjadi kesalahan, coba lagi.</span>').show();
+                    }
+                });
+            };
+
+            // Enter key to apply voucher
+            $('#voucherCode').on('keypress', function(e) {
+                if (e.which === 13) applyVoucher();
+            });
+            // ===== END TAHAP 5 =====
 
             // Pilih tipe pengiriman
             window.selectDelivery = function(type) {
@@ -967,10 +1050,13 @@
 
             // Eksekusi checkout setelah konfirmasi pengiriman
             window.doCheckout = function() {
-                let deliveryType = window._selectedDeliveryType || 'PICKUP';
-                let deliveryCost = window._selectedDeliveryCost || 0;
+                let deliveryType    = window._selectedDeliveryType || 'PICKUP';
+                let deliveryCost    = window._selectedDeliveryCost || 0;
                 let deliveryAddress = $('#deliveryAddress').val().trim();
-                let deliveryNotes = $('#deliveryNotes').val().trim();
+                let deliveryNotes   = $('#deliveryNotes').val().trim();
+                let voucher         = window._appliedVoucher;
+                let voucherCode     = voucher ? voucher.voucher_code : '';
+                let discountAmount  = voucher ? voucher.discount_amount : 0;
 
                 if (deliveryType === 'DELIVERY' && !deliveryAddress) {
                     Swal.fire('Alamat Wajib Diisi', 'Silakan masukkan alamat pengiriman lengkap.', 'warning');
@@ -994,7 +1080,9 @@
                         delivery_type: deliveryType,
                         delivery_address: deliveryAddress,
                         delivery_cost: deliveryCost,
-                        delivery_notes: deliveryNotes
+                        delivery_notes: deliveryNotes,
+                        voucher_code: voucherCode,
+                        discount_amount: discountAmount
                     },
                     success: function(res) {
                         if (res.success) {
