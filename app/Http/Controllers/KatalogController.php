@@ -173,10 +173,15 @@ class KatalogController extends Controller
 
     public function CatCheckout(Request $request)
     {
-        $cart = $request->input('cart'); // Array of objects
-        $total = $request->input('total');
-        $roid = $request->input('RecordOwnerID');
-        $customerId = session('customer_id');
+        $cart           = $request->input('cart'); // Array of objects
+        $total          = $request->input('total');
+        $roid           = $request->input('RecordOwnerID');
+        $customerId     = session('customer_id');
+        $deliveryType   = $request->input('delivery_type', 'PICKUP'); // PICKUP | DELIVERY
+        $deliveryAddr   = $request->input('delivery_address', '');
+        $deliveryCost   = (float)$request->input('delivery_cost', 0);
+        $deliveryNotes  = $request->input('delivery_notes', '');
+        $grandTotal     = $total + $deliveryCost;
 
         if (empty($cart) || empty($customerId)) {
             return response()->json(['success' => false, 'message' => 'Keranjang kosong atau Anda belum login.']);
@@ -209,30 +214,40 @@ class KatalogController extends Controller
             $noTransaksi = $numbering->GetNewDocMobile("POS", "tableorderheader", "NoTransaksi", $roid);
             
             $now = Carbon::now('Asia/Jakarta');
-            DB::table('tableorderheader')->insert([
-                'NoTransaksi' => $noTransaksi,
-                'TglTransaksi' => $now,
+            $insertData = [
+                'NoTransaksi'   => $noTransaksi,
+                'TglTransaksi'  => $now,
                 'TglPencatatan' => $now,
                 'RecordOwnerID' => $roid,
-                'tableid' => $virtualTableId,
+                'tableid'       => $virtualTableId,
                 'KodePelanggan' => $customerId,
-                'Status' => 1,
-                'DocumentStatus' => 'O',
-                'JamMulai' => $now,
-                'JamSelesai' => $now,
-                'JenisPaket' => 'ONLINE',
-                'paketid' => 0,
-                'KodeSales' => '',
-                'DurasiPaket' => 0,
-                'TaxTotal' => 0,
-                'GrossTotal' => $total,
-                'DiscTotal' => 0,
-                'TotalMakanan' => $total,
-                'NetTotal' => $total,
+                'Status'        => 1,
+                'DocumentStatus'=> 'O',
+                'JamMulai'      => $now,
+                'JamSelesai'    => $now,
+                'JenisPaket'    => 'ONLINE',
+                'paketid'       => 0,
+                'KodeSales'     => '',
+                'DurasiPaket'   => 0,
+                'TaxTotal'      => 0,
+                'GrossTotal'    => $total,
+                'DiscTotal'     => 0,
+                'TotalMakanan'  => $total,
+                'NetTotal'      => $grandTotal,
                 'kitchen_order_status' => 0,
-                'created_at' => $now,
-                'updated_at' => $now
-            ]);
+                'created_at'    => $now,
+                'updated_at'    => $now,
+            ];
+
+            // Delivery fields (tambahkan jika kolom sudah ada di DB)
+            if (Schema::hasColumn('tableorderheader', 'DeliveryType')) {
+                $insertData['DeliveryType']    = $deliveryType;
+                $insertData['DeliveryAddress'] = $deliveryAddr;
+                $insertData['DeliveryCost']    = $deliveryCost;
+                $insertData['DeliveryNotes']   = $deliveryNotes;
+            }
+
+            DB::table('tableorderheader')->insert($insertData);
 
             $hasOrderSource = Schema::hasColumn('tableorderfnb', 'OrderSource');
 
@@ -284,8 +299,8 @@ class KatalogController extends Controller
 
             $params = [
                 'transaction_details' => [
-                    'order_id' => $noTransaksi . '-' . time(),
-                    'gross_amount' => (int)$total,
+                    'order_id'     => $noTransaksi . '-' . time(),
+                    'gross_amount' => (int)$grandTotal,
                 ],
                 'customer_details' => [
                     'first_name' => session('customer_name'),

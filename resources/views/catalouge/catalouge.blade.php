@@ -587,6 +587,82 @@
     </div>
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 
+    <!-- Delivery Options Modal (Tahap 4) -->
+    <div class="modal fade" id="deliveryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-0" style="background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);">
+                    <div>
+                        <h5 class="modal-title text-white fw-bold mb-0"><i class="fas fa-truck me-2"></i>Pilihan Pengiriman</h5>
+                        <p class="text-white-50 small mb-3">Pilih cara menerima pesanan Anda</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <!-- Order Summary -->
+                    <div class="p-3 mb-4 rounded-3" style="background: #f8f9fa; border-left: 4px solid #0d47a1;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Total Belanja</span>
+                            <span class="fw-bold" style="color: #0d47a1;" id="deliveryModalSubtotal">Rp 0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <span class="text-muted small">Ongkos Kirim</span>
+                            <span class="fw-bold text-success" id="deliveryModalShipCost">Gratis</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Total Bayar</span>
+                            <span class="fw-bold fs-5" style="color: #d32f2f;" id="deliveryModalGrandTotal">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Type Selection -->
+                    <p class="fw-bold mb-3" style="color: #1a237e;"><i class="fas fa-map-marker-alt me-2 text-danger"></i>Pilih Metode Penerimaan</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="delivery-option-card w-100 text-center p-3 rounded-3 border-2 cursor-pointer" id="optPickup" onclick="selectDelivery('PICKUP')" style="border: 2px solid #0d47a1; background: #e3f2fd; cursor: pointer; transition: all 0.2s;">
+                                <i class="fas fa-store fs-2 mb-2" style="color: #0d47a1;"></i>
+                                <div class="fw-bold" style="color: #0d47a1;">Ambil Sendiri</div>
+                                <div class="small text-muted">(Pick-up di Toko)</div>
+                                <div class="badge bg-success mt-1">GRATIS</div>
+                            </label>
+                        </div>
+                        <div class="col-6">
+                            <label class="delivery-option-card w-100 text-center p-3 rounded-3 border-2 cursor-pointer" id="optDelivery" onclick="selectDelivery('DELIVERY')" style="border: 2px solid #ddd; background: white; cursor: pointer; transition: all 0.2s;">
+                                <i class="fas fa-truck fs-2 mb-2" style="color: #78909c;"></i>
+                                <div class="fw-bold text-muted">Dikirim ke Alamat</div>
+                                <div class="small text-muted">(Delivery Order)</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address (shown when DELIVERY selected) -->
+                    <div id="deliveryAddressSection" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small"><i class="fas fa-home me-1 text-danger"></i>Alamat Lengkap Pengiriman</label>
+                            <textarea id="deliveryAddress" class="form-control" rows="3" placeholder="Masukkan alamat lengkap: Jl. Nama Jalan No. X, RT/RW, Kelurahan, Kecamatan, Kota..." style="border-radius: 10px; border: 2px solid #e0e0e0;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Order Notes -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small"><i class="fas fa-sticky-note me-1 text-warning"></i>Catatan Pesanan (Opsional)</label>
+                        <input type="text" id="deliveryNotes" class="form-control" placeholder="Contoh: Pintu biru, belakang gang kiri..." style="border-radius: 10px;">
+                    </div>
+
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Kembali ke Keranjang</button>
+                    <button class="btn btn-primary rounded-pill px-5 fw-bold shadow" id="btnConfirmCheckout" onclick="doCheckout()" style="background: #d32f2f; border: none;">
+                        <i class="fas fa-credit-card me-2"></i>BAYAR SEKARANG
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
@@ -832,65 +908,135 @@
                         return;
                     }
                     
-                    let btn = $('#btnCheckout');
-                    let originalText = btn.html();
-                    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Memproses...');
-                    
+                    // Hitung total & tampilkan di modal
                     let totalPrice = cart.reduce((sum, item) => sum + (item.HargaJual * item.qty), 0);
-                    
-                    $.ajax({
-                        url: "{{ route('cat-checkout') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            RecordOwnerID: currentROID,
-                            cart: cart,
-                            total: totalPrice
-                        },
-                        success: function(res) {
-                            if (res.success) {
-                                if (typeof snap !== 'undefined') {
-                                    snap.pay(res.snap_token, {
-                                        onSuccess: function(result) {
-                                            Swal.fire('Berhasil!', 'Pembayaran telah diterima.', 'success').then(() => {
-                                                cart = []; saveCart(); updateCartUI();
-                                                window.location.href = "{{ url('cat/'.$RecOID.'/status') }}/" + res.order_id;
-                                            });
-                                        },
-                                        onPending: function(result) {
-                                            Swal.fire('Menunggu', 'Menunggu pembayaran diselesaikan.', 'info').then(() => {
-                                                cart = []; saveCart(); updateCartUI();
-                                                window.location.href = "{{ url('cat/'.$RecOID.'/status') }}/" + res.order_id;
-                                            });
-                                        },
-                                        onError: function(result) {
-                                            Swal.fire('Gagal', 'Pembayaran gagal diproses.', 'error');
-                                            btn.prop('disabled', false).html(originalText);
-                                        },
-                                        onClose: function() {
-                                            Swal.fire('Batal', 'Anda menutup halaman pembayaran.', 'warning');
-                                            btn.prop('disabled', false).html(originalText);
-                                        }
-                                    });
-                                } else {
-                                    Swal.fire('Error Konfigurasi', 'Sistem pembayaran belum siap (Snap.js tidak ada).', 'error');
-                                    btn.prop('disabled', false).html(originalText);
-                                }
-                            } else {
-                                Swal.fire('Gagal!', res.message, 'error');
-                                btn.prop('disabled', false).html(originalText);
-                            }
-                        },
-                        error: function() {
-                            Swal.fire('Error!', 'Terjadi kesalahan sistem', 'error');
-                            btn.prop('disabled', false).html(originalText);
-                        }
-                    });
+                    let fmt = v => 'Rp ' + new Intl.NumberFormat('id-ID').format(v);
+                    $('#deliveryModalSubtotal').text(fmt(totalPrice));
+                    $('#deliveryModalShipCost').text('Gratis').removeClass('text-danger').addClass('text-success');
+                    $('#deliveryModalGrandTotal').text(fmt(totalPrice));
+
+                    // Reset pilihan ke PICKUP
+                    selectDelivery('PICKUP');
+                    $('#deliveryAddress').val('');
+                    $('#deliveryNotes').val('');
+
+                    // Tutup keranjang & buka modal pengiriman
+                    $('#cartSidebar').removeClass('open');
+                    $('#cartOverlay').fadeOut();
+                    new bootstrap.Modal(document.getElementById('deliveryModal')).show();
+
                 @else
                     toggleCart();
                     showLoginModal();
                     Swal.fire('Silakan Login', 'Anda harus login member dulu untuk melakukan pemesanan.', 'warning');
                 @endif
+            };
+
+            // Pilih tipe pengiriman
+            window.selectDelivery = function(type) {
+                let totalPrice = cart.reduce((sum, item) => sum + (item.HargaJual * item.qty), 0);
+                let fmt = v => 'Rp ' + new Intl.NumberFormat('id-ID').format(v);
+                let deliveryCost = 0;
+
+                if (type === 'PICKUP') {
+                    $('#optPickup').css({ 'border-color': '#0d47a1', 'background': '#e3f2fd' });
+                    $('#optPickup i, #optPickup .fw-bold').css('color', '#0d47a1');
+                    $('#optDelivery').css({ 'border-color': '#ddd', 'background': 'white' });
+                    $('#optDelivery i').css('color', '#78909c');
+                    $('#optDelivery .fw-bold').css('color', '');
+                    $('#deliveryAddressSection').slideUp(200);
+                    $('#deliveryModalShipCost').text('Gratis').removeClass('text-danger').addClass('text-success');
+                } else {
+                    $('#optDelivery').css({ 'border-color': '#d32f2f', 'background': '#fff5f5' });
+                    $('#optDelivery i, #optDelivery .fw-bold').css('color', '#d32f2f');
+                    $('#optPickup').css({ 'border-color': '#ddd', 'background': 'white' });
+                    $('#optPickup i').css('color', '#78909c');
+                    $('#optPickup .fw-bold').css('color', '');
+                    $('#deliveryAddressSection').slideDown(200);
+                    // Untuk saat ini ongkos kirim 0 (bisa dikembangkan via API ongkir)
+                    deliveryCost = 0;
+                    $('#deliveryModalShipCost').text(deliveryCost === 0 ? 'Dihitung saat konfirmasi' : fmt(deliveryCost)).removeClass('text-success').addClass('text-danger');
+                }
+
+                $('#optPickup, #optDelivery').attr('data-type', type === 'PICKUP' ? 'active' : 'inactive');
+                $('#optPickup').attr('data-selected', type === 'PICKUP' ? '1' : '0');
+                $('#deliveryModalGrandTotal').text(fmt(totalPrice + deliveryCost));
+                window._selectedDeliveryType = type;
+                window._selectedDeliveryCost = deliveryCost;
+            };
+
+            // Eksekusi checkout setelah konfirmasi pengiriman
+            window.doCheckout = function() {
+                let deliveryType = window._selectedDeliveryType || 'PICKUP';
+                let deliveryCost = window._selectedDeliveryCost || 0;
+                let deliveryAddress = $('#deliveryAddress').val().trim();
+                let deliveryNotes = $('#deliveryNotes').val().trim();
+
+                if (deliveryType === 'DELIVERY' && !deliveryAddress) {
+                    Swal.fire('Alamat Wajib Diisi', 'Silakan masukkan alamat pengiriman lengkap.', 'warning');
+                    return;
+                }
+
+                let btn = $('#btnConfirmCheckout');
+                let originalText = btn.html();
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Memproses...');
+
+                let totalPrice = cart.reduce((sum, item) => sum + (item.HargaJual * item.qty), 0);
+
+                $.ajax({
+                    url: "{{ route('cat-checkout') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        RecordOwnerID: currentROID,
+                        cart: cart,
+                        total: totalPrice,
+                        delivery_type: deliveryType,
+                        delivery_address: deliveryAddress,
+                        delivery_cost: deliveryCost,
+                        delivery_notes: deliveryNotes
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            if (typeof snap !== 'undefined') {
+                                // Tutup modal dulu, baru buka Snap
+                                bootstrap.Modal.getInstance(document.getElementById('deliveryModal'))?.hide();
+                                snap.pay(res.snap_token, {
+                                    onSuccess: function(result) {
+                                        Swal.fire('Berhasil!', 'Pembayaran telah diterima.', 'success').then(() => {
+                                            cart = []; saveCart(); updateCartUI();
+                                            window.location.href = "{{ url('cat/'.$RecOID.'/status') }}/" + res.order_id;
+                                        });
+                                    },
+                                    onPending: function(result) {
+                                        Swal.fire('Menunggu', 'Menunggu pembayaran diselesaikan.', 'info').then(() => {
+                                            cart = []; saveCart(); updateCartUI();
+                                            window.location.href = "{{ url('cat/'.$RecOID.'/status') }}/" + res.order_id;
+                                        });
+                                    },
+                                    onError: function(result) {
+                                        Swal.fire('Gagal', 'Pembayaran gagal diproses.', 'error');
+                                        btn.prop('disabled', false).html(originalText);
+                                    },
+                                    onClose: function() {
+                                        Swal.fire('Batal', 'Anda menutup halaman pembayaran.', 'warning');
+                                        btn.prop('disabled', false).html(originalText);
+                                    }
+                                });
+                            } else {
+                                Swal.fire('Error Konfigurasi', 'Sistem pembayaran belum siap (Snap.js tidak ada).', 'error');
+                                btn.prop('disabled', false).html(originalText);
+                            }
+                        } else {
+                            Swal.fire('Gagal!', res.message, 'error');
+                            btn.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error!', 'Terjadi kesalahan sistem', 'error');
+                        btn.prop('disabled', false).html(originalText);
+                    }
+                });
             };
 
             window.showLoginModal = function() { 
