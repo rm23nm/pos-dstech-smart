@@ -61,19 +61,19 @@
 | `.env` (lokal & live) | Tambah `APP_TIMEZONE=Asia/Jakarta` |
 
 ### Antrean Pekerjaan Selanjutnya:
-1. **Migrasi Akun GitHub & Resolusi Error "Unrelated Histories"** — [SEDANG DIKERJAKAN] Mengatasi crash sinkronisasi di GitHub Desktop
+1. **Migrasi Akun GitHub & Resolusi Error "Unrelated Histories"** — [SELESAI] Mengatasi crash sinkronisasi di GitHub Desktop
    *Langkah-langkah pengerjaan:*
    - [x] Cek remote origin saat ini
    - [x] Ubah remote url origin ke url repo baru (`https://github.com/rm23nm/POS-DStech-Smart.git`)
-   - [ ] Jalankan pull dengan parameter `--allow-unrelated-histories` untuk menyatukan histori local dan remote baru
-   - [ ] Selesaikan konflik file default (seperti README.md atau .gitignore bawaan GitHub baru jika ada)
-   - [ ] Push hasil penggabungan ke remote repository baru
-2. **Perbaikan Live Server (Route [login] not defined)** — [SEDANG DIKERJAKAN] Mengatasi error 500 saat diakses di live
+   - [x] Jalankan pull dengan parameter `--allow-unrelated-histories` untuk menyatukan histori local dan remote baru
+   - [x] Selesaikan konflik file default (seperti README.md atau .gitignore bawaan GitHub baru jika ada)
+   - [x] Push hasil penggabungan ke remote repository baru
+2. **Perbaikan Live Server (Route [login] not defined)** — [SELESAI] Mengatasi error 500 saat diakses di live
    *Langkah-langkah pengerjaan:*
    - [x] Periksa dan bandingkan file `routes/web.php` lokal dan live
    - [x] Periksa panggilan rute `login` di `welcome.blade.php` live
-   - [x] Bersihkan cache rute live server menggunakan perintah `php artisan route:clear` (Telah dibuat script `clear_cache.php`)
-   - [ ] Verifikasi live server berjalan normal kembali
+   - [x] Bersihkan cache rute live server menggunakan perintah `php artisan route:clear` (Telah dibuat script `clear_cache.php` dan dijalankan via `pull.php`)
+   - [x] Verifikasi live server berjalan normal kembali
 3. **Perbaikan Tampilan E-Catalog Retail** — [SELESAI] Memperbaiki tata letak dan logika harga pada halaman `/cat/`
    *Langkah-langkah pengerjaan:*
    - [x] Mengubah `object-fit: cover` menjadi `contain` pada gambar Flash Sale agar gambar tidak terpotong.
