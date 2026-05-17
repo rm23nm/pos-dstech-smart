@@ -25,6 +25,8 @@
 | 2026-05-17 | E-Catalog Tahap 3: Halaman Pesanan Saya | Membuat view `orders.blade.php`, controller `CatOrders`, route `/cat/{id}/orders`, dan menambahkan tombol navigasi "Pesanan Saya" di navbar desktop & mobile. | ✅ Selesai |
 | 2026-05-17 | Pemisahan Halaman Status dari FNB | Membuat view `status.blade.php` katalog, method `CatStatus`, route `/cat/{id}/status/{orderId}` untuk decoupling penuh dari FNB store agar user stay di katalog. | ✅ Selesai |
 | 2026-05-16 | Sinkronisasi Data NetTotal UI | `nettotal` ditambahkan ke dataset UI agar update otomatis tiap 10 detik. | ✅ Selesai |
+| 2026-05-17 | Bug Lampu Mati Saat Refresh Browser | Di `TableOrderController@getTableStatuses()`, kondisi `$netTotal == 0` mematikan lampu secara keliru pada paket gratis/belum ter-set meskipun waktu sewa belum habis. Diperbaiki agar hanya mematikan lampu jika waktu sewa benar-benar telah habis (`JamSelesai < now`). | ✅ Selesai |
+| 2026-05-17 | Bug Lampu Mati Prematur Saat Pembayaran | Di `FakturPenjualanController@storePoSHiburan()`, kondisi `JenisPaket != MENITREALTIME` mematikan lampu segera setelah pembayaran diterima meskipun waktu belum habis. Diperbaiki menjadi `$isPaid && $isExpired`. | ✅ Selesai |
 
 ---
 
