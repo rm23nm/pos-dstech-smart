@@ -54,6 +54,7 @@ use App\Models\User;
 use App\Mail\SendMail;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\InvoicePenggunaController;
+use App\Services\SmartProService;
 
 class CompanyController extends Controller
 {
@@ -464,6 +465,33 @@ class CompanyController extends Controller
 
                             // Generate Permission
 
+                            // ===== AUTO-AKTIVASI SMARTPRO (Client Baru) =====
+                            try {
+                                $newCompany = Company::where('KodePartner', $RecordOwnerID)->first();
+                                $newUser    = DB::table('users')
+                                    ->join('userrole', function($j){ $j->on('userrole.userid','=','users.id')->on('userrole.RecordOwnerID','=','users.RecordOwnerID'); })
+                                    ->join('roles', function($j){ $j->on('roles.id','=','userrole.roleid')->on('roles.RecordOwnerID','=','userrole.RecordOwnerID'); })
+                                    ->where('roles.RoleName', 'SuperAdmin')
+                                    ->where('userrole.RecordOwnerID', $RecordOwnerID)
+                                    ->select('users.email')
+                                    ->first();
+
+                                if ($newUser && $newCompany) {
+                                    $endDate  = $request->input('EndSubs', now()->addDays(30)->format('Y-m-d'));
+                                    $smartpro = new SmartProService();
+                                    $smartpro->activateClientSmartPro(
+                                        $newUser->email,
+                                        $newCompany->NamaPartner ?? $newUser->email,
+                                        $newCompany->NoTlp ?? '',
+                                        'basic',
+                                        $endDate
+                                    );
+                                    Log::info('[SmartPro] Client baru diaktifkan di SmartPro: ' . $newUser->email);
+                                }
+                            } catch (\Exception $smEx) {
+                                Log::warning('[SmartPro] Gagal auto-aktivasi client baru: ' . $smEx->getMessage());
+                            }
+                            // ===== END SMARTPRO =====
                 }
                 else{
                     $update = DB::table('company')
@@ -535,6 +563,36 @@ class CompanyController extends Controller
                                 'JenisLangganan' => $jenisLangganan,
                             ]
                         );
+
+                // ===== AUTO-AKTIVASI SMARTPRO =====
+                // Sinkronisasi akun SmartPro WA Gateway saat paket/langganan diupdate
+                try {
+                    $clientCompany = Company::where('KodePartner', $request->input('KodePartner'))->first();
+                    $clientUser    = DB::table('users')
+                        ->join('userrole', function($j){ $j->on('userrole.userid','=','users.id')->on('userrole.RecordOwnerID','=','users.RecordOwnerID'); })
+                        ->join('roles', function($j){ $j->on('roles.id','=','userrole.roleid')->on('roles.RecordOwnerID','=','userrole.RecordOwnerID'); })
+                        ->where('roles.RoleName', 'SuperAdmin')
+                        ->where('userrole.RecordOwnerID', $request->input('KodePartner'))
+                        ->select('users.email', 'users.RecordOwnerID')
+                        ->first();
+
+                    if ($clientUser && $clientCompany) {
+                        $pakName   = strtolower($request->input('PaketAplikasi', 'basic'));
+                        $endSubs   = $request->input('EndSubs', now()->addDays(30)->format('Y-m-d'));
+                        $smartpro  = new SmartProService();
+                        $smartpro->activateClientSmartPro(
+                            $clientUser->email,
+                            $clientCompany->NamaPartner ?? $clientUser->email,
+                            $clientCompany->NoTlp ?? '',
+                            $pakName,
+                            $endSubs
+                        );
+                    }
+                } catch (\Exception $smEx) {
+                    Log::warning('[SmartPro] Gagal auto-aktivasi saat UpdatePaket: ' . $smEx->getMessage());
+                }
+                // ===== END SMARTPRO =====
+
                 alert()->success('Success','Data Perusahaan berhasil disimpan.');
                 return redirect('penggunaaplikasi');
             } else{
