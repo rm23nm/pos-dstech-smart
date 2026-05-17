@@ -15,6 +15,7 @@ use App\Models\Company;
 use App\Models\DocumentNumbering;
 use Midtrans\Config;
 use Midtrans\Snap;
+use App\Services\SmartProService;
 
 class KatalogController extends Controller
 {
@@ -313,10 +314,51 @@ class KatalogController extends Controller
             $snapToken = Snap::getSnapToken($params);
 
             DB::commit();
+
+            // ===== TAHAP 6: NOTIFIKASI WA VIA SMARTPRO =====
+            // Jalankan di background (tidak blok response) agar checkout tetap cepat
+            try {
+                $smarts = new SmartProService();
+                
+                // Data customer dari session
+                $customerData = [
+                    'NamaPelanggan' => session('customer_name', 'Pelanggan'),
+                    'NoTlp1'        => $this->getCustomerPhone($customerId, $roid),
+                    'Email'         => session('customer_email', ''),
+                ];
+
+                // Data order yang baru dibuat
+                $orderData = [
+                    'NoTransaksi'   => $noTransaksi,
+                    'NetTotal'      => $grandTotal,
+                    'DeliveryType'  => $deliveryType,
+                    'DeliveryAddress' => $deliveryAddr,
+                    'DeliveryNotes' => $deliveryNotes,
+                ];
+
+                // Format item untuk pesan WA
+                $itemsData = array_map(fn($item) => [
+                    'NamaItem' => $item['NamaItem'] ?? 'Item',
+                    'qty'      => $item['qty'] ?? 1,
+                    'Harga'    => $item['HargaJual'] ?? 0,
+                ], $cart);
+
+                // Kirim ke customer
+                $smarts->notifyECatalogOrderToCustomer($orderData, $customerData, $itemsData, $company);
+
+                // Kirim ke pemilik toko
+                $smarts->notifyECatalogOrderToOwner($orderData, $customerData, $itemsData, $company);
+
+            } catch (\Exception $waEx) {
+                // Jangan biarkan error WA menggagalkan checkout yang sudah berhasil
+                Log::warning('[SmartPro] Gagal kirim notifikasi WA: ' . $waEx->getMessage());
+            }
+            // ===== END TAHAP 6 =====
+
             return response()->json([
-                'success' => true, 
+                'success'    => true, 
                 'snap_token' => $snapToken,
-                'order_id' => $noTransaksi
+                'order_id'   => $noTransaksi
             ]);
 
         } catch (\Exception $e) {
@@ -324,6 +366,18 @@ class KatalogController extends Controller
             Log::error('E-Catalog Checkout Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Helper: Ambil nomor HP customer dari DB berdasarkan KodePelanggan.
+     */
+    private function getCustomerPhone(string $customerId, string $roid): string
+    {
+        $customer = \App\Models\Pelanggan::where('KodePelanggan', $customerId)
+            ->where('RecordOwnerID', $roid)
+            ->select('NoTlp1')
+            ->first();
+        return $customer->NoTlp1 ?? '';
     }
 
     public function CatOrders($id)
@@ -427,6 +481,48 @@ class KatalogController extends Controller
             'discount_amount'  => $discountAmount,
             'final_total'      => $finalTotal,
             'description'      => $voucher->DiscountDescription,
+        ]);
+    }
+
+    /**
+     * Endpoint eksternal: Ambil daftar member E-Catalog untuk keperluan WA Blast di SmartPro.
+     * Dilindungi dengan secret key dari env POS_EXTERNAL_SECRET.
+     * GET /api/external/catalog-members?secret=xxx&roid=xxx
+     */
+    public function GetExternalCatalogMembers(Request $request)
+    {
+        $secret = $request->query('secret', '');
+        $roid   = $request->query('roid', '');
+
+        // Validasi secret key
+        if ($secret !== env('POS_EXTERNAL_SECRET', 'DSTECH-MASTER-PRO-2026')) {
+            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+        }
+
+        $query = \App\Models\Pelanggan::select('NamaPelanggan', 'NoTlp1', 'Email', 'RecordOwnerID');
+
+        if (!empty($roid)) {
+            $query->where('RecordOwnerID', $roid);
+        }
+
+        $members = $query->get()->map(function ($m) {
+            // Format nomor HP ke format internasional
+            $phone = preg_replace('/[^0-9]/', '', $m->NoTlp1 ?? '');
+            if (!empty($phone) && str_starts_with($phone, '0')) {
+                $phone = '62' . substr($phone, 1);
+            }
+            return [
+                'name'  => $m->NamaPelanggan,
+                'phone' => $phone,
+                'email' => $m->Email,
+                'roid'  => $m->RecordOwnerID,
+            ];
+        })->filter(fn($m) => !empty($m['phone']))->values();
+
+        return response()->json([
+            'success' => true,
+            'total'   => $members->count(),
+            'members' => $members,
         ]);
     }
 }

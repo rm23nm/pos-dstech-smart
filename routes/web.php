@@ -772,6 +772,8 @@ Route::post('/cat/checkout', [KatalogController::class, 'CatCheckout'])->name('c
 Route::post('/cat/validate-voucher', [KatalogController::class, 'CatValidateVoucher'])->name('cat-validate-voucher');
 Route::get('/cat/{id}/orders', [KatalogController::class, 'CatOrders'])->name('cat-orders');
 Route::get('/cat/{id}/status/{orderId}', [KatalogController::class, 'CatStatus'])->name('cat-status');
+// Endpoint Eksternal: SmartPro WA Gateway mengambil daftar member E-Catalog (dilindungi secret key)
+Route::get('/api/external/catalog-members', [KatalogController::class, 'GetExternalCatalogMembers'])->name('ext-catalog-members');
 
 /*
 |--------------------------------------------------------------------------
