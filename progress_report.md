@@ -70,9 +70,9 @@
    - [ ] Push hasil penggabungan ke remote repository baru
 2. **Perbaikan Live Server (Route [login] not defined)** — [SEDANG DIKERJAKAN] Mengatasi error 500 saat diakses di live
    *Langkah-langkah pengerjaan:*
-   - [ ] Periksa dan bandingkan file `routes/web.php` lokal dan live
-   - [ ] Periksa panggilan rute `login` di `welcome.blade.php` live
-   - [ ] Bersihkan cache rute live server menggunakan perintah `php artisan route:clear`
+   - [x] Periksa dan bandingkan file `routes/web.php` lokal dan live
+   - [x] Periksa panggilan rute `login` di `welcome.blade.php` live
+   - [x] Bersihkan cache rute live server menggunakan perintah `php artisan route:clear` (Telah dibuat script `clear_cache.php`)
    - [ ] Verifikasi live server berjalan normal kembali
 3. **Perbaikan Tampilan E-Catalog Retail** — [SELESAI] Memperbaiki tata letak dan logika harga pada halaman `/cat/`
    *Langkah-langkah pengerjaan:*
