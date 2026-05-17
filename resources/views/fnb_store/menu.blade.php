@@ -243,7 +243,14 @@
         <div class="container d-flex justify-content-between align-items-center">
             <div>
                 <span class="user-welcome">Halo, <strong>{{ session('customer_name') }}</strong></span>
-                <div class="store-name">{{ $company->NamaPartner }}</div>
+                <div class="store-name">
+                    {{ $company->NamaPartner }}
+                    @if(session('fnb_table_name'))
+                        <span class="badge ms-2" style="font-size: 0.75rem; vertical-align: middle; background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: none; padding: 4px 8px; border-radius: 6px; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.2);">
+                            <i class="fas fa-chair me-1"></i> {{ session('fnb_table_name') }}
+                        </span>
+                    @endif
+                </div>
             </div>
             <form action="{{ $id ? route('fnb-store.logout', ['id' => $id]) : route('fnb-store.logout.custom') }}" method="POST">
                 @csrf

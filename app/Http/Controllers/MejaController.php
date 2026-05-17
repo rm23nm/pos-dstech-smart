@@ -230,9 +230,8 @@ class MejaController extends Controller
     }
 
     public function ExportQRCode(Request $request){
-        // $url ="http://192.168.1.66:8056/digimenu?ObjectString="; // development
-        // $url = $apiUrl = env('WEB_MENU_BASE_URL', $DEVurl); // production
-        $url = "http://dspos.digimenu.dstechsmart.com/?ObjectString=";
+        // Dynamic internal URL pointing to fnb-store for the scanned table
+        $url = url('/fnb-store/' . Auth::user()->RecordOwnerID . '?ObjectString=');
         $directoryPath = public_path('images/qrcode/'.Auth::user()->RecordOwnerID);
         if (!File::exists($directoryPath)) {
             File::makeDirectory($directoryPath, 0755, true);

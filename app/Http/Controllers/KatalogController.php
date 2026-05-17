@@ -21,6 +21,40 @@ class KatalogController extends Controller
 {
     public function View($RecordOwnerID)
     {
+        // Detect table barcode ordering
+        $tableId = null;
+        if (request()->has('table_id')) {
+            $tableId = request()->input('table_id');
+        } elseif (request()->has('ObjectString')) {
+            try {
+                $decodedString = base64_decode(request()->input('ObjectString'));
+                $objectData = json_decode($decodedString, true);
+                if ($objectData && isset($objectData['KodeMeja'])) {
+                    $tableId = $objectData['KodeMeja'];
+                }
+            } catch (\Exception $ex) {
+                Log::warning('Error decoding ObjectString for E-Catalog barcode order: ' . $ex->getMessage());
+            }
+        }
+
+        if ($tableId) {
+            $tableRecord = DB::table('titiklampu')
+                ->where('RecordOwnerID', $RecordOwnerID)
+                ->where(function($query) use ($tableId) {
+                    $query->where('id', $tableId)
+                          ->orWhere('NamaTitikLampu', $tableId)
+                          ->orWhere('NamaTitikLampu', 'like', '%' . $tableId . '%');
+                })->first();
+
+            if ($tableRecord) {
+                session([
+                    'fnb_table_id' => $tableRecord->id,
+                    'fnb_table_name' => $tableRecord->NamaTitikLampu
+                ]);
+                Log::info('Table recognized for E-Catalog barcode order: ' . $tableRecord->NamaTitikLampu . ' (ID: ' . $tableRecord->id . ')');
+            }
+        }
+
         $jenisitem = JenisItem::where('RecordOwnerID',$RecordOwnerID)
                         ->get(); 
         $company = Company::where("KodePartner", $RecordOwnerID)
@@ -194,23 +228,28 @@ class KatalogController extends Controller
 
         DB::beginTransaction();
         try {
-            // Find or create virtual table 'E-CATALOG ORDER'
-            $virtualTable = DB::table('titiklampu')
-                ->where('RecordOwnerID', $roid)
-                ->where('NamaTitikLampu', 'E-CATALOG ORDER')
-                ->first();
-
-            if (!$virtualTable) {
-                $virtualTableId = DB::table('titiklampu')->insertGetId([
-                    'NamaTitikLampu' => 'E-CATALOG ORDER',
-                    'RecordOwnerID' => $roid,
-                    'Status' => 0,
-                    'ControllerID' => 0,
-                    'DigitalInput' => 0,
-                    'BisaDipesan' => 0
-                ]);
+            // Use scanned table ID from session if available, otherwise fallback to E-CATALOG ORDER
+            $sessionTableId = session('fnb_table_id');
+            if ($sessionTableId) {
+                $virtualTableId = $sessionTableId;
             } else {
-                $virtualTableId = $virtualTable->id;
+                $virtualTable = DB::table('titiklampu')
+                    ->where('RecordOwnerID', $roid)
+                    ->where('NamaTitikLampu', 'E-CATALOG ORDER')
+                    ->first();
+
+                if (!$virtualTable) {
+                    $virtualTableId = DB::table('titiklampu')->insertGetId([
+                        'NamaTitikLampu' => 'E-CATALOG ORDER',
+                        'RecordOwnerID' => $roid,
+                        'Status' => 0,
+                        'ControllerID' => 0,
+                        'DigitalInput' => 0,
+                        'BisaDipesan' => 0
+                    ]);
+                } else {
+                    $virtualTableId = $virtualTable->id;
+                }
             }
 
             $numbering = new DocumentNumbering();

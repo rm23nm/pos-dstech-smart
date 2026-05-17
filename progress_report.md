@@ -27,6 +27,7 @@
 | 2026-05-16 | Sinkronisasi Data NetTotal UI | `nettotal` ditambahkan ke dataset UI agar update otomatis tiap 10 detik. | ✅ Selesai |
 | 2026-05-17 | Bug Lampu Mati Saat Refresh Browser | Di `TableOrderController@getTableStatuses()`, kondisi `$netTotal == 0` mematikan lampu secara keliru pada paket gratis/belum ter-set meskipun waktu sewa belum habis. Diperbaiki agar hanya mematikan lampu jika waktu sewa benar-benar telah habis (`JamSelesai < now`). | ✅ Selesai |
 | 2026-05-17 | Bug Lampu Mati Prematur Saat Pembayaran | Di `FakturPenjualanController@storePoSHiburan()`, kondisi `JenisPaket != MENITREALTIME` mematikan lampu segera setelah pembayaran diterima meskipun waktu belum habis. Diperbaiki menjadi `$isPaid && $isExpired`. | ✅ Selesai |
+| 2026-05-17 | Fitur Pesan Barcode di Meja | Memperbaiki export QR Code meja resto agar mengarah ke dynamic internal fnb-store URL (bukan digimenu lama yang mati), serta memperbarui controller FNB Store & Katalog untuk merekam table_id / ObjectString ke session dan mengaitkannya ke transaksi order meja riil secara otomatis. | ✅ Selesai |
 
 ---
 
@@ -56,10 +57,14 @@
 | `app/Http/Controllers/TableOrderController.php` | Timezone fix, closure fix `$now`, logika status meja |
 | `app/Http/Controllers/FakturPenjualanController.php` | Sinkronisasi `TotalTerbayar` & auto-clear lampu setelah bayar |
 | `resources/views/Transaksi/Penjualan/PoS/billing_new.blade.php` | Fix JS variable, DOMContentLoaded, logging auto-refresh |
-| `app/Http/Controllers/KatalogController.php` | Integrasi Midtrans Sandbox Fallback, database strict validation, method `CatOrders` |
+| `app/Http/Controllers/KatalogController.php` | Integrasi Midtrans Sandbox Fallback, database strict validation, deteksi table_id dari barcode scan |
 | `resources/views/catalouge/catalouge.blade.php` | UI Premium, Slide-Up Search, login/register AJAX, Midtrans Checkout Integration, Pesanan Saya link |
 | `resources/views/catalouge/orders.blade.php` | View histori pesanan & tracking order status stepper |
 | `routes/web.php` | Route `/cat/checkout` dan `/cat/{id}/orders` |
+| `app/Http/Controllers/MejaController.php` | QR dynamic link generation untuk fnb-store internal |
+| `app/Http/Controllers/FnBStoreController.php` | Deteksi table_id / ObjectString dan auto-binding order meja |
+| `resources/views/fnb_store/menu.blade.php` | Tampilan badge nomor meja yang discan pelanggan secara premium |
+| `resources/views/setting/CompanySetting.blade.php` | Dynamic link "Lihat Website" untuk FnB & Hiburan |
 | `.env` (lokal & live) | Tambah `APP_TIMEZONE=Asia/Jakarta` |
 
 ### Antrean Pekerjaan Selanjutnya:
@@ -103,6 +108,16 @@
    - [x] UI di SmartPro: Tombol "Import Member POS" di halaman Broadcast + fungsi JS `importPOSCatalogMembers()`
 
 5. **Sync Jam Windows** — Komputer kasir lokal perlu "Sync Now" agar jam tidak selisih dengan server
+6. **Fitur Pesan dengan Barcode di Meja (E-Catalog / FnB-Store)** — [SELESAI ✅]
+    *Langkah-langkah pengerjaan:*
+    - [x] Analisis path dan URL barcode meja yang dihasilkan di `MejaController@ExportQRCode`. Ditemukan bahwa URL mengarah ke domain eksternal mati `dspos.digimenu.dstechsmart.com`.
+    - [x] Perbaiki `MejaController@ExportQRCode` agar menghasilkan URL internal dinamis secara otomatis (`/fnb-store/{RecordOwnerID}?ObjectString={base64_data}`).
+    - [x] Perbarui `FnBStoreController.php` dengan private helper `detectAndSaveTable` yang mendeteksi `table_id` atau `ObjectString`, melakukan lookup ke tabel `titiklampu` untuk mendapatkan ID meja fisik riil, dan menyimpannya di session (`fnb_table_id`, `fnb_table_name`).
+    - [x] Perbarui `FnBStoreController@checkout` agar menggunakan `fnb_table_id` dari session (jika ada) sehingga pesanan otomatis terikat ke meja fisik yang discan, dengan fallback ke `'ONLINE ORDER'`.
+    - [x] Perbarui `KatalogController@View` untuk mendeteksi `table_id` atau `ObjectString` dari scan barcode meja dan menyimpannya di session.
+    - [x] Perbarui `KatalogController@CatCheckout` agar menggunakan `fnb_table_id` dari session (jika ada) untuk mengikat pesanan retail/katalog ke meja fisik yang discan, dengan fallback ke `'E-CATALOG ORDER'`.
+    - [x] Perbarui tombol "Lihat Website" di tab E-Catalog `CompanySetting.blade.php` agar dinamis mengarah ke `/fnb-store/{KodePartner}` jika JenisUsaha bukan Retail (FnB/Hiburan), mencegah crash link mati.
+    - [x] Tambahkan badge premium HSL/gradient "Meja: {NamaMeja}" dengan ikon kursi di header `fnb_store/menu.blade.php` ketika pelanggan mengakses via scan QR meja.
 
 ---
 

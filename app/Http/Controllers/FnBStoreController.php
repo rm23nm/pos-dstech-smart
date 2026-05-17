@@ -27,6 +27,43 @@ class FnBStoreController extends Controller
         return $decoded;
     }
 
+    private function detectAndSaveTable(Request $request, $roid)
+    {
+        $tableId = null;
+        if ($request->has('table_id')) {
+            $tableId = $request->input('table_id');
+        } elseif ($request->has('ObjectString')) {
+            try {
+                $decodedString = base64_decode($request->input('ObjectString'));
+                $objectData = json_decode($decodedString, true);
+                if ($objectData && isset($objectData['KodeMeja'])) {
+                    $tableId = $objectData['KodeMeja'];
+                }
+            } catch (\Exception $ex) {
+                Log::warning('Error decoding ObjectString for barcode order: ' . $ex->getMessage());
+            }
+        }
+
+        if ($tableId) {
+            // Find the table in titiklampu table (standard table entity)
+            $tableRecord = DB::table('titiklampu')
+                ->where('RecordOwnerID', $roid)
+                ->where(function($query) use ($tableId) {
+                    $query->where('id', $tableId)
+                          ->orWhere('NamaTitikLampu', $tableId)
+                          ->orWhere('NamaTitikLampu', 'like', '%' . $tableId . '%');
+                })->first();
+
+            if ($tableRecord) {
+                session([
+                    'fnb_table_id' => $tableRecord->id,
+                    'fnb_table_name' => $tableRecord->NamaTitikLampu
+                ]);
+                Log::info('Table recognized for QR barcode order: ' . $tableRecord->NamaTitikLampu . ' (ID: ' . $tableRecord->id . ')');
+            }
+        }
+    }
+
     public function indexCustomDomain(Request $request)
     {
         $roid = $request->attributes->get('detected_roid');
@@ -35,6 +72,9 @@ class FnBStoreController extends Controller
         if (!$roid) {
             return redirect(config('app.url'));
         }
+
+        // Detect table barcode ordering for custom domains
+        $this->detectAndSaveTable($request, $roid);
 
         $encodedRoid = base64_encode($roid);
 
@@ -53,6 +93,10 @@ class FnBStoreController extends Controller
     public function index($id)
     {
         $roid = $this->decodeId($id);
+        
+        // Detect table barcode ordering
+        $this->detectAndSaveTable(request(), $roid);
+
         if (session()->has('customer_id') && session('roid') == $roid) {
             return redirect()->route($id ? 'fnb-store.menu' : 'fnb-store.menu.custom', $id ? ['id' => $id] : []);
         }
@@ -218,22 +262,28 @@ class FnBStoreController extends Controller
 
         DB::beginTransaction();
         try {
-            $virtualTable = DB::table('titiklampu')
-                ->where('RecordOwnerID', $roid)
-                ->where('NamaTitikLampu', 'ONLINE ORDER')
-                ->first();
-
-            if (!$virtualTable) {
-                $virtualTableId = DB::table('titiklampu')->insertGetId([
-                    'NamaTitikLampu' => 'ONLINE ORDER',
-                    'RecordOwnerID' => $roid,
-                    'Status' => 0,
-                    'ControllerID' => 0,
-                    'DigitalInput' => 0,
-                    'BisaDipesan' => 0
-                ]);
+            // Use scanned table ID from session if available, otherwise fallback to ONLINE ORDER
+            $sessionTableId = session('fnb_table_id');
+            if ($sessionTableId) {
+                $virtualTableId = $sessionTableId;
             } else {
-                $virtualTableId = $virtualTable->id;
+                $virtualTable = DB::table('titiklampu')
+                    ->where('RecordOwnerID', $roid)
+                    ->where('NamaTitikLampu', 'ONLINE ORDER')
+                    ->first();
+
+                if (!$virtualTable) {
+                    $virtualTableId = DB::table('titiklampu')->insertGetId([
+                        'NamaTitikLampu' => 'ONLINE ORDER',
+                        'RecordOwnerID' => $roid,
+                        'Status' => 0,
+                        'ControllerID' => 0,
+                        'DigitalInput' => 0,
+                        'BisaDipesan' => 0
+                    ]);
+                } else {
+                    $virtualTableId = $virtualTable->id;
+                }
             }
 
             $numbering = new DocumentNumbering();
