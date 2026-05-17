@@ -87,7 +87,7 @@
    - [x] **Tahap 1:** Fitur Pencarian Cerdas (Real-time Search) & Filter Kategori berbasis AJAX.
    - [x] **Tahap 2:** Integrasi Pembayaran (Midtrans) & Inject Transaksi ke POS secara otomatis.
    - [x] **Tahap 3:** Halaman "Pesanan Saya" (Order Tracking) & Histori Transaksi Pelanggan.
-   - [ ] **Tahap 4:** Pilihan Pengiriman (Pick-up / Delivery) saat Checkout.
+   - [x] **Tahap 4:** Pilihan Pengiriman (Pick-up / Delivery) saat Checkout.
    - [ ] **Tahap 5:** Fitur Kode Promo / Voucher Diskon di keranjang belanja.
    - [ ] **Tahap 6:** Notifikasi Invoice Otomatis via WhatsApp setelah transaksi sukses.
 
