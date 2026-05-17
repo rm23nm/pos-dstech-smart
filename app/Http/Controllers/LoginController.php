@@ -48,7 +48,13 @@ class LoginController extends Controller
         ]);
     }
 
-    public function login() {
+    public function login(Request $request) {
+        $roid = $request->attributes->get('detected_roid');
+        $context = $request->attributes->get('domain_context');
+        if ($roid && $context === 'STORE') {
+            return app(\App\Http\Controllers\FnBStoreController::class)->showLoginCustom();
+        }
+
         $subscriptionheader = SubscriptionHeader::all();
         return view("auth.login",[
             'subscriptionheader' => $subscriptionheader

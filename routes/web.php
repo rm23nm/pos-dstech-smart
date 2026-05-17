@@ -1224,7 +1224,7 @@ Route::get('/log/{id}', [LogingController::class,'view'])->name('log');/*
 */
 // Support for Custom Domains (e.g. ordermakanan.com/)
 Route::middleware([\App\Http\Middleware\DomainDetectionMiddleware::class])->group(function () {
-    Route::get('/login', [\App\Http\Controllers\FnBStoreController::class, 'showLoginCustom'])->name('fnb-store.login.custom');
+    // Route::get('/login', [\App\Http\Controllers\FnBStoreController::class, 'showLoginCustom'])->name('fnb-store.login.custom');
     Route::post('/login', [\App\Http\Controllers\FnBStoreController::class, 'loginCustom'])->name('fnb-store.login.post.custom');
     Route::get('/register', [\App\Http\Controllers\FnBStoreController::class, 'showRegisterCustom'])->name('fnb-store.register.custom');
     Route::post('/register', [\App\Http\Controllers\FnBStoreController::class, 'registerCustom'])->name('fnb-store.register.post.custom');
