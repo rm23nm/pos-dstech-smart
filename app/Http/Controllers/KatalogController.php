@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Schema;
 use App\Models\JenisItem;
 use App\Models\ItemMaster;
 use App\Models\Company;
+use App\Models\DocumentNumbering;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class KatalogController extends Controller
 {
@@ -42,12 +45,29 @@ class KatalogController extends Controller
                             ->get();
         }
 
+        $paymentMethods = DB::table('metodepembayaran')
+            ->where('RecordOwnerID', $RecordOwnerID)
+            ->where('MetodeVerifikasi', 'AUTO')
+            ->get();
+
+        $isProd = config('midtrans.is_production', false);
+        $midtransclientkey = $company->first()->MidtransClientKey ?? '';
+        if (empty($midtransclientkey) && $paymentMethods->count() > 0) {
+            $midtransclientkey = $paymentMethods->first()->ClientKey;
+        }
+
+        if (!$isProd && (empty($midtransclientkey) || str_starts_with($midtransclientkey, 'Mid-client-'))) {
+            // Auto fallback ke sandbox client key agar testing lokal lancar
+            $midtransclientkey = 'SB-Mid-client-qz748Jy7S9f3_srA';
+        }
+
         return view("catalouge.catalouge",[
             'jenisitem' => $jenisitem,
             'RecOID' => $RecordOwnerID,
             'company' => $company,
             'flashSales' => $flashSales,
-            'bestSellers' => $bestSellers
+            'bestSellers' => $bestSellers,
+            'midtransclientkey' => $midtransclientkey
 	    ]);
     }
 
@@ -68,5 +88,282 @@ class KatalogController extends Controller
       $data['data'] = $itemmaster->get();
 
       return response()->json($data);
+    }
+
+    public function CatLogin(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required',
+            'RecordOwnerID' => 'required',
+        ]);
+
+        $customer = \App\Models\Pelanggan::where('RecordOwnerID', $request->RecordOwnerID)
+            ->where(function($query) use ($request) {
+                $query->where('NoTlp1', $request->identifier)
+                      ->orWhere('Email', $request->identifier);
+            })->first();
+
+        if ($customer) {
+            if (!empty($request->password) && !empty($customer->password)) {
+                if (!\Illuminate\Support\Facades\Hash::check($request->password, $customer->password)) {
+                    return response()->json(['success' => false, 'message' => 'Password salah!']);
+                }
+            }
+
+            session(['customer_id' => $customer->KodePelanggan]);
+            session(['customer_name' => $customer->NamaPelanggan]);
+            session(['customer_email' => $customer->Email]);
+            session(['roid' => $request->RecordOwnerID]);
+            
+            Auth::guard('pelanggan')->loginUsingId($customer->PelangganID ?? $customer->KodePelanggan);
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'ID tidak ditemukan. Silakan daftar terlebih dahulu.']);
+    }
+
+    public function CatRegister(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'identifier' => 'required',
+            'password' => 'required',
+            'RecordOwnerID' => 'required',
+        ]);
+
+        $roid = $request->RecordOwnerID;
+        $existing = \App\Models\Pelanggan::where('RecordOwnerID', $roid)
+            ->where(function($query) use ($request) {
+                $query->where('NoTlp1', $request->identifier)
+                      ->orWhere('Email', $request->identifier);
+            })->first();
+        
+        if ($existing) {
+             return response()->json(['success' => false, 'message' => 'Email/No. HP sudah terdaftar.']);
+        }
+
+        $prefix = "CUST-";
+        $lastNo = \App\Models\Pelanggan::where('RecordOwnerID', $roid)->count() + 1;
+        $kodePelanggan = $prefix . str_pad($lastNo, 5, '0', STR_PAD_LEFT);
+
+        $isEmail = filter_var($request->identifier, FILTER_VALIDATE_EMAIL);
+
+        $customer = new \App\Models\Pelanggan();
+        $customer->KodePelanggan = $kodePelanggan;
+        $customer->NamaPelanggan = $request->nama;
+        $customer->RecordOwnerID = $roid;
+        $customer->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        if ($isEmail) {
+            $customer->Email = $request->identifier;
+        } else {
+            $customer->NoTlp1 = $request->identifier;
+        }
+        $customer->save();
+
+        session(['customer_id' => $customer->KodePelanggan]);
+        session(['customer_name' => $customer->NamaPelanggan]);
+        session(['customer_email' => $customer->Email]);
+        session(['roid' => $roid]);
+        
+        Auth::guard('pelanggan')->loginUsingId($customer->PelangganID ?? $customer->KodePelanggan);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function CatCheckout(Request $request)
+    {
+        $cart = $request->input('cart'); // Array of objects
+        $total = $request->input('total');
+        $roid = $request->input('RecordOwnerID');
+        $customerId = session('customer_id');
+
+        if (empty($cart) || empty($customerId)) {
+            return response()->json(['success' => false, 'message' => 'Keranjang kosong atau Anda belum login.']);
+        }
+
+        $company = Company::where('KodePartner', $roid)->first();
+
+        DB::beginTransaction();
+        try {
+            // Find or create virtual table 'E-CATALOG ORDER'
+            $virtualTable = DB::table('titiklampu')
+                ->where('RecordOwnerID', $roid)
+                ->where('NamaTitikLampu', 'E-CATALOG ORDER')
+                ->first();
+
+            if (!$virtualTable) {
+                $virtualTableId = DB::table('titiklampu')->insertGetId([
+                    'NamaTitikLampu' => 'E-CATALOG ORDER',
+                    'RecordOwnerID' => $roid,
+                    'Status' => 0,
+                    'ControllerID' => 0,
+                    'DigitalInput' => 0,
+                    'BisaDipesan' => 0
+                ]);
+            } else {
+                $virtualTableId = $virtualTable->id;
+            }
+
+            $numbering = new DocumentNumbering();
+            $noTransaksi = $numbering->GetNewDocMobile("POS", "tableorderheader", "NoTransaksi", $roid);
+            
+            $now = Carbon::now('Asia/Jakarta');
+            DB::table('tableorderheader')->insert([
+                'NoTransaksi' => $noTransaksi,
+                'TglTransaksi' => $now,
+                'TglPencatatan' => $now,
+                'RecordOwnerID' => $roid,
+                'tableid' => $virtualTableId,
+                'KodePelanggan' => $customerId,
+                'Status' => 1,
+                'DocumentStatus' => 'O',
+                'JamMulai' => $now,
+                'JamSelesai' => $now,
+                'JenisPaket' => 'ONLINE',
+                'paketid' => 0,
+                'KodeSales' => '',
+                'DurasiPaket' => 0,
+                'TaxTotal' => 0,
+                'GrossTotal' => $total,
+                'DiscTotal' => 0,
+                'TotalMakanan' => $total,
+                'NetTotal' => $total,
+                'kitchen_order_status' => 0,
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+
+            $hasOrderSource = Schema::hasColumn('tableorderfnb', 'OrderSource');
+
+            $line = 0;
+            foreach ($cart as $item) {
+                $detailData = [
+                    'NoTransaksi' => $noTransaksi,
+                    'LineNumber' => $line++,
+                    'KodeItem' => $item['KodeItem'],
+                    'Qty' => $item['qty'],
+                    'Harga' => $item['HargaJual'],
+                    'Tax' => 0,
+                    'Discount' => 0,
+                    'LineTotal' => $item['qty'] * $item['HargaJual'],
+                    'RecordOwnerID' => $roid,
+                    'LineStatus' => 'O',
+                    'isCompleted' => 0,
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ];
+                
+                if ($hasOrderSource) {
+                    $detailData['OrderSource'] = 'E-CATALOG';
+                }
+                
+                DB::table('tableorderfnb')->insert($detailData);
+            }
+
+            $serverKey = !empty($company->MidtransServerKey) ? $company->MidtransServerKey : '';
+            if (empty($serverKey)) {
+                $pm = DB::table('metodepembayaran')->where('RecordOwnerID', $roid)->where('MetodeVerifikasi', 'AUTO')->first();
+                if ($pm) $serverKey = $pm->ServerKey;
+            }
+
+            $isProd = config('midtrans.is_production', false);
+            if (!$isProd && (empty($serverKey) || str_starts_with($serverKey, 'Mid-server-'))) {
+                // Auto fallback ke sandbox server key agar testing lokal lancar
+                $serverKey = 'SB-Mid-server-HX4SGB3FVpxVm-CpeOCyo4MS';
+            }
+
+            if (empty($serverKey)) {
+                throw new \Exception('Sistem pembayaran Midtrans belum dikonfigurasi oleh toko.');
+            }
+
+            Config::$serverKey = $serverKey;
+            Config::$isProduction = $isProd;
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $noTransaksi . '-' . time(),
+                    'gross_amount' => (int)$total,
+                ],
+                'customer_details' => [
+                    'first_name' => session('customer_name'),
+                    'email' => session('customer_email') ?? 'customer@dstech.com',
+                ],
+            ];
+
+            $snapToken = Snap::getSnapToken($params);
+
+            DB::commit();
+            return response()->json([
+                'success' => true, 
+                'snap_token' => $snapToken,
+                'order_id' => $noTransaksi
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('E-Catalog Checkout Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function CatOrders($id)
+    {
+        $RecordOwnerID = $id;
+        $company = Company::where('KodePartner', $RecordOwnerID)->get();
+        if ($company->count() == 0) {
+            return redirect('/');
+        }
+        
+        $customerId = session('customer_id');
+        if (empty($customerId)) {
+            return redirect()->route('cat-catalouge', ['ID' => $id])->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        // Fetch orders for this customer
+        $orders = DB::table('tableorderheader')
+            ->where('RecordOwnerID', $RecordOwnerID)
+            ->where('KodePelanggan', $customerId)
+            ->orderBy('TglTransaksi', 'desc')
+            ->orderBy('JamMulai', 'desc')
+            ->get();
+
+        // Get details for these orders
+        $orderIds = $orders->pluck('NoTransaksi')->toArray();
+        
+        $orderDetails = [];
+        if (!empty($orderIds)) {
+            $orderDetails = DB::table('tableorderfnb')
+                ->leftJoin('itemmaster', 'tableorderfnb.KodeItem', '=', 'itemmaster.KodeItem')
+                ->where('tableorderfnb.RecordOwnerID', $RecordOwnerID)
+                ->whereIn('tableorderfnb.NoTransaksi', $orderIds)
+                ->select('tableorderfnb.*', 'itemmaster.NamaItem', 'itemmaster.Gambar')
+                ->get()
+                ->groupBy('NoTransaksi');
+        }
+
+        return view('catalouge.orders', compact('orders', 'orderDetails', 'company', 'RecordOwnerID'));
+    }
+
+    public function CatStatus($id, $orderId)
+    {
+        $RecordOwnerID = $id;
+        $company = Company::where('KodePartner', $RecordOwnerID)->get();
+        if ($company->count() == 0) {
+            return redirect('/');
+        }
+
+        $order = DB::table('tableorderheader')
+            ->where('NoTransaksi', $orderId)
+            ->where('RecordOwnerID', $RecordOwnerID)
+            ->first();
+
+        if (!$order) {
+            abort(404, 'Pesanan tidak ditemukan.');
+        }
+
+        return view('catalouge.status', compact('order', 'company', 'RecordOwnerID'));
     }
 }

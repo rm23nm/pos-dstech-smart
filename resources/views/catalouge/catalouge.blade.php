@@ -201,10 +201,10 @@
             font-size: 1rem;
         }
 
-        .fs-slider { padding: 20px; }
+        .fs-slider { padding: 10px 20px; }
         .fs-card { padding: 10px; text-align: center; text-decoration: none; color: inherit; display: block; }
-        .fs-img-wrap { position: relative; padding-top: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
-        .fs-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .fs-img-wrap { position: relative; padding-top: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 12px; background: #f9f9f9; }
+        .fs-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; padding: 5px; }
         .fs-price { color: var(--primary-red); font-weight: 700; font-size: 1.1rem; }
         .fs-discount-tag {
             position: absolute;
@@ -242,6 +242,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .product-card:hover {
@@ -298,11 +299,12 @@
                 <a href="#" class="text-white text-decoration-none"><i class="fas fa-mobile-alt me-1"></i> Download App</a>
             </div>
             <div>
-                @if(Auth::guard('pelanggan')->check())
-                    <a href="#" class="text-white text-decoration-none fw-bold"><i class="fas fa-user-circle me-1"></i> {{ Auth::guard('pelanggan')->user()->NamaPelanggan }}</a>
+                @if(session()->has('customer_id'))
+                    <a href="{{ route('cat-orders', ['id' => $RecOID]) }}" class="text-white text-decoration-none fw-bold me-3"><i class="fas fa-box me-1"></i> PESANAN SAYA</a>
+                    <a href="#" class="text-white text-decoration-none fw-bold"><i class="fas fa-user-circle me-1"></i> {{ session('customer_name') }}</a>
                 @else
                     <a href="#" class="text-white text-decoration-none me-3 fw-bold" onclick="showLoginModal()">LOGIN MEMBER</a>
-                    <a href="#" class="text-white text-decoration-none fw-bold" onclick="showLoginModal()">DAFTAR</a>
+                    <a href="#" class="text-white text-decoration-none fw-bold" onclick="showRegisterModal()">DAFTAR</a>
                 @endif
             </div>
         </div>
@@ -330,7 +332,12 @@
                         <button class="search-btn"><i class="fas fa-search me-2"></i> CARI</button>
                     </div>
                 </div>
-                <div class="col-6 col-md-2 order-2 order-md-3 text-end">
+                <div class="col-6 col-md-2 order-2 order-md-3 text-end d-flex align-items-center justify-content-end gap-3">
+                    @if(session()->has('customer_id'))
+                        <a href="{{ route('cat-orders', ['id' => $RecOID]) }}" class="cart-icon d-inline-block" title="Pesanan Saya" style="color: var(--primary-blue)">
+                            <i class="fas fa-box"></i>
+                        </a>
+                    @endif
                     <div class="cart-icon d-inline-block">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-badge" id="cartCount">0</span>
@@ -342,14 +349,14 @@
 
     <main class="container mt-3">
         <!-- Banners -->
-        <div class="banner-slider">
+        <div class="banner-slider" id="bannerSection">
             <div class="banner-item"><img src="{{ $company[0]['Banner1'] ?: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80' }}" alt="Banner 1"></div>
             @if(!empty($company[0]['Banner2'])) <div class="banner-item"><img src="{{ $company[0]['Banner2'] }}" alt="Banner 2"></div> @endif
         </div>
 
         <!-- Flash Sale -->
         @if(count($flashSales) > 0)
-        <div class="flash-sale-section">
+        <div class="flash-sale-section" id="flashSaleSection">
             <div class="fs-header">
                 <div class="fs-title"><i class="fas fa-bolt animate__animated animate__flash animate__infinite"></i> FLASH SALE</div>
                 <div class="fs-timer" id="flashTimer">
@@ -360,13 +367,26 @@
             </div>
             <div class="fs-slider">
                 @foreach($flashSales as $fs)
-                <a href="#" class="fs-card">
+                @php
+                    $hargaAsli = $fs->HargaJual > 0 ? $fs->HargaJual : 0;
+                    $hargaDiskon = $fs->FlashSalePrice > 0 ? $fs->FlashSalePrice : $hargaAsli * 0.8;
+                    if ($hargaDiskon >= $hargaAsli) {
+                        $hargaDiskon = $hargaAsli * 0.8; // Paksa diskon 20% jika input harga diskon salah
+                    }
+                    $cartItemFS = [
+                        'KodeItem' => $fs->KodeItem ?? '',
+                        'NamaItem' => $fs->NamaItem ?? 'Flash Sale Item',
+                        'Gambar' => $fs->Gambar ?? '',
+                        'HargaJual' => $hargaDiskon
+                    ];
+                @endphp
+                <a href="javascript:void(0)" class="fs-card" onclick="addToCart({{ json_encode($cartItemFS) }})">
                     <div class="fs-img-wrap">
                         <img src="{{ $fs->Gambar ?: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' }}" class="fs-img" alt="">
                         <div class="fs-discount-tag">SPECIAL PRICE</div>
                     </div>
-                    <div class="fs-price">Rp {{ number_format($fs->FlashSalePrice ?: $fs->HargaJual * 0.8, 0, ',', '.') }}</div>
-                    <div class="small text-muted text-decoration-line-through">Rp {{ number_format($fs->HargaJual, 0, ',', '.') }}</div>
+                    <div class="fs-price">Rp {{ number_format($hargaDiskon, 0, ',', '.') }}</div>
+                    <div class="small text-muted text-decoration-line-through">Rp {{ number_format($hargaAsli, 0, ',', '.') }}</div>
                 </a>
                 @endforeach
             </div>
@@ -375,13 +395,21 @@
 
         <!-- Best Sellers -->
         @if(count($bestSellers) > 0)
-        <div class="section-header">
+        <div class="section-header" id="bestSellerHeader">
             <div class="section-title"><i class="fas fa-fire me-2 text-danger"></i> Produk Terlaris</div>
         </div>
-        <div class="best-seller-slider mb-4">
+        <div class="best-seller-slider mb-4" id="bestSellerSection">
             @foreach($bestSellers as $bs)
-            <div class="px-2">
-                <div class="product-card">
+            @php
+                $cartItemBS = [
+                    'KodeItem' => $bs->KodeItem ?? '',
+                    'NamaItem' => $bs->NamaItem ?? 'Best Seller Item',
+                    'Gambar' => $bs->Gambar ?? '',
+                    'HargaJual' => $bs->HargaJual ?? 0
+                ];
+            @endphp
+            <div class="p-2">
+                <div class="product-card" onclick="addToCart({{ json_encode($cartItemBS) }})">
                     <div class="card-img-wrap">
                         <img src="{{ $bs->Gambar ?: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' }}" class="card-img">
                     </div>
@@ -414,8 +442,8 @@
         </div>
 
         <!-- Recommendation Section -->
-        <div class="section-header">
-            <div class="section-title"><i class="fas fa-thumbs-up me-2"></i> Rekomendasi Untuk Anda</div>
+        <div class="section-header" id="rekomendasiHeader">
+            <div class="section-title" id="rekomendasiTitle"><i class="fas fa-thumbs-up me-2"></i> Rekomendasi Untuk Anda</div>
         </div>
 
         <div id="productGrid" class="row g-3 product-grid">
@@ -482,66 +510,144 @@
                         <p class="small text-muted">Masuk untuk pengalaman belanja lebih baik</p>
                     </div>
                     <form id="loginForm">
+                        @csrf
+                        <input type="hidden" name="RecordOwnerID" value="{{ $RecOID }}">
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Email / No. HP</label>
-                            <input type="text" class="form-control form-control-lg" placeholder="Masukkan ID Anda" style="border-radius: 10px;" required>
+                            <input type="text" name="identifier" class="form-control form-control-lg" placeholder="Masukkan ID Anda" style="border-radius: 10px;" required>
                         </div>
                         <div class="mb-4">
                             <label class="form-label small fw-bold">Password</label>
-                            <input type="password" class="form-control form-control-lg" placeholder="Masukkan Password" style="border-radius: 10px;" required>
+                            <input type="password" name="password" class="form-control form-control-lg" placeholder="Masukkan Password" style="border-radius: 10px;" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow" style="border-radius: 10px; background: var(--primary-blue)">MASUK SEKARANG</button>
                     </form>
                     <div class="text-center mt-4 small">
-                        Belum punya akun? <a href="#" class="text-decoration-none fw-bold" style="color: var(--primary-red)">Daftar Member</a>
+                        Belum punya akun? <a href="#" onclick="showRegisterModal(); return false;" class="text-decoration-none fw-bold" style="color: var(--primary-red)">Daftar Member</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                <div class="modal-body p-5">
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold" style="color: var(--primary-blue)">DAFTAR MEMBER</h4>
+                        <p class="small text-muted">Buat akun untuk pengalaman belanja lebih baik</p>
+                    </div>
+                    <form id="registerForm">
+                        @csrf
+                        <input type="hidden" name="RecordOwnerID" value="{{ $RecOID }}">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nama Lengkap</label>
+                            <input type="text" name="nama" class="form-control form-control-lg" placeholder="Masukkan Nama Anda" style="border-radius: 10px;" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email / No. HP</label>
+                            <input type="text" name="identifier" class="form-control form-control-lg" placeholder="Masukkan ID Anda" style="border-radius: 10px;" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" name="password" class="form-control form-control-lg" placeholder="Buat Password" style="border-radius: 10px;" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow" style="border-radius: 10px; background: var(--primary-blue)">DAFTAR SEKARANG</button>
+                    </form>
+                    <div class="text-center mt-4 small">
+                        Sudah punya akun? <a href="#" onclick="showLoginModal(); return false;" class="text-decoration-none fw-bold" style="color: var(--primary-red)">Login Member</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="p-3 d-flex justify-content-between align-items-center border-bottom bg-white sticky-top">
+            <h6 class="fw-bold mb-0">Keranjang Belanja (<span id="cartSideCount">0</span>)</h6>
+            <button class="btn-close" onclick="toggleCart()"></button>
+        </div>
+        <div class="cart-items-container p-3" id="cartItemsList">
+            <!-- Items will be injected here -->
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-shopping-basket fs-1 mb-3 opacity-25"></i>
+                <p>Keranjang masih kosong</p>
+            </div>
+        </div>
+        <div class="cart-footer p-3 border-top bg-white">
+            <div class="d-flex justify-content-between mb-3 fw-bold">
+                <span>Total Estimasi:</span>
+                <span class="text-danger" id="cartTotalPrice">Rp 0</span>
+            </div>
+            <button class="btn btn-primary w-100 py-2 fw-bold" onclick="proceedToCheckout()" id="btnCheckout" disabled>CHECKOUT SEKARANG</button>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if(!empty($midtransclientkey))
+        <script src="{{ config('midtrans.is_production', false) ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $midtransclientkey }}"></script>
+    @endif
+
+    <style>
+        .cart-sidebar {
+            position: fixed; top: 0; right: -400px; width: 400px; height: 100%;
+            background: white; z-index: 2000; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+        }
+        .cart-sidebar.open { right: 0; }
+        .cart-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1999; display: none;
+        }
+        .cart-items-container { flex-grow: 1; overflow-y: auto; }
+        .cart-item-row { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
+        .cart-item-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .cart-item-price { color: var(--primary-red); font-weight: 700; font-size: 0.9rem; }
+        .qty-control { display: flex; align-items: center; gap: 10px; border: 1px solid #ddd; border-radius: 5px; padding: 2px 8px; width: fit-content; }
+        .qty-btn { cursor: pointer; color: var(--primary-blue); font-weight: bold; }
+    </style>
 
     <script>
         $(document).ready(function() {
+            let baseData = [];
             let allData = [];
+            let cart = JSON.parse(localStorage.getItem('cart_retail')) || [];
             let itemsPerPage = 12;
             let currentOffset = 0;
             let currentROID = "{{ $RecOID }}";
             let defaultPlaceholder = "https://images.unsplash.com/photo-1560343090-f0409e92791a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80";
 
-            // Initialize Banners & Sliders
+            updateCartUI();
+
+            // Sliders
             $('.banner-slider').slick({ dots: true, autoplay: true, autoplaySpeed: 4000, arrows: false, fade: true });
             $('.fs-slider').slick({ slidesToShow: 5, slidesToScroll: 2, arrows: true, responsive: [{ breakpoint: 1024, settings: { slidesToShow: 3 } }, { breakpoint: 768, settings: { slidesToShow: 2 } }] });
             $('.best-seller-slider').slick({ slidesToShow: 6, slidesToScroll: 2, arrows: true, responsive: [{ breakpoint: 1024, settings: { slidesToShow: 4 } }, { breakpoint: 768, settings: { slidesToShow: 2 } }] });
 
-            // Flash Sale Timer Logic
             function startTimer() {
                 let fsUntil = "{{ count($flashSales) > 0 ? $flashSales[0]->FlashSaleUntil : '' }}";
                 let endTime = fsUntil ? new Date(fsUntil).getTime() : new Date().getTime() + (3 * 60 * 60 * 1000);
-
                 setInterval(function() {
                     let now = new Date().getTime();
                     let distance = endTime - now;
-                    if (distance < 0) {
-                        $('#flashTimer').html('<span class="badge bg-secondary">PROMO BERAKHIR</span>');
-                        return;
-                    }
-
-                    let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    let s = Math.floor((distance % (1000 * 60)) / 1000);
-
-                    $('#timer-h').text(h.toString().padStart(2, '0'));
-                    $('#timer-m').text(m.toString().padStart(2, '0'));
-                    $('#timer-s').text(s.toString().padStart(2, '0'));
+                    if (distance < 0) return;
+                    $('#timer-h').text(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0'));
+                    $('#timer-m').text(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0'));
+                    $('#timer-s').text(Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0'));
                 }, 1000);
             }
             startTimer();
 
-            // Product Fetching
             fetchProducts("");
 
             $('.cat-item').on('click', function(e) {
@@ -561,13 +667,56 @@
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                     data: { 'KodeJenis': kodeJenis, 'RecordOwnerID': currentROID, 'Active': 'Y' },
                     success: function(response) {
-                        allData = response.data;
-                        currentOffset = 0;
-                        $('#productGrid').empty();
-                        renderBatch();
+                        baseData = response.data;
+                        applySearchAndRender();
                     }
                 });
             }
+
+            function applySearchAndRender() {
+                let keyword = $('#searchInput').val().toLowerCase();
+                let activeKategori = $('.cat-item.active').data('kode');
+                
+                if (keyword || activeKategori) {
+                    $('#bannerSection, #flashSaleSection, #bestSellerHeader, #bestSellerSection').slideUp(300);
+                    if (keyword) {
+                        $('#rekomendasiTitle').html('<i class="fas fa-search me-2"></i> Hasil Pencarian: "' + keyword + '"');
+                    } else {
+                        $('#rekomendasiTitle').html('<i class="fas fa-tags me-2"></i> Kategori Pilihan');
+                    }
+                } else {
+                    $('#bannerSection, #flashSaleSection, #bestSellerHeader, #bestSellerSection').slideDown(300);
+                    $('#rekomendasiTitle').html('<i class="fas fa-thumbs-up me-2"></i> Rekomendasi Untuk Anda');
+                }
+
+                if (keyword) {
+                    allData = baseData.filter(item => (item.NamaItem || '').toLowerCase().includes(keyword));
+                } else {
+                    allData = [...baseData];
+                }
+                
+                currentOffset = 0;
+                $('#productGrid').empty();
+                
+                if(allData.length === 0) {
+                    $('#productGrid').html('<div class="col-12 text-center py-5 text-muted"><i class="fas fa-box-open fs-1 mb-3 opacity-50"></i><p>Produk tidak ditemukan.</p></div>');
+                    $('#loadMoreSection').addClass('d-none');
+                } else {
+                    renderBatch();
+                }
+            }
+
+            // Event Listeners for Search Bar
+            $('#searchInput').on('keyup', function(e) {
+                if (e.key === 'Enter') applySearchAndRender();
+            });
+            // Auto search when typing (debounce simulation)
+            $('#searchInput').on('input', function() {
+                applySearchAndRender();
+            });
+            $('.search-btn').on('click', function() {
+                applySearchAndRender();
+            });
 
             function renderBatch() {
                 const nextBatch = allData.slice(currentOffset, currentOffset + itemsPerPage);
@@ -577,12 +726,13 @@
                     const priceFormatted = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.HargaJual);
                     html += `
                         <div class="col-6 col-md-4 col-lg-2 mb-3">
-                            <div class="product-card">
+                            <div class="product-card" onclick="addToCartFromElement(this)" data-item="${JSON.stringify(item).replace(/"/g, '&quot;')}">
                                 <div class="card-img-wrap"><img src="${imgSrc}" class="card-img" onerror="this.src='${defaultPlaceholder}'"></div>
                                 <div class="card-content">
                                     <div class="card-title">${item.NamaItem}</div>
                                     <div class="card-price">${priceFormatted}</div>
                                     <div class="card-footer-info"><span>⭐ 4.9</span><span>Terjual 500+</span></div>
+                                    <button class="btn btn-sm btn-outline-primary w-100 mt-2 rounded-pill shadow-sm">Beli Sekarang</button>
                                 </div>
                             </div>
                         </div>`;
@@ -593,7 +743,218 @@
                 else $('#loadMoreSection').addClass('d-none');
             }
 
-            window.showLoginModal = function() { new bootstrap.Modal(document.getElementById('loginModal')).show(); };
+            // Safe cart logic handler from HTML elements
+            window.addToCartFromElement = function(el) {
+                try {
+                    let item = JSON.parse($(el).attr('data-item'));
+                    addToCart(item);
+                } catch(e) {
+                    console.error("Gagal memproses item:", e);
+                }
+            };
+
+            // Cart Logic
+            window.addToCart = function(item) {
+                let existing = cart.find(i => i.KodeItem === item.KodeItem);
+                if (existing) {
+                    existing.qty += 1;
+                } else {
+                    cart.push({ ...item, qty: 1 });
+                }
+                saveCart();
+                updateCartUI();
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: `${item.NamaItem} ditambah ke keranjang`,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    position: 'top-end',
+                    toast: true
+                });
+            };
+
+            window.updateQty = function(kode, change) {
+                let item = cart.find(i => i.KodeItem === kode);
+                if (item) {
+                    item.qty += change;
+                    if (item.qty <= 0) cart = cart.filter(i => i.KodeItem !== kode);
+                    saveCart();
+                    updateCartUI();
+                }
+            };
+
+            function saveCart() { localStorage.setItem('cart_retail', JSON.stringify(cart)); }
+
+            function updateCartUI() {
+                $('#cartCount, #cartSideCount').text(cart.reduce((a, b) => a + b.qty, 0));
+                let html = '';
+                let total = 0;
+
+                if (cart.length === 0) {
+                    html = '<div class="text-center py-5 text-muted"><i class="fas fa-shopping-basket fs-1 mb-3 opacity-25"></i><p>Keranjang masih kosong</p></div>';
+                    $('#btnCheckout').prop('disabled', true);
+                } else {
+                    cart.forEach(item => {
+                        const price = item.HargaJual * item.qty;
+                        total += price;
+                        html += `
+                            <div class="cart-item-row animate__animated animate__fadeIn">
+                                <img src="${item.Gambar || defaultPlaceholder}" class="cart-item-img">
+                                <div class="cart-item-info">
+                                    <div class="cart-item-title">${item.NamaItem}</div>
+                                    <div class="cart-item-price">Rp ${new Intl.NumberFormat('id-ID').format(item.HargaJual)}</div>
+                                    <div class="qty-control mt-2">
+                                        <span class="qty-btn" onclick="updateQty('${item.KodeItem}', -1)">-</span>
+                                        <span class="fw-bold">${item.qty}</span>
+                                        <span class="qty-btn" onclick="updateQty('${item.KodeItem}', 1)">+</span>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                    $('#btnCheckout').prop('disabled', false);
+                }
+                $('#cartItemsList').html(html);
+                $('#cartTotalPrice').text('Rp ' + new Intl.NumberFormat('id-ID').format(total));
+            }
+
+            window.toggleCart = function() {
+                $('#cartSidebar').toggleClass('open');
+                $('#cartOverlay').fadeToggle();
+            };
+
+            $('.cart-icon').on('click', toggleCart);
+
+            window.proceedToCheckout = function() {
+                @if(session()->has('customer_id'))
+                    if (cart.length === 0) {
+                        Swal.fire('Keranjang Kosong', 'Silakan pilih produk terlebih dahulu.', 'warning');
+                        return;
+                    }
+                    
+                    let btn = $('#btnCheckout');
+                    let originalText = btn.html();
+                    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Memproses...');
+                    
+                    let totalPrice = cart.reduce((sum, item) => sum + (item.HargaJual * item.qty), 0);
+                    
+                    $.ajax({
+                        url: "{{ route('cat-checkout') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            RecordOwnerID: currentROID,
+                            cart: cart,
+                            total: totalPrice
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                if (typeof snap !== 'undefined') {
+                                    snap.pay(res.snap_token, {
+                                        onSuccess: function(result) {
+                                            Swal.fire('Berhasil!', 'Pembayaran telah diterima.', 'success').then(() => {
+                                                cart = []; saveCart(); updateCartUI();
+                                                window.location.href = "{{ url('cat/'.$RecOID.'/status') }}/" + res.order_id;
+                                            });
+                                        },
+                                        onPending: function(result) {
+                                            Swal.fire('Menunggu', 'Menunggu pembayaran diselesaikan.', 'info').then(() => {
+                                                cart = []; saveCart(); updateCartUI();
+                                                window.location.href = "{{ url('cat/'.$RecOID.'/status') }}/" + res.order_id;
+                                            });
+                                        },
+                                        onError: function(result) {
+                                            Swal.fire('Gagal', 'Pembayaran gagal diproses.', 'error');
+                                            btn.prop('disabled', false).html(originalText);
+                                        },
+                                        onClose: function() {
+                                            Swal.fire('Batal', 'Anda menutup halaman pembayaran.', 'warning');
+                                            btn.prop('disabled', false).html(originalText);
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire('Error Konfigurasi', 'Sistem pembayaran belum siap (Snap.js tidak ada).', 'error');
+                                    btn.prop('disabled', false).html(originalText);
+                                }
+                            } else {
+                                Swal.fire('Gagal!', res.message, 'error');
+                                btn.prop('disabled', false).html(originalText);
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error!', 'Terjadi kesalahan sistem', 'error');
+                            btn.prop('disabled', false).html(originalText);
+                        }
+                    });
+                @else
+                    toggleCart();
+                    showLoginModal();
+                    Swal.fire('Silakan Login', 'Anda harus login member dulu untuk melakukan pemesanan.', 'warning');
+                @endif
+            };
+
+            window.showLoginModal = function() { 
+                $('#registerModal').modal('hide');
+                new bootstrap.Modal(document.getElementById('loginModal')).show(); 
+            };
+            window.showRegisterModal = function() { 
+                $('#loginModal').modal('hide');
+                new bootstrap.Modal(document.getElementById('registerModal')).show(); 
+            };
+
+            $('#loginForm').submit(function(e) {
+                e.preventDefault();
+                let btn = $(this).find('button[type="submit"]');
+                let originalText = btn.text();
+                btn.prop('disabled', true).text('Memproses...');
+                
+                $.ajax({
+                    url: "{{ route('cat-login') }}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if(res.success) {
+                            Swal.fire('Berhasil!', 'Login sukses, memuat ulang...', 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Gagal!', res.message, 'error');
+                            btn.prop('disabled', false).text(originalText);
+                        }
+                    },
+                    error: function(err) {
+                        Swal.fire('Error!', 'Terjadi kesalahan sistem', 'error');
+                        btn.prop('disabled', false).text(originalText);
+                    }
+                });
+            });
+
+            $('#registerForm').submit(function(e) {
+                e.preventDefault();
+                let btn = $(this).find('button[type="submit"]');
+                let originalText = btn.text();
+                btn.prop('disabled', true).text('Memproses...');
+                
+                $.ajax({
+                    url: "{{ route('cat-register') }}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if(res.success) {
+                            Swal.fire('Berhasil!', 'Pendaftaran sukses, memuat ulang...', 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Gagal!', res.message, 'error');
+                            btn.prop('disabled', false).text(originalText);
+                        }
+                    },
+                    error: function(err) {
+                        Swal.fire('Error!', 'Terjadi kesalahan sistem', 'error');
+                        btn.prop('disabled', false).text(originalText);
+                    }
+                });
+            });
         });
     </script>
 </body>

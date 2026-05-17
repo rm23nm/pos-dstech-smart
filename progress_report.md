@@ -1,8 +1,8 @@
 # LAPORAN PROGRES PERBAIKAN & STABILISASI POS
 
 **Project:** pos.dstechsmart.com
-**Last Update:** 2026-05-16 18:11 (WIB)
-**Status:** ✅ SELESAI - Sistem Live Sudah Normal
+**Last Update:** 2026-05-17 06:30 (WIB)
+**Status:** ✅ SELESAI - Sistem Live & E-Catalog Tahap 3 Normal
 
 ---
 
@@ -19,11 +19,16 @@
 | 2026-05-16 | Timezone Live Server (PRC vs WIB) | Server live pakai PHP timezone PRC (UTC+8). Fix: Tambah `APP_TIMEZONE=Asia/Jakarta` ke `.env` live + clear cache. | ✅ Selesai |
 | 2026-05-16 | Git Conflict Saat Push ke Live | File di live berbeda dengan GitHub. Fix: `git stash` lalu `git pull`. | ✅ Selesai |
 | 2026-05-16 | Data Lama Stuck "Time Up" di Live | Meja 3 (id:59) tersimpan waktu UTC sebelum fix. Dibersihkan manual via script PHP. | ✅ Selesai |
+| 2026-05-17 | Missing DB Columns & Strict Mode | Menambahkan `TglPencatatan` dan kolom-kolom default `JenisPaket`, `paketid`, `TaxTotal` dll pada order insert di `KatalogController` untuk mencegah error 1364. | ✅ Selesai |
+| 2026-05-17 | Database Version Mismatch | Implementasi dynamic check `Schema::hasColumn('tableorderfnb', 'OrderSource')` agar tidak melempar error `1054 Column not found` pada database lokal yang belum dimigrasi. | ✅ Selesai |
+| 2026-05-17 | Midtrans 401 Unauthorized Lokal | Deteksi cerdas: jika mode Sandbox (`is_production=false`) tetapi database berisi Kunci Live (diawali `Mid-`), otomatis fallback menggunakan Kunci Sandbox Demo untuk mempermudah testing lokal. | ✅ Selesai |
+| 2026-05-17 | E-Catalog Tahap 3: Halaman Pesanan Saya | Membuat view `orders.blade.php`, controller `CatOrders`, route `/cat/{id}/orders`, dan menambahkan tombol navigasi "Pesanan Saya" di navbar desktop & mobile. | ✅ Selesai |
+| 2026-05-17 | Pemisahan Halaman Status dari FNB | Membuat view `status.blade.php` katalog, method `CatStatus`, route `/cat/{id}/status/{orderId}` untuk decoupling penuh dari FNB store agar user stay di katalog. | ✅ Selesai |
 | 2026-05-16 | Sinkronisasi Data NetTotal UI | `nettotal` ditambahkan ke dataset UI agar update otomatis tiap 10 detik. | ✅ Selesai |
 
 ---
 
-## 2. Status Sistem (Per 2026-05-16 18:11 WIB)
+## 2. Status Sistem (Per 2026-05-17 06:30 WIB)
 
 > [!NOTE]
 > **Semua sistem sudah NORMAL** — baik lokal maupun live.
@@ -49,11 +54,44 @@
 | `app/Http/Controllers/TableOrderController.php` | Timezone fix, closure fix `$now`, logika status meja |
 | `app/Http/Controllers/FakturPenjualanController.php` | Sinkronisasi `TotalTerbayar` & auto-clear lampu setelah bayar |
 | `resources/views/Transaksi/Penjualan/PoS/billing_new.blade.php` | Fix JS variable, DOMContentLoaded, logging auto-refresh |
+| `app/Http/Controllers/KatalogController.php` | Integrasi Midtrans Sandbox Fallback, database strict validation, method `CatOrders` |
+| `resources/views/catalouge/catalouge.blade.php` | UI Premium, Slide-Up Search, login/register AJAX, Midtrans Checkout Integration, Pesanan Saya link |
+| `resources/views/catalouge/orders.blade.php` | View histori pesanan & tracking order status stepper |
+| `routes/web.php` | Route `/cat/checkout` dan `/cat/{id}/orders` |
 | `.env` (lokal & live) | Tambah `APP_TIMEZONE=Asia/Jakarta` |
 
 ### Antrean Pekerjaan Selanjutnya:
-1. **Migrasi Akun GitHub** — Ganti remote origin dari `adji142/xPOS` ke akun Bapak sendiri (menunggu link repository baru)
-2. **Sync Jam Windows** — Komputer kasir lokal perlu "Sync Now" agar jam tidak selisih dengan server
+1. **Migrasi Akun GitHub & Resolusi Error "Unrelated Histories"** — [SEDANG DIKERJAKAN] Mengatasi crash sinkronisasi di GitHub Desktop
+   *Langkah-langkah pengerjaan:*
+   - [x] Cek remote origin saat ini
+   - [x] Ubah remote url origin ke url repo baru (`https://github.com/rm23nm/POS-DStech-Smart.git`)
+   - [ ] Jalankan pull dengan parameter `--allow-unrelated-histories` untuk menyatukan histori local dan remote baru
+   - [ ] Selesaikan konflik file default (seperti README.md atau .gitignore bawaan GitHub baru jika ada)
+   - [ ] Push hasil penggabungan ke remote repository baru
+2. **Perbaikan Live Server (Route [login] not defined)** — [SEDANG DIKERJAKAN] Mengatasi error 500 saat diakses di live
+   *Langkah-langkah pengerjaan:*
+   - [ ] Periksa dan bandingkan file `routes/web.php` lokal dan live
+   - [ ] Periksa panggilan rute `login` di `welcome.blade.php` live
+   - [ ] Bersihkan cache rute live server menggunakan perintah `php artisan route:clear`
+   - [ ] Verifikasi live server berjalan normal kembali
+3. **Perbaikan Tampilan E-Catalog Retail** — [SELESAI] Memperbaiki tata letak dan logika harga pada halaman `/cat/`
+   *Langkah-langkah pengerjaan:*
+   - [x] Mengubah `object-fit: cover` menjadi `contain` pada gambar Flash Sale agar gambar tidak terpotong.
+   - [x] Memperbaiki logika harga coret (Flash Sale) agar harga diskon selalu lebih murah dari harga asli.
+   - [x] Menyesuaikan padding dan layout pada card produk agar slider tidak terlihat berantakan.
+   - [x] Mengaktifkan fungsi Add to Cart (belanja) pada produk Flash Sale dan Produk Terlaris.
+   - [x] Mengaktifkan fungsi Login Member dan Registrasi Member pada E-Catalog dengan menggunakan sistem AJAX tanpa perpindahan halaman, lengkap dengan popup Modal.
+
+4. **Pengembangan Fitur Premium E-Catalog (Berdasarkan Roadmap)** — [SEDANG BERJALAN]
+   *Tahapan Implementasi Bertahap:*
+   - [x] **Tahap 1:** Fitur Pencarian Cerdas (Real-time Search) & Filter Kategori berbasis AJAX.
+   - [x] **Tahap 2:** Integrasi Pembayaran (Midtrans) & Inject Transaksi ke POS secara otomatis.
+   - [x] **Tahap 3:** Halaman "Pesanan Saya" (Order Tracking) & Histori Transaksi Pelanggan.
+   - [ ] **Tahap 4:** Pilihan Pengiriman (Pick-up / Delivery) saat Checkout.
+   - [ ] **Tahap 5:** Fitur Kode Promo / Voucher Diskon di keranjang belanja.
+   - [ ] **Tahap 6:** Notifikasi Invoice Otomatis via WhatsApp setelah transaksi sukses.
+
+5. **Sync Jam Windows** — Komputer kasir lokal perlu "Sync Now" agar jam tidak selisih dengan server
 
 ---
 

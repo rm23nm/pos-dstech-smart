@@ -766,6 +766,11 @@ Route::get('/report/cashflow', [ReportController::class, 'rptCashFlow'])->name('
 
 Route::get('/cat/{ID}', [KatalogController::class, 'View'])->name('cat-catalouge');
 Route::post('/cat/itemmaster', [KatalogController::class, 'ViewItemMaster'])->name('cat-itemmaster');
+Route::post('/cat/login', [KatalogController::class, 'CatLogin'])->name('cat-login');
+Route::post('/cat/register', [KatalogController::class, 'CatRegister'])->name('cat-register');
+Route::post('/cat/checkout', [KatalogController::class, 'CatCheckout'])->name('cat-checkout');
+Route::get('/cat/{id}/orders', [KatalogController::class, 'CatOrders'])->name('cat-orders');
+Route::get('/cat/{id}/status/{orderId}', [KatalogController::class, 'CatStatus'])->name('cat-status');
 
 /*
 |--------------------------------------------------------------------------
