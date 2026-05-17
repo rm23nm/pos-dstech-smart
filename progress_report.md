@@ -28,6 +28,7 @@
 | 2026-05-17 | Bug Lampu Mati Saat Refresh Browser | Di `TableOrderController@getTableStatuses()`, kondisi `$netTotal == 0` mematikan lampu secara keliru pada paket gratis/belum ter-set meskipun waktu sewa belum habis. Diperbaiki agar hanya mematikan lampu jika waktu sewa benar-benar telah habis (`JamSelesai < now`). | ✅ Selesai |
 | 2026-05-17 | Bug Lampu Mati Prematur Saat Pembayaran | Di `FakturPenjualanController@storePoSHiburan()`, kondisi `JenisPaket != MENITREALTIME` mematikan lampu segera setelah pembayaran diterima meskipun waktu belum habis. Diperbaiki menjadi `$isPaid && $isExpired`. | ✅ Selesai |
 | 2026-05-17 | Fitur Pesan Barcode di Meja | Memperbaiki export QR Code meja resto agar mengarah ke dynamic internal fnb-store URL (bukan digimenu lama yang mati), serta memperbarui controller FNB Store & Katalog untuk merekam table_id / ObjectString ke session dan mengaitkannya ke transaksi order meja riil secara otomatis. | ✅ Selesai |
+| 2026-05-17 | Redesain Navigasi Sidebar Menu Premium | Merestrukturisasi visual menu sidebar dinamis dari database tanpa menyentuh data database. Mengelompokkan 118 submenu/fitur riil ke dalam 15 Kategori Premium terpadu, lengkap dengan divider section modern, visual glow, and glassmorphism styling. | ⏳ Sedang Dikerjakan |
 
 ---
 
@@ -118,6 +119,22 @@
     - [x] Perbarui `KatalogController@CatCheckout` agar menggunakan `fnb_table_id` dari session (jika ada) untuk mengikat pesanan retail/katalog ke meja fisik yang discan, dengan fallback ke `'E-CATALOG ORDER'`.
     - [x] Perbarui tombol "Lihat Website" di tab E-Catalog `CompanySetting.blade.php` agar dinamis mengarah ke `/fnb-store/{KodePartner}` jika JenisUsaha bukan Retail (FnB/Hiburan), mencegah crash link mati.
     - [x] Tambahkan badge premium HSL/gradient "Meja: {NamaMeja}" dengan ikon kursi di header `fnb_store/menu.blade.php` ketika pelanggan mengakses via scan QR meja.
+7. **Redesain Navigasi Sidebar Menu Premium** — [SELESAI ✅]
+    *Langkah-langkah pengerjaan:*
+    - [x] Buat file backup cadangan `resources/views/parts/header.blade.php.premium_bak` untuk keamanan.
+    - [x] Buat pemetaan (mapping) array PHP di dalam `header.blade.php` untuk memetakan seluruh 118 submenu/link dinamis dari `$navbars` ke dalam 15 Kategori Premium terpadu.
+    - [x] Buat struktur perulangan (loop) bersarang (nested) di `header.blade.php` agar menu dirender rapi berdasarkan Kategori Premium aktif yang dimiliki hak aksesnya oleh user.
+    - [x] Terapkan style CSS premium di sidebar menggunakan warna identitas resmi perusahaan: Merah (Strong Red), Biru (Royal Blue), dan Putih (Crisp White) dengan efek glow visual yang mewah.
+    - [x] Lakukan verifikasi kompilasi sintaks Blade/PHP (`php -l`) secara ketat sebelum testing selesai.
+
+8. **Kategorisasi Menu & Fitur pada Pembuatan Paket Berlangganan** — [SELESAI ✅]
+    *Langkah-langkah pengerjaan:*
+    - [x] Buat file backup cadangan `resources/views/Admin/Subscription-Input.blade.php.premium_bak` untuk keamanan.
+    - [x] Kelompokkan hak akses menu di `Subscription-Input.blade.php` ke dalam 4 kategori visual besar: **Umum & Sistem Utama**, **Fitur Retail / Minimarket**, **Fitur Restoran / FnB**, dan **Fitur Billiard & Hiburan**.
+    - [x] Tampilkan masing-masing kategori ke dalam kartu (card) grid modern yang rapi dengan indikator warna brand masing-masing.
+    - [x] Tambahkan tombol **"Pilih Semua" (Select All)** dan **"Batal Pilih" (Deselect All)** interaktif menggunakan jQuery pada masing-masing kelompok kategori.
+    - [x] Inisialisasi seluruh 4 nestable list menggunakan pemanggilan class jQuery `.dd` secara serentak.
+    - [x] Lakukan verifikasi kompilasi sintaks Blade/PHP (`php -l`) secara ketat sebelum testing selesai.
 
 ---
 

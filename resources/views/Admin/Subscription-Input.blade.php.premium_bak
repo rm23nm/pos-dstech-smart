@@ -136,130 +136,101 @@
                                     </div>
 
                                     <hr>
-                                    
-                                    <center><h2>Akses Menu Berlangganan</h2></center>
-                                    <p class="text-center text-muted mb-4">Pilih dan centang menu yang ingin dimasukkan ke dalam paket berlangganan ini. Anda bisa menggunakan tombol <strong>"Pilih Semua"</strong> untuk mempermudah pemilihan fitur per jenis usaha!</p>
 
-                                    @php
-                                        $retailKeywords = ['penjualan', 'pembelian', 'inventory', 'item master data', 'konsinyasi', 'bussiness partner', 'lap penjualan', 'lap pembelian', 'laporan inventory'];
-                                        $fnbKeywords = ['master resto', 'info kitchen', 'queue antrian fnb', 'monitor counter (recall)', 'antrian fnb dapur', 'customer display pos'];
-                                        $hiburanKeywords = ['controller', 'paket'];
+                                    <center><h2>Akses Menu</h2></center>
 
-                                        $groupedPermissions = [
-                                            'umum' => [
-                                                'title' => '⚙️ UMUM & SISTEM UTAMA',
-                                                'color' => '#6c757d',
-                                                'items' => []
-                                            ],
-                                            'retail' => [
-                                                'title' => '🛒 FITUR RETAIL / MINIMARKET',
-                                                'color' => '#0072ff',
-                                                'items' => []
-                                            ],
-                                            'fnb' => [
-                                                'title' => '🍔 FITUR RESTORAN / FnB',
-                                                'color' => '#d01818',
-                                                'items' => []
-                                            ],
-                                            'hiburan' => [
-                                                'title' => '🎱 FITUR BILLIARD & HIBURAN',
-                                                'color' => '#2ecc71',
-                                                'items' => []
-                                            ]
-                                        ];
-
-                                        $noUrut = 0;
-                                        foreach ($permissionrole as $item) {
-                                            if ($item['ParentType'] == 1) {
-                                                $name = strtolower(trim($item['PermissionName']));
-                                                $category = 'umum'; // Default
-
-                                                if (in_array($name, $retailKeywords)) {
-                                                    $category = 'retail';
-                                                } elseif (in_array($name, $fnbKeywords)) {
-                                                    $category = 'fnb';
-                                                } elseif (in_array($name, $hiburanKeywords)) {
-                                                    $category = 'hiburan';
-                                                }
-
-                                                $groupedPermissions[$category]['items'][] = $item;
-                                            }
-                                        }
-                                    @endphp
-
-                                    <div class="row">
-                                        @foreach ($groupedPermissions as $gKey => $group)
-                                            <div class="col-md-6 mb-4">
-                                                <div class="card shadow-sm border" style="border-radius: 12px; overflow: hidden; border-top: 4px solid {{ $group['color'] }} !important;">
-                                                    <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 px-4">
-                                                        <h5 class="card-title mb-0 font-weight-bold text-dark" style="font-size: 0.95rem;">{{ $group['title'] }}</h5>
-                                                        <button type="button" class="btn btn-xs btn-outline-secondary btn-select-all font-weight-bold" data-target="group_{{ $gKey }}" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 6px;">Pilih Semua</button>
-                                                    </div>
-                                                    <div class="card-body bg-white py-3 px-4" style="max-height: 400px; overflow-y: auto;">
-                                                        <div class="dd group_{{ $gKey }}" id="nestable_{{ $gKey }}">
-                                                            <ol class="dd-list">
-                                                                @foreach ($group['items'] as $lv1)
-                                                                    <li class="dd-item" data-id="{{ $noUrut }}">
-                                                                        <div class="dd-handle font-weight-bold">{{ $lv1['PermissionName'] }}</div>
-                                                                        <div class="inner-content">
-                                                                            <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv1['MenuID']) }}" {{ $lv1['Selected'] != "" ? 'checked' : '' }} value="{{ $lv1['MenuID'] }}">
-                                                                                <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv1['MenuID']) }}"></label>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        @if (count($lv1['submenu']) > 0)
-                                                                            <ol class="dd-list">
-                                                                                @foreach ($lv1['submenu'] as $lv2)
-                                                                                    @if ($lv2['ParentType'] == 1)
-                                                                                        <li class="dd-item" data-id="{{ $noUrut }}">
-                                                                                            <div class="dd-handle font-weight-bold">{{ $lv2['PermissionName'] }}</div>
-                                                                                            <div class="inner-content">
-                                                                                                <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                                    <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv2['MenuID']) }}" {{ $lv2['Selected'] != "" ? 'checked' : '' }} value="{{ $lv2['MenuID'] }}">
-                                                                                                    <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv2['MenuID']) }}"></label>
+                                    <div >
+                                        <div class="dd" id="nestable">
+                                            <ol class="dd-list">
+                                                <?php 
+                                                    $noUrut = 0;
+                                                ?>
+                                                @foreach ($permissionrole as $lv1)
+                                                    @if ($lv1['ParentType'] == 1)
+                                                        <li class="dd-item" data-id="{{ $noUrut }}">
+                                                            <div class="dd-handle">{{$lv1['PermissionName']}}</div>
+                                                            <div class="inner-content">
+                                                                <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
+                                                                    @if ($lv1['Selected'] != "")
+                                                                        <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv1['MenuID'])}}" checked="" value="{{ $lv1['MenuID']}}">
+                                                                    @else
+                                                                        <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv1['MenuID'])}}" value="{{ $lv1['MenuID']}}">
+                                                                    @endif
+                                                                  <label class=" form-check-label me-1" for="chk{{str_replace(' ','',$lv1['MenuID'])}}">
+                                                                  </label>
+                                                                </div>
+                                                            </div>
+    
+                                                            @if (count($lv1['submenu']) > 0)
+                                                                @foreach ($lv1['submenu'] as $lv2)
+                                                                    @if ($lv2['ParentType'] == 1)
+                                                                        <ol class="dd-list">
+                                                                            <li class="dd-item" data-id="{{ $noUrut }}">
+                                                                                <div class="dd-handle">{{$lv2['PermissionName']}}</div>
+                                                                                <div class="inner-content">
+                                                                                    <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
+                                                                                        @if ($lv2['Selected'] != "")
+                                                                                            <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv2['MenuID'])}}" checked="" value="{{ $lv2['MenuID']}}">
+                                                                                        @else
+                                                                                            <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv2['MenuID'])}}" value="{{ $lv2['MenuID']}}">
+                                                                                        @endif
+                                                                                      <label class=" form-check-label me-1" for="chk{{str_replace(' ','',$lv2['MenuID'])}}">
+                                                                                      </label>
+                                                                                    </div>
+                                                                                </div>
+    
+                                                                                @if (count($lv2['submenu']) > 0)
+                                                                                    @foreach ($lv2['submenu'] as $lv3)
+                                                                                        <ol class="dd-list">
+                                                                                            <li class="dd-item" data-id="{{ $noUrut }}">
+                                                                                                <div class="dd-handle">{{$lv3['PermissionName']}}</div>
+                                                                                                <div class="inner-content">
+                                                                                                    <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
+                                                                                                    @if ($lv3['Selected'] != "")
+                                                                                                        <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv3['MenuID'])}}" checked="" value="{{ $lv3['MenuID']}}">
+                                                                                                    @else
+                                                                                                        <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv3['MenuID'])}}" value="{{ $lv3['MenuID']}}">
+                                                                                                    @endif
+                                                                                                      <label class=" form-check-label me-1" for="chk{{str_replace(' ','',$lv3['MenuID'])}}">
+                                                                                                      </label>
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                            </div>
-
-                                                                                            @if (count($lv2['submenu']) > 0)
-                                                                                                <ol class="dd-list">
-                                                                                                    @foreach ($lv2['submenu'] as $lv3)
-                                                                                                        <li class="dd-item" data-id="{{ $noUrut }}">
-                                                                                                            <div class="dd-handle text-muted" style="font-size: 0.85rem;">{{ $lv3['PermissionName'] }}</div>
-                                                                                                            <div class="inner-content">
-                                                                                                                <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                                                    <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv3['MenuID']) }}" {{ $lv3['Selected'] != "" ? 'checked' : '' }} value="{{ $lv3['MenuID'] }}">
-                                                                                                                    <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv3['MenuID']) }}"></label>
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                        </li>
-                                                                                                    @endforeach
-                                                                                                </ol>
-                                                                                            @endif
-                                                                                        </li>
-                                                                                    @else
-                                                                                        <li class="dd-item" data-id="{{ $noUrut }}">
-                                                                                            <div class="dd-handle">{{ $lv2['PermissionName'] }}</div>
-                                                                                            <div class="inner-content">
-                                                                                                <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                                    <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv2['MenuID']) }}" {{ $lv2['Selected'] != "" ? 'checked' : '' }} value="{{ $lv2['MenuID'] }}">
-                                                                                                    <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv2['MenuID']) }}"></label>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </li>
-                                                                                    @endif
-                                                                                @endforeach
-                                                                            </ol>
-                                                                        @endif
-                                                                    </li>
-                                                                    @php $noUrut++; @endphp
+                                                                                            </li>
+                                                                                        </ol>
+                                                                                    @endforeach
+                                                                                @endif
+                                                                            </li>
+                                                                        </ol>
+    
+                                                                    @else
+                                                                        <ol class="dd-list">
+                                                                            <li class="dd-item" data-id="{{ $noUrut }}">
+                                                                                <div class="dd-handle">{{$lv2['PermissionName']}}</div>
+                                                                                <div class="inner-content">
+                                                                                    <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
+                                                                                        @if ($lv2['Selected'] != "")
+                                                                                            <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv2['MenuID'])}}" checked="" value="{{ $lv2['MenuID']}}">
+                                                                                        @else
+                                                                                            <input type="checkbox" class=" form-check-input" id="chk{{str_replace(' ','',$lv2['MenuID'])}}" value="{{ $lv2['MenuID']}}">
+                                                                                        @endif
+                                                                                      <label class=" form-check-label me-1" for="chk{{str_replace(' ','',$lv2['MenuID'])}}">
+                                                                                      </label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </li>
+                                                                        </ol>
+                                                                    @endif
                                                                 @endforeach
-                                                            </ol>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                                            @endif
+                                                        </li>
+                                                    @endif
+    
+                                                    <?php 
+                                                        $noUrut +=1;
+                                                    ?>
+                                                @endforeach
+                                            </ol>
+                                        </div>
                                     </div>
                                     <div class="col-md-12">
                                         <button id="btSave" name="btSave" type="button" class="btn btn-success text-white font-weight-bold me-1 mb-1">Simpan</button>
@@ -289,35 +260,9 @@
 			.catch( error => {
 			    console.error( error );
 			});
-            jQuery('.dd').nestable({
+            jQuery('#nestable').nestable({
                 collapsedClass:'dd-collapsed',
             }).nestable('collapseAll');
-
-            // Select All / Deselect All for each category group
-            jQuery('.btn-select-all').click(function () {
-                var targetClass = jQuery(this).data('target');
-                var checkboxes = jQuery('.' + targetClass + ' input[type="checkbox"]');
-                
-                // Check if any checkbox in this group is currently unchecked
-                var hasUnchecked = false;
-                checkboxes.each(function() {
-                    if (!jQuery(this).prop('checked')) {
-                        hasUnchecked = true;
-                    }
-                });
-                
-                // If there are unchecked checkboxes, check all of them.
-                // If all are already checked, uncheck all of them.
-                if (hasUnchecked) {
-                    checkboxes.prop('checked', true);
-                    jQuery(this).text('Batal Pilih');
-                    jQuery(this).removeClass('btn-outline-secondary').addClass('btn-danger text-white');
-                } else {
-                    checkboxes.prop('checked', false);
-                    jQuery(this).text('Pilih Semua');
-                    jQuery(this).removeClass('btn-danger text-white').addClass('btn-outline-secondary');
-                }
-            });
 		});
 
         // Save

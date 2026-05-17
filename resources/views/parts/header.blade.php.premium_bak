@@ -27,167 +27,6 @@
 
 		<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
-		<!-- Premium Brand Sidebar Styling Overrides (Merah, Biru, Putih) -->
-		<style>
-			/* Sidebar Container Background & Premium Brand Theme Overrides (White Corporate) */
-			#tc_aside {
-				background: #ffffff !important;
-				border-right: 1px solid #e2e8f0 !important;
-				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
-			}
-
-			#tc_brand {
-				background: #ffffff !important;
-				border-bottom: 1px solid #e2e8f0 !important;
-				padding: 15px 25px !important;
-			}
-
-			/* Category Dividers Style */
-			.menu-section {
-				margin-top: 25px !important;
-				margin-bottom: 8px !important;
-				border-bottom: 1px solid #f1f5f9 !important;
-				padding-bottom: 8px !important;
-			}
-
-			.menu-section-text {
-				color: #0f172a !important; /* Clean Dark Slate */
-				text-transform: uppercase !important;
-				font-size: 0.68rem !important;
-				font-weight: 800 !important;
-				letter-spacing: 1.5px !important;
-				padding-left: 15px !important;
-				border-left: 4px solid #d01818 !important; /* Strong Crimson Red left-accent line */
-			}
-
-			/* Nav Item Links styling */
-			.aside-menu .nav .nav-item > .nav-link {
-				color: #334155 !important; /* Medium Slate Charcoal */
-				font-weight: 600 !important;
-				padding: 12px 20px !important;
-				border-radius: 6px !important;
-				margin: 4px 12px !important;
-				background: transparent !important;
-				transition: all 0.2s ease-in-out !important;
-				border-left: 3px solid transparent !important;
-			}
-
-			/* Hover over Navigation Links - Turns to Crimson Red Banner just like letterhead! */
-			.aside-menu .nav .nav-item > .nav-link:hover {
-				color: #ffffff !important;
-				background: #d01818 !important; /* Corporate Crimson Red */
-				border-left: 3px solid #0091ff !important; /* Corporate Blue indicator on left edge */
-				box-shadow: 0 4px 12px rgba(208, 24, 24, 0.25) !important;
-			}
-
-			/* Active Navigation Link - Solid Vibrant Blue Banner just like letterhead NIB banner! */
-			.aside-menu .nav .nav-item.active > .nav-link,
-			.aside-menu .nav .nav-item > .nav-link:not(.collapsed) {
-				color: #ffffff !important;
-				background: #0072ff !important; /* Corporate Vibrant Blue */
-				border-left: 3px solid #d01818 !important; /* Crimson Red indicator on left edge */
-				box-shadow: 0 4px 12px rgba(0, 114, 255, 0.25) !important;
-				font-weight: 700 !important;
-			}
-
-			/* Arrow indicator rotate icon */
-			.aside-menu .nav .nav-item > .nav-link .fa-chevron-right {
-				color: #94a3b8 !important;
-				transition: transform 0.2s ease !important;
-			}
-
-			.aside-menu .nav .nav-item.active > .nav-link .fa-chevron-right,
-			.aside-menu .nav .nav-item > .nav-link:not(.collapsed) .fa-chevron-right {
-				color: #ffffff !important;
-				transform: rotate(90deg) !important;
-			}
-
-			/* SVG icons & font awesome icons styling */
-			.aside-menu .nav-icon i,
-			.aside-menu .nav-icon svg {
-				color: #64748b !important;
-				transition: all 0.2s ease !important;
-			}
-
-			.aside-menu .nav-item:hover > .nav-link .nav-icon i,
-			.aside-menu .nav-item:hover > .nav-link .nav-icon svg,
-			.aside-menu .nav-item.active > .nav-link .nav-icon i,
-			.aside-menu .nav-item.active > .nav-link .nav-icon svg,
-			.aside-menu .nav-link:not(.collapsed) .nav-icon i,
-			.aside-menu .nav-link:not(.collapsed) .nav-icon svg {
-				color: #ffffff !important;
-			}
-
-			/* Submenu & nested items styling */
-			.aside-menu .nav-collapse {
-				background: #f8fafc !important; /* Light background for inner menus */
-				margin: 0 12px !important;
-				border-radius: 6px !important;
-				padding: 5px 0 !important;
-				border: 1px solid #e2e8f0 !important;
-			}
-
-			.aside-menu .sub-nav-link {
-				color: #475569 !important;
-				font-size: 0.9rem !important;
-				font-weight: 600 !important;
-				padding: 10px 20px 10px 30px !important;
-				border-radius: 6px !important;
-				margin: 2px 10px !important;
-				border-left: 2px solid transparent !important;
-			}
-
-			.aside-menu .sub-nav-link:hover {
-				color: #d01818 !important; /* Crimson Red Text on hover */
-				background: rgba(208, 24, 24, 0.05) !important;
-				border-left: 2px solid #d01818 !important;
-			}
-
-			.aside-menu .nav-item.active > .sub-nav-link {
-				color: #0072ff !important; /* Vibrant Blue Text on active */
-				background: rgba(0, 114, 255, 0.05) !important;
-				border-left: 2px solid #0072ff !important;
-			}
-
-			/* Level 3 deep nested links */
-			.aside-menu .mini-sub-nav-link {
-				color: #64748b !important;
-				font-size: 0.85rem !important;
-				font-weight: 500 !important;
-				padding: 8px 15px 8px 45px !important;
-				transition: all 0.2s ease !important;
-				border-left: 2px solid transparent !important;
-			}
-
-			.aside-menu .mini-sub-nav-link:hover {
-				color: #d01818 !important;
-				padding-left: 50px !important;
-				border-left: 2px solid #d01818 !important;
-			}
-
-			.aside-menu .nav-item.active > .mini-sub-nav-link {
-				color: #0072ff !important;
-				font-weight: 700 !important;
-				padding-left: 50px !important;
-				border-left: 2px solid #0072ff !important;
-			}
-
-			/* Custom Sidebar Scrollbar */
-			#tc_aside_menu_wrapper::-webkit-scrollbar {
-				width: 6px !important;
-			}
-			#tc_aside_menu_wrapper::-webkit-scrollbar-track {
-				background: #f1f5f9 !important;
-			}
-			#tc_aside_menu_wrapper::-webkit-scrollbar-thumb {
-				background: #cbd5e1 !important;
-				border-radius: 3px !important;
-			}
-			#tc_aside_menu_wrapper::-webkit-scrollbar-thumb:hover {
-				background: #d01818 !important; /* Glowing Brand Red on Scrollbar Hover */
-			}
-		</style>
 	</head>
 
 	<body id="tc_body" class="header-fixed header-mobile-fixed subheader-enabled aside-enabled aside-fixed">
@@ -317,325 +156,84 @@
 											return false;
 										}
 									}
-
-									$premiumCategories = [
-										'pos' => [
-											'PermissionName' => 'Operasional POS Kasir',
-											'Icon' => 'fas fa-cash-register',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'billiard' => [
-											'PermissionName' => 'Sewa Billing & IoT',
-											'Icon' => 'fas fa-lightbulb',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'booking' => [
-											'PermissionName' => 'Booking & Reservasi',
-											'Icon' => 'far fa-calendar-alt',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'display' => [
-											'PermissionName' => 'Layar Antrean & KDS',
-											'Icon' => 'fas fa-desktop',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'resto' => [
-											'PermissionName' => 'Manajemen Resto',
-											'Icon' => 'fas fa-utensils',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'inventory' => [
-											'PermissionName' => 'Inventori & Stok',
-											'Icon' => 'fas fa-boxes',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'consignment' => [
-											'PermissionName' => 'Barang Konsinyasi',
-											'Icon' => 'fas fa-handshake',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'purchasing' => [
-											'PermissionName' => 'Pembelian & Supplier',
-											'Icon' => 'fas fa-shopping-cart',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'crm' => [
-											'PermissionName' => 'Mitra Bisnis & CRM',
-											'Icon' => 'fas fa-users',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'finance' => [
-											'PermissionName' => 'Kas, Bank & Biaya',
-											'Icon' => 'fas fa-wallet',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'accounting' => [
-											'PermissionName' => 'Akuntansi & COA',
-											'Icon' => 'fas fa-book',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'reports_sales' => [
-											'PermissionName' => 'Laporan Bisnis & Stok',
-											'Icon' => 'fas fa-chart-bar',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'reports_accounting' => [
-											'PermissionName' => 'Laporan Keuangan',
-											'Icon' => 'fas fa-balance-scale',
-											'submenu' => [],
-											'ParentType' => 1
-										],
-										'system' => [
-											'PermissionName' => 'Sistem & Pengaturan',
-											'Icon' => 'fas fa-cogs',
-											'submenu' => [],
-											'ParentType' => 1
-										]
-									];
-
-									// Traverse $navbars and sort L2 items into the correct premium categories
-									foreach ($navbars as $lv1) {
-										if (!empty($lv1['submenu'])) {
-											foreach ($lv1['submenu'] as $lv2) {
-												$targetCat = null;
-												$l2Name = strtolower(trim($lv2['PermissionName']));
-
-												if ($l2Name === 'bussiness partner') {
-													$targetCat = 'crm';
-												} elseif ($l2Name === 'controller') {
-													$targetCat = 'billiard';
-												} elseif ($l2Name === 'item master data') {
-													$targetCat = 'inventory';
-												} elseif ($l2Name === 'finance') {
-													$finSub = [];
-													$acctSub = [];
-													if (!empty($lv2['submenu'])) {
-														foreach ($lv2['submenu'] as $lv3) {
-															$l3Link = strtolower(trim($lv3['Link']));
-															if (in_array($l3Link, ['bank', 'metodepembayaran', 'kelompokrekening'])) {
-																$finSub[] = $lv3;
-															} else {
-																$acctSub[] = $lv3;
-															}
-														}
-													}
-													if (!empty($finSub)) {
-														$premiumCategories['finance']['submenu'][] = [
-															'PermissionName' => 'Master Keuangan',
-															'Link' => '#',
-															'Icon' => $lv2['Icon'],
-															'submenu' => $finSub,
-															'ParentType' => 1
-														];
-													}
-													if (!empty($acctSub)) {
-														$premiumCategories['accounting']['submenu'][] = [
-															'PermissionName' => 'Master Akuntansi',
-															'Link' => '#',
-															'Icon' => $lv2['Icon'],
-															'submenu' => $acctSub,
-															'ParentType' => 1
-														];
-													}
-													continue;
-												} elseif ($l2Name === 'pengaturan toko') {
-													$targetCat = 'system';
-												} elseif ($l2Name === 'pembelian') {
-													$targetCat = 'purchasing';
-												} elseif ($l2Name === 'penjualan') {
-													$posSub = [];
-													$bookSub = [];
-													if (!empty($lv2['submenu'])) {
-														foreach ($lv2['submenu'] as $lv3) {
-															$l3Link = strtolower(trim($lv3['Link']));
-															if (str_contains($l3Link, 'booking')) {
-																$bookSub[] = $lv3;
-															} else {
-																$posSub[] = $lv3;
-															}
-														}
-													}
-													if (!empty($posSub)) {
-														$premiumCategories['pos']['submenu'][] = [
-															'PermissionName' => 'Transaksi POS',
-															'Link' => '#',
-															'Icon' => $lv2['Icon'],
-															'submenu' => $posSub,
-															'ParentType' => 1
-														];
-													}
-													if (!empty($bookSub)) {
-														$premiumCategories['booking']['submenu'][] = [
-															'PermissionName' => 'Pemesanan Tempat',
-															'Link' => '#',
-															'Icon' => $lv2['Icon'],
-															'submenu' => $bookSub,
-															'ParentType' => 1
-														];
-													}
-													continue;
-												} elseif (in_array($l2Name, ['info kitchen', 'queue antrian fnb', 'monitor counter (recall)', 'antrian fnb dapur', 'queue lapangan', 'customer display pos'])) {
-													$targetCat = 'display';
-												} elseif ($l2Name === 'konsinyasi') {
-													$targetCat = 'consignment';
-												} elseif ($l2Name === 'inventory') {
-													$targetCat = 'inventory';
-												} elseif ($l2Name === 'jurnal entry') {
-													$targetCat = 'accounting';
-												} elseif (in_array($l2Name, ['transaksi biaya', 'kas masuk', 'kas keluar', 'transfer kas', 'transaksi bank', 'opening balance'])) {
-													$targetCat = 'finance';
-												} elseif (in_array($l2Name, ['lap penjualan', 'lap pembelian', 'laporan inventory'])) {
-													$targetCat = 'reports_sales';
-												} elseif ($l2Name === 'lap akutansi') {
-													$targetCat = 'reports_accounting';
-												} elseif (in_array($l2Name, ['autorisasi', 'pengguna'])) {
-													$targetCat = 'system';
-												} elseif ($l2Name === 'paket') {
-													$targetCat = 'billiard';
-												} elseif ($l2Name === 'master resto') {
-													$targetCat = 'resto';
-												} elseif (in_array($l2Name, ['produk', 'term and conditon', 'app setting', 'pengguna', 'invoice pengguna', 'article', 'serial number generator', 'voucher'])) {
-													$targetCat = 'system';
-												}
-
-												if ($targetCat && isset($premiumCategories[$targetCat])) {
-													$premiumCategories[$targetCat]['submenu'][] = $lv2;
-												}
-											}
-										}
-									}
-
-									// Filter out categories that are empty
-									$activePremiumCategories = [];
-									foreach ($premiumCategories as $key => $cat) {
-										if (!empty($cat['submenu'])) {
-											$activePremiumCategories[$key] = $cat;
-										}
-									}
-
-									$sectionGroups = [
-										'front_office' => [
-											'label' => 'OPERASIONAL (FRONT-OFFICE)',
-											'keys' => ['pos', 'billiard', 'booking', 'display']
-										],
-										'back_office' => [
-											'label' => 'MANAJEMEN & INVENTORI (BACK-OFFICE)',
-											'keys' => ['resto', 'inventory', 'consignment', 'purchasing', 'crm']
-										],
-										'financial' => [
-											'label' => 'KEUANGAN & LAPORAN',
-											'keys' => ['finance', 'accounting', 'reports_sales', 'reports_accounting']
-										],
-										'system' => [
-											'label' => 'PENGATURAN & SISTEM',
-											'keys' => ['system']
-										]
-									];
 								@endphp
 
-								<!-- Render Categorized Sidebar Menu -->
-								@foreach ($sectionGroups as $sKey => $sec)
-									@php
-										$hasActiveCats = false;
-										foreach ($sec['keys'] as $cKey) {
-											if (isset($activePremiumCategories[$cKey])) {
-												$hasActiveCats = true;
-												break;
-											}
-										}
-									@endphp
-									
-									@if ($hasActiveCats)
-										<li class="menu-section mt-4 mb-2" style="list-style-type: none;">
-											<span class="menu-section-text text-uppercase font-weight-bold" style="font-size: 0.65rem; letter-spacing: 1.5px; padding-left: 25px; color: #8a8a9e; display: block;">
-												{{ $sec['label'] }}
-											</span>
+								<!-- Dynamic Menu -->
+								@foreach ($navbars as $lv1)
+									@if ($lv1['ParentType'] == 1)
+										@php 
+											$lv1ExactActive = is_nav_exact_active($lv1);
+											$lv1ChildActive = is_nav_child_active($lv1);
+										@endphp
+										<li class="nav-item {{ $lv1ExactActive ? 'active' : '' }}">
+											<a class="nav-link {{ ($lv1ExactActive || $lv1ChildActive) ? '' : 'collapsed' }}" data-bs-toggle="collapse"  href="javascript:void(0)" data-bs-target="#{{str_replace([' ', '.'],'',$lv1['PermissionName'])}}" role="button" aria-expanded="{{ ($lv1ExactActive || $lv1ChildActive) ? 'true' : 'false' }}" aria-controls="{{str_replace([' ', '.'],'',$lv1['PermissionName'])}}">
+												<span class="svg-icon nav-icon">
+													<i class="{{$lv1['Icon']}} font-size-h4"></i>
+												</span>
+												<span class="nav-text">{{$lv1['PermissionName']}}</span>
+												<i class="fas fa-chevron-right fa-rotate-90"></i>
+											</a>
 										</li>
-										
-										@foreach ($sec['keys'] as $cKey)
-											@if (isset($activePremiumCategories[$cKey]))
-												@php
-													$lv1 = $activePremiumCategories[$cKey];
-													$lv1ExactActive = is_nav_exact_active($lv1);
-													$lv1ChildActive = is_nav_child_active($lv1);
-												@endphp
-												<li class="nav-item {{ $lv1ExactActive ? 'active' : '' }}">
-													<a class="nav-link {{ ($lv1ExactActive || $lv1ChildActive) ? '' : 'collapsed' }}" data-bs-toggle="collapse" href="javascript:void(0)" data-bs-target="#{{ $cKey }}" role="button" aria-expanded="{{ ($lv1ExactActive || $lv1ChildActive) ? 'true' : 'false' }}" aria-controls="{{ $cKey }}">
-														<span class="svg-icon nav-icon">
-															<i class="{{ $lv1['Icon'] }} font-size-h4"></i>
-														</span>
-														<span class="nav-text">{{ $lv1['PermissionName'] }}</span>
-														<i class="fas fa-chevron-right fa-rotate-90"></i>
-													</a>
-												</li>
 
-												<div class="collapse nav-collapse {{ ($lv1ExactActive || $lv1ChildActive) ? 'show' : '' }}" id="{{ $cKey }}" data-bs-parent="#accordion">
-													<div id="accordion_{{ $cKey }}">
-														<ul class="nav flex-column">
-															@if (count($lv1['submenu']) > 0)
-																@foreach ($lv1['submenu'] as $lv2)
-																	@if ($lv2['ParentType'] == 1)
-																		@php 
-																			$lv2ExactActive = is_nav_exact_active($lv2);
-																			$lv2ChildActive = is_nav_child_active($lv2);
-																		@endphp
-																		<li class="nav-item {{ $lv2ExactActive ? 'active' : '' }}">
-																			<a class="nav-link sub-nav-link {{ ($lv2ExactActive || $lv2ChildActive) ? '' : 'collapsed' }}" data-bs-toggle="collapse" href="#sub_{{ str_replace([' ', '.'],'',$lv2['PermissionName']) }}" role="button" aria-expanded="{{ ($lv2ExactActive || $lv2ChildActive) ? 'true' : 'false' }}" aria-controls="sub_{{ str_replace([' ', '.'],'',$lv2['PermissionName']) }}">
-																				<span class="svg-icon nav-icon d-flex justify-content-center">
-																					<svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
-																						<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-																					</svg>
-																				</span>
-																				<span class="nav-text">{{ $lv2['PermissionName'] }}</span>
-																				<i class="fas fa-chevron-right fa-rotate-90"></i>
-																			</a>
+										<div class="collapse nav-collapse {{ ($lv1ExactActive || $lv1ChildActive) ? 'show' : '' }}" id="{{str_replace([' ', '.'],'',$lv1['PermissionName'])}}" data-bs-parent="#accordion">
+											<div id="accordion1">
+												<ul class="nav flex-column">
+													@if (count($lv1['submenu']) > 0)
+														@foreach ($lv1['submenu'] as $lv2)
+															@if ($lv2['ParentType'] == 1)
+																@php 
+																	$lv2ExactActive = is_nav_exact_active($lv2);
+																	$lv2ChildActive = is_nav_child_active($lv2);
+																@endphp
+																<li class="nav-item {{ $lv2ExactActive ? 'active' : '' }}">
+																	<a  class="nav-link sub-nav-link {{ ($lv2ExactActive || $lv2ChildActive) ? '' : 'collapsed' }}" data-bs-toggle="collapse" href="#{{str_replace([' ', '.'],'',$lv2['PermissionName'])}}" role="button" aria-expanded="{{ ($lv2ExactActive || $lv2ChildActive) ? 'true' : 'false' }}" aria-controls="{{str_replace([' ', '.'],'',$lv2['PermissionName'])}}">
+																		<span class="svg-icon nav-icon d-flex justify-content-center">
+																			<svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
+																				<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+																			  </svg>
+																		</span>
+																		<span class="nav-text">{{$lv2['PermissionName']}}</span>
+																		<i class="fas fa-chevron-right fa-rotate-90"></i>
+																	</a>
 
-																			<div class="collapse nav-collapse {{ ($lv2ExactActive || $lv2ChildActive) ? 'show' : '' }}" id="sub_{{ str_replace([' ', '.'],'',$lv2['PermissionName']) }}" data-bs-parent="#accordion_{{ $cKey }}">
-																				<ul class="nav flex-column">
-																					@if (count($lv2['submenu']) > 0)
-																						@foreach ($lv2['submenu'] as $lv3)
-																							<li class="nav-item {{ is_nav_exact_active($lv3) ? 'active' : '' }}">
-																								<a href="{{ route($lv3['Link']) }}" class="nav-link mini-sub-nav-link">
-																									<span class="nav-text">{{ $lv3['PermissionName'] }}</span>
-																								</a>
-																							</li>
-																						@endforeach
-																					@endif
-																				</ul>
-																			</div>
-																		</li>
-																	@else
-																		<li class="nav-item {{ is_nav_exact_active($lv2) ? 'active' : '' }}">
-																			<a href="{{ url($lv2['Link']) }}" class="nav-link sub-nav-link">
-																				<span class="svg-icon nav-icon d-flex justify-content-center">
-																					<svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
-																						<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-																					</svg>
-																				</span>
-																				<span class="nav-text">{{ $lv2['PermissionName'] }}</span>
-																			</a>
-																		</li>
-																	@endif
-																@endforeach
+																	<div class="collapse nav-collapse {{ ($lv2ExactActive || $lv2ChildActive) ? 'show' : '' }}" id="{{str_replace([' ', '.'],'',$lv2['PermissionName'])}}" data-bs-parent="#accordion1">
+																		<ul class="nav flex-column">
+																			@if (count($lv2['submenu']) > 0)
+																				@foreach ($lv2['submenu'] as $lv3)
+																					<li class="nav-item {{ is_nav_exact_active($lv3) ? 'active' : '' }}">
+																						<a href="{{ route($lv3['Link']) }}" class="nav-link mini-sub-nav-link">
+																						
+																							<span class="nav-text">{{$lv3['PermissionName']}}</span>
+																						</a>
+																						
+																					</li>
+																				@endforeach
+																			@endif
+																		</ul>
+																	</div>
+																</li>
+															@else
+																<li class="nav-item {{ is_nav_exact_active($lv2) ? 'active' : '' }}">
+																	<a href="{{ url($lv2['Link']) }}" class="nav-link sub-nav-link">
+																		<span class="svg-icon nav-icon d-flex justify-content-center">
+																			<svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16">
+																				<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+																			  </svg>
+																		</span>
+																		<span class="nav-text">{{$lv2['PermissionName']}}</span>
+																	</a>
+																</li>
 															@endif
-														</ul>
-													</div>
-												</div>
-											@endif
-										@endforeach
+														@endforeach
+													@endif
+												</ul>
+											</div>
+										</div>
+									@else
+										<div>else lv1</div>
 									@endif
+
+
 								@endforeach
 							</ul>
 						</div>
