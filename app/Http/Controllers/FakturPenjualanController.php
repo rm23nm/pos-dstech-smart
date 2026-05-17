@@ -1149,12 +1149,17 @@ class FakturPenjualanController extends Controller
 							->where('NoTransaksi', $baseReff)
 							->update([
 								'TotalTerbayar' => $totalBayarSekarang,
-								'Status' => ($isExpired && $isPaid) ? 0 : (($isExpired && !$isPaid) ? -1 : 1),
-								'DocumentStatus' => ($isPaid && ($isExpired || $header->JenisPaket != 'MENITREALTIME')) ? 'C' : 'O'
+								// Status 0 (selesai) hanya jika SUDAH LUNAS DAN SUDAH HABIS WAKTUNYA
+								// Status -1 (expired belum lunas) hanya jika waktu habis tapi belum lunas
+								// Status 1 (masih aktif) jika waktu belum habis
+								'Status' => ($isExpired && $isPaid) ? 0 : ($isExpired && !$isPaid ? -1 : 1),
+								'DocumentStatus' => ($isPaid && $isExpired) ? 'C' : 'O'
 							]);
 
-						// Jika sudah lunas dan waktu habis (atau paket non-realtime), matikan lampu
-						if ($isPaid && ($isExpired || $header->JenisPaket != 'MENITREALTIME')) {
+						// Matikan lampu HANYA jika waktu benar-benar sudah habis DAN sudah lunas
+						// BUGFIX: Sebelumnya kondisi ($isExpired || JenisPaket != MENITREALTIME) menyebabkan
+						// lampu mati saat ada pembayaran meski waktu belum habis (paket JAM/Billiar)
+						if ($isPaid && $isExpired) {
 							DB::table('titiklampu')
 								->where('id', $header->tableid)
 								->update(['Status' => 0]);
