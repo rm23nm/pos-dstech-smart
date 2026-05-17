@@ -82,14 +82,23 @@
    - [x] Mengaktifkan fungsi Add to Cart (belanja) pada produk Flash Sale dan Produk Terlaris.
    - [x] Mengaktifkan fungsi Login Member dan Registrasi Member pada E-Catalog dengan menggunakan sistem AJAX tanpa perpindahan halaman, lengkap dengan popup Modal.
 
-4. **Pengembangan Fitur Premium E-Catalog (Berdasarkan Roadmap)** — [SEDANG BERJALAN]
+4. **Pengembangan Fitur Premium E-Catalog (Berdasarkan Roadmap)** — [SELESAI ✅]
    *Tahapan Implementasi Bertahap:*
    - [x] **Tahap 1:** Fitur Pencarian Cerdas (Real-time Search) & Filter Kategori berbasis AJAX.
    - [x] **Tahap 2:** Integrasi Pembayaran (Midtrans) & Inject Transaksi ke POS secara otomatis.
    - [x] **Tahap 3:** Halaman "Pesanan Saya" (Order Tracking) & Histori Transaksi Pelanggan.
    - [x] **Tahap 4:** Pilihan Pengiriman (Pick-up / Delivery) saat Checkout.
-   - [ ] **Tahap 5:** Fitur Kode Promo / Voucher Diskon di keranjang belanja.
-   - [ ] **Tahap 6:** Notifikasi Invoice Otomatis via WhatsApp setelah transaksi sukses.
+   - [x] **Tahap 5:** Fitur Kode Promo / Voucher Diskon di keranjang belanja.
+   - [x] **Tahap 6:** Notifikasi WA via SmartPro setelah checkout — kirim ke customer & pemilik toko.
+
+5. **Integrasi POS ↔ SmartPro WA Gateway** — [SELESAI ✅]
+   - [x] Buat `SmartProService.php` — service komunikasi ke SmartPro WA
+   - [x] Endpoint `/api/external/catalog-members` di POS (SmartPro bisa import member)
+   - [x] Endpoint `/api/external/send-notification` di SmartPro (terima notif dari POS)
+   - [x] Endpoint `/api/external/pos-catalog-members` di SmartPro (proxy ke POS)
+   - [x] Auto-aktivasi akun SmartPro saat client baru berlangganan POS (hook di `CompanyController@UpdateSuspend`)
+   - [x] Auto-sync akun SmartPro saat paket diupdate (hook di `CompanyController@UpdatePaket`)
+   - [x] UI di SmartPro: Tombol "Import Member POS" di halaman Broadcast + fungsi JS `importPOSCatalogMembers()`
 
 5. **Sync Jam Windows** — Komputer kasir lokal perlu "Sync Now" agar jam tidak selisih dengan server
 
@@ -100,3 +109,4 @@
 | :--- | :--- | :--- | :--- |
 | 2026-05-16 | Force Status=0, DocumentStatus='C' | Meja 2 Lokal (id:58) | Data lama tersimpan UTC sebelum fix timezone |
 | 2026-05-16 | Script PHP bersihkan tableid=59 | Meja 3 Live (id:59) | Data lama tersimpan UTC sebelum fix timezone |
+| 2026-05-17 | **BUGFIX Lampu Mati Sebelum Waktunya** | FakturPenjualanController.php@storePoSHiburan | Kondisi `JenisPaket != MENITREALTIME` menyebabkan lampu mati saat ada pembayaran meski waktu sewa belum habis. Diperbaiki: lampu hanya mati jika `$isExpired && $isPaid`. DocumentStatus juga hanya 'C' jika expired. |
