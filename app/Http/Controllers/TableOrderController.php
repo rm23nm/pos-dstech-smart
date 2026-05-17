@@ -3467,13 +3467,28 @@ public function getTableStatuses()
             foreach ($expiredTables as $et) {
                 $netTotal = floatval($et->NetTotal ?? 0);
                 $totalPaid = floatval($et->TotalTerbayar ?? 0);
-                
-                if ($totalPaid >= $netTotal || $netTotal == 0) {
-                    // Fully Paid or Free -> Green/Kosong
+
+                // BUGFIX: Pastikan JamSelesai benar-benar sudah lewat sebelum mematikan lampu.
+                // Sebelumnya kondisi ($netTotal == 0) menyebabkan lampu langsung mati meski waktu sewa
+                // belum habis (contoh: paket gratis atau NetTotal belum ter-set di awal sesi).
+                $jamSelesai = $et->JamSelesai ? Carbon::parse($et->JamSelesai, 'Asia/Jakarta') : null;
+                $isReallyExpired = $jamSelesai && $jamSelesai->lt($now);
+
+                if (!$isReallyExpired) {
+                    // Waktu belum habis, skip - jangan matikan lampu
+                    continue;
+                }
+
+                if ($totalPaid >= $netTotal && $netTotal > 0) {
+                    // Sudah lunas dan waktu habis -> matikan (Kosong/Hijau)
+                    DB::table('tableorderheader')->where('NoTransaksi', $et->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'C']);
+                    DB::table('titiklampu')->where('id', $et->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+                } elseif ($netTotal == 0) {
+                    // NetTotal = 0 (gratis/belum diisi) DAN waktu sudah habis -> tutup
                     DB::table('tableorderheader')->where('NoTransaksi', $et->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'C']);
                     DB::table('titiklampu')->where('id', $et->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
                 } else {
-                    // Unpaid -> Checkout status (Orange)
+                    // Waktu habis tapi belum lunas -> Checkout status (Kuning/Orange)
                     DB::table('titiklampu')->where('id', $et->tableid)->where('RecordOwnerID', $roid)->update(['Status' => -1]);
                 }
             }
