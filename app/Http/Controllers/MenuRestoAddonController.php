@@ -54,14 +54,15 @@ class MenuRestoAddonController extends Controller
         $data = array('success' => false, 'message' => '', 'data' => array(), 'Kembalian' => "");
         $KodeJenis = $request->input('KodeJenis');
         
-        $sql = "itemmaster.KodeItem, itemmaster.NamaItem, menuheader.HargaPokokStandar, menuheader.HargaJual, 
+        $sql = "itemmaster.KodeItem, itemmaster.NamaItem, itemmaster.KodeJenisItem, menuheader.HargaPokokStandar, menuheader.HargaJual, 
                         menuheader.Gambar";
                 $itemmenu = ItemMaster::selectRaw($sql)
                             ->Join('menuheader', function ($value){
                                 $value->on('menuheader.KodeItemHasil','=','itemmaster.KodeItem')
                                 ->on('menuheader.RecordOwnerID','=','itemmaster.RecordOwnerID');
                             })
-                            ->where('Active','Y');
+                            ->where('Active','Y')
+                            ->where('itemmaster.RecordOwnerID', Auth::user()->RecordOwnerID);
         if ($KodeJenis != "") {
             $itemmenu->where('itemmaster.KodeJenisItem', $KodeJenis);
         }

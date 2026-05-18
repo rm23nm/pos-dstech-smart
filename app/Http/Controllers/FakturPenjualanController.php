@@ -549,6 +549,31 @@ class FakturPenjualanController extends Controller
    
 			$save = $model->save();
 
+			// Integrasi Controller Lampu (Titik Lampu)
+			try {
+				if (!empty($jsonData['KodeMeja'])) {
+					$mejaObj = \App\Models\Meja::where('KodeMeja', $jsonData['KodeMeja'])
+								->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+								->first();
+					if ($mejaObj) {
+						$titikLampu = \App\Models\TitikLampu::where('NamaTitikLampu', $mejaObj->NamaMeja)
+									->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+									->first();
+						if ($titikLampu) {
+							// USER RULE: Lampu hanya dinyalakan jika opsi 'NyalakanLampu' dicentang (1) dari modal pilihan kasir.
+							// Sistem tidak mematikan lampu secara otomatis demi fleksibilitas siang/malam (100% Manual Off).
+							$nyalakanLampu = intval($jsonData['NyalakanLampu'] ?? 0);
+							if ($nyalakanLampu == 1) {
+								$titikLampu->Status = 1; // Nyala
+								$titikLampu->save();
+							}
+						}
+					}
+				}
+			} catch (\Exception $e) {
+				Log::error('Error integrasi titik lampu F&B POS: ' . $e->getMessage());
+			}
+
 
 			$oKembalian = floatval($jsonData['TotalPembayaran']) - floatval($jsonData['TotalPembelian']);
 			$data['Kembalian'] = $oKembalian;
@@ -2496,6 +2521,19 @@ class FakturPenjualanController extends Controller
 			}
 			
 		}
+			// Query meja lama sebelum diupdate
+			$oldKodeMeja = null;
+			try {
+				$oldHeader = \App\Models\FakturPenjualanHeader::where('NoTransaksi', $jsonData['NoTransaksi'])
+								->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+								->first();
+				if ($oldHeader) {
+					$oldKodeMeja = $oldHeader->NomorMeja;
+				}
+			} catch (\Exception $e) {
+				Log::error('Error get old table in editJsonPoSFnB: ' . $e->getMessage());
+			}
+
         	$model = FakturPenjualanHeader::where('NoTransaksi','=',$jsonData['NoTransaksi'])
            				->where('RecordOwnerID','=',Auth::user()->RecordOwnerID);
             if ($model) {
@@ -3104,6 +3142,50 @@ class FakturPenjualanController extends Controller
 	        else{
 		        DB::commit();
 		        $data['success'] = true;
+
+				// Integrasi Controller Lampu (Titik Lampu)
+				try {
+					$newKodeMeja = $jsonData['KodeMeja'] ?? null;
+
+					// Jika meja berubah, matikan lampu meja lama
+					if (!empty($oldKodeMeja) && $oldKodeMeja != $newKodeMeja) {
+						$oldMejaObj = \App\Models\Meja::where('KodeMeja', $oldKodeMeja)
+									->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+									->first();
+						if ($oldMejaObj) {
+							$oldTitikLampu = \App\Models\TitikLampu::where('NamaTitikLampu', $oldMejaObj->NamaMeja)
+										->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+										->first();
+							if ($oldTitikLampu) {
+								$oldTitikLampu->Status = 0; // Mati
+								$oldTitikLampu->save();
+							}
+						}
+					}
+
+					// Update status lampu meja baru
+					if (!empty($newKodeMeja)) {
+						$mejaObj = \App\Models\Meja::where('KodeMeja', $newKodeMeja)
+									->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+									->first();
+						if ($mejaObj) {
+							$titikLampu = \App\Models\TitikLampu::where('NamaTitikLampu', $mejaObj->NamaMeja)
+										->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+										->first();
+							if ($titikLampu) {
+								// USER RULE: Lampu hanya dinyalakan jika opsi 'NyalakanLampu' dicentang (1) dari modal pilihan kasir.
+								// Sistem tidak mematikan lampu secara otomatis demi fleksibilitas siang/malam (100% Manual Off).
+								$nyalakanLampu = intval($jsonData['NyalakanLampu'] ?? 0);
+								if ($nyalakanLampu == 1) {
+									$titikLampu->Status = 1; // Nyala
+									$titikLampu->save();
+								}
+							}
+						}
+					}
+				} catch (\Exception $e) {
+					Log::error('Error integrasi titik lampu F&B POS Edit: ' . $e->getMessage());
+				}
 	        }
        } catch (Exception $e) {
            Log::debug($e->getMessage());
@@ -3125,6 +3207,9 @@ class FakturPenjualanController extends Controller
            				->where('RecordOwnerID','=',Auth::user()->RecordOwnerID);
    
 	       	if ($model) {
+				$headerObj = FakturPenjualanHeader::where('NoTransaksi', $NoTransaksi)
+								->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+								->first();
 	           $update = DB::table('fakturpenjualanheader')
 	                   ->where('NoTransaksi','=', $NoTransaksi)
 	                   ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
@@ -3134,6 +3219,9 @@ class FakturPenjualanController extends Controller
 								'UpdatedBy' => Auth::user()->name
 	                       ]
 	                   );
+				
+				// Integrasi Controller Lampu (Titik Lampu) dinonaktifkan di sini karena dikendalikan manual dari POS/Remote.
+
 	            $data['success'] = true;
 	        }
 	        else{
@@ -3293,10 +3381,17 @@ class FakturPenjualanController extends Controller
 				->pluck('BaseReff');
 
 			// 2. Update status header ke 'D' (CANCEL)
+			$headerObj = DB::table('fakturpenjualanheader')
+				->where('NoTransaksi', $NoTransaksi)
+				->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+				->first();
+
 			DB::table('fakturpenjualanheader')
 				->where('NoTransaksi', $NoTransaksi)
 				->where('RecordOwnerID', Auth::user()->RecordOwnerID)
 				->update(['Status' => 'D']);
+
+			// Integrasi Controller Lampu (Titik Lampu) dinonaktifkan di sini karena dikendalikan manual dari POS/Remote.
 
 			// 3. Accounting Reversal
 			$journalHeader = DB::table('headerjurnal')

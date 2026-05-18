@@ -456,6 +456,15 @@
 					                            				</select>
 					                            			</fieldset>
 					                            		</div>
+														<div class="col-md-4">
+					                            			<label  class="text-body">Template Tampilan POS Retail</label>
+					                            			<fieldset class="form-group mb-3">
+					                            				<select name="PosTemplate" id="PosTemplate" class="js-example-basic-single js-states form-control bg-transparent">
+					                            					<option value="NormalPoS" {{ count($company) > 0 ? $company[0]['PosTemplate'] == "NormalPoS" ? "selected" : '' :""}} >Standard POS (Default)</option>
+					                            					<option value="NormalPoS_Premium" {{ count($company) > 0 ? $company[0]['PosTemplate'] == "NormalPoS_Premium" ? "selected" : '' :""}} >Premium POS (Modern Glow)</option>
+					                            				</select>
+					                            			</fieldset>
+					                            		</div>
 
 														<div class="col-md-8">
 															<label  class="text-body">Preview</label>

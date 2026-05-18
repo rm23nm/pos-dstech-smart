@@ -221,10 +221,19 @@ class LoginController extends Controller
                 if (Auth::Attempt($data)) {
                     $user = Auth::user();
 
-                    if ($user->current_session_id && Session::getHandler()->read($user->current_session_id)) {
-                        Auth::logout();
-                        throw new \Exception('Akun hanya bisa login di satu device saja');
-                        goto jump;
+                    $demoEmails = [
+                        'demoresto@pos.dstechsmart.com',
+                        'demoresto@pos.dstrechsmart.com',
+                        'demoretail@pos.dstechsmart.com',
+                        'gor.servicepos@pos.dstechsmart.com'
+                    ];
+
+                    if (!in_array(strtolower($user->email), $demoEmails)) {
+                        if ($user->current_session_id && Session::getHandler()->read($user->current_session_id)) {
+                            Auth::logout();
+                            throw new \Exception('Akun hanya bisa login di satu device saja');
+                            goto jump;
+                        }
                     }
 
                     // Simpan session id saat ini

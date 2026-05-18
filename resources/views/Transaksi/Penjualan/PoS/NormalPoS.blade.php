@@ -933,6 +933,9 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- <script src="{{ asset('js/sweetalert.js')}}"></script> -->
 <!-- <script src="{{ asset('js/sweetalert1.js')}}"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{asset('api/jqueryvalidate/jquery.validate.min.js')}}"></script>
+<script src="{{asset('api/mcustomscrollbar/jquery.mCustomScrollbar.concat.min.js')}}"></script>
+<script src="{{asset('api/datatable/jquery.dataTables.min.js')}}"></script>
 <script src="{{ asset('js/script.bundle.js')}}"></script>
 <link href="{{ asset('devexpress/dx.light.css')}}" rel="stylesheet" type="text/css" />
 <script src="{{asset('devexpress/dx.all.js')}}"></script>

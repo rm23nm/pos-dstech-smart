@@ -45,10 +45,10 @@
 
 			/* Category Dividers Style */
 			.menu-section {
-				margin-top: 25px !important;
-				margin-bottom: 8px !important;
+				margin-top: 15px !important;
+				margin-bottom: 5px !important;
 				border-bottom: 1px solid #f1f5f9 !important;
-				padding-bottom: 8px !important;
+				padding-bottom: 6px !important;
 			}
 
 			.menu-section-text {
@@ -65,29 +65,29 @@
 			.aside-menu .nav .nav-item > .nav-link {
 				color: #334155 !important; /* Medium Slate Charcoal */
 				font-weight: 600 !important;
-				padding: 12px 20px !important;
+				padding: 10px 16px !important;
 				border-radius: 6px !important;
-				margin: 4px 12px !important;
+				margin: 3px 12px !important;
 				background: transparent !important;
 				transition: all 0.2s ease-in-out !important;
 				border-left: 3px solid transparent !important;
 			}
 
-			/* Hover over Navigation Links - Turns to Crimson Red Banner just like letterhead! */
-			.aside-menu .nav .nav-item > .nav-link:hover {
+			/* Hover over Navigation Links - Only for top-level main category items! */
+			.aside-menu .nav .nav-item > .nav-link:not(.sub-nav-link):not(.mini-sub-nav-link):hover {
 				color: #ffffff !important;
 				background: #d01818 !important; /* Corporate Crimson Red */
 				border-left: 3px solid #0091ff !important; /* Corporate Blue indicator on left edge */
-				box-shadow: 0 4px 12px rgba(208, 24, 24, 0.25) !important;
+				box-shadow: 0 4px 12px rgba(208, 24, 24, 0.2) !important;
 			}
 
-			/* Active Navigation Link - Solid Vibrant Blue Banner just like letterhead NIB banner! */
-			.aside-menu .nav .nav-item.active > .nav-link,
-			.aside-menu .nav .nav-item > .nav-link:not(.collapsed) {
+			/* Active Navigation Link - Only for top-level main category items! */
+			.aside-menu .nav .nav-item.active > .nav-link:not(.sub-nav-link):not(.mini-sub-nav-link),
+			.aside-menu .nav .nav-item > .nav-link:not(.collapsed):not(.sub-nav-link):not(.mini-sub-nav-link) {
 				color: #ffffff !important;
 				background: #0072ff !important; /* Corporate Vibrant Blue */
 				border-left: 3px solid #d01818 !important; /* Crimson Red indicator on left edge */
-				box-shadow: 0 4px 12px rgba(0, 114, 255, 0.25) !important;
+				box-shadow: 0 4px 12px rgba(0, 114, 255, 0.2) !important;
 				font-weight: 700 !important;
 			}
 
@@ -99,6 +99,12 @@
 
 			.aside-menu .nav .nav-item.active > .nav-link .fa-chevron-right,
 			.aside-menu .nav .nav-item > .nav-link:not(.collapsed) .fa-chevron-right {
+				color: #94a3b8 !important;
+				transform: rotate(0deg) !important;
+			}
+			
+			.aside-menu .nav .nav-item.active > .nav-link:not(.sub-nav-link):not(.mini-sub-nav-link) .fa-chevron-right,
+			.aside-menu .nav .nav-item > .nav-link:not(.collapsed):not(.sub-nav-link):not(.mini-sub-nav-link) .fa-chevron-right {
 				color: #ffffff !important;
 				transform: rotate(90deg) !important;
 			}
@@ -110,12 +116,12 @@
 				transition: all 0.2s ease !important;
 			}
 
-			.aside-menu .nav-item:hover > .nav-link .nav-icon i,
-			.aside-menu .nav-item:hover > .nav-link .nav-icon svg,
-			.aside-menu .nav-item.active > .nav-link .nav-icon i,
-			.aside-menu .nav-item.active > .nav-link .nav-icon svg,
-			.aside-menu .nav-link:not(.collapsed) .nav-icon i,
-			.aside-menu .nav-link:not(.collapsed) .nav-icon svg {
+			.aside-menu .nav-item:hover > .nav-link:not(.sub-nav-link):not(.mini-sub-nav-link) .nav-icon i,
+			.aside-menu .nav-item:hover > .nav-link:not(.sub-nav-link):not(.mini-sub-nav-link) .nav-icon svg,
+			.aside-menu .nav-item.active > .nav-link:not(.sub-nav-link):not(.mini-sub-nav-link) .nav-icon i,
+			.aside-menu .nav-item.active > .nav-link:not(.sub-nav-link):not(.mini-sub-nav-link) .nav-icon svg,
+			.aside-menu .nav-link:not(.collapsed):not(.sub-nav-link):not(.mini-sub-nav-link) .nav-icon i,
+			.aside-menu .nav-link:not(.collapsed):not(.sub-nav-link):not(.mini-sub-nav-link) .nav-icon svg {
 				color: #ffffff !important;
 			}
 
@@ -124,17 +130,17 @@
 				background: #f8fafc !important; /* Light background for inner menus */
 				margin: 0 12px !important;
 				border-radius: 6px !important;
-				padding: 5px 0 !important;
+				padding: 3px 0 !important;
 				border: 1px solid #e2e8f0 !important;
 			}
 
 			.aside-menu .sub-nav-link {
 				color: #475569 !important;
-				font-size: 0.9rem !important;
+				font-size: 0.88rem !important;
 				font-weight: 600 !important;
-				padding: 10px 20px 10px 30px !important;
+				padding: 8px 15px 8px 25px !important;
 				border-radius: 6px !important;
-				margin: 2px 10px !important;
+				margin: 2px 8px !important;
 				border-left: 2px solid transparent !important;
 			}
 
@@ -144,41 +150,49 @@
 				border-left: 2px solid #d01818 !important;
 			}
 
-			.aside-menu .nav-item.active > .sub-nav-link {
+			.aside-menu .nav-item.active > .sub-nav-link,
+			.aside-menu .sub-nav-link.active {
 				color: #0072ff !important; /* Vibrant Blue Text on active */
-				background: rgba(0, 114, 255, 0.05) !important;
+				background: rgba(0, 114, 255, 0.08) !important;
 				border-left: 2px solid #0072ff !important;
 			}
 
 			/* Level 3 deep nested links */
 			.aside-menu .mini-sub-nav-link {
 				color: #64748b !important;
-				font-size: 0.85rem !important;
+				font-size: 0.82rem !important;
 				font-weight: 500 !important;
-				padding: 8px 15px 8px 45px !important;
+				padding: 6px 12px 6px 35px !important;
 				transition: all 0.2s ease !important;
 				border-left: 2px solid transparent !important;
 			}
 
 			.aside-menu .mini-sub-nav-link:hover {
 				color: #d01818 !important;
-				padding-left: 50px !important;
+				padding-left: 40px !important;
 				border-left: 2px solid #d01818 !important;
 			}
 
-			.aside-menu .nav-item.active > .mini-sub-nav-link {
+			.aside-menu .nav-item.active > .mini-sub-nav-link,
+			.aside-menu .mini-sub-nav-link.active {
 				color: #0072ff !important;
 				font-weight: 700 !important;
-				padding-left: 50px !important;
+				padding-left: 40px !important;
 				border-left: 2px solid #0072ff !important;
+			}
+
+			/* Ensure sidebar wrapper scrolls perfectly and is constrained to screen height */
+			#tc_aside_menu_wrapper {
+				overflow-y: auto !important;
+				max-height: calc(100vh - 75px) !important;
 			}
 
 			/* Custom Sidebar Scrollbar */
 			#tc_aside_menu_wrapper::-webkit-scrollbar {
-				width: 6px !important;
+				width: 5px !important;
 			}
 			#tc_aside_menu_wrapper::-webkit-scrollbar-track {
-				background: #f1f5f9 !important;
+				background: #f8fafc !important;
 			}
 			#tc_aside_menu_wrapper::-webkit-scrollbar-thumb {
 				background: #cbd5e1 !important;
@@ -607,7 +621,7 @@
 																					@if (count($lv2['submenu']) > 0)
 																						@foreach ($lv2['submenu'] as $lv3)
 																							<li class="nav-item {{ is_nav_exact_active($lv3) ? 'active' : '' }}">
-																								<a href="{{ route($lv3['Link']) }}" class="nav-link mini-sub-nav-link">
+																								<a href="{{ Route::has($lv3['Link']) ? route($lv3['Link']) : url($lv3['Link']) }}" class="nav-link mini-sub-nav-link">
 																									<span class="nav-text">{{ $lv3['PermissionName'] }}</span>
 																								</a>
 																							</li>

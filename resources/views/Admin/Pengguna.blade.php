@@ -80,9 +80,7 @@
                                                                     <button class="btn btn-outline-warning btn-sm" onclick="UnSuspend('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Buka Suspend"><i class="bi bi-play-circle"></i></button>
                                                                 @endif
 
-                                                                @if ($v['StatusSubscription'] == "Perlu Aktivasi-danger")
-                                                                    <button class="btn btn-outline-success btn-sm" onclick="Aktivasi('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Aktivasi"><i class="bi bi-check-circle"></i></button>
-                                                                @endif
+                                                                <button class="btn btn-outline-success btn-sm" onclick="Aktivasi('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Aktivasi / Perpanjang Manual"><i class="bi bi-check-circle"></i></button>
 
                                                                 <button class="btn btn-outline-success btn-sm" onclick="RubahPaket('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Rubah Paket"><i class="bi bi-box-seam"></i></button>
                                                                 <button class="btn btn-outline-danger btn-sm" onclick="RemovePartner('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash"></i></button>

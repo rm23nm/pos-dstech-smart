@@ -16,7 +16,9 @@ License: You must have a valid license purchased only from themeforest(the above
 	<meta name="description" content="Updates and statistics" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<!--begin::Fonts-->
-	<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" /> -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 	<!--end::Fonts-->
 
 	<!--begin::Global Theme Styles(used by all pages)-->
@@ -72,6 +74,302 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 	.slide img {
 		object-fit: contain;
+	}
+	
+	/* Premium Global Typography Override */
+	* {
+		font-family: 'Outfit', sans-serif !important;
+	}
+	h1, h2, h3, h4, h5, h6, th, .TotalText, #hours, #min, #sec {
+		font-family: 'Plus Jakarta Sans', sans-serif !important;
+	}
+
+	/* Premium Cyberpunk Brand Gradient Background Overrides */
+	body#tc_body {
+		background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4c0519 100%) !important; /* Premium Dark Navy to Crimson Gradient */
+		background-image: none !important;
+	}
+	
+	/* Glassmorphism Header */
+	.pos-header {
+		background: rgba(30, 58, 138, 0.45) !important; /* Royal Blue Translucent */
+		backdrop-filter: blur(16px) !important;
+		-webkit-backdrop-filter: blur(16px) !important;
+		color: #ffffff !important;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+	}
+	.pos-header .greeting-text h3 {
+		color: #ffffff !important;
+		font-weight: 600 !important;
+		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	}
+	.pos-header .greeting-text h3.text-primary {
+		color: #60a5fa !important; /* Light neon blue for Hallo sapaan */
+	}
+	.pos-header .clock .datetime-content ul li {
+		color: #ffffff !important;
+		font-weight: 700 !important;
+		text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+	}
+	.pos-header .clock .datetime-content #Date {
+		color: rgba(255, 255, 255, 0.8) !important;
+		font-weight: 500 !important;
+	}
+
+	/* Glassmorphism Sidebar & Card Styles */
+	.card-custom {
+		background: rgba(15, 23, 42, 0.55) !important; /* Deep Navy Translucent */
+		backdrop-filter: blur(16px) !important;
+		-webkit-backdrop-filter: blur(16px) !important;
+		border: 1px solid rgba(255, 255, 255, 0.1) !important;
+		border-radius: 20px !important;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+		overflow: hidden;
+	}
+	.card-custom h4 {
+		color: #ffffff !important;
+		font-weight: 700 !important;
+		letter-spacing: 0.5px;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+		padding-bottom: 15px !important;
+		margin-bottom: 15px !important;
+	}
+	
+	/* Modern Non-scrolling Receipt Table */
+	#orderTable {
+		background: transparent !important;
+	}
+	#orderTable th {
+		color: rgba(255, 255, 255, 0.6) !important;
+		font-weight: 600 !important;
+		text-transform: uppercase;
+		font-size: 0.75rem !important;
+		letter-spacing: 1px;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+		background: transparent !important;
+		background-color: transparent !important;
+	}
+	#orderTable td {
+		color: #ffffff !important;
+		font-size: 0.95rem !important;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+		padding: 12px 8px !important;
+		background: transparent !important;
+		background-color: transparent !important;
+	}
+	
+	/* Receipt Animations */
+	#tableBody tr {
+		animation: slideInRow 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+	
+	@keyframes slideInRow {
+		from {
+			opacity: 0;
+			transform: translateX(-15px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	/* Neon Calculations Panel */
+	.resulttable-pos {
+		background: rgba(15, 23, 42, 0.6) !important;
+		border-radius: 12px;
+		padding: 8px 12px !important;
+		border: 1px solid rgba(255, 255, 255, 0.08) !important;
+		margin-top: 8px;
+	}
+	.resulttable-pos .table {
+		background: transparent !important;
+		margin-bottom: 0 !important;
+	}
+	.resulttable-pos tr {
+		padding: 2px 0 !important;
+	}
+	.resulttable-pos th {
+		color: rgba(255, 255, 255, 0.7) !important;
+		font-weight: 500 !important;
+		font-size: 0.8rem !important;
+		border: none !important;
+		background: transparent !important;
+		background-color: transparent !important;
+		padding: 4px 0 !important;
+	}
+	.resulttable-pos td {
+		border: none !important;
+		background: transparent !important;
+		background-color: transparent !important;
+		padding: 4px 0 !important;
+	}
+	.resulttable-pos th.text-dark {
+		color: rgba(255, 255, 255, 0.75) !important;
+		background: transparent !important;
+		background-color: transparent !important;
+	}
+	.resulttable-pos td input.TotalText.form-control {
+		background: transparent !important;
+		border: none !important;
+		color: #ffffff !important;
+		font-weight: 600 !important;
+		font-size: 0.9rem !important;
+		padding: 0 !important;
+		height: auto !important;
+		box-shadow: none !important;
+		text-align: right !important;
+	}
+	
+	/* Voucher Row - Premium Animated */
+	#rowVoucherDiscount {
+		background: rgba(239, 68, 68, 0.12) !important;
+		border-radius: 8px;
+		border: 1px solid rgba(239, 68, 68, 0.3) !important;
+		padding: 4px 8px !important;
+		animation: voucherPulse 1.8s infinite ease-in-out;
+	}
+	#rowVoucherDiscount th, #rowVoucherDiscount td input.TotalText.form-control {
+		color: #fca5a5 !important;
+		font-weight: 800 !important;
+	}
+	@keyframes voucherPulse {
+		0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25); }
+		50% { box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.15); }
+		100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25); }
+	}
+	/* Idle Welcome Screen */
+	#idleWelcome {
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		text-align: center;
+		gap: 18px;
+		animation: fadeIn 0.6s ease-out forwards;
+	}
+	#idleWelcome .idle-brand {
+		font-size: 2.5rem;
+		font-weight: 800;
+		color: #ffffff;
+		letter-spacing: 2px;
+		text-shadow: 0 0 30px rgba(255,255,255,0.3);
+	}
+	#idleWelcome .idle-sub {
+		font-size: 1.1rem;
+		color: rgba(255,255,255,0.6);
+		font-weight: 400;
+		letter-spacing: 1px;
+	}
+	
+	/* Grand Total Pulse Animation & Neon Light Effect */
+	.item-price {
+		border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+		padding-top: 10px !important;
+		margin-top: 6px !important;
+	}
+	.item-price th.text-primary {
+		color: #00f0ff !important; /* Neon Electric Cyan */
+		font-weight: 800 !important;
+		font-size: 1.15rem !important;
+		text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+		text-transform: uppercase;
+		letter-spacing: 1px;
+	}
+	.item-price td input.TotalText.form-control {
+		color: #00f0ff !important; /* Neon Electric Cyan */
+		background: rgba(0, 240, 255, 0.08) !important;
+		border: 1.5px solid rgba(0, 240, 255, 0.4) !important;
+		border-radius: 10px !important;
+		font-weight: 900 !important;
+		font-size: 1.5rem !important;
+		padding: 6px 12px !important;
+		height: auto !important;
+		text-align: right !important;
+		box-shadow: 0 0 15px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.15) !important;
+		text-shadow: 0 0 10px rgba(0, 240, 255, 0.8), 0 0 5px rgba(0, 240, 255, 0.4);
+		animation: pulseTotalNeon 2s infinite ease-in-out;
+		transition: all 0.3s ease;
+	}
+	
+	@keyframes pulseTotalNeon {
+		0% {
+			box-shadow: 0 0 12px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.15) !important;
+			text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+		}
+		50% {
+			box-shadow: 0 0 25px rgba(0, 240, 255, 0.7), inset 0 0 12px rgba(0, 240, 255, 0.3) !important;
+			text-shadow: 0 0 15px rgba(0, 240, 255, 1), 0 0 8px rgba(255, 255, 255, 0.5);
+			border-color: rgba(0, 240, 255, 0.7) !important;
+		}
+		100% {
+			box-shadow: 0 0 12px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.15) !important;
+			text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+		}
+	}
+
+	/* Dynamic QRIS Checkout Screen Overlay */
+	.qris-board {
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		padding: 20px;
+		text-align: center;
+		animation: fadeIn 0.5s ease-out forwards;
+	}
+	.qris-card {
+		background: rgba(255, 255, 255, 0.95);
+		padding: 24px;
+		border-radius: 24px;
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+		position: relative;
+		overflow: hidden;
+		margin-bottom: 20px;
+	}
+	.qris-barcode-wrapper {
+		position: relative;
+		width: 200px;
+		height: 200px;
+	}
+	.qris-laser {
+		position: absolute;
+		left: 0;
+		width: 100%;
+		height: 3px;
+		background: linear-gradient(to right, transparent, #10b981, transparent);
+		box-shadow: 0 0 8px #10b981;
+		animation: qrisLaser 2.5s infinite ease-in-out;
+		z-index: 10;
+	}
+	.qris-logo {
+		width: 120px;
+		margin-bottom: 12px;
+	}
+	.qris-status {
+		color: #60a5fa !important;
+		font-size: 0.95rem;
+		font-weight: 600;
+		letter-spacing: 0.5px;
+		animation: blinkStatus 1.5s infinite ease-in-out;
+	}
+	
+	@keyframes qrisLaser {
+		0% { top: 0%; }
+		50% { top: 100%; }
+		100% { top: 0%; }
+	}
+	@keyframes blinkStatus {
+		0% { opacity: 0.4; }
+		50% { opacity: 1; }
+		100% { opacity: 0.4; }
+	}
+	@keyframes fadeIn {
+		from { opacity: 0; transform: scale(0.95); }
+		to { opacity: 1; transform: scale(1); }
 	}
 </style>
 <style type="text/css">
@@ -290,16 +588,18 @@ License: You must have a valid license purchased only from themeforest(the above
     <header class="pos-header bg-white">
 		<div class="container-fluid">
 			<div class="row align-items-center">
-				<div class="col-xl-4 col-lg-4 col-md-6">
+				<div class="col-xl-4 col-lg-4 col-md-6 d-flex align-items-center" style="gap:14px;">
+					@if(isset($company) && $company->icon)
+					<img src="{{ asset('storage/'.$company->icon) }}" onerror="this.src='{{ asset('media/logos/favicon.ico') }}'" alt="Logo" style="height:42px;width:42px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.4);box-shadow:0 0 12px rgba(0,0,0,0.3);">
+					@endif
 					<div class="greeting-text">
-						<h3 class="card-label mb-0 font-weight-bold text-primary">Hallo, Nama Saya 
-						</h3>
-						<h3 class="card-label mb-0 ">
-							{{ Auth::user()->name }}
+						<h3 class="card-label mb-0 font-weight-bold text-primary" style="font-size:0.8rem;opacity:0.8;">SELAMAT DATANG DI</h3>
+						<h3 class="card-label mb-0" style="font-size:1rem;font-weight:700;">
+							{{ isset($company) ? $company->NamaPartner : Auth::user()->name }}
 						</h3>
 					</div>
 				</div>
-				<div class="col-xl-4 col-lg-5 col-md-6  clock-main">
+				<div class="col-xl-4 col-lg-5 col-md-6 clock-main">
 					<div class="clock">
 						<div class="datetime-content">
 							<ul>
@@ -311,12 +611,13 @@ License: You must have a valid license purchased only from themeforest(the above
 							</ul>
 						</div>
 						<div class="datetime-content">
-							<div id="Date"  class=""></div>
+							<div id="Date" class=""></div>
 						</div>
-					  
 					</div>
 				</div>
-
+				<div class="col-xl-4 col-lg-3 col-md-12 d-none d-lg-flex justify-content-end align-items-center" style="gap:8px;">
+					<span style="background:rgba(255,255,255,0.15);border-radius:20px;padding:4px 14px;font-size:0.78rem;color:#fff;font-weight:600;letter-spacing:1px;">✨ CUSTOMER DISPLAY</span>
+				</div>
 			</div>
 		</div>
 	</header>
@@ -330,10 +631,30 @@ License: You must have a valid license purchased only from themeforest(the above
 								<div class="marquee">{{ $company->RunningText }}</div>
 							</div>
 						@endif
-						<div class="card-body d-flex flex-column">
-							<div class="slider flex-grow-1">
+						<div class="card-body d-flex flex-column" style="position: relative; overflow: hidden; height: 100%;">
+							<!-- Idle Welcome Screen -->
+							<div id="idleWelcome" class="flex-grow-1">
+								<div style="font-size:4rem;">🛍️</div>
+								<div class="idle-brand">{{ isset($company) ? strtoupper($company->NamaPartner) : 'SELAMAT DATANG' }}</div>
+								<div class="idle-sub">Silakan lakukan pemesanan Anda</div>
+								<div style="margin-top:8px;padding:8px 24px;border-radius:30px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5);font-size:0.85rem;">Menunggu transaksi...</div>
+							</div>
+							<div class="slider flex-grow-1" id="promoSlider" style="display:none;">
 								<div class="slides h-100" id="slidesContainer"></div>
 								<div class="dots" id="dotsContainer"></div>
+							</div>
+							<div class="qris-board flex-grow-1" id="qrisBoard">
+								<img src="{{ asset('media/logos/qris.png') }}" class="qris-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg'" alt="QRIS Logo">
+								<div class="qris-card">
+									<div class="qris-barcode-wrapper">
+										<div class="qris-laser"></div>
+										<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://dstechsmart.com" alt="QRIS QR Code" style="width: 100%; height: 100%; border-radius: 12px;">
+									</div>
+								</div>
+								<div class="qris-status">
+									<span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #3b82f6; margin-right: 8px;"></span>
+									MENUNGGU PEMBAYARAN PELANGGAN...
+								</div>
 							</div>
 						</div>
 					</div>
@@ -342,7 +663,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="card card-custom gutter-b bg-white border-0 h-100">
 						<div class="card-body d-flex flex-column">
 							<h4 class="text-center">Detail Transaksi</h4>
-							<div class="table-responsive flex-grow-1" id="printableTable">
+							<div class="table-responsive" id="printableTable" style="overflow-y: auto; flex: 1 1 auto; margin-bottom: 8px;">
 								<table id="orderTable" class="display" style="width:100%">
 									<thead>
 										<tr>
@@ -374,6 +695,12 @@ License: You must have a valid license purchased only from themeforest(the above
 											<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">DISCOUNT</th>
 											<td class="border-0 justify-content-end d-flex text-dark font-size-base">
 												<input type="text" name="_TotalDiskon" id="_TotalDiskon" value="0" class="form-control TotalText">
+											</td>
+										</tr>
+										<tr class="d-flex align-items-center justify-content-between" id="rowVoucherDiscount" style="display:none !important;">
+											<th class="border-0 mb-0" style="font-size:0.85rem;">🎟️ VOUCHER HEMAT</th>
+											<td class="border-0 justify-content-end d-flex">
+												<input type="text" name="_VoucherDiscount" id="_VoucherDiscount" value="0" class="form-control TotalText font-weight-bold" style="color: #fca5a5 !important; background:transparent !important; border:none !important; box-shadow:none !important; text-align:right;">
 											</td>
 										</tr>
 										<tr class="d-flex align-items-center justify-content-between">
@@ -415,6 +742,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <script src="{{ env('MIDTRANS_PROD_URL') }}" data-client-key="{{ $midtransclientkey }}"></script>
 @endif
 <script>
+	window.$ = window.jQuery;
 	const itemsDiv = document.getElementById("items");
 	const totalAmountSpan = document.getElementById("totalAmount");
 
@@ -463,45 +791,64 @@ License: You must have a valid license purchased only from themeforest(the above
         }
 
 		const cart = JSON.parse(localStorage.getItem("PoSData"));
-		console.log(cart)
+
+		const hasItems = cart && Array.isArray(cart.data) && cart.data.length > 0;
+
+		// --- Screen State Manager ---
+		if (cart && cart.isCheckout === true) {
+			// QRIS / Payment screen
+			$('#idleWelcome').hide();
+			$('#promoSlider').hide();
+			$('#qrisBoard').css('display', 'flex');
+		} else if (hasItems) {
+			// Active transaction - show promo slider
+			$('#idleWelcome').hide();
+			$('#qrisBoard').hide();
+			$('#promoSlider').show();
+		} else {
+			// No items - show idle welcome screen
+			$('#qrisBoard').hide();
+			$('#promoSlider').hide();
+			$('#idleWelcome').css('display', 'flex');
+		}
+
+		// Reset totals
 		const tableBody = document.getElementById("tableBody");
 		tableBody.innerHTML = '';
 		formatCurrency($('#_TotalItem'), 0);
 	    formatCurrency($('#_SubTotal'), 0);
 	    formatCurrency($('#_TotalDiskon'), 0);
+	    formatCurrency($('#_VoucherDiscount'), 0);
 	    formatCurrency($('#_GrandTotal'), 0);
 		formatCurrency($('#_TotalTax'), 0);
-		console.log(cart.length);
-		if(cart && Array.isArray(cart.data) && cart.data.length > 0){
+		// Hide voucher row by default
+		$('#rowVoucherDiscount').hide();
+
+		if (hasItems) {
 			for (let index = 0; index < cart["data"].length; index++) {
-				// const element = array[index];
 				const newRow = document.createElement("tr");
-				
 				const cell1 = document.createElement("td");
 				cell1.textContent = cart["data"][index]['NamaItem'];
-
 				const cell2 = document.createElement("td");
 				cell2.textContent = cart["data"][index]['Qty'];
-
 				const cell3 = document.createElement("td");
-
-				let formattedAmount = parseFloat(cart["data"][index]['Harga']).toLocaleString('en-US', {
+				let formattedAmount = parseFloat(cart["data"][index]['Harga']).toLocaleString('id-ID', {
 					style: 'decimal',
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2
+					minimumFractionDigits: 0,
+					maximumFractionDigits: 0
 				});
 				cell3.textContent = formattedAmount;
-				
 				newRow.appendChild(cell1);
 				newRow.appendChild(cell2);
 				newRow.appendChild(cell3);
-
+				// Item baru selalu di bawah (append)
 				tableBody.appendChild(newRow);
-				
 			}
 			CalculateTotal(cart);
+			// Auto-scroll ke item terbaru (paling bawah)
+			const tableWrapper = document.getElementById('printableTable');
+			if (tableWrapper) tableWrapper.scrollTop = tableWrapper.scrollHeight;
 		}
-		
 	}
 
 	 // Auto-slide function
@@ -531,33 +878,29 @@ License: You must have a valid license purchased only from themeforest(the above
 	});
 
 	function CalculateTotal(data) {
-  		var _tempTotalItem = 0;
-  		var _tempSubTotal = 0;
-  		var _tempTotalDiskon = 0;
-  		var _tempTotalTax = 0;
-  		var _tempTotalServices = 0;
-  		var _tempGrandTotal = 0;
-
-  		_tempTotalItem = data["data"].length;
-
-	    // Diskon Grup Customer
-
-		console.log(_tempTotalTax)
-
+		var _tempTotalItem = data["data"].length;
 	    formatCurrency($('#_TotalItem'), _tempTotalItem);
 	    formatCurrency($('#_SubTotal'), data["Total"]);
 	    formatCurrency($('#_TotalDiskon'), data["Discount"]);
-	    // formatCurrency($('#_TotalServices'), _tempTotalServices);
 	    formatCurrency($('#_GrandTotal'), data["Net"]);
 		formatCurrency($('#_TotalTax'), data["Tax"]);
+
+		// Voucher: tampil hanya jika nilai > 0
+		var voucherVal = parseFloat(data["VoucherDiscount"] || 0);
+		if (voucherVal > 0) {
+			formatCurrency($('#_VoucherDiscount'), voucherVal);
+			$('#rowVoucherDiscount').show();
+		} else {
+			$('#rowVoucherDiscount').hide();
+		}
 	}
 
 	function formatCurrency(input, amount) {
 		input.attr("originalvalue", amount);
-        let formattedAmount = parseFloat(amount).toLocaleString('en-US', {
+        let formattedAmount = parseFloat(amount).toLocaleString('id-ID', {
             style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
         });
 
         // Set the formatted value to the input field
@@ -796,10 +1139,15 @@ License: You must have a valid license purchased only from themeforest(the above
 
 	// Initial load
 	updateDisplay();
-	loadYouTubeAPI();
-	// renderSlides();
 
-	// setInterval(autoSlide, 3000);
+	// Only load YouTube + slides if there is media
+	if (mediaData && mediaData.length > 0) {
+		loadYouTubeAPI();
+	} else {
+		// No media - just keep idle or active state via updateDisplay
+		// promoSlider stays hidden, idleWelcome will show if no cart items
+	}
+
 	updateSlidePosition();
 </script>
 </html>

@@ -238,6 +238,32 @@
                 </div>
             </form>
 
+            <!-- Interactive Demo Accounts Section -->
+            <div class="mt-4 pt-3 border-top border-light-subtle">
+                <div class="text-center mb-2">
+                    <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill font-weight-bold" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                        <i class="bi bi-stars me-1"></i> COBA AKUN DEMO PREMIUM
+                    </span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 py-2 font-weight-bold btn-demo-auto px-1" data-email="demoresto@pos.dstechsmart.com" data-pass="12345678" style="font-size: 0.7rem; border-radius: 8px;">
+                            <i class="bi bi-cup-hot d-block mb-1"></i> Resto / FnB
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-success btn-sm w-100 py-2 font-weight-bold btn-demo-auto px-1" data-email="demoretail@pos.dstechsmart.com" data-pass="12345678" style="font-size: 0.7rem; border-radius: 8px;">
+                            <i class="bi bi-cart d-block mb-1"></i> Retail / Shop
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-warning btn-sm w-100 py-2 font-weight-bold btn-demo-auto px-1" data-email="gor.servicepos@pos.dstechsmart.com" data-pass="12345678" style="font-size: 0.65rem; border-radius: 8px;">
+                            <i class="bi bi-controller d-block mb-1"></i> Hiburan/Rental/Hotel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="footer-links">
                 <p class="mb-0 text-muted">Butuh bantuan? <a href="#">Hubungi Support</a></p>
             </div>
@@ -252,5 +278,27 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.btn-demo-auto').on('click', function() {
+                var email = $(this).data('email');
+                var pass = $(this).data('pass');
+                
+                // Fill inputs
+                $('input[name="email"]').val(email);
+                $('input[name="password"]').val(pass);
+                
+                // Show automatic submission indicator on the login button
+                var $btn = $('.btn-login');
+                $btn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>MENYIAPKAN DEMO...');
+                $btn.prop('disabled', true);
+                
+                // Smooth submit delay
+                setTimeout(function() {
+                    $('form').submit();
+                }, 400);
+            });
+        });
+    </script>
 </body>
 </html>

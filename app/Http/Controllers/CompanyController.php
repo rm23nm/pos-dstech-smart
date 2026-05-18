@@ -320,6 +320,7 @@ class CompanyController extends Controller
                     'NamaPosPrinter' => empty($request->input('NamaPosPrinter')) ? "" : $request->input('NamaPosPrinter'),
                     'FooterNota' => empty($request->input('FooterNota')) ? "" : $request->input('FooterNota'),
                     'LebarKertas' => empty($request->input('LebarKertas')) ? "" : $request->input('LebarKertas'),
+                    'PosTemplate' => empty($request->input('PosTemplate')) ? "NormalPoS" : $request->input('PosTemplate'),
                     // 'JenisUsaha' => empty($request->input('JenisUsaha')) ? "" : $request->input('JenisUsaha'),
                     'GudangPoS' => empty($request->input('GudangPoS')) ? "" : $request->input('GudangPoS'),
                     'TerminBayarPoS' => empty($request->input('TerminBayarPoS')) ? "" : $request->input('TerminBayarPoS'),
@@ -379,6 +380,7 @@ class CompanyController extends Controller
                     'KitchenBackgraund' => empty($request->input('KitchenBackgraundBase64')) ? $request->input('KitchenBackgraund') : $request->input('KitchenBackgraundBase64'),
                     'RunningTextSelfServices' => empty($request->input('RunningTextSelfServices')) ? $request->input('RunningTextSelfServices') : $request->input('RunningTextSelfServices'),
                     'QueueDesignSetting' => empty($request->input('QueueDesignSetting')) ? "QueueManagement" : $request->input('QueueDesignSetting'),
+                    'CustDisplayDesignSetting' => empty($request->input('CustDisplayDesignSetting')) ? "default" : $request->input('CustDisplayDesignSetting'),
                     'ShowMetodePembayaran' => ($request->has('showBayarDiMeja') ? "1" : "0") . ($request->has('showLangsungBayar') ? "1" : "0"),
                     'CustomDomain' => $request->input('CustomDomain'),
                     'CustomDomainBooking' => $request->input('CustomDomainBooking'),
@@ -433,7 +435,10 @@ class CompanyController extends Controller
                 				[
 									'EndSubs' => $request->input('EndSubs'),
                                     'StartSubs' => $request->input('StartSubs'),
-                                    'ExtraDays' => 1
+                                    'ExtraDays' => 1,
+                                    'isActive' => 1,
+                                    'isSuspended' => 0,
+                                    'SuspendReason' => ''
                 				]
                 			);
                     
@@ -464,6 +469,27 @@ class CompanyController extends Controller
                             Artisan::call('db:seed', ['--class' => 'SatuanSeeder']);
 
                             // Generate Permission
+                            
+                            // Aktifkan User SuperAdmin dari partner tersebut
+                            try {
+                                $userIds = DB::table('users')
+                                    ->join('userrole', function($j){ $j->on('userrole.userid','=','users.id')->on('userrole.RecordOwnerID','=','users.RecordOwnerID'); })
+                                    ->join('roles', function($j){ $j->on('roles.id','=','userrole.roleid')->on('roles.RecordOwnerID','=','userrole.RecordOwnerID'); })
+                                    ->where('roles.RoleName', 'SuperAdmin')
+                                    ->where('userrole.RecordOwnerID', $RecordOwnerID)
+                                    ->pluck('users.id');
+
+                                if ($userIds->isNotEmpty()) {
+                                    DB::table('users')
+                                        ->whereIn('id', $userIds)
+                                        ->update([
+                                            'Active' => 'Y',
+                                            'isConfirmed' => 1
+                                        ]);
+                                }
+                            } catch (\Exception $usrEx) {
+                                Log::warning('[Aktivasi] Gagal mengaktifkan user SuperAdmin: ' . $usrEx->getMessage());
+                            }
 
                             // ===== AUTO-AKTIVASI SMARTPRO (Client Baru) =====
                             try {
@@ -500,9 +526,33 @@ class CompanyController extends Controller
                 				[
                 					// 'NamaGudang'=>$request->input('NamaGudang'),
                 					'isSuspended' => $request->input('isSuspended'),
-									'EndSubs' => $request->input('EndSubs')
+									'EndSubs' => $request->input('EndSubs'),
+                                    'isActive' => 1,
+                                    'SuspendReason' => ''
                 				]
                 			);
+
+                            // Aktifkan juga User SuperAdmin
+                            try {
+                                $RecordOwnerID = $request->input('KodePartner');
+                                $userIds = DB::table('users')
+                                    ->join('userrole', function($j){ $j->on('userrole.userid','=','users.id')->on('userrole.RecordOwnerID','=','users.RecordOwnerID'); })
+                                    ->join('roles', function($j){ $j->on('roles.id','=','userrole.roleid')->on('roles.RecordOwnerID','=','userrole.RecordOwnerID'); })
+                                    ->where('roles.RoleName', 'SuperAdmin')
+                                    ->where('userrole.RecordOwnerID', $RecordOwnerID)
+                                    ->pluck('users.id');
+
+                                if ($userIds->isNotEmpty()) {
+                                    DB::table('users')
+                                        ->whereIn('id', $userIds)
+                                        ->update([
+                                            'Active' => 'Y',
+                                            'isConfirmed' => 1
+                                        ]);
+                                }
+                            } catch (\Exception $usrEx) {
+                                Log::warning('[Aktivasi] Gagal mengaktifkan user SuperAdmin: ' . $usrEx->getMessage());
+                            }
                 }
                 alert()->success('Success','Data Perusahaan berhasil disimpan.');
                 return redirect('penggunaaplikasi');
@@ -592,6 +642,32 @@ class CompanyController extends Controller
                     Log::warning('[SmartPro] Gagal auto-aktivasi saat UpdatePaket: ' . $smEx->getMessage());
                 }
                 // ===== END SMARTPRO =====
+
+                // ===== SINKRONISASI KE LEDGER SUBSCRIPTION GLOBAL DSTECH =====
+                try {
+                    $pkgPrice = DB::table('subscriptionheader')
+                        ->where('NoTransaksi', $request->input('PaketAplikasi'))
+                        ->value('Harga') ?? 0.00;
+
+                    if ($clientCompany) {
+                        \App\Models\DstechGlobalSubscriptionLedger::create([
+                            'dstech_app_source' => 'pos',
+                            'dstech_client_id' => $request->input('KodePartner'),
+                            'dstech_client_name' => $clientCompany->NamaPartner ?? '',
+                            'dstech_client_email' => $clientUser->email ?? '',
+                            'dstech_client_phone' => $clientCompany->NoTlp ?? '',
+                            'dstech_package_name' => $request->input('PaketAplikasi', 'unknown'),
+                            'dstech_amount' => $pkgPrice,
+                            'dstech_payment_status' => 'paid',
+                            'dstech_start_date' => $request->input('StartSubs') ?: now()->format('Y-m-d'),
+                            'dstech_end_date' => $request->input('EndSubs') ?: now()->addDays(30)->format('Y-m-d'),
+                            'dstech_transaction_id' => 'pos_tx_' . $request->input('KodePartner') . '_' . time(),
+                        ]);
+                    }
+                } catch (\Exception $ledgEx) {
+                    Log::warning('[GlobalLedger] Gagal mencatat transaksi ke ledger subscription global: ' . $ledgEx->getMessage());
+                }
+                // ===== END GLOBAL LEDGER =====
 
                 alert()->success('Success','Data Perusahaan berhasil disimpan.');
                 return redirect('penggunaaplikasi');

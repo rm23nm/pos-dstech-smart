@@ -60,7 +60,11 @@ class PoSController extends Controller
         // var_dump($company[0]["JenisUsaha"]);
         switch ($company[0]["JenisUsaha"]) {
             case 'Retail':
-                return view("Transaksi.Penjualan.PoS.NormalPoS",[
+                $viewName = "Transaksi.Penjualan.PoS.NormalPoS";
+                if (!empty($company[0]["PosTemplate"]) && $company[0]["PosTemplate"] === 'NormalPoS_Premium') {
+                    $viewName = "Transaksi.Penjualan.PoS.NormalPoS_Premium";
+                }
+                return view($viewName,[
                     'pelanggan' => $pelanggan,
                     'company' => $company,
                     'itemServices' =>$itemServices,
@@ -75,7 +79,14 @@ class PoSController extends Controller
                 // alert()->error('Error','Fitur PoS untuk Bisnis FnB Belum Tersedia');
                 // return redirect()->back();
                 $kelompokmeja = KelompokMeja::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
-                $meja = Meja::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
+                $meja = Meja::select('meja.*', 'titiklampu.Status as LampuStatus', 'titiklampu.ControllerID as LampuControllerID', 'titiklampu.id as LampuID')
+                            ->leftJoin('titiklampu', function($join) {
+                                $join->on('meja.NamaMeja', '=', 'titiklampu.NamaTitikLampu')
+                                     ->on('meja.RecordOwnerID', '=', 'titiklampu.RecordOwnerID');
+                            })
+                            ->where('meja.RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                            ->get();
+
                 $tipeorder = TipeOrderResto::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
                 $jenisitem = JenisItem::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
 

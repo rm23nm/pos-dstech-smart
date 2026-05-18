@@ -15,17 +15,26 @@ class CheckUserSession
         if (Auth::check()) {
             $user = Auth::user();
 
-            // Jika session_id kosong atau tidak cocok → logout (device lain sudah login)
-            if (
-                empty($user->current_session_id) ||
-                $user->current_session_id !== session()->getId()
-            ) {
-                Auth::logout();
-                session()->invalidate();
-                session()->regenerateToken();
+            $demoEmails = [
+                'demoresto@pos.dstechsmart.com',
+                'demoresto@pos.dstrechsmart.com',
+                'demoretail@pos.dstechsmart.com',
+                'gor.servicepos@pos.dstechsmart.com'
+            ];
 
-                return redirect('/')
-                    ->withErrors(['message' => 'Akun ini telah login di perangkat lain.']);
+            // Jika session_id kosong atau tidak cocok → logout (device lain sudah login), bypass untuk akun demo
+            if (!in_array(strtolower($user->email), $demoEmails)) {
+                if (
+                    empty($user->current_session_id) ||
+                    $user->current_session_id !== session()->getId()
+                ) {
+                    Auth::logout();
+                    session()->invalidate();
+                    session()->regenerateToken();
+
+                    return redirect('/')
+                        ->withErrors(['message' => 'Akun ini telah login di perangkat lain.']);
+                }
             }
 
             // Cek waktu tidak aktif (idle timeout 30 menit)
