@@ -1105,7 +1105,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-qr-code-scan barcode-icon" viewBox="0 0 16 16">
 											<path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5M.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 10 14.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5"/>
 										</svg>
-										<input type="text" class="form-control" id="_Barcode" placeholder="Scan Barcode saja (Fokus)..." style="padding-left: 50px !important; height: 36px;">
+										<input type="text" class="form-control" id="_Barcode" placeholder="Scan Barcode / Ketik Nama" style="padding-left: 50px !important; height: 36px;">
 									</div>
 								</div>
 								<div class="col-6">
@@ -2755,7 +2755,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		products.forEach(function(item) {
 			var priceFormatted = parseFloat(item.HargaJual || 0).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
 			
-			var imgUrl = item.Gambar ? (item.Gambar.startsWith('http://') || item.Gambar.startsWith('https://') || item.Gambar.startsWith('data:') ? item.Gambar : `{{ asset('assets/img/item') }}/${item.Gambar}`) : `https://placehold.co/150x100/e2e8f0/475569?text=${encodeURIComponent(item.NamaItem)}`;
+			var imgUrl = item.Gambar ? item.Gambar : `https://placehold.co/150x100/e2e8f0/475569?text=${encodeURIComponent(item.NamaItem)}`;
 
 			var cardHtml = `
 				<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-6 mb-2 px-1">
@@ -2880,14 +2880,12 @@ License: You must have a valid license purchased only from themeforest(the above
 	            	item.classList.add('active');
 	            	_KodeMetodePembayaran = item.id;
 					if (_TipePembayaran == "NON") {
-						let netVal = parseFloat(jQuery('#_TotalNetBayar').attr("originalvalue") || 0);
-						formatCurrency($('#JumlahBayar'), netVal);
+						$('#JumlahBayar').val(jQuery('#_TotalNetBayar').attr("originalvalue"));	
 					}
 					else{
-						formatCurrency($('#JumlahBayar'), 0);
+						$('#JumlahBayar').val(0);
 					}
 	            	$('#JumlahBayar').focus();
-					SetEnableCommand();
 	            }
 	        });
 	    });
@@ -3290,13 +3288,8 @@ License: You must have a valid license purchased only from themeforest(the above
 		            		jQuery('#LookupItem').modal('show');
 		            	}
 		            	else{
-		            		var barcodeVal = jQuery('#_Barcode').val().trim().toLowerCase();
-		            		var exactMatches = response.data.filter(function(item) {
-		            			return (item.Barcode || '').toLowerCase() === barcodeVal || (item.KodeItem || '').toLowerCase() === barcodeVal;
-		            		});
-
-		            		if (exactMatches.length > 0) {
-								clickCatalogProduct(exactMatches[0]['KodeItem']);
+		            		if (response.data.length > 0) {
+								clickCatalogProduct(response.data[0]['KodeItem']);
 		            		}
 		            		else{
 		            			Swal.fire({
@@ -3414,39 +3407,6 @@ License: You must have a valid license purchased only from themeforest(the above
 
 		$('#JumlahBayar').focusout(function(){
 			formatCurrency($("#JumlahBayar"), $("#JumlahBayar").val());
-			SetEnableCommand();
-		});
-
-		$('#JumlahBayar').on('input', function(){
-			let rawVal = $(this).val();
-			let cleanAmount = rawVal.replace(/Rp\.?\s*/i, '');
-			let commaCount = (cleanAmount.match(/,/g) || []).length;
-			let dotCount = (cleanAmount.match(/\./g) || []).length;
-			
-			if (commaCount > 0 && dotCount > 0) {
-				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
-				}
-			} else if (commaCount > 0) {
-				let parts = cleanAmount.split(',');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					cleanAmount = cleanAmount.replace(/,/g, '.');
-				} else {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				}
-			} else if (dotCount > 0) {
-				let parts = cleanAmount.split('.');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					// Standar desimal
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '');
-				}
-			}
-			let parsedAmount = parseFloat(cleanAmount);
-			if (isNaN(parsedAmount)) parsedAmount = 0;
-			$(this).attr("originalvalue", parsedAmount);
 			SetEnableCommand();
 		});
 

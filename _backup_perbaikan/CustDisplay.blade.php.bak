@@ -681,361 +681,254 @@ License: You must have a valid license purchased only from themeforest(the above
             background-color: #f4f4f4;
         }
 
-		/* ==========================================================================
-		   PREMIUM EDGE-TO-EDGE SPLIT COLUMNS TEMPLATE (NO HEADER, NO BORDERS)
-		   ========================================================================== */
-		body.model_neon_red .pos-header,
-		body.model_neon_blue .pos-header,
-		body.model_neon_split .pos-header {
-			display: none !important;
-		}
-
-		body.model_neon_red,
-		body.model_neon_blue,
+		/* Model Neon Split (Merah-Biru Kombinasi Dinamis) */
 		body.model_neon_split {
-			overflow: hidden !important;
-			height: 100vh !important;
-			width: 100vw !important;
-			margin: 0 !important;
-			padding: 0 !important;
-			background: #0c1938 !important; /* Ganti background hitam menjadi biru premium */
+			background: linear-gradient(-45deg, #07050a, #03060f, #120505, #030509) !important; /* Rich deep indigo-crimson dark base */
+			background-size: 400% 400% !important;
+			animation: neonBGShift 15s ease infinite !important;
+			background-image: none !important;
+		}
+		/* Reset Metronic container backgrounds to transparent to allow deep animated background to show */
+		body.model_neon_split,
+		body.model_neon_split .wrapper,
+		body.model_neon_split .content,
+		body.model_neon_split .d-flex,
+		body.model_neon_split .flex-row-fluid {
+			background-color: transparent !important;
+		}
+		@keyframes neonBGShift {
+			0% { background-position: 0% 50%; }
+			50% { background-position: 100% 50%; }
+			100% { background-position: 0% 50%; }
 		}
 
-		body.model_neon_red .contentPOS,
-		body.model_neon_blue .contentPOS,
-		body.model_neon_split .contentPOS {
-			height: 100vh !important;
-			width: 100vw !important;
-			margin: 0 !important;
-			padding: 0 !important;
+		/* Split Header: Deep Crimson-Indigo Gradient */
+		body.model_neon_split .pos-header {
+			background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(24, 15, 15, 0.95) 100%) !important;
+			backdrop-filter: blur(16px) !important;
+			border-bottom: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(96, 165, 250, 0.15) !important;
 		}
 
-		body.model_neon_red .contentPOS .container-fluid,
-		body.model_neon_blue .contentPOS .container-fluid,
-		body.model_neon_split .contentPOS .container-fluid {
-			max-width: 100% !important;
-			width: 100% !important;
-			height: 100% !important;
-			padding: 0 !important;
-			margin: 0 !important;
+		/* Left Panel (Promo / Slide): Rich Dark Crimson Red Glassmorphism */
+		body.model_neon_split .col-md-7 .card-custom {
+			background: linear-gradient(135deg, rgba(35, 10, 15, 0.95) 0%, rgba(10, 15, 35, 0.95) 100%) !important;
+			backdrop-filter: blur(20px) !important;
+			border: 2px solid rgba(239, 68, 68, 0.65) !important;
+			box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(239, 68, 68, 0.4), 0 0 15px rgba(59, 130, 246, 0.2) !important;
+		}
+		body.model_neon_split .col-md-7 .card-custom h4 {
+			color: #fca5a5 !important;
+			text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+			border-bottom: 1.5px solid rgba(239, 68, 68, 0.2) !important;
 		}
 
-		body.model_neon_red .contentPOS .row,
-		body.model_neon_blue .contentPOS .row,
-		body.model_neon_split .contentPOS .row {
-			margin: 0 !important;
-			height: 100% !important;
-			display: flex !important;
-			flex-direction: row-reverse !important; /* Swaps Details column to Left, Promo column to Right */
+		/* Right Panel (Receipt Detail): Rich Dark Electric Blue Glassmorphism */
+		body.model_neon_split .col-md-5 .card-custom {
+			background: linear-gradient(135deg, rgba(10, 15, 35, 0.95) 0%, rgba(35, 10, 15, 0.95) 100%) !important;
+			backdrop-filter: blur(20px) !important;
+			border: 2px solid rgba(59, 130, 246, 0.65) !important;
+			box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.4), 0 0 15px rgba(239, 68, 68, 0.2) !important;
+		}
+		body.model_neon_split .col-md-5 .card-custom h4 {
+			color: #93c5fd !important;
+			text-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+			border-bottom: 1.5px solid rgba(59, 130, 246, 0.2) !important;
 		}
 
-		/* 35% Left (Details), 65% Right (Promo) Column Dimensions */
-		body.model_neon_red .col-md-5,
-		body.model_neon_blue .col-md-5,
-		body.model_neon_split .col-md-5 {
-			flex: 0 0 35% !important;
-			max-width: 35% !important;
-			height: 100% !important;
-			padding: 0 !important;
-			margin: 0 !important;
+		/* Double Pulse Split Grand Total Box */
+		body.model_neon_split .item-price th.text-primary {
+			color: #ff007f !important; /* Hot Neon Pink/Red */
+			text-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+		}
+		body.model_neon_split .item-price td input.TotalText.form-control {
+			color: #ff007f !important; /* Hot Neon Pink/Red */
+			background: rgba(255, 0, 127, 0.04) !important;
+			border: 2px solid rgba(255, 0, 127, 0.4) !important;
+			box-shadow: 0 0 20px rgba(255, 0, 127, 0.3), 0 0 10px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(255, 0, 127, 0.15) !important;
+			text-shadow: 0 0 12px #ff007f, 0 0 6px #00f0ff;
+			animation: pulseNeonSplit 3s infinite ease-in-out !important;
 		}
 
-		body.model_neon_red .col-md-7,
-		body.model_neon_blue .col-md-7,
-		body.model_neon_split .col-md-7 {
-			flex: 0 0 65% !important;
-			max-width: 65% !important;
-			height: 100% !important;
-			padding: 0 !important;
-			margin: 0 !important;
+		@keyframes pulseNeonSplit {
+			0% {
+				border-color: rgba(255, 0, 127, 0.4);
+				box-shadow: 0 0 15px rgba(255, 0, 127, 0.3), 0 0 5px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(255, 0, 127, 0.15) !important;
+				color: #ff007f !important;
+				text-shadow: 0 0 12px #ff007f, 0 0 6px #00f0ff;
+			}
+			50% {
+				border-color: rgba(0, 240, 255, 0.6);
+				box-shadow: 0 0 25px rgba(0, 240, 255, 0.4), 0 0 10px rgba(255, 0, 127, 0.3), inset 0 0 12px rgba(0, 240, 255, 0.2) !important;
+				color: #00f0ff !important;
+				text-shadow: 0 0 12px #00f0ff, 0 0 6px #ff007f;
+			}
+			100% {
+				border-color: rgba(255, 0, 127, 0.4);
+				box-shadow: 0 0 15px rgba(255, 0, 127, 0.3), 0 0 5px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(255, 0, 127, 0.15) !important;
+				color: #ff007f !important;
+				text-shadow: 0 0 12px #ff007f, 0 0 6px #00f0ff;
+			}
 		}
 
-		/* Premium Column Backgrounds */
-		body.model_neon_red .col-md-5,
-		body.model_neon_blue .col-md-5,
-		body.model_neon_split .col-md-5 {
-			background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%) !important;
-			border-right: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+		/* ==========================================================================
+		   Model Neon Merah (Full Red Theme & Neonbox)
+		   ========================================================================== */
+		body.model_neon_red {
+			background: linear-gradient(-45deg, #0d0204, #050102, #1c0205, #080102) !important;
+			background-size: 400% 400% !important;
+			animation: neonBGShift 15s ease infinite !important;
+			background-image: none !important;
 		}
-
-		body.model_neon_red .col-md-7,
-		body.model_neon_blue .col-md-7,
-		body.model_neon_split .col-md-7 {
-			background: #09132c !important; /* Ganti background hitam menjadi biru premium */
+		body.model_neon_red,
+		body.model_neon_red .wrapper,
+		body.model_neon_red .content,
+		body.model_neon_red .d-flex,
+		body.model_neon_red .flex-row-fluid {
+			background-color: transparent !important;
 		}
-
-		/* Zero Margins, Padding & Borders for Premium Seamless Layout */
-		body.model_neon_red .card-custom,
-		body.model_neon_blue .card-custom,
-		body.model_neon_split .card-custom {
-			border: none !important;
-			border-radius: 0 !important;
-			box-shadow: none !important;
-			margin: 0 !important;
-			height: 100% !important;
-			background: transparent !important;
+		body.model_neon_red .pos-header {
+			background: linear-gradient(90deg, #1c0205 0%, #30050a 100%) !important;
+			backdrop-filter: blur(16px) !important;
+			border-bottom: 1.5px solid rgba(255, 0, 68, 0.4) !important;
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 0, 68, 0.2) !important;
 		}
-
-		body.model_neon_red .card-custom .card-body,
-		body.model_neon_blue .card-custom .card-body,
-		body.model_neon_split .card-custom .card-body {
-			padding: 30px !important;
-			height: 100% !important;
-			display: flex !important;
-			flex-direction: column !important;
+		body.model_neon_red .pos-header .greeting-text h3.text-primary {
+			color: #ff3366 !important;
+			text-shadow: 0 0 8px rgba(255, 51, 102, 0.6);
 		}
-
-		/* Make Promo Slide fully touch screen edges */
-		body.model_neon_red .col-md-7 .card-body,
-		body.model_neon_blue .col-md-7 .card-body,
-		body.model_neon_split .col-md-7 .card-body {
-			padding: 0 !important;
+		body.model_neon_red .pos-header .clock .datetime-content ul li {
+			color: #ff3366 !important;
+			text-shadow: 0 0 10px rgba(255, 51, 102, 0.6);
 		}
-		
-		/* Fit slide images perfectly cover the screen */
-		body.model_neon_red .slide img,
-		body.model_neon_blue .slide img,
-		body.model_neon_split .slide img {
-			object-fit: cover !important;
-			width: 100% !important;
-			height: 100vh !important;
-			border-radius: 0 !important;
+		body.model_neon_red .pos-header .clock .datetime-content #sec {
+			color: #ff88a8 !important;
+			text-shadow: 0 0 10px rgba(255, 136, 168, 0.6);
 		}
-
-		/* Premium Header inside Left Details Column */
-		.neon-details-header {
-			display: none;
+		body.model_neon_red .card-custom {
+			background: linear-gradient(135deg, rgba(35, 10, 12, 0.95) 0%, rgba(20, 5, 6, 0.96) 100%) !important;
+			backdrop-filter: blur(20px) !important;
+			border: 2px solid rgba(255, 0, 68, 0.6) !important;
+			box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 0, 68, 0.35) !important;
 		}
-		body.model_neon_red .neon-details-header,
-		body.model_neon_blue .neon-details-header,
-		body.model_neon_split .neon-details-header {
-			display: block !important;
-			margin-bottom: 25px !important;
-			border-bottom: 1.5px solid rgba(0, 0, 0, 0.08) !important;
-			padding-bottom: 15px !important;
+		body.model_neon_red .card-custom h4 {
+			color: #ff3366 !important;
+			text-shadow: 0 0 10px rgba(255, 51, 102, 0.6);
+			border-bottom: 1.5px solid rgba(255, 0, 68, 0.2) !important;
 		}
-		
-		.neon-details-header .store-name {
-			font-size: 2.2rem !important;
-			font-weight: 900 !important;
-			letter-spacing: 2px !important;
-			color: #0c1938 !important; /* Bold Midnight Navy */
-			text-shadow: none !important;
+		body.model_neon_red #orderTable th {
+			color: #ffffff !important;
+			border-bottom: 1px solid rgba(255, 0, 68, 0.25) !important;
+			text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 		}
-		.neon-details-header .store-subtitle {
-			font-size: 0.85rem !important;
-			font-weight: 600 !important;
-			letter-spacing: 1px !important;
-			margin-top: 5px !important;
-			color: #64748b !important;
-			text-shadow: none !important;
+		body.model_neon_red #orderTable td {
+			border-bottom: 1px solid rgba(255, 0, 68, 0.08) !important;
 		}
-		
-		body.model_neon_red .neon-details-header .store-subtitle {
-			color: #64748b !important;
-			text-shadow: none !important;
-		}
-
-		body.model_neon_blue .neon-details-header .store-subtitle {
-			color: #64748b !important;
-			text-shadow: none !important;
-		}
-		body.model_neon_split .neon-details-header .store-subtitle {
-			color: #64748b !important;
-			text-shadow: none !important;
-		}
-
-		body.model_neon_red .default-details-header,
-		body.model_neon_blue .default-details-header,
-		body.model_neon_split .default-details-header {
-			display: none !important;
-		}
-
-		/* Items Table Layout */
-		body.model_neon_red #orderTable th,
-		body.model_neon_blue #orderTable th,
-		body.model_neon_split #orderTable th {
-			color: #0c1938 !important; /* Midnight Navy */
-			font-size: 0.85rem !important;
-			font-weight: 800 !important;
-			text-transform: uppercase !important;
-			letter-spacing: 1px !important;
-			border-bottom: 1.5px solid rgba(0, 0, 0, 0.08) !important;
-			padding: 12px 8px !important;
-			text-shadow: none !important;
-			background: transparent !important;
-		}
-		
-		body.model_neon_red #orderTable td,
-		body.model_neon_blue #orderTable td,
-		body.model_neon_split #orderTable td {
-			color: #1e293b !important; /* Slate Charcoal */
-			font-size: 1rem !important;
-			border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-			padding: 14px 8px !important;
-		}
-
-		/* Minimal/Elegant Result Table */
-		body.model_neon_red .resulttable-pos,
-		body.model_neon_blue .resulttable-pos,
-		body.model_neon_split .resulttable-pos {
-			background: transparent !important;
-			border: none !important;
-			box-shadow: none !important;
-			padding: 0 !important;
-			margin-bottom: 15px !important;
-		}
-
-		body.model_neon_red .resulttable-pos th,
-		body.model_neon_blue .resulttable-pos th,
-		body.model_neon_split .resulttable-pos th {
-			font-size: 0.9rem !important;
-			color: #64748b !important; /* Cool Slate gray */
-			font-weight: 500 !important;
-			padding: 8px 0 !important;
-			border: none !important;
-		}
-
-		body.model_neon_red .resulttable-pos td,
-		body.model_neon_blue .resulttable-pos td,
-		body.model_neon_split .resulttable-pos td {
-			border: none !important;
-			padding: 8px 0 !important;
-		}
-
-		body.model_neon_red .resulttable-pos td input.TotalText,
-		body.model_neon_blue .resulttable-pos td input.TotalText,
-		body.model_neon_split .resulttable-pos td input.TotalText {
-			background: transparent !important;
-			border: none !important;
-			color: #1e293b !important; /* Sharp slate text */
-			font-weight: 700 !important;
-			font-size: 1rem !important;
-			box-shadow: none !important;
-			padding: 0 !important;
-			text-align: right !important;
-			height: auto !important;
-		}
-
-		/* Standalone High-Impact Freestanding Neonbox */
-		.grand-total-neonbox {
-			display: none;
-		}
-
-		/* RED NEONBOX */
-		body.model_neon_red .grand-total-neonbox {
-			display: flex !important;
-			background: #09132c !important; /* Premium Midnight Sapphire for breathtaking 3D neon pop! */
+		body.model_neon_red .resulttable-pos {
+			background: rgba(30, 5, 8, 0.98) !important;
 			border: 3px solid #ff0044 !important;
-			border-radius: 12px !important;
-			padding: 16px 24px !important;
-			margin-top: auto !important;
-			margin-bottom: 10px !important;
-			align-items: center !important;
-			justify-content: space-between !important;
-			box-shadow: 0 0 25px rgba(255, 0, 68, 0.45), inset 0 0 15px rgba(255, 0, 68, 0.3) !important;
-			position: relative !important;
-			overflow: hidden !important;
+			box-shadow: 0 0 25px #ff0044, inset 0 0 15px rgba(255, 0, 68, 0.4) !important;
+			border-radius: 8px !important;
 		}
-		body.model_neon_red .grand-total-neonbox .neonbox-label {
+		body.model_neon_red .resulttable-pos th {
 			color: #ffffff !important;
-			font-size: 1.5rem !important;
-			font-weight: 800 !important;
-			letter-spacing: 2px !important;
-			text-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
 		}
-		body.model_neon_red .grand-total-neonbox input.GrandTotalText {
-			background: transparent !important;
-			border: none !important;
+		body.model_neon_red .item-price {
+			background: rgba(255, 0, 68, 0.15) !important;
+			border: 2px solid #ff0044 !important;
+			box-shadow: 0 0 20px rgba(255, 0, 68, 0.5), inset 0 0 10px rgba(255, 0, 68, 0.3) !important;
+		}
+		body.model_neon_red .item-price th.text-primary {
+			color: #ff3366 !important;
+			text-shadow: 0 0 10px rgba(255, 51, 102, 0.6);
+		}
+		body.model_neon_red .item-price td input.TotalText.form-control {
 			color: #ffffff !important;
-			font-size: 2.4rem !important;
-			font-weight: 900 !important;
-			text-align: right !important;
-			box-shadow: none !important;
-			text-shadow: 0 0 12px #ffffff, 0 0 24px #ff0044, 0 0 36px #ff0044 !important;
-			padding: 0 !important;
-			height: auto !important;
-			width: auto !important;
+			background: rgba(255, 0, 68, 0.05) !important;
+			border: 2px solid rgba(255, 0, 68, 0.5) !important;
+			box-shadow: 0 0 15px rgba(255, 0, 68, 0.4), inset 0 0 10px rgba(255, 0, 68, 0.2) !important;
+			text-shadow: 0 0 12px #ff0044, 0 0 6px #ffffff;
 		}
 
-		/* BLUE NEONBOX */
-		body.model_neon_blue .grand-total-neonbox {
-			display: flex !important;
-			background: #09132c !important; /* Premium Midnight Sapphire for breathtaking 3D neon pop! */
+		/* ==========================================================================
+		   Model Neon Biru (Full Blue Theme & Neonbox)
+		   ========================================================================== */
+		body.model_neon_blue {
+			background: linear-gradient(-45deg, #02040d, #010205, #02051c, #010208) !important;
+			background-size: 400% 400% !important;
+			animation: neonBGShift 15s ease infinite !important;
+			background-image: none !important;
+		}
+		body.model_neon_blue,
+		body.model_neon_blue .wrapper,
+		body.model_neon_blue .content,
+		body.model_neon_blue .d-flex,
+		body.model_neon_blue .flex-row-fluid {
+			background-color: transparent !important;
+		}
+		body.model_neon_blue .pos-header {
+			background: linear-gradient(90deg, #02051c 0%, #050830 100%) !important;
+			backdrop-filter: blur(16px) !important;
+			border-bottom: 1.5px solid rgba(0, 210, 255, 0.4) !important;
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 210, 255, 0.2) !important;
+		}
+		body.model_neon_blue .pos-header .greeting-text h3.text-primary {
+			color: #00d2ff !important;
+			text-shadow: 0 0 8px rgba(0, 210, 255, 0.6);
+		}
+		body.model_neon_blue .pos-header .clock .datetime-content ul li {
+			color: #00d2ff !important;
+			text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+		}
+		body.model_neon_blue .pos-header .clock .datetime-content #sec {
+			color: #88eeff !important;
+			text-shadow: 0 0 10px rgba(136, 238, 255, 0.6);
+		}
+		body.model_neon_blue .card-custom {
+			background: linear-gradient(135deg, rgba(8, 10, 35, 0.95) 0%, rgba(5, 6, 20, 0.96) 100%) !important;
+			backdrop-filter: blur(20px) !important;
+			border: 2px solid rgba(0, 210, 255, 0.6) !important;
+			box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 210, 255, 0.35) !important;
+		}
+		body.model_neon_blue .card-custom h4 {
+			color: #00d2ff !important;
+			text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+			border-bottom: 1.5px solid rgba(0, 210, 255, 0.2) !important;
+		}
+		body.model_neon_blue #orderTable th {
+			color: #ffffff !important;
+			border-bottom: 1px solid rgba(0, 210, 255, 0.25) !important;
+			text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+		}
+		body.model_neon_blue #orderTable td {
+			border-bottom: 1px solid rgba(0, 210, 255, 0.08) !important;
+		}
+		body.model_neon_blue .resulttable-pos {
+			background: rgba(5, 8, 30, 0.98) !important;
 			border: 3px solid #00d2ff !important;
-			border-radius: 12px !important;
-			padding: 16px 24px !important;
-			margin-top: auto !important;
-			margin-bottom: 10px !important;
-			align-items: center !important;
-			justify-content: space-between !important;
-			box-shadow: 0 0 25px rgba(0, 210, 255, 0.45), inset 0 0 15px rgba(0, 210, 255, 0.3) !important;
-			position: relative !important;
-			overflow: hidden !important;
+			box-shadow: 0 0 25px #00d2ff, inset 0 0 15px rgba(0, 210, 255, 0.4) !important;
+			border-radius: 8px !important;
 		}
-		body.model_neon_blue .grand-total-neonbox .neonbox-label {
+		body.model_neon_blue .resulttable-pos th {
 			color: #ffffff !important;
-			font-size: 1.5rem !important;
-			font-weight: 800 !important;
-			letter-spacing: 2px !important;
-			text-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
 		}
-		body.model_neon_blue .grand-total-neonbox input.GrandTotalText {
-			background: transparent !important;
-			border: none !important;
+		body.model_neon_blue .item-price {
+			background: rgba(0, 210, 255, 0.15) !important;
+			border: 2px solid #00d2ff !important;
+			box-shadow: 0 0 20px rgba(0, 210, 255, 0.5), inset 0 0 10px rgba(0, 210, 255, 0.3) !important;
+		}
+		body.model_neon_blue .item-price th.text-primary {
+			color: #00d2ff !important;
+			text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+		}
+		body.model_neon_blue .item-price td input.TotalText.form-control {
 			color: #ffffff !important;
-			font-size: 2.4rem !important;
-			font-weight: 900 !important;
-			text-align: right !important;
-			box-shadow: none !important;
-			text-shadow: 0 0 12px #ffffff, 0 0 24px #00d2ff, 0 0 36px #00d2ff !important;
-			padding: 0 !important;
-			height: auto !important;
-			width: auto !important;
+			background: rgba(0, 210, 255, 0.05) !important;
+			border: 2px solid rgba(0, 210, 255, 0.5) !important;
+			box-shadow: 0 0 15px rgba(0, 210, 255, 0.4), inset 0 0 10px rgba(0, 210, 255, 0.2) !important;
+			text-shadow: 0 0 12px #00d2ff, 0 0 6px #ffffff;
 		}
-
-		/* SPLIT NEONBOX */
-		body.model_neon_split .grand-total-neonbox {
-			display: flex !important;
-			background: #09132c !important; /* Premium Midnight Sapphire for breathtaking 3D neon pop! */
-			border: 3px solid !important;
-			border-image: linear-gradient(90deg, #ff0044, #00d2ff) 1 !important;
-			border-radius: 12px !important;
-			padding: 16px 24px !important;
-			margin-top: auto !important;
-			margin-bottom: 10px !important;
-			align-items: center !important;
-			justify-content: space-between !important;
-			box-shadow: 0 0 25px rgba(255, 0, 68, 0.35), 0 0 25px rgba(0, 210, 255, 0.35), inset 0 0 15px rgba(255, 0, 255, 0.25) !important;
-			position: relative !important;
-			overflow: hidden !important;
-		}
-		body.model_neon_split .grand-total-neonbox .neonbox-label {
-			color: #ffffff !important;
-			font-size: 1.5rem !important;
-			font-weight: 800 !important;
-			letter-spacing: 2px !important;
-			text-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
-		}
-		body.model_neon_split .grand-total-neonbox input.GrandTotalText {
-			background: transparent !important;
-			border: none !important;
-			color: #ffffff !important;
-			font-size: 2.4rem !important;
-			font-weight: 900 !important;
-			text-align: right !important;
-			box-shadow: none !important;
-			text-shadow: 0 0 12px #ffffff, 0 0 24px #ff007f, 0 0 36px #00f0ff !important;
-			padding: 0 !important;
-			height: auto !important;
-			width: auto !important;
-		}
-
-		/* Hide standard row total in neon themes */
-		body.model_neon_red .resulttable-pos tr.item-price,
-		body.model_neon_blue .resulttable-pos tr.item-price,
-		body.model_neon_split .resulttable-pos tr.item-price {
-			display: none !important;
+			}
 		}
 	</style>
 </head>
@@ -1129,11 +1022,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				<div class="col-md-5 h-100">
 					<div class="card card-custom gutter-b bg-white border-0 h-100">
 						<div class="card-body d-flex flex-column">
-							<div class="neon-details-header">
-								<div class="store-name">{{ isset($company) ? strtoupper($company->NamaPartner) : 'DSTECH RESTO' }}</div>
-								<div class="store-subtitle">ORDER DETAIL | <span class="neon-clock"></span></div>
-							</div>
-							<h4 class="text-center default-details-header">Detail Transaksi</h4>
+							<h4 class="text-center">Detail Transaksi</h4>
 							<div class="table-responsive" id="printableTable" style="overflow-y: auto; flex: 1 1 auto; margin-bottom: 8px;">
 								<table id="orderTable" class="display" style="width:100%">
 									<thead>
@@ -1147,8 +1036,8 @@ License: You must have a valid license purchased only from themeforest(the above
 									</tbody>
 								</table>
 							</div>
-							<div class="resulttable-pos mb-3">
-								<table class="table right-table mb-0">
+							<div class="resulttable-pos">
+								<table class="table right-table">
 									<tbody>
 										<tr class="d-flex align-items-center justify-content-between">
 											<th class="border-0 font-size-h5 mb-0 font-size-bold text-white">Total Items</th>
@@ -1174,7 +1063,7 @@ License: You must have a valid license purchased only from themeforest(the above
 												<input type="text" name="_VoucherDiscount" id="_VoucherDiscount" value="0" class="form-control TotalText font-weight-bold" style="color: #fca5a5 !important; background:transparent !important; border:none !important; box-shadow:none !important; text-align:right;">
 											</td>
 										</tr>
-										<tr class="d-flex align-items-center justify-content-between mb-0">
+										<tr class="d-flex align-items-center justify-content-between">
 											<th class="border-0 font-size-h5 mb-0 font-size-bold text-white">Tax (P. Hiburan, PPN, P. Makanan)</th>
 											<td class="border-0 justify-content-end d-flex text-white font-size-base">
 												<input type="text" name="_TotalTax" id="_TotalTax" value="0" class="form-control TotalText">
@@ -1188,12 +1077,6 @@ License: You must have a valid license purchased only from themeforest(the above
 										</tr>
 									</tbody>
 								</table>
-							</div>
-
-							<!-- Standalone High-Impact Neonbox for the Grand Total -->
-							<div class="grand-total-neonbox">
-								<span class="neonbox-label">TOTAL</span>
-								<input type="text" name="_GrandTotal_Neon" id="_GrandTotal_Neon" value="0" class="form-control GrandTotalText GrandTotalSelector" readonly>
 							</div>
 						</div>
 					</div>
@@ -1220,14 +1103,6 @@ License: You must have a valid license purchased only from themeforest(the above
 @endif
 <script>
 	window.$ = window.jQuery;
-	
-	// Real-time clock for neon details header
-	setInterval(function() {
-		var now = new Date();
-		var timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-		$('.neon-clock').text(timeStr);
-	}, 1000);
-
 	const itemsDiv = document.getElementById("items");
 	const totalAmountSpan = document.getElementById("totalAmount");
 
@@ -1312,7 +1187,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	    formatCurrency($('#_SubTotal'), 0);
 	    formatCurrency($('#_TotalDiskon'), 0);
 	    formatCurrency($('#_VoucherDiscount'), 0);
-	    formatCurrency($('#_GrandTotal, .GrandTotalSelector'), 0);
+	    formatCurrency($('#_GrandTotal'), 0);
 		formatCurrency($('#_TotalTax'), 0);
 		// Hide voucher row by default
 		$('#rowVoucherDiscount').hide();
@@ -1375,7 +1250,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	    formatCurrency($('#_TotalItem'), _tempTotalItem);
 	    formatCurrency($('#_SubTotal'), data["Total"]);
 	    formatCurrency($('#_TotalDiskon'), data["Discount"]);
-	    formatCurrency($('#_GrandTotal, .GrandTotalSelector'), data["Net"]);
+	    formatCurrency($('#_GrandTotal'), data["Net"]);
 		formatCurrency($('#_TotalTax'), data["Tax"]);
 
 		// Voucher: tampil hanya jika nilai > 0
@@ -1389,49 +1264,16 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 
 	function formatCurrency(input, amount) {
-		let cleanAmount = amount;
-		if (typeof cleanAmount === 'string') {
-			cleanAmount = cleanAmount.replace(/Rp\.?\s*/i, '');
-			
-			let commaCount = (cleanAmount.match(/,/g) || []).length;
-			let dotCount = (cleanAmount.match(/\./g) || []).length;
-			
-			if (commaCount > 0 && dotCount > 0) {
-				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
-				}
-			} else if (commaCount > 0) {
-				let parts = cleanAmount.split(',');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					cleanAmount = cleanAmount.replace(/,/g, '.');
-				} else {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				}
-			} else if (dotCount > 0) {
-				let parts = cleanAmount.split('.');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					// Standar desimal
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '');
-				}
-			}
-		}
-		
-		let parsedAmount = parseFloat(cleanAmount);
-		if (isNaN(parsedAmount)) parsedAmount = 0;
-		
-		input.attr("originalvalue", parsedAmount);
-		
-		let formattedAmount = parsedAmount.toLocaleString('id-ID', {
-			style: 'decimal',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		});
+		input.attr("originalvalue", amount);
+        let formattedAmount = parseFloat(amount).toLocaleString('id-ID', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
 
-		input.val(formattedAmount);
-	}
+        // Set the formatted value to the input field
+        input.val(formattedAmount);
+    }
 
 	function PaymentGateWay(oData){
 		console.log(oData);

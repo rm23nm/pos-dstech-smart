@@ -53,6 +53,58 @@ License: You must have a valid license purchased only from themeforest(the above
 			--premium-gradient: linear-gradient(135deg, #094cb4 0%, #00bcff 100%); /* PT. DSTECH Royal to Cyan Gradient */
 		}
 
+		/* Custom Toggle Switch for Table Light */
+		.switch-lampu {
+			position: relative;
+			display: inline-block;
+			width: 50px;
+			height: 26px;
+		}
+
+		.switch-lampu input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		.slider-lampu {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #cbd5e1;
+			transition: .3s;
+			border-radius: 34px;
+		}
+
+		.slider-lampu:before {
+			position: absolute;
+			content: "";
+			height: 18px;
+			width: 18px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			transition: .3s;
+			border-radius: 50%;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+		}
+
+		input:checked + .slider-lampu {
+			background-color: #f59e0b; /* Amber/Yellow for lighting */
+		}
+
+		input:focus + .slider-lampu {
+			box-shadow: 0 0 1px #f59e0b;
+		}
+
+		input:checked + .slider-lampu:before {
+			transform: translateX(24px);
+		}
+
+
 		body {
 			font-family: 'Outfit', sans-serif !important;
 			background: radial-gradient(at 0% 0%, rgba(11, 87, 208, 0.12) 0px, transparent 50%),
@@ -167,6 +219,10 @@ License: You must have a valid license purchased only from themeforest(the above
 		/* Content Wrap */
 		.contentPOS {
 			padding: 0.35rem 0 !important;
+		}
+
+		.contentPOS .card {
+			margin-bottom: 10px !important;
 		}
 
 		/* Premium Tactile Cards */
@@ -851,7 +907,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="topbar-item d-none d-md-flex">
 						<span class="badge px-3 py-2 rounded-pill font-weight-bold" style="font-size: 0.72rem; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.92) !important; border: 1px solid rgba(11, 87, 208, 0.25) !important; color: var(--primary) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05); height: 38px;">
 							<span class="spinner-grow spinner-grow-sm text-primary" role="status" style="width: 6px; height: 6px; border-width: 1.5px;"></span>
-							Kasir Aktif: Retail Mode
+							Kasir Aktif: FnB Mode
 						</span>
 					</div>
  
@@ -974,7 +1030,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					</div>
 
 					<!-- Alfamart style Keyboard Action Helper Button Grid -->
-					<div class="card card-custom gutter-b bg-white border-0 p-3 mb-0" style="height: 140px; flex-shrink: 0; border-radius: 24px !important; display: flex; flex-direction: column; justify-content: center;">
+					<div class="card card-custom gutter-b bg-white border-0 p-3 mb-0" style="height: 140px; flex-shrink: 0; border-radius: 24px !important; display: flex; flex-direction: column; justify-content: center; margin-bottom: 0px !important;">
 						<div class="d-flex align-items-center justify-content-between mb-2">
 							<span class="text-muted font-weight-bold" style="font-size: 0.85rem;">
 								<i class="fas fa-keyboard text-primary me-1"></i> Cashier Interactive Keyboard Shortcuts
@@ -1017,7 +1073,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				<!-- COLUMN 2: Business Partner Area & Touch NumPad (Alfamart layout style) -->
 				<div class="col-xl-3 col-lg-3 col-md-12 d-flex flex-column" style="height: calc(100vh - 105px) !important; margin-bottom: 0px !important;">
 					<!-- F&B Order Info Card (Tipe Order & Nomor Meja) -->
-					<div class="card card-custom gutter-b bg-white border-0 mb-3 flex-shrink-0" style="border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.02) !important;">
+					<div class="card card-custom gutter-b bg-white border-0 mb-3 flex-shrink-0" style="height: auto !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.02) !important;">
 						<div class="card-body p-2 px-3">
 							<div class="row g-2">
 								<div class="col-6">
@@ -1106,7 +1162,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					</div>
 
 					<!-- Tactile Dark Touch Keyboard (Alfamart layout style) -->
-					<div class="card card-custom gutter-b bg-white border-0 p-2 px-3 mb-0" style="flex-grow: 1; border-radius: 24px !important; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+					<div class="card card-custom gutter-b bg-white border-0 p-2 px-3 mb-0" style="flex-grow: 1; border-radius: 24px !important; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; margin-bottom: 0px !important;">
 						<div class="d-flex align-items-center justify-content-between mb-2">
 							<h4 class="font-weight-bold text-dark mb-0" style="font-size: 0.95rem;">Touch Keyboard</h4>
 							<div class="btn-group" role="group" style="background: #e2e8f0; border-radius: 10px; padding: 3px;">
@@ -1233,7 +1289,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				<div class="col-xl-3 col-lg-3 col-md-12 d-flex flex-column" style="height: calc(100vh - 105px) !important; margin-bottom: 0px !important;">
 					<div class="receipt-tape p-3" style="height: 100% !important; border-radius: 24px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.04) !important; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; margin-bottom: 0px !important;">
 						<!-- F&B Digital Cart Table -->
-						<div class="table-datapos px-1 mb-2 table-responsive scrollbar-1" style="flex: 1 1 auto; min-height: 100px; overflow-y: auto; height: calc(100vh - 365px);">
+						<div class="table-datapos px-1 mb-2 table-responsive scrollbar-1" style="flex: 1 1 auto; min-height: 100px; overflow-y: auto;">
 							<table id="PosDetail" class="table right-table" style="width:100%; border-collapse: separate; border-spacing: 0 4px; margin-bottom: 0;">
 								<thead>
 									<tr style="background: rgba(79, 70, 229, 0.05); border-radius: 8px;">
@@ -1842,22 +1898,70 @@ License: You must have a valid license purchased only from themeforest(the above
 								<div class="scroll-container list-group scrollbar-1" style="max-height: 380px; overflow-y: auto;">
 									<ul class="horizontal-list-meja nomormeja d-flex flex-wrap gap-3 p-0" style="list-style: none;">
 										@foreach($meja as $ko)
+											@php
+												$isNyala = intval($ko->LampuStatus ?? 0) == 1;
+												$isKonek = !empty($ko->LampuControllerID) && intval($ko->LampuControllerID) > 0;
+												
+												if ($isNyala) {
+													$iconBgColor = 'rgba(239, 68, 68, 0.15)';
+													$textColor = '#ef4444';
+													$statusLabel = 'Menyala';
+												} elseif ($isKonek) {
+													$iconBgColor = 'rgba(16, 185, 129, 0.15)';
+													$textColor = '#10b981';
+													$statusLabel = 'Konek (Mati)';
+												} else {
+													$iconBgColor = 'rgba(100, 116, 139, 0.15)';
+													$textColor = '#64748b';
+													$statusLabel = 'Tidak Konek';
+												}
+											@endphp
 											<li class="list-group-item list-group-item-action border d-flex align-items-center justify-content-center p-3 text-center" style="width: calc(25% - 12px); border-radius: 18px; cursor: pointer; transition: all 0.2s ease; flex-direction: column; gap: 8px;" id="{{ $ko->KodeMeja }}" NamaMeja="{{ $ko->NamaMeja }}">
-												<span class="d-flex align-items-center justify-content-center rounded-circle w-50px h-50px bg-light text-success">
-													<img src="{{ url('images/default/dining-table.png') }}" class="bi bi-lightning-fill" width="60%">
+												<span class="d-flex align-items-center justify-content-center rounded-circle w-50px h-50px" style="background: {{ $iconBgColor }}; color: {{ $textColor }}; transition: all 0.2s ease;">
+													<img src="{{ url('images/default/dining-table.png') }}" class="bi bi-lightning-fill" width="60%" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.1));">
 												</span>
-												<span class="list-title text-dark font-weight-bold" style="font-size: 0.88rem;">{{ $ko->NamaMeja }}</span>
+												<div class="d-flex flex-column align-items-center">
+													<span class="list-title text-dark font-weight-bold" style="font-size: 0.88rem;">{{ $ko->NamaMeja }}</span>
+													<span class="mt-1 px-2 py-0.5 status-badge" style="font-size: 0.65rem; font-weight: 700; color: {{ $textColor }}; border-radius: 6px; background: {{ $iconBgColor }}; text-transform: uppercase; letter-spacing: 0.2px;">
+														{{ $statusLabel }}
+													</span>
+													@if($isNyala && !empty($ko->LampuID))
+														<button type="button" class="btn btn-sm btn-danger rounded-pill mt-2 py-0 px-3" style="font-size: 0.6rem; letter-spacing: 0.5px;" onclick="turnOffTableLight(event, this, {{ $ko->LampuID }})"><i class="fas fa-power-off me-1"></i>Matikan</button>
+													@endif
+												</div>
 											</li>
 										@endforeach
+
+
 									</ul>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				
+				<div class="mt-4 pt-3 border-top d-flex align-items-center justify-content-between" style="border-top: 1.5px solid rgba(11, 87, 208, 0.08) !important;">
+					<div class="d-flex align-items-center gap-3">
+						<div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+							<i class="fas fa-lightbulb" style="font-size: 1.2rem;"></i>
+						</div>
+						<div>
+							<h6 class="mb-0 font-weight-bold text-dark" style="font-size: 0.9rem;">Nyalakan Lampu Meja?</h6>
+							<small class="text-muted" style="font-size: 0.78rem;">Aktifkan untuk menerangi/menghias meja dimalam hari</small>
+						</div>
+					</div>
+					<div>
+						<label class="switch-lampu" style="margin-bottom: 0;">
+							<input type="checkbox" id="chkNyalakanLampuMeja">
+							<span class="slider-lampu"></span>
+						</label>
+					</div>
+				</div>
+
 				<hr class="my-3 opacity-10">
 				<div class="form-group row justify-content-end mb-0">
 					<div class="col-md-6 text-end">
+
 						<button class="btn btn-primary px-5 py-2" id="btPilihNomorMeja" style="border-radius: 12px !important; font-weight: 750;">Submit</button>
 					</div>
 				</div>
@@ -1957,6 +2061,15 @@ License: You must have a valid license purchased only from themeforest(the above
 	var _AllProducts = [];
 	var _ActiveNumpadField = 'QTY'; // QTY, DISC_P, DISC_R
 	var _ActiveCategory = 'ALL';
+	
+	// F&B Order Global State
+	var _idJenisOrder = -1;
+	var _NamaJenisOrder = "";
+	var _DineIn = "";
+	var _KodeMeja = -1;
+	var _NamaMeja = "";
+	var _NyalakanLampu = 0;
+
 
 	var _oVariantMenu = <?php echo json_encode($variantmenu) ?>;
 	var _oMenuAddon = <?php echo json_encode($menuaddon) ?>;
@@ -2669,10 +2782,8 @@ License: You must have a valid license purchased only from themeforest(the above
 		var searchQuery = $('#_CatalogSearch').val().toLowerCase();
 		var filtered = _AllProducts.filter(function(item) {
 			var matchesCategory = true;
-			if (_ActiveCategory === 'BARANG') {
-				matchesCategory = (item.TipeItem == 1 || item.TipeItem == 3 || item.TipeItem == 5);
-			} else if (_ActiveCategory === 'JASA') {
-				matchesCategory = (item.TipeItem == 4);
+			if (_ActiveCategory !== 'ALL') {
+				matchesCategory = (item.KodeJenisItem === _ActiveCategory);
 			}
 			
 			var matchesSearch = true;
@@ -2769,12 +2880,14 @@ License: You must have a valid license purchased only from themeforest(the above
 	            	item.classList.add('active');
 	            	_KodeMetodePembayaran = item.id;
 					if (_TipePembayaran == "NON") {
-						$('#JumlahBayar').val(jQuery('#_TotalNetBayar').attr("originalvalue"));	
+						let netVal = parseFloat(jQuery('#_TotalNetBayar').attr("originalvalue") || 0);
+						formatCurrency($('#JumlahBayar'), netVal);
 					}
 					else{
-						$('#JumlahBayar').val(0);
+						formatCurrency($('#JumlahBayar'), 0);
 					}
 	            	$('#JumlahBayar').focus();
+					SetEnableCommand();
 	            }
 	        });
 	    });
@@ -2792,7 +2905,20 @@ License: You must have a valid license purchased only from themeforest(the above
 				jQuery(this).addClass('selected-row');
 			});
 
-			// F&B Modal triggers and click handlers
+			// F&B Modal triggers: Open Tipe Order modal when button is clicked
+			jQuery(document).on('click', '#btTipeOrder', function() {
+				jQuery('#LookupTipeOrder').modal({backdrop: 'static', keyboard: false});
+				jQuery('#LookupTipeOrder').modal('show');
+			});
+
+			// F&B Modal triggers: Open Nomor Meja modal when button is clicked
+			jQuery(document).on('click', '#btNomorMeja', function() {
+				jQuery('#chkNyalakanLampuMeja').prop('checked', _NyalakanLampu == 1);
+				jQuery('#LookupNomorMeja').modal({backdrop: 'static', keyboard: false});
+				jQuery('#LookupNomorMeja').modal('show');
+			});
+
+			// F&B Modal triggers and click handlers (inside Tipe Order modal)
 			jQuery('.horizontal-list.tipeorder li').click(function() {
 				jQuery('.horizontal-list.tipeorder li').removeClass('active').css('border-color', '#cbd5e1').css('background', '#ffffff');
 				jQuery(this).addClass('active').css('border-color', '#4f46e5').css('background', 'rgba(79, 70, 229, 0.05)');
@@ -2815,33 +2941,36 @@ License: You must have a valid license purchased only from themeforest(the above
 				
 				var xHTML = "";
 				if (_idJenisOrder > -1) {
-					xHTML += '<div class="d-flex flex-column align-items-center justify-content-center">';
-					xHTML += '	<span class="text-xs text-white opacity-75 font-weight-bold" style="letter-spacing: 0.5px;">Tipe Order</span>';
-					xHTML += '	<span class="text-sm text-white font-weight-bolder">' + _NamaJenisOrder + '</span>';
-					xHTML += '</div>';
+					xHTML += '<h6 class="mb-0 text-white font-weight-bold" style="font-size: 0.82rem;">' + _NamaJenisOrder + '</h6>';
 					
 					if (_DineIn == 'Y') {
+						jQuery('#chkNyalakanLampuMeja').prop('checked', _NyalakanLampu == 1);
 						jQuery('#LookupNomorMeja').modal({backdrop: 'static', keyboard: false});
 						jQuery('#LookupNomorMeja').modal('show');
 					}
 				}
-				jQuery('#txtJenisOrder').html(xHTML);
+				jQuery('#txtTipeOrder').html(xHTML || '<h6 class="mb-0 text-white font-weight-bold" style="font-size: 0.82rem;">Pilih</h6>');
 				SetEnableCommand();
 			});
 
 			jQuery('#btPilihNomorMeja').click(function () {
 				jQuery('#LookupNomorMeja').modal('hide');
 
+				_NyalakanLampu = jQuery('#chkNyalakanLampuMeja').is(':checked') ? 1 : 0;
+
 				var xHTML = "";
-				if (_idJenisOrder > -1) {
-					xHTML += '<div class="d-flex flex-column align-items-center justify-content-center">';
-					xHTML += '	<span class="text-xs text-white opacity-75 font-weight-bold" style="letter-spacing: 0.5px;">Nomor Meja</span>';
-					xHTML += '	<span class="text-sm text-white font-weight-bolder">' + _NamaMeja + '</span>';
-					xHTML += '</div>';
+				if (_KodeMeja && _NamaMeja) {
+					xHTML = '<h6 class="mb-0 text-white font-weight-bold" style="font-size: 0.82rem;">' + _NamaMeja + '</h6>';
 				}
-				jQuery('#txtNomorMeja').html(xHTML);
+				jQuery('#txtNomorMeja').html(xHTML || '<h6 class="mb-0 text-white font-weight-bold" style="font-size: 0.82rem;">Pilih</h6>');
 				SetEnableCommand();
 			});
+
+
+			// Auto-select first customer if available
+			if (jQuery('#KodePelanggan option').length > 1) {
+				jQuery('#KodePelanggan').val(jQuery('#KodePelanggan option:eq(1)').val()).trigger('change');
+			}
 
 			jQuery('#btPilihVariant').click(function () {
 				var KodeItem = jQuery('#VariantFatherItemCode').val();
@@ -3100,9 +3229,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 	    	jQuery('#_NoTransaksi').text("<OTOMATIS>");
 
-			// window.open("{{ url('/fpenjualan/custdisplay') }}", '_blank');
-			// openCustomerDisplay();
-			localStorage.setItem('PoSData', JSON.stringify({data: [], Total: 0, Discount: 0, VoucherDiscount: 0, Net: 0, Tax: 0}));
+			updateCustomerDisplay({data: [], Total: 0, Discount: 0, VoucherDiscount: 0, Net: 0, Tax: 0});
 
 			// Initialize Cashier Hybrid Interactive Features
 			switchActiveInput('QTY');
@@ -3177,6 +3304,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								});	
 		            		}
 		            	}
+		            }
 		        });
 
 				$('#_Barcode').val("")
@@ -3284,6 +3412,39 @@ License: You must have a valid license purchased only from themeforest(the above
 			SetEnableCommand();
 		});
 
+		$('#JumlahBayar').on('input', function(){
+			let rawVal = $(this).val();
+			let cleanAmount = rawVal.replace(/Rp\.?\s*/i, '');
+			let commaCount = (cleanAmount.match(/,/g) || []).length;
+			let dotCount = (cleanAmount.match(/\./g) || []).length;
+			
+			if (commaCount > 0 && dotCount > 0) {
+				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
+				}
+			} else if (commaCount > 0) {
+				let parts = cleanAmount.split(',');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					cleanAmount = cleanAmount.replace(/,/g, '.');
+				} else {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				}
+			} else if (dotCount > 0) {
+				let parts = cleanAmount.split('.');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					// Standar desimal
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '');
+				}
+			}
+			let parsedAmount = parseFloat(cleanAmount);
+			if (isNaN(parsedAmount)) parsedAmount = 0;
+			$(this).attr("originalvalue", parsedAmount);
+			SetEnableCommand();
+		});
+
 		jQuery('#KodePelanggan').change(function () {
 			$.ajax({
 	            async:false,
@@ -3357,13 +3518,13 @@ License: You must have a valid license purchased only from themeforest(the above
 		$('#payment-popup').on('shown.bs.modal', function () {
 			var current = JSON.parse(localStorage.getItem('PoSData') || '{}');
 			current.isCheckout = true;
-			localStorage.setItem('PoSData', JSON.stringify(current));
+			updateCustomerDisplay(current);
 		});
 
 		$('#payment-popup').on('hidden.bs.modal', function () {
 			var current = JSON.parse(localStorage.getItem('PoSData') || '{}');
 			current.isCheckout = false;
-			localStorage.setItem('PoSData', JSON.stringify(current));
+			updateCustomerDisplay(current);
 		});
 
 		$('#btSimpanPembayaran').click(function () {
@@ -3608,7 +3769,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 	function PrintStruk(NoTransaksi) {
 
-		if(_Company[0]["NamaPosPrinter"] == ""){
+		if(!_Company[0]["NamaPosPrinter"] || _Company[0]["NamaPosPrinter"] == "" || _Company[0]["NamaPosPrinter"] == "-1" || !_Printer || _Printer.length === 0){
 			Swal.fire({
 				icon: "error",
 				title: "Opps...",
@@ -3616,6 +3777,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			}).then((result) => {
 				return;
 			});
+			return; // Hentikan eksekusi selanjutnya
 		}
 
 		if(_Company[0]["LebarKertas"] == ""){
@@ -3626,6 +3788,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			}).then((result) => {
 				return;
 			});
+			return; // Hentikan eksekusi
 		}
 
 		if(_Printer["PrinterInterface"] == "Bluetooth"){
@@ -3965,6 +4128,24 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 	
 	function SaveData(Status, ButonObject, ButtonDefaultText) {
+		if (_idJenisOrder == -1) {
+			Swal.fire({
+				icon: "error",
+				title: "Opps...",
+				text: "Tipe Order Belum Dipilih!",
+			});
+			return;
+		}
+
+		if (_DineIn == 'Y' && (_KodeMeja == "" || _KodeMeja == -1 || !_KodeMeja)) {
+			Swal.fire({
+				icon: "error",
+				title: "Opps...",
+				text: "Nomor Meja Belum Dipilih!",
+			});
+			return;
+		}
+
 		UpdateCurrentTime();
 		ButonObject.text('Tunggu Sebentar.....');
   		ButonObject.attr('disabled',true);
@@ -4106,9 +4287,11 @@ License: You must have a valid license purchased only from themeforest(the above
 			'ReffPembayaran' : $('#NomorRefrensiPembayaran').val(),
 			'JenisOrder' : _idJenisOrder,
 			'KodeMeja' : _KodeMeja,
+			'NyalakanLampu' : _NyalakanLampu,
 			'Detail' : oDetail,
 			'Variant' : oVariant
 		}
+
 
 		$.ajax({
 			async:false,
@@ -4363,16 +4546,49 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 
 	function formatCurrency(input, amount) {
-		input.attr("originalvalue", amount);
-        let formattedAmount = parseFloat(amount).toLocaleString('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+		let cleanAmount = amount;
+		if (typeof cleanAmount === 'string') {
+			cleanAmount = cleanAmount.replace(/Rp\.?\s*/i, '');
+			
+			let commaCount = (cleanAmount.match(/,/g) || []).length;
+			let dotCount = (cleanAmount.match(/\./g) || []).length;
+			
+			if (commaCount > 0 && dotCount > 0) {
+				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
+				}
+			} else if (commaCount > 0) {
+				let parts = cleanAmount.split(',');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					cleanAmount = cleanAmount.replace(/,/g, '.');
+				} else {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				}
+			} else if (dotCount > 0) {
+				let parts = cleanAmount.split('.');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					// Standar desimal
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '');
+				}
+			}
+		}
+		
+		let parsedAmount = parseFloat(cleanAmount);
+		if (isNaN(parsedAmount)) parsedAmount = 0;
+		
+		input.attr("originalvalue", parsedAmount);
+		
+		let formattedAmount = parsedAmount.toLocaleString('en-US', {
+			style: 'decimal',
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		});
 
-        // Set the formatted value to the input field
-        input.val(formattedAmount);
-    }
+		input.val(formattedAmount);
+	}
 
 	function CalculateTotal() {
 		var rows = document.querySelectorAll('#AppendArea tr'); // Select all rows within the AppendArea
@@ -4466,8 +4682,8 @@ License: You must have a valid license purchased only from themeforest(the above
 
 			// Get all variants and addons for this specific item code
 			var namaTambahan = [];
-			var rowsVariantThis = document.querySelectorAll('#AppendArea tr#VariantSectionData.' + RowKodeItem);
-			var rowsAddonThis = document.querySelectorAll('#AppendArea tr#AddonSectionData.' + RowKodeItem);
+			var rowsVariantThis = document.querySelectorAll('#AppendArea tr#VariantSectionData[class~="' + RowKodeItem + '"]');
+			var rowsAddonThis = document.querySelectorAll('#AppendArea tr#AddonSectionData[class~="' + RowKodeItem + '"]');
 			
 			rowsVariantThis.forEach(function(r) {
 				var vName = r.querySelector('input[id="txtNamaItem"]').value;
@@ -4501,7 +4717,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			Net: grandTotalVal,
 			Tax: _tempTotalTax
 		};
-		localStorage.setItem('PoSData', JSON.stringify(displayObject));
+		updateCustomerDisplay(displayObject);
 		
   		$('#_Barcode').val('');
   		$('#_Barcode').focus();
@@ -4514,7 +4730,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			ErrorCount +=1;
 		}
 
-		if (_DineIn == 'Y' && _KodeMeja == "" ) {
+		if (_DineIn == 'Y' && (_KodeMeja == "" || _KodeMeja == -1 || !_KodeMeja)) {
 			ErrorCount +=1;
 		}
 
@@ -4652,10 +4868,33 @@ License: You must have a valid license purchased only from themeforest(the above
 		});
     }
 
+	var _custDisplayWindow = null;
+	const posChannel = new BroadcastChannel('pos_display_channel');
+
+	function updateCustomerDisplay(displayObject) {
+		localStorage.setItem('PoSData', JSON.stringify(displayObject));
+		try {
+			posChannel.postMessage({ type: 'updateDisplay', data: displayObject });
+		} catch (e) {
+			console.error("BroadcastChannel error:", e);
+		}
+		if (window._custDisplayWindow && !window._custDisplayWindow.closed) {
+			try {
+				window._custDisplayWindow.postMessage({ type: 'updateDisplay', data: displayObject }, '*');
+			} catch (e) {
+				console.error("postMessage error:", e);
+			}
+		}
+	}
+
 	function openCustomerDisplay() {
 		// Use Laravel's url() helper to generate the URL
 		const url = "{{ url('/fpenjualan/custdisplay') }}";
-		window.open(url, '_blank', 'width=1390,height=800,,scrollbars=no,toolbar=no,status=no,menubar=no');
+		window._custDisplayWindow = window.open(url, '_blank', 'width=1390,height=800,,scrollbars=no,toolbar=no,status=no,menubar=no');
+		setTimeout(() => {
+			var current = JSON.parse(localStorage.getItem('PoSData') || '{}');
+			updateCustomerDisplay(current);
+		}, 1000);
 	}
 
 	// Toggle between Numeric Keypad and QWERTY Alpha Keypad
@@ -4703,5 +4942,48 @@ License: You must have a valid license purchased only from themeforest(the above
 			targetInput.trigger('input');
 			targetInput.trigger('keyup');
 		}
+	}
+
+	function turnOffTableLight(e, btnElement, lampuId) {
+		e.stopPropagation(); // Mencegah klik item meja memicu pemilihan meja
+		
+		Swal.fire({
+			title: 'Matikan Lampu?',
+			text: "Lampu meja ini akan dimatikan sekarang.",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#ef4444',
+			cancelButtonColor: '#64748b',
+			confirmButtonText: 'Ya, Matikan!',
+			cancelButtonText: 'Batal'
+		}).then((result) => {
+			if (result.isConfirmed) {
+				// Memanggil endpoint power-off secara AJAX background
+				jQuery.ajax({
+					url: "{{ url('titiklampu/power-off') }}/" + lampuId,
+					type: 'GET',
+					success: function() {
+						// Update elemen UI di kasir POS secara instan agar tidak perlu refresh halaman
+						let listItem = jQuery(btnElement).closest('li');
+						// Ubah badge status menjadi Hijau (Konek)
+						listItem.find('.rounded-circle').css({'background': 'rgba(16, 185, 129, 0.15)', 'color': '#10b981'});
+						listItem.find('span.status-badge').css({'background': 'rgba(16, 185, 129, 0.15)', 'color': '#10b981'}).text('Konek (Mati)');
+						// Hapus tombol Matikan
+						jQuery(btnElement).remove();
+						
+						Swal.fire({
+							title: 'Berhasil!',
+							text: 'Lampu meja berhasil dimatikan secara manual.',
+							icon: 'success',
+							timer: 2000,
+							showConfirmButton: false
+						});
+					},
+					error: function() {
+						Swal.fire('Gagal!', 'Terjadi kesalahan saat mematikan lampu meja.', 'error');
+					}
+				});
+			}
+		});
 	}
 </script>

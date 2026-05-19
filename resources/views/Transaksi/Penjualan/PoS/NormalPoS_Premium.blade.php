@@ -1024,7 +1024,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-qr-code-scan barcode-icon" viewBox="0 0 16 16">
 											<path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5M.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 10 14.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5"/>
 										</svg>
-										<input type="text" class="form-control" id="_Barcode" placeholder="Scan Barcode / Ketik Nama" style="padding-left: 50px !important; height: 36px;">
+										<input type="text" class="form-control" id="_Barcode" placeholder="Scan Barcode saja (Fokus)..." style="padding-left: 50px !important; height: 36px;">
 									</div>
 								</div>
 								<div class="col-6">
@@ -1826,7 +1826,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		products.forEach(function(item) {
 			var priceFormatted = parseFloat(item.HargaJual || 0).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
 			
-			var imgUrl = item.Gambar ? `{{ asset('assets/img/item') }}/${item.Gambar}` : `https://placehold.co/150x100/e2e8f0/475569?text=${encodeURIComponent(item.NamaItem)}`;
+			var imgUrl = item.Gambar ? (item.Gambar.startsWith('http://') || item.Gambar.startsWith('https://') || item.Gambar.startsWith('data:') ? item.Gambar : `{{ asset('assets/img/item') }}/${item.Gambar}`) : `https://placehold.co/150x100/e2e8f0/475569?text=${encodeURIComponent(item.NamaItem)}`;
 
 			var cardHtml = `
 				<div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-6 mb-2 px-1">
@@ -1947,12 +1947,14 @@ License: You must have a valid license purchased only from themeforest(the above
 	            	item.classList.add('active');
 	            	_KodeMetodePembayaran = item.id;
 					if (_TipePembayaran == "NON") {
-						$('#JumlahBayar').val(jQuery('#_TotalNetBayar').attr("originalvalue"));	
+						let netVal = parseFloat(jQuery('#_TotalNetBayar').attr("originalvalue") || 0);
+						formatCurrency($('#JumlahBayar'), netVal);
 					}
 					else{
-						$('#JumlahBayar').val(0);
+						formatCurrency($('#JumlahBayar'), 0);
 					}
 	            	$('#JumlahBayar').focus();
+					SetEnableCommand();
 	            }
 	        });
 	    });
@@ -2203,9 +2205,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 	    	jQuery('#_NoTransaksi').text("<OTOMATIS>");
 
-			// window.open("{{ url('/fpenjualan/custdisplay') }}", '_blank');
-			// openCustomerDisplay();
-			localStorage.setItem('PoSData', JSON.stringify({data: [], Total: 0, Discount: 0, VoucherDiscount: 0, Net: 0, Tax: 0}));
+			updateCustomerDisplay({data: [], Total: 0, Discount: 0, VoucherDiscount: 0, Net: 0, Tax: 0});
 
 			// Initialize Cashier Hybrid Interactive Features
 			switchActiveInput('QTY');
@@ -2270,9 +2270,14 @@ License: You must have a valid license purchased only from themeforest(the above
 		            		jQuery('#LookupItem').modal('show');
 		            	}
 		            	else{
-		            		if (response.data.length > 0) {
+		            		var barcodeVal = jQuery('#_Barcode').val().trim().toLowerCase();
+		            		var exactMatches = response.data.filter(function(item) {
+		            			return (item.Barcode || '').toLowerCase() === barcodeVal || (item.KodeItem || '').toLowerCase() === barcodeVal;
+		            		});
+
+		            		if (exactMatches.length > 0) {
 								
-		            			var objIndex = allRowsData.findIndex(obj => obj.KodeItem == response.data[0]['KodeItem']);
+		            			var objIndex = allRowsData.findIndex(obj => obj.KodeItem == exactMatches[0]['KodeItem']);
 
 								var inputQty = parseFloat(jQuery('#_Qty').val()) || 0;
 								if (inputQty === 0) {
@@ -2300,7 +2305,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			            		// console.log(objIndex);
 			            		// console.log(allRowsData)
 			            		if (objIndex != -1) {
-			            			var oDiskon = CalculateDiskon(response.data[0]['KodeItem'],1);
+			            			var oDiskon = CalculateDiskon(exactMatches[0]['KodeItem'],1);
 
 			            			allRowsData[objIndex].DiskonPersen = (oDiskon.DiskonType) == 'P' ? oDiskon.Diskon : 0;
 			            			allRowsData[objIndex].DiskonRp = (oDiskon.DiskonType) == 'N' ? oDiskon.Diskon : 0;
@@ -2325,7 +2330,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			            		}
 			            		else{
 			            			var dataSource = dataGridInstance.getDataSource();
-			            			var oDiskon = CalculateDiskon(response.data[0]['KodeItem'],1);
+			            			var oDiskon = CalculateDiskon(exactMatches[0]['KodeItem'],1);
 			            			var Diskoncust = 0;
 
 			            			if (_DiskonGrupCustomer > 0) {
@@ -2345,17 +2350,17 @@ License: You must have a valid license purchased only from themeforest(the above
 
 			            			var item = {
 				            			'LineNumber' 	: allRowsData.length +1,
-				            			'KodeItem' 	 	: response.data[0]['KodeItem'],
-				            			'NamaItem'	 	: response.data[0]['NamaItem'],
+				            			'KodeItem' 	 	: exactMatches[0]['KodeItem'],
+				            			'NamaItem'	 	: exactMatches[0]['NamaItem'],
 				            			'Qty'	 	 	: inputQty,
-				            			'QtyKonversi'	: response.data[0]['QtyKonversi'],
-				            			'Satuan'		: response.data[0]['Satuan'],
-				            			'Harga' 	 	: response.data[0]['HargaJual'],
+				            			'QtyKonversi'	: exactMatches[0]['QtyKonversi'],
+				            			'Satuan'		: exactMatches[0]['Satuan'],
+				            			'Harga' 	 	: exactMatches[0]['HargaJual'],
 				            			'DiskonPersen' 	: finalDiskonPersen,
 				            			'DiskonRp' 	 	: finalDiskonRp,
 				            			'Total' 	 	: 0,
-										'VatPercent'	: response.data[0]['VatPercent'],
-										'HargaPokokPenjualan'	: response.data[0]['HargaPokokPenjualan'],
+										'VatPercent'	: exactMatches[0]['VatPercent'],
+										'HargaPokokPenjualan'	: exactMatches[0]['HargaPokokPenjualan'],
 				            		}
 
 				            		dataSource.store().insert(item).then(function() {
@@ -2365,7 +2370,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				     //        		dataGridInstance.option("dataSource", [...dataGridInstance.option("dataSource"), item]);
 									// dataGridInstance.refresh();
 			            		}
-			            		_LastInputed = response.data[0]['KodeItem'];
+			            		_LastInputed = exactMatches[0]['KodeItem'];
 
 								// Reset Qty & Diskon to default values
 								jQuery('#_Qty').val('0');
@@ -2383,7 +2388,6 @@ License: You must have a valid license purchased only from themeforest(the above
 								  $('#_Barcode').focus()
 								});	
 		            		}
-
 		            	}
 		            }
 		        });
@@ -2548,6 +2552,39 @@ License: You must have a valid license purchased only from themeforest(the above
 
 		$('#JumlahBayar').focusout(function(){
 			formatCurrency($("#JumlahBayar"), $("#JumlahBayar").val());
+			SetEnableCommand();
+		});
+
+		$('#JumlahBayar').on('input', function(){
+			let rawVal = $(this).val();
+			let cleanAmount = rawVal.replace(/Rp\.?\s*/i, '');
+			let commaCount = (cleanAmount.match(/,/g) || []).length;
+			let dotCount = (cleanAmount.match(/\./g) || []).length;
+			
+			if (commaCount > 0 && dotCount > 0) {
+				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
+				}
+			} else if (commaCount > 0) {
+				let parts = cleanAmount.split(',');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					cleanAmount = cleanAmount.replace(/,/g, '.');
+				} else {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				}
+			} else if (dotCount > 0) {
+				let parts = cleanAmount.split('.');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					// Standar desimal
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '');
+				}
+			}
+			let parsedAmount = parseFloat(cleanAmount);
+			if (isNaN(parsedAmount)) parsedAmount = 0;
+			$(this).attr("originalvalue", parsedAmount);
 			SetEnableCommand();
 		});
 
@@ -3715,16 +3752,49 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 
 	function formatCurrency(input, amount) {
-		input.attr("originalvalue", amount);
-        let formattedAmount = parseFloat(amount).toLocaleString('en-US', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+		let cleanAmount = amount;
+		if (typeof cleanAmount === 'string') {
+			cleanAmount = cleanAmount.replace(/Rp\.?\s*/i, '');
+			
+			let commaCount = (cleanAmount.match(/,/g) || []).length;
+			let dotCount = (cleanAmount.match(/\./g) || []).length;
+			
+			if (commaCount > 0 && dotCount > 0) {
+				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
+				}
+			} else if (commaCount > 0) {
+				let parts = cleanAmount.split(',');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					cleanAmount = cleanAmount.replace(/,/g, '.');
+				} else {
+					cleanAmount = cleanAmount.replace(/,/g, '');
+				}
+			} else if (dotCount > 0) {
+				let parts = cleanAmount.split('.');
+				if (parts.length === 2 && parts[1].length <= 2) {
+					// Standar desimal
+				} else {
+					cleanAmount = cleanAmount.replace(/\./g, '');
+				}
+			}
+		}
+		
+		let parsedAmount = parseFloat(cleanAmount);
+		if (isNaN(parsedAmount)) parsedAmount = 0;
+		
+		input.attr("originalvalue", parsedAmount);
+		
+		let formattedAmount = parsedAmount.toLocaleString('en-US', {
+			style: 'decimal',
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2
+		});
 
-        // Set the formatted value to the input field
-        input.val(formattedAmount);
-    }
+		input.val(formattedAmount);
+	}
 
 	function CalculateTotal() {
 		var dataGridInstance = jQuery('#gridContainerDetail').dxDataGrid('instance');
@@ -3812,7 +3882,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			Net: grandTotalVal,
 			Tax: _tempTotalTax
 		};
-		localStorage.setItem('PoSData', JSON.stringify(displayObject));
+		updateCustomerDisplay(displayObject);
 		
   		$('#_Barcode').val('');
   		$('#_Barcode').focus();
@@ -3966,11 +4036,49 @@ License: You must have a valid license purchased only from themeforest(the above
 		});
     }
 
+	var _custDisplayWindow = null;
+	const posChannel = new BroadcastChannel('pos_display_channel');
+
+	function updateCustomerDisplay(displayObject) {
+		localStorage.setItem('PoSData', JSON.stringify(displayObject));
+		try {
+			posChannel.postMessage({ type: 'updateDisplay', data: displayObject });
+		} catch (e) {
+			console.error("BroadcastChannel error:", e);
+		}
+		if (window._custDisplayWindow && !window._custDisplayWindow.closed) {
+			try {
+				window._custDisplayWindow.postMessage({ type: 'updateDisplay', data: displayObject }, '*');
+			} catch (e) {
+				console.error("postMessage error:", e);
+			}
+		}
+	}
+
 	function openCustomerDisplay() {
 		// Use Laravel's url() helper to generate the URL
 		const url = "{{ url('/fpenjualan/custdisplay') }}";
-		window.open(url, '_blank', 'width=1390,height=800,,scrollbars=no,toolbar=no,status=no,menubar=no');
+		window._custDisplayWindow = window.open(url, '_blank', 'width=1390,height=800,,scrollbars=no,toolbar=no,status=no,menubar=no');
+		setTimeout(() => {
+			var current = JSON.parse(localStorage.getItem('PoSData') || '{}');
+			updateCustomerDisplay(current);
+		}, 1000);
 	}
+
+	// Checkout popup event bindings to show checkout screen on display
+	$(document).ready(function() {
+		$('#payment-popup').on('shown.bs.modal', function () {
+			var current = JSON.parse(localStorage.getItem('PoSData') || '{}');
+			current.isCheckout = true;
+			updateCustomerDisplay(current);
+		});
+
+		$('#payment-popup').on('hidden.bs.modal', function () {
+			var current = JSON.parse(localStorage.getItem('PoSData') || '{}');
+			current.isCheckout = false;
+			updateCustomerDisplay(current);
+		});
+	});
 
 	// Toggle between Numeric Keypad and QWERTY Alpha Keypad
 	function toggleKeypadMode(mode) {

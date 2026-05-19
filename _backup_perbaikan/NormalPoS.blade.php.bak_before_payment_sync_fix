@@ -984,14 +984,12 @@ License: You must have a valid license purchased only from themeforest(the above
 	            	item.classList.add('active');
 	            	_KodeMetodePembayaran = item.id;
 					if (_TipePembayaran == "NON") {
-						let netVal = parseFloat(jQuery('#_TotalNetBayar').attr("originalvalue") || 0);
-						formatCurrency($('#JumlahBayar'), netVal);
+						$('#JumlahBayar').val(jQuery('#_TotalNetBayar').attr("originalvalue"));	
 					}
 					else{
-						formatCurrency($('#JumlahBayar'), 0);
+						$('#JumlahBayar').val(0);
 					}
 	            	$('#JumlahBayar').focus();
-					SetEnableCommand();
 	            }
 	        });
 	    });
@@ -1312,39 +1310,6 @@ License: You must have a valid license purchased only from themeforest(the above
 
 		$('#JumlahBayar').focusout(function(){
 			formatCurrency($("#JumlahBayar"), $("#JumlahBayar").val());
-			SetEnableCommand();
-		});
-
-		$('#JumlahBayar').on('input', function(){
-			let rawVal = $(this).val();
-			let cleanAmount = rawVal.replace(/Rp\.?\s*/i, '');
-			let commaCount = (cleanAmount.match(/,/g) || []).length;
-			let dotCount = (cleanAmount.match(/\./g) || []).length;
-			
-			if (commaCount > 0 && dotCount > 0) {
-				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
-				}
-			} else if (commaCount > 0) {
-				let parts = cleanAmount.split(',');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					cleanAmount = cleanAmount.replace(/,/g, '.');
-				} else {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				}
-			} else if (dotCount > 0) {
-				let parts = cleanAmount.split('.');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					// Standar desimal
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '');
-				}
-			}
-			let parsedAmount = parseFloat(cleanAmount);
-			if (isNaN(parsedAmount)) parsedAmount = 0;
-			$(this).attr("originalvalue", parsedAmount);
 			SetEnableCommand();
 		});
 

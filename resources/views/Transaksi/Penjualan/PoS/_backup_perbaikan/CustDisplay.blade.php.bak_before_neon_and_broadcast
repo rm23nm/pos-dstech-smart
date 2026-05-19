@@ -141,7 +141,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		background: transparent !important;
 	}
 	#orderTable th {
-		color: #ffffff !important;
+		color: rgba(255, 255, 255, 0.6) !important;
 		font-weight: 600 !important;
 		text-transform: uppercase;
 		font-size: 0.75rem !important;
@@ -175,49 +175,35 @@ License: You must have a valid license purchased only from themeforest(the above
 		}
 	}
 
-	/* Compact Padding for Transaction Column */
-	.col-md-5 .card-body {
-		padding: 12px 16px !important;
-		height: 100% !important;
-		display: flex;
-		flex-direction: column;
-	}
-	.col-md-5 .card-body h4 {
-		margin-bottom: 8px !important;
-		padding-bottom: 8px !important;
-		font-size: 1.1rem !important;
-	}
-
-	/* Neon Calculations Panel - Highly Compact & Bottom Positioned */
+	/* Neon Calculations Panel */
 	.resulttable-pos {
-		background: rgba(15, 23, 42, 0.75) !important;
-		border-radius: 14px;
-		padding: 6px 10px !important;
-		border: 1px solid rgba(255, 255, 255, 0.1) !important;
-		margin-top: auto !important; /* Forces it to the absolute bottom */
-		box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+		background: rgba(15, 23, 42, 0.6) !important;
+		border-radius: 12px;
+		padding: 8px 12px !important;
+		border: 1px solid rgba(255, 255, 255, 0.08) !important;
+		margin-top: 8px;
 	}
 	.resulttable-pos .table {
 		background: transparent !important;
 		margin-bottom: 0 !important;
 	}
 	.resulttable-pos tr {
-		padding: 0 !important;
+		padding: 2px 0 !important;
 	}
 	.resulttable-pos th {
-		color: rgba(255, 255, 255, 0.65) !important;
+		color: rgba(255, 255, 255, 0.7) !important;
 		font-weight: 500 !important;
-		font-size: 0.76rem !important;
+		font-size: 0.8rem !important;
 		border: none !important;
 		background: transparent !important;
 		background-color: transparent !important;
-		padding: 3px 0 !important;
+		padding: 4px 0 !important;
 	}
 	.resulttable-pos td {
 		border: none !important;
 		background: transparent !important;
 		background-color: transparent !important;
-		padding: 3px 0 !important;
+		padding: 4px 0 !important;
 	}
 	.resulttable-pos th.text-dark {
 		color: rgba(255, 255, 255, 0.75) !important;
@@ -228,8 +214,8 @@ License: You must have a valid license purchased only from themeforest(the above
 		background: transparent !important;
 		border: none !important;
 		color: #ffffff !important;
-		font-weight: 700 !important;
-		font-size: 0.85rem !important;
+		font-weight: 600 !important;
+		font-size: 0.9rem !important;
 		padding: 0 !important;
 		height: auto !important;
 		box-shadow: none !important;
@@ -241,7 +227,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		background: rgba(239, 68, 68, 0.12) !important;
 		border-radius: 8px;
 		border: 1px solid rgba(239, 68, 68, 0.3) !important;
-		padding: 2px 8px !important;
+		padding: 4px 8px !important;
 		animation: voucherPulse 1.8s infinite ease-in-out;
 	}
 	#rowVoucherDiscount th, #rowVoucherDiscount td input.TotalText.form-control {
@@ -278,146 +264,50 @@ License: You must have a valid license purchased only from themeforest(the above
 		letter-spacing: 1px;
 	}
 	
-	/* LED Neon Grand Total - Default Theme (Cyan Pulse) */
+	/* Grand Total Pulse Animation & Neon Light Effect */
 	.item-price {
 		border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-		margin-top: 4px !important;
-		padding: 4px 8px !important;
-		background: rgba(0, 240, 255, 0.04) !important;
-		border: 1.5px solid rgba(0, 240, 255, 0.3) !important;
-		border-radius: 10px !important;
-		box-shadow: 0 0 10px rgba(0, 240, 255, 0.15), inset 0 0 6px rgba(0, 240, 255, 0.08) !important;
-		animation: ledPulseCyan 2.5s infinite ease-in-out;
+		padding-top: 10px !important;
+		margin-top: 6px !important;
 	}
 	.item-price th.text-primary {
 		color: #00f0ff !important; /* Neon Electric Cyan */
 		font-weight: 800 !important;
-		font-size: 0.95rem !important;
-		text-shadow: 0 0 6px rgba(0, 240, 255, 0.6);
+		font-size: 1.15rem !important;
+		text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
 		text-transform: uppercase;
 		letter-spacing: 1px;
 	}
 	.item-price td input.TotalText.form-control {
 		color: #00f0ff !important; /* Neon Electric Cyan */
-		background: transparent !important;
-		border: none !important;
+		background: rgba(0, 240, 255, 0.08) !important;
+		border: 1.5px solid rgba(0, 240, 255, 0.4) !important;
+		border-radius: 10px !important;
 		font-weight: 900 !important;
-		font-size: 1.3rem !important;
-		text-shadow: 0 0 10px rgba(0, 240, 255, 0.8), 0 0 4px rgba(0, 240, 255, 0.4);
-		animation: pulseTextNeon 2.5s infinite ease-in-out;
+		font-size: 1.5rem !important;
+		padding: 6px 12px !important;
+		height: auto !important;
+		text-align: right !important;
+		box-shadow: 0 0 15px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.15) !important;
+		text-shadow: 0 0 10px rgba(0, 240, 255, 0.8), 0 0 5px rgba(0, 240, 255, 0.4);
+		animation: pulseTotalNeon 2s infinite ease-in-out;
+		transition: all 0.3s ease;
 	}
 	
-	@keyframes ledPulseCyan {
-		0% { border-color: rgba(0, 240, 255, 0.3); box-shadow: 0 0 10px rgba(0, 240, 255, 0.15), inset 0 0 6px rgba(0, 240, 255, 0.08) !important; }
-		50% { border-color: rgba(0, 240, 255, 0.7); box-shadow: 0 0 20px rgba(0, 240, 255, 0.45), inset 0 0 12px rgba(0, 240, 255, 0.25) !important; }
-		100% { border-color: rgba(0, 240, 255, 0.3); box-shadow: 0 0 10px rgba(0, 240, 255, 0.15), inset 0 0 6px rgba(0, 240, 255, 0.08) !important; }
-	}
-
-	@keyframes pulseTextNeon {
-		0% { text-shadow: 0 0 8px rgba(0, 240, 255, 0.8); }
-		50% { text-shadow: 0 0 16px rgba(0, 240, 255, 1), 0 0 8px rgba(255, 255, 255, 0.6); }
-		100% { text-shadow: 0 0 8px rgba(0, 240, 255, 0.8); }
-	}
-
-	/* ========================================== */
-	/* MODEL NEON SPLIT (RED & BLUE CYBERPUNK THEME) */
-	/* ========================================== */
-	body.model_neon_split {
-		background: linear-gradient(135deg, #020208 0%, #060010 50%, #100003 100%) !important;
-	}
-	body.model_neon_split .pos-header {
-		background: rgba(8, 8, 24, 0.65) !important;
-		border-bottom: 2.5px solid #00f0ff !important;
-		box-shadow: 0 0 15px rgba(0, 240, 255, 0.3), 0 0 30px rgba(255, 0, 85, 0.15) !important;
-		animation: headerBorderPulse 4s infinite ease-in-out;
-	}
-	@keyframes headerBorderPulse {
-		0% { border-color: #00f0ff; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3), 0 0 30px rgba(255, 0, 85, 0.15) !important; }
-		50% { border-color: #ff0055; box-shadow: 0 0 15px rgba(255, 0, 85, 0.3), 0 0 30px rgba(0, 240, 255, 0.15) !important; }
-		100% { border-color: #00f0ff; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3), 0 0 30px rgba(255, 0, 85, 0.15) !important; }
-	}
-	body.model_neon_split .pos-header .greeting-text h3.text-primary {
-		color: #ff0055 !important;
-		text-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
-	}
-	body.model_neon_split .pos-header .clock .datetime-content ul li {
-		color: #ff0055 !important;
-		text-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
-	}
-	body.model_neon_split .pos-header .clock .datetime-content #sec {
-		color: #00f0ff !important;
-		text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
-	}
-	body.model_neon_split .card-custom {
-		background: rgba(6, 6, 18, 0.75) !important;
-		border: 1.5px solid rgba(255, 0, 85, 0.25) !important;
-		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 0, 85, 0.1) !important;
-	}
-	body.model_neon_split .card-custom h4 {
-		color: #00f0ff !important;
-		border-bottom: 1px solid rgba(0, 240, 255, 0.2) !important;
-		text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
-	}
-	body.model_neon_split #orderTable th {
-		color: #ffffff !important;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
-		text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
-	}
-	body.model_neon_split #orderTable td {
-		border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-	}
-	body.model_neon_split .resulttable-pos {
-		background: rgba(20, 5, 20, 0.98) !important;
-		border: 3px solid !important;
-		border-image: linear-gradient(90deg, #ff0044, #00d2ff) 1 !important;
-		box-shadow: 0 0 25px #ff0044, 0 0 25px #00d2ff, inset 0 0 15px rgba(255, 0, 255, 0.3) !important;
-		border-radius: 8px !important;
-	}
-	body.model_neon_split .resulttable-pos th {
-		color: #ffffff !important;
-	}
-	body.model_neon_split .item-price {
-		background: linear-gradient(90deg, rgba(255, 0, 68, 0.15) 0%, rgba(0, 210, 255, 0.15) 100%) !important;
-		border: 2px solid !important;
-		border-image: linear-gradient(90deg, #ff0044, #00d2ff) 1 !important;
-		box-shadow: 0 0 20px rgba(255, 0, 68, 0.4), 0 0 20px rgba(0, 210, 255, 0.4) !important;
-	}
-	@keyframes splitGlowPulse {
-		0% { box-shadow: 0 0 15px rgba(255, 0, 85, 0.25), 0 0 15px rgba(0, 240, 255, 0.25) !important; }
-		100% { box-shadow: 0 0 30px rgba(255, 0, 85, 0.5), 0 0 30px rgba(0, 240, 255, 0.5) !important; }
-	}
-	body.model_neon_split .item-price th.text-primary {
-		color: #ff0055 !important;
-		text-shadow: 0 0 8px rgba(255, 0, 85, 0.7);
-	}
-	body.model_neon_split .item-price td input.TotalText.form-control {
-		color: #00f0ff !important;
-		text-shadow: 0 0 12px rgba(0, 240, 255, 0.9), 0 0 6px rgba(0, 240, 255, 0.5);
-	}
-	
-	/* Split Idle Welcome Screen */
-	body.model_neon_split #idleWelcome .idle-brand {
-		color: #00f0ff !important;
-		text-shadow: 0 0 20px rgba(0, 240, 255, 0.6), 0 0 40px rgba(255, 0, 85, 0.4);
-	}
-	body.model_neon_split #idleWelcome .idle-sub {
-		color: rgba(255, 255, 255, 0.7) !important;
-	}
-	body.model_neon_split #idleWelcome div[style*="background"] {
-		background: rgba(255, 0, 85, 0.08) !important;
-		border: 1px solid rgba(255, 0, 85, 0.25) !important;
-		color: rgba(255, 255, 255, 0.8) !important;
-		box-shadow: 0 0 12px rgba(255, 0, 85, 0.15) !important;
-	}
-	
-	/* Split QRIS Screen */
-	body.model_neon_split .qris-card {
-		border: 2px solid #ff0055 !important;
-		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px rgba(255, 0, 85, 0.35) !important;
-	}
-	body.model_neon_split .qris-status {
-		color: #00f0ff !important;
-		text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+	@keyframes pulseTotalNeon {
+		0% {
+			box-shadow: 0 0 12px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.15) !important;
+			text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+		}
+		50% {
+			box-shadow: 0 0 25px rgba(0, 240, 255, 0.7), inset 0 0 12px rgba(0, 240, 255, 0.3) !important;
+			text-shadow: 0 0 15px rgba(0, 240, 255, 1), 0 0 8px rgba(255, 255, 255, 0.5);
+			border-color: rgba(0, 240, 255, 0.7) !important;
+		}
+		100% {
+			box-shadow: 0 0 12px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.15) !important;
+			text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+		}
 	}
 
 	/* Dynamic QRIS Checkout Screen Overlay */
@@ -680,369 +570,12 @@ License: You must have a valid license purchased only from themeforest(the above
         th {
             background-color: #f4f4f4;
         }
-
-		/* ==========================================================================
-		   PREMIUM EDGE-TO-EDGE SPLIT COLUMNS TEMPLATE (NO HEADER, NO BORDERS)
-		   ========================================================================== */
-		body.model_neon_red .pos-header,
-		body.model_neon_blue .pos-header,
-		body.model_neon_split .pos-header {
-			display: none !important;
-		}
-
-		body.model_neon_red,
-		body.model_neon_blue,
-		body.model_neon_split {
-			overflow: hidden !important;
-			height: 100vh !important;
-			width: 100vw !important;
-			margin: 0 !important;
-			padding: 0 !important;
-			background: #0c1938 !important; /* Ganti background hitam menjadi biru premium */
-		}
-
-		body.model_neon_red .contentPOS,
-		body.model_neon_blue .contentPOS,
-		body.model_neon_split .contentPOS {
-			height: 100vh !important;
-			width: 100vw !important;
-			margin: 0 !important;
-			padding: 0 !important;
-		}
-
-		body.model_neon_red .contentPOS .container-fluid,
-		body.model_neon_blue .contentPOS .container-fluid,
-		body.model_neon_split .contentPOS .container-fluid {
-			max-width: 100% !important;
-			width: 100% !important;
-			height: 100% !important;
-			padding: 0 !important;
-			margin: 0 !important;
-		}
-
-		body.model_neon_red .contentPOS .row,
-		body.model_neon_blue .contentPOS .row,
-		body.model_neon_split .contentPOS .row {
-			margin: 0 !important;
-			height: 100% !important;
-			display: flex !important;
-			flex-direction: row-reverse !important; /* Swaps Details column to Left, Promo column to Right */
-		}
-
-		/* 35% Left (Details), 65% Right (Promo) Column Dimensions */
-		body.model_neon_red .col-md-5,
-		body.model_neon_blue .col-md-5,
-		body.model_neon_split .col-md-5 {
-			flex: 0 0 35% !important;
-			max-width: 35% !important;
-			height: 100% !important;
-			padding: 0 !important;
-			margin: 0 !important;
-		}
-
-		body.model_neon_red .col-md-7,
-		body.model_neon_blue .col-md-7,
-		body.model_neon_split .col-md-7 {
-			flex: 0 0 65% !important;
-			max-width: 65% !important;
-			height: 100% !important;
-			padding: 0 !important;
-			margin: 0 !important;
-		}
-
-		/* Premium Column Backgrounds */
-		body.model_neon_red .col-md-5,
-		body.model_neon_blue .col-md-5,
-		body.model_neon_split .col-md-5 {
-			background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%) !important;
-			border-right: 1.5px solid rgba(0, 0, 0, 0.08) !important;
-		}
-
-		body.model_neon_red .col-md-7,
-		body.model_neon_blue .col-md-7,
-		body.model_neon_split .col-md-7 {
-			background: #09132c !important; /* Ganti background hitam menjadi biru premium */
-		}
-
-		/* Zero Margins, Padding & Borders for Premium Seamless Layout */
-		body.model_neon_red .card-custom,
-		body.model_neon_blue .card-custom,
-		body.model_neon_split .card-custom {
-			border: none !important;
-			border-radius: 0 !important;
-			box-shadow: none !important;
-			margin: 0 !important;
-			height: 100% !important;
-			background: transparent !important;
-		}
-
-		body.model_neon_red .card-custom .card-body,
-		body.model_neon_blue .card-custom .card-body,
-		body.model_neon_split .card-custom .card-body {
-			padding: 30px !important;
-			height: 100% !important;
-			display: flex !important;
-			flex-direction: column !important;
-		}
-
-		/* Make Promo Slide fully touch screen edges */
-		body.model_neon_red .col-md-7 .card-body,
-		body.model_neon_blue .col-md-7 .card-body,
-		body.model_neon_split .col-md-7 .card-body {
-			padding: 0 !important;
-		}
-		
-		/* Fit slide images perfectly cover the screen */
-		body.model_neon_red .slide img,
-		body.model_neon_blue .slide img,
-		body.model_neon_split .slide img {
-			object-fit: cover !important;
-			width: 100% !important;
-			height: 100vh !important;
-			border-radius: 0 !important;
-		}
-
-		/* Premium Header inside Left Details Column */
-		.neon-details-header {
-			display: none;
-		}
-		body.model_neon_red .neon-details-header,
-		body.model_neon_blue .neon-details-header,
-		body.model_neon_split .neon-details-header {
-			display: block !important;
-			margin-bottom: 25px !important;
-			border-bottom: 1.5px solid rgba(0, 0, 0, 0.08) !important;
-			padding-bottom: 15px !important;
-		}
-		
-		.neon-details-header .store-name {
-			font-size: 2.2rem !important;
-			font-weight: 900 !important;
-			letter-spacing: 2px !important;
-			color: #0c1938 !important; /* Bold Midnight Navy */
-			text-shadow: none !important;
-		}
-		.neon-details-header .store-subtitle {
-			font-size: 0.85rem !important;
-			font-weight: 600 !important;
-			letter-spacing: 1px !important;
-			margin-top: 5px !important;
-			color: #64748b !important;
-			text-shadow: none !important;
-		}
-		
-		body.model_neon_red .neon-details-header .store-subtitle {
-			color: #64748b !important;
-			text-shadow: none !important;
-		}
-
-		body.model_neon_blue .neon-details-header .store-subtitle {
-			color: #64748b !important;
-			text-shadow: none !important;
-		}
-		body.model_neon_split .neon-details-header .store-subtitle {
-			color: #64748b !important;
-			text-shadow: none !important;
-		}
-
-		body.model_neon_red .default-details-header,
-		body.model_neon_blue .default-details-header,
-		body.model_neon_split .default-details-header {
-			display: none !important;
-		}
-
-		/* Items Table Layout */
-		body.model_neon_red #orderTable th,
-		body.model_neon_blue #orderTable th,
-		body.model_neon_split #orderTable th {
-			color: #0c1938 !important; /* Midnight Navy */
-			font-size: 0.85rem !important;
-			font-weight: 800 !important;
-			text-transform: uppercase !important;
-			letter-spacing: 1px !important;
-			border-bottom: 1.5px solid rgba(0, 0, 0, 0.08) !important;
-			padding: 12px 8px !important;
-			text-shadow: none !important;
-			background: transparent !important;
-		}
-		
-		body.model_neon_red #orderTable td,
-		body.model_neon_blue #orderTable td,
-		body.model_neon_split #orderTable td {
-			color: #1e293b !important; /* Slate Charcoal */
-			font-size: 1rem !important;
-			border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-			padding: 14px 8px !important;
-		}
-
-		/* Minimal/Elegant Result Table */
-		body.model_neon_red .resulttable-pos,
-		body.model_neon_blue .resulttable-pos,
-		body.model_neon_split .resulttable-pos {
-			background: transparent !important;
-			border: none !important;
-			box-shadow: none !important;
-			padding: 0 !important;
-			margin-bottom: 15px !important;
-		}
-
-		body.model_neon_red .resulttable-pos th,
-		body.model_neon_blue .resulttable-pos th,
-		body.model_neon_split .resulttable-pos th {
-			font-size: 0.9rem !important;
-			color: #64748b !important; /* Cool Slate gray */
-			font-weight: 500 !important;
-			padding: 8px 0 !important;
-			border: none !important;
-		}
-
-		body.model_neon_red .resulttable-pos td,
-		body.model_neon_blue .resulttable-pos td,
-		body.model_neon_split .resulttable-pos td {
-			border: none !important;
-			padding: 8px 0 !important;
-		}
-
-		body.model_neon_red .resulttable-pos td input.TotalText,
-		body.model_neon_blue .resulttable-pos td input.TotalText,
-		body.model_neon_split .resulttable-pos td input.TotalText {
-			background: transparent !important;
-			border: none !important;
-			color: #1e293b !important; /* Sharp slate text */
-			font-weight: 700 !important;
-			font-size: 1rem !important;
-			box-shadow: none !important;
-			padding: 0 !important;
-			text-align: right !important;
-			height: auto !important;
-		}
-
-		/* Standalone High-Impact Freestanding Neonbox */
-		.grand-total-neonbox {
-			display: none;
-		}
-
-		/* RED NEONBOX */
-		body.model_neon_red .grand-total-neonbox {
-			display: flex !important;
-			background: #09132c !important; /* Premium Midnight Sapphire for breathtaking 3D neon pop! */
-			border: 3px solid #ff0044 !important;
-			border-radius: 12px !important;
-			padding: 16px 24px !important;
-			margin-top: auto !important;
-			margin-bottom: 10px !important;
-			align-items: center !important;
-			justify-content: space-between !important;
-			box-shadow: 0 0 25px rgba(255, 0, 68, 0.45), inset 0 0 15px rgba(255, 0, 68, 0.3) !important;
-			position: relative !important;
-			overflow: hidden !important;
-		}
-		body.model_neon_red .grand-total-neonbox .neonbox-label {
-			color: #ffffff !important;
-			font-size: 1.5rem !important;
-			font-weight: 800 !important;
-			letter-spacing: 2px !important;
-			text-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
-		}
-		body.model_neon_red .grand-total-neonbox input.GrandTotalText {
-			background: transparent !important;
-			border: none !important;
-			color: #ffffff !important;
-			font-size: 2.4rem !important;
-			font-weight: 900 !important;
-			text-align: right !important;
-			box-shadow: none !important;
-			text-shadow: 0 0 12px #ffffff, 0 0 24px #ff0044, 0 0 36px #ff0044 !important;
-			padding: 0 !important;
-			height: auto !important;
-			width: auto !important;
-		}
-
-		/* BLUE NEONBOX */
-		body.model_neon_blue .grand-total-neonbox {
-			display: flex !important;
-			background: #09132c !important; /* Premium Midnight Sapphire for breathtaking 3D neon pop! */
-			border: 3px solid #00d2ff !important;
-			border-radius: 12px !important;
-			padding: 16px 24px !important;
-			margin-top: auto !important;
-			margin-bottom: 10px !important;
-			align-items: center !important;
-			justify-content: space-between !important;
-			box-shadow: 0 0 25px rgba(0, 210, 255, 0.45), inset 0 0 15px rgba(0, 210, 255, 0.3) !important;
-			position: relative !important;
-			overflow: hidden !important;
-		}
-		body.model_neon_blue .grand-total-neonbox .neonbox-label {
-			color: #ffffff !important;
-			font-size: 1.5rem !important;
-			font-weight: 800 !important;
-			letter-spacing: 2px !important;
-			text-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
-		}
-		body.model_neon_blue .grand-total-neonbox input.GrandTotalText {
-			background: transparent !important;
-			border: none !important;
-			color: #ffffff !important;
-			font-size: 2.4rem !important;
-			font-weight: 900 !important;
-			text-align: right !important;
-			box-shadow: none !important;
-			text-shadow: 0 0 12px #ffffff, 0 0 24px #00d2ff, 0 0 36px #00d2ff !important;
-			padding: 0 !important;
-			height: auto !important;
-			width: auto !important;
-		}
-
-		/* SPLIT NEONBOX */
-		body.model_neon_split .grand-total-neonbox {
-			display: flex !important;
-			background: #09132c !important; /* Premium Midnight Sapphire for breathtaking 3D neon pop! */
-			border: 3px solid !important;
-			border-image: linear-gradient(90deg, #ff0044, #00d2ff) 1 !important;
-			border-radius: 12px !important;
-			padding: 16px 24px !important;
-			margin-top: auto !important;
-			margin-bottom: 10px !important;
-			align-items: center !important;
-			justify-content: space-between !important;
-			box-shadow: 0 0 25px rgba(255, 0, 68, 0.35), 0 0 25px rgba(0, 210, 255, 0.35), inset 0 0 15px rgba(255, 0, 255, 0.25) !important;
-			position: relative !important;
-			overflow: hidden !important;
-		}
-		body.model_neon_split .grand-total-neonbox .neonbox-label {
-			color: #ffffff !important;
-			font-size: 1.5rem !important;
-			font-weight: 800 !important;
-			letter-spacing: 2px !important;
-			text-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
-		}
-		body.model_neon_split .grand-total-neonbox input.GrandTotalText {
-			background: transparent !important;
-			border: none !important;
-			color: #ffffff !important;
-			font-size: 2.4rem !important;
-			font-weight: 900 !important;
-			text-align: right !important;
-			box-shadow: none !important;
-			text-shadow: 0 0 12px #ffffff, 0 0 24px #ff007f, 0 0 36px #00f0ff !important;
-			padding: 0 !important;
-			height: auto !important;
-			width: auto !important;
-		}
-
-		/* Hide standard row total in neon themes */
-		body.model_neon_red .resulttable-pos tr.item-price,
-		body.model_neon_blue .resulttable-pos tr.item-price,
-		body.model_neon_split .resulttable-pos tr.item-price {
-			display: none !important;
-		}
 	</style>
 </head>
 <!--end::Head-->
 <!--begin::Body-->
 
-<body id="tc_body" class="header-fixed header-mobile-fixed subheader-enabled aside-enabled aside-fixed {{ isset($company) ? $company->CustDisplayDesignSetting : 'default' }}" style="
+<body id="tc_body" class="header-fixed header-mobile-fixed subheader-enabled aside-enabled aside-fixed" style="
     @if(isset($company) && $company->TypeBackgraund == 'Color')
         background-color: {{ $company->Backgraund }};
     @elseif(isset($company) && $company->TypeBackgraund == 'Image')
@@ -1129,11 +662,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				<div class="col-md-5 h-100">
 					<div class="card card-custom gutter-b bg-white border-0 h-100">
 						<div class="card-body d-flex flex-column">
-							<div class="neon-details-header">
-								<div class="store-name">{{ isset($company) ? strtoupper($company->NamaPartner) : 'DSTECH RESTO' }}</div>
-								<div class="store-subtitle">ORDER DETAIL | <span class="neon-clock"></span></div>
-							</div>
-							<h4 class="text-center default-details-header">Detail Transaksi</h4>
+							<h4 class="text-center">Detail Transaksi</h4>
 							<div class="table-responsive" id="printableTable" style="overflow-y: auto; flex: 1 1 auto; margin-bottom: 8px;">
 								<table id="orderTable" class="display" style="width:100%">
 									<thead>
@@ -1147,24 +676,24 @@ License: You must have a valid license purchased only from themeforest(the above
 									</tbody>
 								</table>
 							</div>
-							<div class="resulttable-pos mb-3">
-								<table class="table right-table mb-0">
+							<div class="resulttable-pos">
+								<table class="table right-table">
 									<tbody>
 										<tr class="d-flex align-items-center justify-content-between">
-											<th class="border-0 font-size-h5 mb-0 font-size-bold text-white">Total Items</th>
-											<td class="border-0 justify-content-end d-flex text-white font-size-base">
+											<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">Total Items</th>
+											<td class="border-0 justify-content-end d-flex text-dark font-size-base">
 												<input type="text" name="_TotalItem" id="_TotalItem" value="0" class="form-control TotalText">
 											</td>
 										</tr>
 										<tr class="d-flex align-items-center justify-content-between">
-											<th class="border-0 font-size-h5 mb-0 font-size-bold text-white">Subtotal</th>
-											<td class="border-0 justify-content-end d-flex text-white font-size-base">
+											<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">Subtotal</th>
+											<td class="border-0 justify-content-end d-flex text-dark font-size-base">
 												<input type="text" name="_SubTotal" id="_SubTotal" value="0" class="form-control TotalText">
 											</td>
 										</tr>
 										<tr class="d-flex align-items-center justify-content-between">
-											<th class="border-0 font-size-h5 mb-0 font-size-bold text-white">DISCOUNT</th>
-											<td class="border-0 justify-content-end d-flex text-white font-size-base">
+											<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">DISCOUNT</th>
+											<td class="border-0 justify-content-end d-flex text-dark font-size-base">
 												<input type="text" name="_TotalDiskon" id="_TotalDiskon" value="0" class="form-control TotalText">
 											</td>
 										</tr>
@@ -1174,9 +703,9 @@ License: You must have a valid license purchased only from themeforest(the above
 												<input type="text" name="_VoucherDiscount" id="_VoucherDiscount" value="0" class="form-control TotalText font-weight-bold" style="color: #fca5a5 !important; background:transparent !important; border:none !important; box-shadow:none !important; text-align:right;">
 											</td>
 										</tr>
-										<tr class="d-flex align-items-center justify-content-between mb-0">
-											<th class="border-0 font-size-h5 mb-0 font-size-bold text-white">Tax (P. Hiburan, PPN, P. Makanan)</th>
-											<td class="border-0 justify-content-end d-flex text-white font-size-base">
+										<tr class="d-flex align-items-center justify-content-between">
+											<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">Tax (P. Hiburan, PPN, P. Makanan)</th>
+											<td class="border-0 justify-content-end d-flex text-dark font-size-base">
 												<input type="text" name="_TotalTax" id="_TotalTax" value="0" class="form-control TotalText">
 											</td>
 										</tr>
@@ -1188,12 +717,6 @@ License: You must have a valid license purchased only from themeforest(the above
 										</tr>
 									</tbody>
 								</table>
-							</div>
-
-							<!-- Standalone High-Impact Neonbox for the Grand Total -->
-							<div class="grand-total-neonbox">
-								<span class="neonbox-label">TOTAL</span>
-								<input type="text" name="_GrandTotal_Neon" id="_GrandTotal_Neon" value="0" class="form-control GrandTotalText GrandTotalSelector" readonly>
 							</div>
 						</div>
 					</div>
@@ -1220,14 +743,6 @@ License: You must have a valid license purchased only from themeforest(the above
 @endif
 <script>
 	window.$ = window.jQuery;
-	
-	// Real-time clock for neon details header
-	setInterval(function() {
-		var now = new Date();
-		var timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-		$('.neon-clock').text(timeStr);
-	}, 1000);
-
 	const itemsDiv = document.getElementById("items");
 	const totalAmountSpan = document.getElementById("totalAmount");
 
@@ -1275,15 +790,7 @@ License: You must have a valid license purchased only from themeforest(the above
             }
         }
 
-		let cart = null;
-		try {
-			const rawCart = localStorage.getItem("PoSData");
-			if (rawCart && rawCart !== "undefined") {
-				cart = JSON.parse(rawCart);
-			}
-		} catch (e) {
-			console.error("Error parsing PoSData:", e);
-		}
+		const cart = JSON.parse(localStorage.getItem("PoSData"));
 
 		const hasItems = cart && Array.isArray(cart.data) && cart.data.length > 0;
 
@@ -1312,7 +819,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	    formatCurrency($('#_SubTotal'), 0);
 	    formatCurrency($('#_TotalDiskon'), 0);
 	    formatCurrency($('#_VoucherDiscount'), 0);
-	    formatCurrency($('#_GrandTotal, .GrandTotalSelector'), 0);
+	    formatCurrency($('#_GrandTotal'), 0);
 		formatCurrency($('#_TotalTax'), 0);
 		// Hide voucher row by default
 		$('#rowVoucherDiscount').hide();
@@ -1375,7 +882,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	    formatCurrency($('#_TotalItem'), _tempTotalItem);
 	    formatCurrency($('#_SubTotal'), data["Total"]);
 	    formatCurrency($('#_TotalDiskon'), data["Discount"]);
-	    formatCurrency($('#_GrandTotal, .GrandTotalSelector'), data["Net"]);
+	    formatCurrency($('#_GrandTotal'), data["Net"]);
 		formatCurrency($('#_TotalTax'), data["Tax"]);
 
 		// Voucher: tampil hanya jika nilai > 0
@@ -1389,49 +896,16 @@ License: You must have a valid license purchased only from themeforest(the above
 	}
 
 	function formatCurrency(input, amount) {
-		let cleanAmount = amount;
-		if (typeof cleanAmount === 'string') {
-			cleanAmount = cleanAmount.replace(/Rp\.?\s*/i, '');
-			
-			let commaCount = (cleanAmount.match(/,/g) || []).length;
-			let dotCount = (cleanAmount.match(/\./g) || []).length;
-			
-			if (commaCount > 0 && dotCount > 0) {
-				if (cleanAmount.indexOf(',') < cleanAmount.indexOf('.')) {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '').replace(/,/g, '.');
-				}
-			} else if (commaCount > 0) {
-				let parts = cleanAmount.split(',');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					cleanAmount = cleanAmount.replace(/,/g, '.');
-				} else {
-					cleanAmount = cleanAmount.replace(/,/g, '');
-				}
-			} else if (dotCount > 0) {
-				let parts = cleanAmount.split('.');
-				if (parts.length === 2 && parts[1].length <= 2) {
-					// Standar desimal
-				} else {
-					cleanAmount = cleanAmount.replace(/\./g, '');
-				}
-			}
-		}
-		
-		let parsedAmount = parseFloat(cleanAmount);
-		if (isNaN(parsedAmount)) parsedAmount = 0;
-		
-		input.attr("originalvalue", parsedAmount);
-		
-		let formattedAmount = parsedAmount.toLocaleString('id-ID', {
-			style: 'decimal',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		});
+		input.attr("originalvalue", amount);
+        let formattedAmount = parseFloat(amount).toLocaleString('id-ID', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
 
-		input.val(formattedAmount);
-	}
+        // Set the formatted value to the input field
+        input.val(formattedAmount);
+    }
 
 	function PaymentGateWay(oData){
 		console.log(oData);
@@ -1660,31 +1134,8 @@ License: You must have a valid license purchased only from themeforest(the above
 		playMedia(0);
 	};
 	
-	// 1. Storage event listener fallback
+	// Update display whenever localStorage changes
 	window.addEventListener("storage", updateDisplay);
-
-	// 2. BroadcastChannel integration for real-time reliable sync
-	try {
-		const posChannel = new BroadcastChannel('pos_display_channel');
-		posChannel.onmessage = function(event) {
-			if (event.data && event.data.type === 'updateDisplay') {
-				console.log("BroadcastChannel received display update:", event.data.data);
-				localStorage.setItem('PoSData', JSON.stringify(event.data.data));
-				updateDisplay();
-			}
-		};
-	} catch (e) {
-		console.warn("BroadcastChannel not supported or error:", e);
-	}
-
-	// 3. postMessage event listener fallback for direct references
-	window.addEventListener("message", function(event) {
-		if (event.data && event.data.type === 'updateDisplay') {
-			console.log("postMessage received display update:", event.data.data);
-			localStorage.setItem('PoSData', JSON.stringify(event.data.data));
-			updateDisplay();
-		}
-	});
 
 	// Initial load
 	updateDisplay();

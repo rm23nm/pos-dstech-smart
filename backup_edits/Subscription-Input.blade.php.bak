@@ -141,7 +141,16 @@
                                     <p class="text-center text-muted mb-4">Pilih dan centang menu yang ingin dimasukkan ke dalam paket berlangganan ini. Anda bisa menggunakan tombol <strong>"Pilih Semua"</strong> untuk mempermudah pemilihan fitur per jenis usaha!</p>
 
                                     @php
+                                        $retailKeywords = ['penjualan', 'pembelian', 'inventory', 'item master data', 'konsinyasi', 'bussiness partner', 'lap penjualan', 'lap pembelian', 'laporan inventory'];
+                                        $fnbKeywords = ['master resto', 'info kitchen', 'queue antrian fnb', 'monitor counter (recall)', 'antrian fnb dapur', 'customer display pos'];
+                                        $hiburanKeywords = ['controller', 'paket'];
+
                                         $groupedPermissions = [
+                                            'umum' => [
+                                                'title' => '⚙️ UMUM & SISTEM UTAMA',
+                                                'color' => '#6c757d',
+                                                'items' => []
+                                            ],
                                             'retail' => [
                                                 'title' => '🛒 FITUR RETAIL / MINIMARKET',
                                                 'color' => '#0072ff',
@@ -156,84 +165,24 @@
                                                 'title' => '🎱 FITUR BILLIARD & HIBURAN',
                                                 'color' => '#2ecc71',
                                                 'items' => []
-                                            ],
-                                            'keuangan' => [
-                                                'title' => '📊 KEUANGAN & AKUNTANSI',
-                                                'color' => '#f39c12',
-                                                'items' => []
-                                            ],
-                                            'umum' => [
-                                                'title' => '⚙️ UMUM & SISTEM UTAMA',
-                                                'color' => '#6c757d',
-                                                'items' => []
                                             ]
                                         ];
 
-                                        // Function to classify Level 2 permission items
-                                        $classifyLevel2 = function($item) {
-                                            $id = intval($item['MenuID']);
+                                        $noUrut = 0;
+                                        foreach ($permissionrole as $item) {
+                                            if ($item['ParentType'] == 1) {
+                                                $name = strtolower(trim($item['PermissionName']));
+                                                $category = 'umum'; // Default
 
-                                            // Retail
-                                            $retailIds = [2, 6, 20, 25, 31, 35, 50, 53, 70];
-                                            // Keuangan
-                                            $keuanganIds = [12, 40, 41, 56, 85, 86];
-                                            // FnB
-                                            $fnbIds = [74, 116, 117];
-                                            // Hiburan
-                                            $hiburanIds = [88, 91];
-
-                                            if (in_array($id, $retailIds)) {
-                                                return 'retail';
-                                            }
-                                            if (in_array($id, $keuanganIds)) {
-                                                return 'keuangan';
-                                            }
-                                            if (in_array($id, $fnbIds)) {
-                                                return 'fnb';
-                                            }
-                                            if (in_array($id, $hiburanIds)) {
-                                                return 'hiburan';
-                                            }
-                                            return 'umum';
-                                        };
-
-                                        // Filter and group Level 2 permissions
-                                        foreach ($permissionrole as $lv1) {
-                                            if (intval($lv1['MenuID']) == 100) {
-                                                continue; // Hide SuperAdmin menu (ID 100)
-                                            }
-                                            foreach ($lv1['submenu'] as $lv2) {
-                                                $category = $classifyLevel2($lv2);
-                                                
-                                                // Split Booking, List Booking, Vouchers, and Self Service POS from Penjualan (ID 25) into Hiburan
-                                                if ($lv2['MenuID'] == 25) {
-                                                    $retailSubmenu = [];
-                                                    $hiburanSubmenu = [];
-                                                    
-                                                    foreach ($lv2['submenu'] as $lv3) {
-                                                        $lv3Id = intval($lv3['MenuID']);
-                                                        if (in_array($lv3Id, [95, 96, 97, 98])) {
-                                                            $hiburanSubmenu[] = $lv3;
-                                                        } else {
-                                                            $retailSubmenu[] = $lv3;
-                                                        }
-                                                    }
-                                                    
-                                                    if (!empty($retailSubmenu)) {
-                                                        $retailLv2 = $lv2;
-                                                        $retailLv2['submenu'] = $retailSubmenu;
-                                                        $groupedPermissions['retail']['items'][] = $retailLv2;
-                                                    }
-                                                    
-                                                    if (!empty($hiburanSubmenu)) {
-                                                        $hiburanLv2 = $lv2;
-                                                        $hiburanLv2['PermissionName'] = 'Booking & POS Self Service';
-                                                        $hiburanLv2['submenu'] = $hiburanSubmenu;
-                                                        $groupedPermissions['hiburan']['items'][] = $hiburanLv2;
-                                                    }
-                                                } else {
-                                                    $groupedPermissions[$category]['items'][] = $lv2;
+                                                if (in_array($name, $retailKeywords)) {
+                                                    $category = 'retail';
+                                                } elseif (in_array($name, $fnbKeywords)) {
+                                                    $category = 'fnb';
+                                                } elseif (in_array($name, $hiburanKeywords)) {
+                                                    $category = 'hiburan';
                                                 }
+
+                                                $groupedPermissions[$category]['items'][] = $item;
                                             }
                                         }
                                     @endphp
@@ -249,32 +198,61 @@
                                                     <div class="card-body bg-white py-3 px-4" style="max-height: 400px; overflow-y: auto;">
                                                         <div class="dd group_{{ $gKey }}" id="nestable_{{ $gKey }}">
                                                             <ol class="dd-list">
-                                                                @foreach ($group['items'] as $lv2)
-                                                                    <li class="dd-item" data-id="{{ $lv2['MenuID'] }}">
-                                                                        <div class="dd-handle font-weight-bold">{{ $lv2['PermissionName'] }}</div>
+                                                                @foreach ($group['items'] as $lv1)
+                                                                    <li class="dd-item" data-id="{{ $noUrut }}">
+                                                                        <div class="dd-handle font-weight-bold">{{ $lv1['PermissionName'] }}</div>
                                                                         <div class="inner-content">
                                                                             <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv2['MenuID']) }}" {{ $lv2['Selected'] != "" ? 'checked' : '' }} value="{{ $lv2['MenuID'] }}">
-                                                                                <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv2['MenuID']) }}"></label>
+                                                                                <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv1['MenuID']) }}" {{ $lv1['Selected'] != "" ? 'checked' : '' }} value="{{ $lv1['MenuID'] }}">
+                                                                                <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv1['MenuID']) }}"></label>
                                                                             </div>
                                                                         </div>
 
-                                                                        @if (count($lv2['submenu']) > 0)
+                                                                        @if (count($lv1['submenu']) > 0)
                                                                             <ol class="dd-list">
-                                                                                @foreach ($lv2['submenu'] as $lv3)
-                                                                                    <li class="dd-item" data-id="{{ $lv3['MenuID'] }}">
-                                                                                        <div class="dd-handle text-muted" style="font-size: 0.85rem;">{{ $lv3['PermissionName'] }}</div>
-                                                                                        <div class="inner-content">
-                                                                                            <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                                <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv3['MenuID']) }}" {{ $lv3['Selected'] != "" ? 'checked' : '' }} value="{{ $lv3['MenuID'] }}">
-                                                                                                <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv3['MenuID']) }}"></label>
+                                                                                @foreach ($lv1['submenu'] as $lv2)
+                                                                                    @if ($lv2['ParentType'] == 1)
+                                                                                        <li class="dd-item" data-id="{{ $noUrut }}">
+                                                                                            <div class="dd-handle font-weight-bold">{{ $lv2['PermissionName'] }}</div>
+                                                                                            <div class="inner-content">
+                                                                                                <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
+                                                                                                    <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv2['MenuID']) }}" {{ $lv2['Selected'] != "" ? 'checked' : '' }} value="{{ $lv2['MenuID'] }}">
+                                                                                                    <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv2['MenuID']) }}"></label>
+                                                                                                </div>
                                                                                             </div>
-                                                                                        </div>
-                                                                                    </li>
+
+                                                                                            @if (count($lv2['submenu']) > 0)
+                                                                                                <ol class="dd-list">
+                                                                                                    @foreach ($lv2['submenu'] as $lv3)
+                                                                                                        <li class="dd-item" data-id="{{ $noUrut }}">
+                                                                                                            <div class="dd-handle text-muted" style="font-size: 0.85rem;">{{ $lv3['PermissionName'] }}</div>
+                                                                                                            <div class="inner-content">
+                                                                                                                <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
+                                                                                                                    <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv3['MenuID']) }}" {{ $lv3['Selected'] != "" ? 'checked' : '' }} value="{{ $lv3['MenuID'] }}">
+                                                                                                                    <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv3['MenuID']) }}"></label>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        </li>
+                                                                                                    @endforeach
+                                                                                                </ol>
+                                                                                            @endif
+                                                                                        </li>
+                                                                                    @else
+                                                                                        <li class="dd-item" data-id="{{ $noUrut }}">
+                                                                                            <div class="dd-handle">{{ $lv2['PermissionName'] }}</div>
+                                                                                            <div class="inner-content">
+                                                                                                <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
+                                                                                                    <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv2['MenuID']) }}" {{ $lv2['Selected'] != "" ? 'checked' : '' }} value="{{ $lv2['MenuID'] }}">
+                                                                                                    <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv2['MenuID']) }}"></label>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </li>
+                                                                                    @endif
                                                                                 @endforeach
                                                                             </ol>
                                                                         @endif
                                                                     </li>
+                                                                    @php $noUrut++; @endphp
                                                                 @endforeach
                                                             </ol>
                                                         </div>
@@ -320,6 +298,7 @@
                 var targetClass = jQuery(this).data('target');
                 var checkboxes = jQuery('.' + targetClass + ' input[type="checkbox"]');
                 
+                // Check if any checkbox in this group is currently unchecked
                 var hasUnchecked = false;
                 checkboxes.each(function() {
                     if (!jQuery(this).prop('checked')) {
@@ -327,6 +306,8 @@
                     }
                 });
                 
+                // If there are unchecked checkboxes, check all of them.
+                // If all are already checked, uncheck all of them.
                 if (hasUnchecked) {
                     checkboxes.prop('checked', true);
                     jQuery(this).text('Batal Pilih');
@@ -345,45 +326,24 @@
             jQuery('#btSave').attr('disabled',true);
 
             var oDetail = [];
-            var dataPermission = <?php echo json_encode($permission); ?>;
-            
-            // Map permissions by ID for resolving hierarchy
-            var permMap = {};
+            var dataPermission = <?php echo json_encode($permission); ?>
+
             for (var i = 0; i < dataPermission.length; i++) {
-                permMap[dataPermission[i].id] = dataPermission[i];
-            }
+				// Things[i]
+				var checkbox = jQuery("#chk"+dataPermission[i]['id']+":checked").val()
 
-            var selectedIds = new Set();
+				if (typeof checkbox === 'undefined') {
+					console.log('Blank')
+				}
+				else{
+					var item = {
+						'PermissionID' : checkbox
+					}
+					oDetail.push(item)
+				}
 
-            // 1. Collect explicitly checked permissions
-            for (var i = 0; i < dataPermission.length; i++) {
-                var permId = dataPermission[i].id;
-                var checkbox = jQuery("#chk" + permId + ":checked").val();
-                if (typeof checkbox !== 'undefined' && checkbox !== '') {
-                    selectedIds.add(parseInt(checkbox));
-                }
-            }
-
-            // 2. Auto-resolve parent hierarchy (MenuInduk)
-            var idsToProcess = Array.from(selectedIds);
-            while (idsToProcess.length > 0) {
-                var currentId = idsToProcess.pop();
-                var perm = permMap[currentId];
-                if (perm && perm.MenuInduk && perm.MenuInduk > 0) {
-                    var parentId = parseInt(perm.MenuInduk);
-                    if (!selectedIds.has(parentId)) {
-                        selectedIds.add(parentId);
-                        idsToProcess.push(parentId);
-                    }
-                }
-            }
-
-            // 3. Build details payload
-            selectedIds.forEach(function(id) {
-                oDetail.push({
-                    'PermissionID': id
-                });
-            });
+				// console.log(dataPermission[i]['id'] + ' '+ checkbox);
+			}
 
             var oData = {
 				'NoTransaksi' : jQuery('#NoTransaksi').val(),

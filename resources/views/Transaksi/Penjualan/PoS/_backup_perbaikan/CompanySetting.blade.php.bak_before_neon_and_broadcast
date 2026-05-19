@@ -85,7 +85,9 @@
 								<div class="card-title mb-0">
 									<h3 class="card-label mb-0 font-weight-bold text-body">
 										Setting Data perusahaan
-
+										<a href="{{ url('/queue/' . base64_encode(Auth::user()->RecordOwnerID)) }}" target="_blank" class="btn btn-outline-primary btn-sm ms-2">
+											<i class="fas fa-external-link-alt"></i> Lihat Antrian Pesanan
+										</a>
 									</h3>
 								</div>
 							</div>
@@ -115,7 +117,7 @@
 													<li class="nav-item" >
 														<a class="nav-link disabled" id="printer-tab" data-bs-toggle="pill" href="#printer" role="tab" aria-controls="printer" aria-selected="false">Printer</a>
 													</li>
-													<li class="nav-item" style="display: none;">
+													<li class="nav-item" >
 														<a class="nav-link disabled" id="ecatalog-tab" data-bs-toggle="pill" href="#ecatalog" role="tab" aria-controls="ecatalog" aria-selected="false">E-Catalog</a>
 													</li>
 													<li class="nav-item" >
@@ -125,7 +127,7 @@
 														<a class="nav-link" id="invoice-tab" data-bs-toggle="pill" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false">Tagihan</a>
 													</li>
 													<li class="nav-item" >
-														<a class="nav-link disabled" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Pengaturan Display</a>
+														<a class="nav-link disabled" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Customer Display</a>
 													</li>
 													<li class="nav-item" >
 														<a class="nav-link" id="domain-tab" data-bs-toggle="pill" href="#domain" role="tab" aria-controls="domain" aria-selected="false">Domain & Midtrans</a>
@@ -137,7 +139,7 @@
 													</li>
 													@endif
 													@if ($company[0]['JenisUsaha'] == "Hiburan")
-													<li class="nav-item" style="display: none;">
+													<li class="nav-item" >
 														<a class="nav-link" id="booking-tab" data-bs-toggle="pill" href="#booking" role="tab" aria-controls="booking" aria-selected="false">Booking Online</a>
 													</li>
 													@endif
@@ -151,7 +153,7 @@
 													<li class="nav-item" >
 														<a class="nav-link" id="printer-tab" data-bs-toggle="pill" href="#printer" role="tab" aria-controls="printer" aria-selected="false">Printer</a>
 													</li>
-													<li class="nav-item" style="display: none;">
+													<li class="nav-item" >
 														<a class="nav-link" id="ecatalog-tab" data-bs-toggle="pill" href="#ecatalog" role="tab" aria-controls="ecatalog" aria-selected="false">E-Catalog</a>
 													</li>
 													<li class="nav-item" >
@@ -161,7 +163,7 @@
 														<a class="nav-link" id="invoice-tab" data-bs-toggle="pill" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false">Tagihan</a>
 													</li>
 													<li class="nav-item" >
-														<a class="nav-link" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Pengaturan Display</a>
+														<a class="nav-link" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Customer Display</a>
 													</li>
 													<li class="nav-item" >
 														<a class="nav-link" id="domain-tab" data-bs-toggle="pill" href="#domain" role="tab" aria-controls="domain" aria-selected="false">Domain & Midtrans</a>
@@ -172,7 +174,7 @@
 													</li>
 													@endif
 													@if ($company[0]['JenisUsaha'] == "Hiburan")
-													<li class="nav-item" style="display: none;">
+													<li class="nav-item" >
 														<a class="nav-link" id="booking-tab" data-bs-toggle="pill" href="#booking" role="tab" aria-controls="booking" aria-selected="false">Booking Online</a>
 													</li>
 													@endif
@@ -186,7 +188,7 @@
 
 														<div class="col-md-12"> 
 															<fieldset class="form-group mb-3">
-																<textarea id = "image_base64" name = "image_base64" style="display: none;">{{ count($company) > 0 ? $company[0]['icon'] : '' }}</textarea>
+																<textarea id = "image_base64" name = "image_base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['icon'] : '' }} </textarea>
 																
 																<input type="file" id="Attachment" name="Attachment" accept=".jpg" class="btn btn-warning" style="display: none;"/>
 																<div class="xContainer">
@@ -315,6 +317,40 @@
 					                            			</fieldset>
 					                            			
 					                            		</div>
+
+														<div class="col-md-6">
+															<label class="text-body">Type Background</label>
+															<fieldset class="form-group mb-3">
+																<select name="TypeBackgraund" id="TypeBackgraund" class="js-example-basic-single js-states form-control bg-transparent">
+																	<option value="Color" {{ count($company) > 0 && $company[0]['TypeBackgraund'] == 'Color' ? 'selected' : '' }}>Color</option>
+																	<option value="Image" {{ count($company) > 0 && $company[0]['TypeBackgraund'] == 'Image' ? 'selected' : '' }}>Image</option>
+																</select>
+															</fieldset>
+														</div>
+			
+														<div class="col-md-6">
+															<label class="text-body">Background</label>
+															<fieldset class="form-group mb-3" id="backgroundInput">
+																{{-- This content is generated dynamically by JavaScript --}}
+															</fieldset>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body">Type Kitchen Background</label>
+															<fieldset class="form-group mb-3">
+																<select name="TypeKitchenBackgraund" id="TypeKitchenBackgraund" class="js-example-basic-single js-states form-control bg-transparent">
+																	<option value="Color" {{ count($company) > 0 && $company[0]['TypeKitchenBackgraund'] == 'Color' ? 'selected' : '' }}>Color</option>
+																	<option value="Image" {{ count($company) > 0 && $company[0]['TypeKitchenBackgraund'] == 'Image' ? 'selected' : '' }}>Image</option>
+																</select>
+															</fieldset>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body">Kitchen Background</label>
+															<fieldset class="form-group mb-3" id="kitchenBackgroundInput">
+																{{-- This content is generated dynamically by JavaScript --}}
+															</fieldset>
+														</div>
 													</div>
 												</div>
 
@@ -418,15 +454,209 @@
 																	<option value="slip4" {{ count($company) > 0 ? $company[0]['DefaultSlip'] == "slip4"? "selected" : '' :""}} >Slip 4</option>
 																	<option value="slip5" {{ count($company) > 0 ? $company[0]['DefaultSlip'] == "slip5"? "selected" : '' :""}} >Slip 5</option>
 					                            				</select>
+					                            			</fieldset>
+					                            		</div>
+														<div class="col-md-4">
+					                            			<label  class="text-body">Template Tampilan POS Retail</label>
+					                            			<fieldset class="form-group mb-3">
+					                            				<select name="PosTemplate" id="PosTemplate" class="js-example-basic-single js-states form-control bg-transparent">
+					                            					<option value="NormalPoS" {{ count($company) > 0 ? $company[0]['PosTemplate'] == "NormalPoS" ? "selected" : '' :""}} >Standard POS (Default)</option>
+					                            					<option value="NormalPoS_Premium" {{ count($company) > 0 ? $company[0]['PosTemplate'] == "NormalPoS_Premium" ? "selected" : '' :""}} >Premium POS (Modern Glow)</option>
+					                            				</select>
+					                            			</fieldset>
 					                            		</div>
 
 														<div class="col-md-8">
 															<label  class="text-body">Preview</label>
 															<fieldset class="form-group mb-3">
-																<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="PreviewImageSlip" width="100%">
+																<img src="#" id="PreviewImageSlip" width="100%">
 															</fieldset>
 														</div>
 
+													</div>
+												</div>
+
+												<div class="tab-pane fade " id="ecatalog" role="tabpanel" aria-labelledby="ecatalog-tab">
+													<div class="form-group row">
+														<div class="accordion" id="accordionExample">
+															<div class="accordion-item">
+																<h2 class="accordion-header" id="headingOne">
+																	<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+																		Banner #1
+																	</button>
+																</h2>
+																<div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+																	<div class="accordion-body">
+																		<div class="col-sm-12">
+																			<label  class="text-body">Sample Banner Pertama</label>
+																			<fieldset class="form-group mb-3">
+																				<img src="{{asset('images/sample/Page1.png')}}" width="100%">
+																			</fieldset>
+																		</div>
+																		<div class="col-sm-12">
+																			<label  class="text-body">Banner Header</label>
+																			<fieldset class="form-group mb-3">
+																				<div id="BannerHeader1">
+																					{!! count($company) > 0 ? $company[0]['BannerHeader1'] : '' !!}
+																				</div>
+																			</fieldset>
+																		</div>
+				
+																		<div class="col-sm-12">
+																			<label  class="text-body">Banner Text</label>
+																			<fieldset class="form-group mb-3">
+																				{{-- <input type="text" class="form-control" id="BannerText1" name="BannerText1" placeholder="Masukan Banner Text" value="{{ count($company) > 0 ? $company[0]['BannerText1'] : '' }}"  > --}}
+																				<div id="BannerText1">
+																					{!! count($company) > 0 ? $company[0]['BannerText1'] : '' !!}
+																				</div>
+																			</fieldset>
+																		</div>
+				
+																		<div class="col-sm-12">
+																			<label  class="text-body">Banner Image</label>
+																			<fieldset class="form-group mb-3">
+																				<textarea id = "Banner1Base64" name = "Banner1Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['Banner1'] : '' }} </textarea>
+																				
+																				<input type="file" id="fileBanner1" name="fileBanner1" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																				<div class="xContainer">
+																					<div id="Banner1" class="image_result_sample">
+																						@if (count($company) > 0)
+																							<img src=" {{$company[0]['Banner1']}} ">
+																						@else
+																							<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg">
+																						@endif
+																					</div>
+																				</div>
+																			</fieldset>
+																		</div>
+																	</div>
+																</div>
+															</div>
+
+															<div class="accordion-item">
+																<h2 class="accordion-header" id="headingTwo">
+																	<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+																		Banner #2
+																	</button>
+																</h2>
+																<div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+																	<div class="accordion-body">
+																		<div class="col-sm-12">
+																			<label  class="text-body">Sample Banner</label>
+																			<fieldset class="form-group mb-3">
+																				<img src="{{asset('images/sample/Page2.png')}}" width="100%">
+																			</fieldset>
+																		</div>
+																		<div class="col-sm-12">
+																			<label  class="text-body">Banner Header</label>
+																			<fieldset class="form-group mb-3">
+																				<div id="BannerHeader2">
+																					{!! count($company) > 0 ? $company[0]['BannerHeader2'] : '' !!}
+																				</div>
+																			</fieldset>
+																		</div>
+				
+																		<div class="col-sm-12">
+																			<label  class="text-body">Banner Text</label>
+																			<fieldset class="form-group mb-3">
+																				<div id="BannerText2">
+																					{!! count($company) > 0 ? $company[0]['BannerText2'] : '' !!}
+																				</div>
+																			</fieldset>
+																		</div>
+				
+																		<div class="col-sm-12">
+																			<label  class="text-body">Banner Image</label>
+																			<fieldset class="form-group mb-3">
+																				<textarea id = "Banner2Base64" name = "Banner2Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['Banner2'] : '' }} </textarea>
+																				
+																				<input type="file" id="fileBanner2" name="fileBanner2" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																				<div class="xContainer">
+																					<div id="Banner2" class="image_result_sample">
+																						@if (count($company) > 0)
+																							<img src=" {{$company[0]['Banner2']}} ">
+																						@else
+																							<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg">
+																						@endif
+																					</div>
+																				</div>
+																			</fieldset>
+																		</div>
+
+																	</div>
+																</div>
+
+																<div class="accordion-item">
+																	<h2 class="accordion-header" id="headingThree">
+																		<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+																			Banner #3
+																		</button>
+																	</h2>
+																	<div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+																		<div class="accordion-body">
+																			<div class="col-sm-12">
+																				<label  class="text-body">Sample Banner</label>
+																				<fieldset class="form-group mb-3">
+																					<img src="{{asset('images/sample/Page2.png')}}" width="100%">
+																				</fieldset>
+																			</div>
+																			<div class="col-sm-12">
+																				<label  class="text-body">Banner Header</label>
+																				<fieldset class="form-group mb-3">
+																					<div id="BannerHeader3">
+																						{!! count($company) > 0 ? $company[0]['BannerHeader3'] : '' !!}
+																					</div>
+																				</fieldset>
+																			</div>
+					
+																			<div class="col-sm-12">
+																				<label  class="text-body">Banner Text</label>
+																				<fieldset class="form-group mb-3">
+																					<div id="BannerText3">
+																						{!! count($company) > 0 ? $company[0]['BannerText3'] : '' !!}
+																					</div>
+																				</fieldset>
+																			</div>
+					
+																			<div class="col-sm-12">
+																				<label  class="text-body">Banner Image</label>
+																				<fieldset class="form-group mb-3">
+																					<textarea id = "Banner3Base64" name = "Banner3Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['Banner3'] : '' }} </textarea>
+																					
+																					<input type="file" id="fileBanner3" name="fileBanner3" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																					<div class="xContainer">
+																						<div id="Banner3" class="image_result_sample">
+																							@if (count($company) > 0)
+																								<img src=" {{$company[0]['Banner3']}} ">
+																							@else
+																								<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg">
+																							@endif
+																						</div>
+																					</div>
+																				</fieldset>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-12">
+															<label  class="text-body">Tampilkan Link URL Di Struk Transaksi</label>
+					                            			<fieldset class="form-group mb-3">
+					                            				<select name="ShowLinkInReciept" id="ShowLinkInReciept" class="js-example-basic-single js-states form-control bg-transparent">
+					                            					<option value="0" {{ count($company) > 0 ? $company[0]['ShowLinkInReciept'] == '0' ? 'selected' : '' : '' }}>Tidak</option>
+					                            					<option value="1" {{ count($company) > 0 ? $company[0]['ShowLinkInReciept'] == '1' ? 'selected' : '' : '' }}>Ya</option>
+					                            				</select>
+					                            			</fieldset>
+														</div>
+														<div class="col-md-12">
+															@if ($company[0]['JenisUsaha'] == "Retail")
+															<a href="{{ url('cat/').'/'.$company[0]['KodePartner'].'#home-basic' }}" target="_blank" class="btn btn-warning text-white font-weight-bold me-1 mb-1">Lihat Website</a>
+															@else
+															<a href="{{ url('fnb-store/').'/'.$company[0]['KodePartner'] }}" target="_blank" class="btn btn-warning text-white font-weight-bold me-1 mb-1">Lihat Website</a>
+															@endif
+														</div>
+														{{-- E-Catalog --}}
 													</div>
 												</div>
 
@@ -584,407 +814,150 @@
 													</div>
 												</div>
 
-												<div class="tab-pane fade" id="custdisplay" role="tabpanel" aria-labelledby="custdisplay-tab">
+												<div class="tab-pane fade " id="custdisplay" role="tabpanel" aria-labelledby="custdisplay-tab">
 													<div class="row">
-														
-														<!-- CARD 1: DISPLAY POS & KASIR -->
-														<div class="card card-custom gutter-b mb-6 border border-light-primary bg-white shadow-sm rounded">
-															<div class="card-header h-auto py-3 bg-light-primary border-0 rounded-top">
-																<div class="card-title m-0">
-																	<h3 class="card-label text-primary font-weight-bolder m-0" style="font-size: 1.25rem;">
-																		<i class="flaticon-computer me-2 text-primary"></i> 1. Tampilan POS & Kasir
-																	</h3>
+														<div class="col-sm-12">
+															<label  class="text-body">Promo tampil customer display</label>
+															<fieldset class="form-group mb-3">
+																<div id="PromoDsiplay">
+																	{!! count($company) > 0 ? $company[0]['PromoDsiplay'] : '' !!}
 																</div>
-															</div>
-															<div class="card-body py-4">
-																<div class="row">
-																	<div class="col-md-4 mb-3">
-																		<label class="text-body fw-bold">Template Tampilan POS Retail</label>
-																		<fieldset class="form-group mb-3">
-																			<select name="PosTemplate" id="PosTemplate" class="js-example-basic-single js-states form-control bg-transparent">
-																				<option value="NormalPoS" {{ count($company) > 0 ? $company[0]['PosTemplate'] == "NormalPoS" ? "selected" : '' :""}} >Standard POS (Default)</option>
-																				<option value="NormalPoS_Premium" {{ count($company) > 0 ? $company[0]['PosTemplate'] == "NormalPoS_Premium" ? "selected" : '' :""}} >Premium POS (Modern Glow)</option>
-																			</select>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-4 mb-3">
-																		<label class="text-body fw-bold">Type Background POS</label>
-																		<fieldset class="form-group mb-3">
-																			<select name="TypeBackgraund" id="TypeBackgraund" class="js-example-basic-single js-states form-control bg-transparent">
-																				<option value="Color" {{ count($company) > 0 && $company[0]['TypeBackgraund'] == 'Color' ? 'selected' : '' }}>Color</option>
-																				<option value="Image" {{ count($company) > 0 && $company[0]['TypeBackgraund'] == 'Image' ? 'selected' : '' }}>Image</option>
-																			</select>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-4 mb-3">
-																		<label class="text-body fw-bold">Background POS</label>
-																		<fieldset class="form-group mb-3" id="backgroundInput">
-																			<!-- Dinamis oleh JS -->
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Type Kitchen Background</label>
-																		<fieldset class="form-group mb-3">
-																			<select name="TypeKitchenBackgraund" id="TypeKitchenBackgraund" class="js-example-basic-single js-states form-control bg-transparent">
-																				<option value="Color" {{ count($company) > 0 && $company[0]['TypeKitchenBackgraund'] == 'Color' ? 'selected' : '' }}>Color</option>
-																				<option value="Image" {{ count($company) > 0 && $company[0]['TypeKitchenBackgraund'] == 'Image' ? 'selected' : '' }}>Image</option>
-																			</select>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Kitchen Background</label>
-																		<fieldset class="form-group mb-3" id="kitchenBackgroundInput">
-																			<!-- Dinamis oleh JS -->
-																		</fieldset>
-																	</div>
-																</div>
-															</div>
+															</fieldset>
 														</div>
-
-														<!-- CARD 2: CUSTOMER DISPLAY -->
-														<div class="card card-custom gutter-b mb-6 border border-light-success bg-white shadow-sm rounded">
-															<div class="card-header h-auto py-3 bg-light-success border-0 rounded-top">
-																<div class="card-title m-0">
-																	<h3 class="card-label text-success font-weight-bolder m-0" style="font-size: 1.25rem;">
-																		<i class="flaticon-presentation me-2 text-success"></i> 2. Customer Display (Layar Antrean & Promo)
-																	</h3>
-																</div>
-															</div>
-															<div class="card-body py-4">
-																<div class="row">
-																	<div class="col-sm-12 mb-3">
-																		<label class="text-body fw-bold">Promo tampil customer display</label>
-																		<fieldset class="form-group mb-3">
-																			<div id="PromoDsiplay">
-																				{!! count($company) > 0 ? $company[0]['PromoDsiplay'] : '' !!}
-																			</div>
-																		</fieldset>
-																	</div>
+														<div class="col-md-12">
+					                            			<label  class="text-body">Running Text</label>
+					                            			<fieldset class="form-group mb-4">
+					                            				<input type="text" class="form-control" id="RunningText" name="RunningText" placeholder="Masukan Running Text" value="{{ count($company) > 0 ? $company[0]['RunningText'] : 0 }}" >
+					                            			</fieldset>
+					                            		</div>
+														<div class="row">
+															<label  class="text-body">Gambar Customer Display</label>
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageCustDisplay1Base64" name = "ImageCustDisplay1Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageCustDisplay1'] : '' }} </textarea>
 																	
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Running Text</label>
-																		<fieldset class="form-group mb-3">
-																			<input type="text" class="form-control" id="RunningText" name="RunningText" placeholder="Masukan Running Text" value="{{ count($company) > 0 ? $company[0]['RunningText'] : 0 }}" >
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Model Tampilan Customer Display</label>
-																		<fieldset class="form-group mb-3">
-																			<select name="CustDisplayDesignSetting" id="CustDisplayDesignSetting" class="js-example-basic-single js-states form-control bg-transparent">
-																				<option value="default" {{ (count($company) > 0 && $company[0]['CustDisplayDesignSetting'] == "default") ? "selected" : "" }}>Model Standar Premium (Biru-Merah Neon)</option>
-																				<option value="model_neon_red" {{ (count($company) > 0 && $company[0]['CustDisplayDesignSetting'] == "model_neon_red") ? "selected" : "" }}>Model Neon Merah (Full Red Theme & Neonbox)</option>
-																				<option value="model_neon_blue" {{ (count($company) > 0 && $company[0]['CustDisplayDesignSetting'] == "model_neon_blue") ? "selected" : "" }}>Model Neon Biru (Full Blue Theme & Neonbox)</option>
-																				<option value="model_neon_split" {{ (count($company) > 0 && $company[0]['CustDisplayDesignSetting'] == "model_neon_split") ? "selected" : "" }}>Model Neon Split (Merah-Biru Kombinasi Dinamis)</option>
-																			</select>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold mb-2">Gambar Slide Promo Customer Display</label>
-																		<div class="row">
-																			@for ($i = 1; $i <= 5; $i++)
-																			<div class="col-sm-3 mb-3">
-																				<fieldset class="form-group mb-0">
-																					<textarea id="ImageCustDisplay{{$i}}Base64" name="ImageCustDisplay{{$i}}Base64" style="display: none;">{{ count($company) > 0 ? $company[0]['ImageCustDisplay'.$i] : '' }}</textarea>
-																					<input type="file" id="fileImageCustDisplay{{$i}}" name="fileImageCustDisplay{{$i}}" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
-																					<div class="xContainer border rounded p-1 text-center bg-light">
-																						<div id="ImageCustDisplay{{$i}}" class="image_result_sample" style="height: 120px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-																							@if (!empty($company[0]['ImageCustDisplay'.$i]))
-																								<img src="{{$company[0]['ImageCustDisplay'.$i]}}" style="max-height: 100%; max-width: 100%;">
-																							@else
-																								<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg" style="max-height: 100%; max-width: 100%;">
-																							@endif
-																						</div>
-																						<span class="text-muted d-block mt-1 font-size-xs">Slide #{{$i}}</span>
-																					</div>
-																				</fieldset>
-																			</div>
-																			@endfor
-																		</div>
-																	</div>
-																	
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Video Customer Display (Youtube ID / Drive)</label>
-																		<div class="row">
-																			@for ($v = 1; $v <= 5; $v++)
-																			<div class="col-md-6 mb-3">
-																				<fieldset class="form-group mb-2">
-																					<label class="font-size-sm text-muted">Link/ID Video {{$v}}</label>
-																					<input type="text" class="form-control" id="VideoCustomerDisplay{{$v}}" name="VideoCustomerDisplay{{$v}}" placeholder="Contoh: IcJCYEZMpwA" value="{{ count($company) > 0 ? $company[0]['VideoCustomerDisplay'.$v] : '' }}" >
-																				</fieldset>
-																			</div>
-																			@endfor
-																		</div>
-																	</div>
-																</div>
-															</div>
-														</div>
-
-														<!-- CARD 3: WEBSITE UTAMA & BOOKING ONLINE -->
-														<div class="card card-custom gutter-b mb-6 border border-light-info bg-white shadow-sm rounded">
-															<div class="card-header h-auto py-3 bg-light-info border-0 rounded-top">
-																<div class="card-title m-0">
-																	<h3 class="card-label text-info font-weight-bolder m-0" style="font-size: 1.25rem;">
-																		<i class="flaticon-internet me-2 text-info"></i> 3. Website E-Catalog & Booking Online
-																	</h3>
-																</div>
-															</div>
-															<div class="card-body py-4">
-																
-																<!-- Accordion Banners E-Catalog -->
-																<h5 class="text-dark font-weight-bold mb-4 mt-2">Banners & Promosi Utama Website</h5>
-																<div class="accordion mb-4" id="accordionBanners">
-																	@for ($b = 1; $b <= 3; $b++)
-																	<div class="accordion-item border mb-2 rounded">
-																		<h2 class="accordion-header" id="headingBanner{{$b}}">
-																			<button class="accordion-button {{ $b > 1 ? 'collapsed' : '' }} py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBanner{{$b}}" aria-expanded="{{ $b == 1 ? 'true' : 'false' }}" aria-controls="collapseBanner{{$b}}">
-																				Banner Promosi #{{$b}}
-																			</button>
-																		</h2>
-																		<div id="collapseBanner{{$b}}" class="accordion-collapse collapse {{ $b == 1 ? 'show' : '' }}" aria-labelledby="headingBanner{{$b}}" data-bs-parent="#accordionBanners">
-																			<div class="accordion-body">
-																				<div class="row">
-																					<div class="col-sm-12 mb-3">
-																						<label class="text-body fw-bold">Banner Header</label>
-																						<fieldset class="form-group mb-2">
-																							<div id="BannerHeader{{$b}}">
-																								{!! count($company) > 0 ? $company[0]['BannerHeader'.$b] : '' !!}
-																							</div>
-																						</fieldset>
-																					</div>
-																					<div class="col-sm-12 mb-3">
-																						<label class="text-body fw-bold">Banner Text (Deskripsi)</label>
-																						<fieldset class="form-group mb-2">
-																							<div id="BannerText{{$b}}">
-																								{!! count($company) > 0 ? $company[0]['BannerText'.$b] : '' !!}
-																							</div>
-																						</fieldset>
-																					</div>
-																					<div class="col-sm-12 mb-3">
-																						<label class="text-body fw-bold">Gambar Banner</label>
-																						<fieldset class="form-group mb-2">
-																							<textarea id="Banner{{$b}}Base64" name="Banner{{$b}}Base64" style="display: none;">{{ count($company) > 0 ? $company[0]['Banner'.$b] : '' }}</textarea>
-																							<input type="file" id="fileBanner{{$b}}" name="fileBanner{{$b}}" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
-																							<div class="xContainer border rounded p-1 text-center bg-light">
-																								<div id="Banner{{$b}}" class="image_result_sample" style="max-height: 200px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-																									@if (count($company) > 0 && !empty($company[0]['Banner'.$b]))
-																										<img src="{{$company[0]['Banner'.$b]}}" style="max-height: 100%; max-width: 100%;">
-																									@else
-																										<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg" style="max-height: 100%; max-width: 100%;">
-																									@endif
-																								</div>
-																							</div>
-																						</fieldset>
-																					</div>
-																				</div>
-																			</div>
-																		</div>
-																	</div>
-																	@endfor
-																</div>
-																
-																<hr class="my-4">
-																
-																<!-- Booking Online Info -->
-																<h5 class="text-dark font-weight-bold mb-4">Pengaturan Landing Page & Booking Online</h5>
-																<div class="row">
-																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Template Booking Online</label>
-																		<fieldset class="form-group mb-3">
-																			<select name="DefaultLandingPages" id="DefaultLandingPages" class="js-example-basic-single js-states form-control bg-transparent">
-																				<option value="bo1" {{count($company) > 0 ? $company[0]['DefaultLandingPages'] == "bo1"? "selected" : '' :""}} >Template 1</option>
-																				<option value="bo2" {{count($company) > 0 ? $company[0]['DefaultLandingPages'] == "bo2"? "selected" : '' :""}} >Template 2</option>
-																			</select>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Default Thema Warna Website</label>
-																		<fieldset class="form-group mb-3">
-																			<input type="color" class="form-control" id="DefaultLandingPageColor" name="DefaultLandingPageColor" value="{{ count($company) > 0 ? $company[0]['DefaultLandingPageColor'] : '' }}" >
-																		</fieldset>
-																	</div>
-
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Preview Template Booking</label>
-																		<fieldset class="form-group mb-3 text-center">
-																			<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="PreviewImageTemplate" class="border rounded shadow-xs" style="max-width: 350px; width: 100%;">
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Tampilkan Link URL Di Struk Transaksi</label>
-																		<fieldset class="form-group mb-3">
-																			<select name="ShowLinkInReciept" id="ShowLinkInReciept" class="js-example-basic-single js-states form-control bg-transparent">
-																				<option value="0" {{ count($company) > 0 ? $company[0]['ShowLinkInReciept'] == '0' ? 'selected' : '' : '' }}>Tidak</option>
-																				<option value="1" {{ count($company) > 0 ? $company[0]['ShowLinkInReciept'] == '1' ? 'selected' : '' : '' }}>Ya</option>
-																			</select>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-4">
-																		<label class="text-body fw-bold">Upload Image Banner Booking</label>
-																		<fieldset class="form-group mb-3">
-																			<textarea id="BannerBookingBase64" name="BannerBookingBase64" style="display: none;">{{ count($company) > 0 ? $company[0]['BannerBooking'] : '' }}</textarea>
-																			<input type="file" id="fileBannerBooking" name="fileBannerBooking" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
-																			<div class="xContainer border rounded p-1 text-center bg-light">
-																				<div id="BannerBooking" class="image_result_sample" style="max-height: 250px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-																					@if (count($company) > 0 && !empty($company[0]['BannerBooking']))
-																						<img src="{{$company[0]['BannerBooking']}}" style="max-height: 100%; max-width: 100%;">
-																					@else
-																						<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg" style="max-height: 100%; max-width: 100%;">
-																					@endif
-																				</div>
-																			</div>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Headline Banner Booking</label>
-																		<fieldset class="form-group mb-3">
-																			<div id="HeadlineBanner">
-																				{!! count($company) > 0 ? $company[0]['HeadlineBanner'] : '' !!}
-																			</div>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-4">
-																		<label class="text-body fw-bold">Sub Headline Banner Booking</label>
-																		<fieldset class="form-group mb-3">
-																			<div id="SubHeadlineBanner">
-																				{!! count($company) > 0 ? $company[0]['SubHeadlineBanner'] : '' !!}
-																			</div>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Jam Awal Booking</label>
-																		<fieldset class="form-group mb-3">
-																			<input type="text" class="form-control" id="JamAwalBooking" name="JamAwalBooking" step="60" value="{{ count($company) > 0 && $company[0]['JamAwalBooking'] ? date('H:i', strtotime($company[0]['JamAwalBooking'])) : '' }}">
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Jam Akhir Booking</label>
-																		<fieldset class="form-group mb-3">
-																			<input type="text" class="form-control" id="JamAkhirBooking" name="JamAkhirBooking" step="60" value="{{ count($company) > 0 && $company[0]['JamAkhirBooking'] ? date('H:i', strtotime($company[0]['JamAkhirBooking'])) : '' }}">
-																		</fieldset>
-																	</div>
-																</div>
-																
-																<hr class="my-4">
-																
-																<!-- Syarat & Ketentuan -->
-																<h5 class="text-dark font-weight-bold mb-4">Syarat & Ketentuan (Term & Conditions)</h5>
-																<div class="row">
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Term & Condition Umum</label>
-																		<fieldset class="form-group mb-3">
-																			<div id="TermAndCondition">
-																				{!! count($company) > 0 ? $company[0]['TermAndCondition'] : '' !!}
-																			</div>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">About Us (Tentang Kami)</label>
-																		<fieldset class="form-group mb-3">
-																			<div id="AboutUs">
-																				{!! count($company) > 0 ? $company[0]['AboutUs'] : '' !!}
-																			</div>
-																		</fieldset>
-																	</div>
-																	
-																	<div class="col-md-12 mb-4">
-																		<label class="text-body fw-bold">Term & Condition Booking Online</label>
-																		<fieldset class="form-group mb-3">
-																			<div id="TermAndConditionBookingOnline">
-																				{!! count($company) > 0 ? $company[0]['TermAndConditionBookingOnline'] : '' !!}
-																			</div>
-																		</fieldset>
-																	</div>
-																</div>
-																
-																<hr class="my-4">
-																
-																<!-- Meja yang bisa dipesan -->
-																<h5 class="text-dark font-weight-bold mb-3">Daftar Meja Yang Dapat Dipesan Online</h5>
-																<div class="row mb-4">
-																	<div class="col-md-12">
-																		<div class="table-responsive border rounded shadow-xs bg-light">
-																			<table id="bookingTable" class="table table-bordered table-striped m-0">
-																				<thead class="bg-primary text-white">
-																					<tr>
-																						<th style='display:none;'>No</th>
-																						<th>Meja</th>
-																						<th>Bisa Di Booking ?</th>
-																					</tr>
-																				</thead>
-																				<tbody id="tableBookingList">
-																					<!-- Data will load dynamically from database -->
-																				</tbody>
-																			</table>
-																		</div>
-																	</div>
-																</div>
-																<hr class="my-4">
-																
-																<!-- Image Gallery 1-12 -->
-																<h5 class="text-dark font-weight-bold mb-4">Galeri Foto Website (Maks. 12 Foto)</h5>
-																<div class="row">
-																	@for ($g = 1; $g <= 12; $g++)
-																	<div class="col-sm-3 mb-4">
-																		<fieldset class="form-group mb-0">
-																			<textarea id="ImageGallery{{$g}}Base64" name="ImageGallery{{$g}}Base64" style="display: none;">{{ count($company) > 0 ? $company[0]['ImageGallery'.$g] : '' }}</textarea>
-																			<input type="file" id="fileImageGallery{{$g}}" name="fileImageGallery{{$g}}" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
-																			<div class="xContainer border rounded p-1 text-center bg-light">
-																				<div id="ImageGallery{{$g}}" class="image_result_sample" style="height: 110px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-																					@if (!empty($company[0]['ImageGallery'.$g]))
-																						<img src="{{$company[0]['ImageGallery'.$g]}}" style="max-height: 100%; max-width: 100%;">
-																					@else
-																						<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg" style="max-height: 100%; max-width: 100%;">
-																					@endif
-																				</div>
-																				<span class="text-muted d-block mt-1 font-size-xs">Galeri #{{$g}}</span>
-																			</div>
-																		</fieldset>
-																	</div>
-																	@endfor
-																</div>
-																
-																<hr class="my-4">
-																
-																<!-- Tautan Cepat -->
-																<h5 class="text-dark font-weight-bold mb-3">Tautan Cepat Website & Booking</h5>
-																<div class="row">
-																	<div class="col-md-12 mb-3">
-																		<label class="text-body fw-bold">Link URL Halaman Website Utama</label>
-																		<div class="d-flex align-items-center">
-																			@if ($company[0]['JenisUsaha'] == "Retail")
-																			<a href="{{ url('cat/').'/'.$company[0]['KodePartner'].'#home-basic' }}" target="_blank" class="btn btn-primary font-weight-bold me-3">
-																				<i class="flaticon-link me-1"></i> Buka Website
-																			</a>
+																	<input type="file" id="fileImageCustDisplay1" name="fileImageCustDisplay1" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageCustDisplay1" class="image_result_sample">
+																			@if ($company[0]['ImageCustDisplay1'] != '')
+																				<img src=" {{$company[0]['ImageCustDisplay1']}} ">
 																			@else
-																			<a href="{{ url('fnb-store/').'/'.$company[0]['KodePartner'] }}" target="_blank" class="btn btn-primary font-weight-bold me-3">
-																				<i class="flaticon-link me-1"></i> Buka Website
-																			</a>
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
 																			@endif
-																			
-																			<a href="{{ $BookingURLString ?? '#' }}" target="_blank" class="btn btn-outline-primary font-weight-bold">
-																				<i class="flaticon-link me-1"></i> Buka Link Booking
-																			</a>
 																		</div>
 																	</div>
-																</div>
-																
+																</fieldset>
 															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageCustDisplay2Base64" name = "ImageCustDisplay2Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageCustDisplay2'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageCustDisplay2" name="fileImageCustDisplay2" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageCustDisplay2" class="image_result_sample">
+																			@if ($company[0]['ImageCustDisplay2'] != '')
+																				<img src=" {{$company[0]['ImageCustDisplay2']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageCustDisplay3Base64" name = "ImageCustDisplay3Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageCustDisplay3'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageCustDisplay3" name="fileImageCustDisplay3" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageCustDisplay3" class="image_result_sample">
+																			@if ($company[0]['ImageCustDisplay3'] != '')
+																				<img src=" {{$company[0]['ImageCustDisplay3']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageCustDisplay4Base64" name = "ImageCustDisplay4Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageCustDisplay4'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageCustDisplay4" name="fileImageCustDisplay4" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageCustDisplay4" class="image_result_sample">
+																			@if ($company[0]['ImageCustDisplay4'] != '')
+																				<img src=" {{$company[0]['ImageCustDisplay4']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageCustDisplay5Base64" name = "ImageCustDisplay5Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageCustDisplay5'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageCustDisplay5" name="fileImageCustDisplay5" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageCustDisplay5" class="image_result_sample">
+																			@if (!empty($company[0]['ImageCustDisplay5']) && $company[0]['ImageCustDisplay5'] != '')
+																				<img src=" {{$company[0]['ImageCustDisplay5']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
 														</div>
-														
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">Video 1</label>
+					                            			<fieldset class="form-group mb-4">
+					                            				<input type="text" class="form-control" id="VideoCustomerDisplay1" name="VideoCustomerDisplay1" placeholder="Masukan Link Video Google Drive" value="{{ count($company) > 0 ? $company[0]['VideoCustomerDisplay1'] : 0 }}" >
+																<small>*Masukan ID Video dari link Video Youtube Contoh : https://www.youtube.com/watch?v=<font color="red">IcJCYEZMpwA</font></small>
+															</fieldset>
+					                            		</div>
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">Video 2</label>
+					                            			<fieldset class="form-group mb-4">
+					                            				<input type="text" class="form-control" id="VideoCustomerDisplay2" name="VideoCustomerDisplay2" placeholder="Masukan Link Video Google Drive" value="{{ count($company) > 0 ? $company[0]['VideoCustomerDisplay2'] : 0 }}" >
+																<small>*Masukan ID Video dari link Video Youtube Contoh : https://www.youtube.com/watch?v=<font color="red">IcJCYEZMpwA</font></small>
+															</fieldset>
+					                            		</div>
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">Video 3</label>
+					                            			<fieldset class="form-group mb-4">
+					                            				<input type="text" class="form-control" id="VideoCustomerDisplay3" name="VideoCustomerDisplay3" placeholder="Masukan Link Video Google Drive" value="{{ count($company) > 0 ? $company[0]['VideoCustomerDisplay3'] : 0 }}" >
+																<small>*Masukan ID Video dari link Video Youtube Contoh : https://www.youtube.com/watch?v=<font color="red">IcJCYEZMpwA</font></small>
+															</fieldset>
+					                            		</div>
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">Video 4</label>
+					                            			<fieldset class="form-group mb-4">
+					                            				<input type="text" class="form-control" id="VideoCustomerDisplay4" name="VideoCustomerDisplay4" placeholder="Masukan Link Video Google Drive" value="{{ count($company) > 0 ? $company[0]['VideoCustomerDisplay4'] : 0 }}" >
+																<small>*Masukan ID Video dari link Video Youtube Contoh : https://www.youtube.com/watch?v=<font color="red">IcJCYEZMpwA</font></small>
+															</fieldset>
+					                            		</div>
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">Video 5</label>
+					                            			<fieldset class="form-group mb-4">
+					                            				<input type="text" class="form-control" id="VideoCustomerDisplay5" name="VideoCustomerDisplay5" placeholder="Masukan Link Video Google Drive" value="{{ count($company) > 0 ? $company[0]['VideoCustomerDisplay5'] : 0 }}" >
+																<small>*Masukan ID Video dari link Video Youtube Contoh : https://www.youtube.com/watch?v=<font color="red">IcJCYEZMpwA</font></small>
+															</fieldset>
+					                            		</div>
 													</div>
 												</div>
 
@@ -1054,7 +1027,7 @@
 														<div class="col-md-8">
 															<label  class="text-body">Preview</label>
 															<fieldset class="form-group mb-3">
-																<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="PreviewQueueDesign" width="100%">
+																<img src="#" id="PreviewQueueDesign" width="100%">
 															</fieldset>
 														</div>
 
@@ -1076,6 +1049,350 @@
 													</div>
 												</div>
 
+
+												<div class="tab-pane fade" id="booking" role="tabpanel" aria-labelledby="booking-tab">
+													<div class="form-group row">
+														
+														<div class="col-md-12">
+															<label class="text-body">Upload Image Banner Booking</label>
+															<fieldset class="form-group mb-3">
+																<textarea id = "BannerBookingBase64" name = "BannerBookingBase64" style="display: none;"> {{ count($company) > 0 ? $company[0]['BannerBooking'] : '' }} </textarea>
+																				
+																				<input type="file" id="fileBannerBooking" name="fileBannerBooking" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																				<div class="xContainer">
+																					<div id="BannerBooking" class="image_result_sample">
+																						@if (count($company) > 0)
+																							<img src=" {{$company[0]['BannerBooking']}} ">
+																						@else
+																							<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg">
+																						@endif
+																					</div>
+																				</div>
+															</fieldset>
+														</div>
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">Headline</label>
+					                            			<fieldset class="form-group mb-12">
+																<div id="HeadlineBanner">
+																	{!! count($company) > 0 ? $company[0]['HeadlineBanner'] : '' !!}
+																</div>
+															</fieldset>
+					                            		</div>
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">Sub Headline</label>
+					                            			<fieldset class="form-group mb-12">
+																<div id="SubHeadlineBanner">
+																	{!! count($company) > 0 ? $company[0]['SubHeadlineBanner'] : '' !!}
+																</div>
+					                            			</fieldset>
+					                            		</div>
+
+														
+														<div class="col-md-12">
+															<label class="text-body">Daftar Meja yang Bisa Dipesan</label>
+															<div class="table-responsive">
+																<table id="bookingTable" class="table table-bordered">
+																	<thead class="bg-primary text-white">
+																		<tr>
+																			<th style = 'display:none;'>No</th>
+																			<th>Meja</th>
+																			<th>Bisa Di Booking ?</th>
+																		</tr>
+																	</thead>
+																	<tbody id="tableBookingList">
+																		<!-- Data akan di-load dari database -->
+																	</tbody>
+																</table>
+															</div>
+														</div>
+
+														
+														<div class="col-md-6">
+															<label class="text-body">Jam Awal Booking</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" id="JamAwalBooking" name="JamAwalBooking" step="60"
+																	value="{{ count($company) > 0 ? date('H:i', strtotime($company[0]['JamAwalBooking'])) : '' }}">
+															</fieldset>
+														</div>
+														
+														<div class="col-md-6">
+															<label class="text-body">Jam Akhir Booking</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" id="JamAkhirBooking" name="JamAkhirBooking" step="60"
+																	value="{{ count($company) > 0 ? date('H:i', strtotime($company[0]['JamAkhirBooking'])) : '' }}">
+															</fieldset>
+														</div>
+														
+														<div class="col-md-12">
+					                            			<label  class="text-body">Term and Condition</label>
+					                            			<fieldset class="form-group mb-12">
+																<div id="TermAndCondition">
+																	{!! count($company) > 0 ? $company[0]['TermAndCondition'] : '' !!}
+																</div>
+					                            			</fieldset>
+					                            		</div>
+
+														<div class="col-md-12">
+					                            			<label  class="text-body">About US</label>
+					                            			<fieldset class="form-group mb-12">
+																<div id="AboutUs">
+																	{!! count($company) > 0 ? $company[0]['AboutUs'] : '' !!}
+																</div>
+					                            			</fieldset>
+					                            		</div>
+
+														<div class="row">
+															<label  class="text-body">Image Gallery</label>
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery1Base64" name = "ImageGallery1Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery1'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery1" name="fileImageGallery1" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery1" class="image_result_sample">
+																			@if ($company[0]['ImageGallery1'] != '')
+																				<img src=" {{$company[0]['ImageGallery1']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery2Base64" name = "ImageGallery2Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery2'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery2" name="fileImageGallery2" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery2" class="image_result_sample">
+																			@if ($company[0]['ImageGallery2'] != '')
+																				<img src=" {{$company[0]['ImageGallery2']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery3Base64" name = "ImageGallery3Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery3'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery3" name="fileImageGallery3" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery3" class="image_result_sample">
+																			@if ($company[0]['ImageGallery3'] != '')
+																				<img src=" {{$company[0]['ImageGallery3']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery4Base64" name = "ImageGallery4Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery4'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery4" name="fileImageGallery4" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery4" class="image_result_sample">
+																			@if ($company[0]['ImageGallery4'] != '')
+																				<img src=" {{$company[0]['ImageGallery4']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery5Base64" name = "ImageGallery5Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery5'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery5" name="fileImageGallery5" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery5" class="image_result_sample">
+																			@if ($company[0]['ImageGallery5'] != '')
+																				<img src=" {{$company[0]['ImageGallery5']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery6Base64" name = "ImageGallery6Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery6'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery6" name="fileImageGallery6" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery6" class="image_result_sample">
+																			@if ($company[0]['ImageGallery6'] != '')
+																				<img src=" {{$company[0]['ImageGallery6']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery7Base64" name = "ImageGallery7Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery7'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery7" name="fileImageGallery7" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery7" class="image_result_sample">
+																			@if ($company[0]['ImageGallery7'] != '')
+																				<img src=" {{$company[0]['ImageGallery7']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery8Base64" name = "ImageGallery8Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery8'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery8" name="fileImageGallery8" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery8" class="image_result_sample">
+																			@if ($company[0]['ImageGallery8'] != '')
+																				<img src=" {{$company[0]['ImageGallery8']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery9Base64" name = "ImageGallery9Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery9'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery9" name="fileImageGallery9" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery9" class="image_result_sample">
+																			@if ($company[0]['ImageGallery9'] != '')
+																				<img src=" {{$company[0]['ImageGallery9']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery10Base64" name = "ImageGallery10Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery10'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery10" name="fileImageGallery10" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery10" class="image_result_sample">
+																			@if ($company[0]['ImageGallery10'] != '')
+																				<img src=" {{$company[0]['ImageGallery10']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery11Base64" name = "ImageGallery11Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery11'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery11" name="fileImageGallery11" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery11" class="image_result_sample">
+																			@if ($company[0]['ImageGallery11'] != '')
+																				<img src=" {{$company[0]['ImageGallery11']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-sm-3">
+																<fieldset class="form-group mb-3">
+																	<textarea id = "ImageGallery12Base64" name = "ImageGallery12Base64" style="display: none;"> {{ count($company) > 0 ? $company[0]['ImageGallery12'] : '' }} </textarea>
+																	
+																	<input type="file" id="fileImageGallery12" name="fileImageGallery12" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																	<div class="xContainer">
+																		<div id="ImageGallery12" class="image_result_sample">
+																			@if ($company[0]['ImageGallery12'] != '')
+																				<img src=" {{$company[0]['ImageGallery12']}} ">
+																			@else
+																				<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg">
+																			@endif
+																		</div>
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-md-12">
+																<label class="text-body">Booking URL</label>
+																<fieldset class="form-group mb-3">
+																	<input type="text" class="form-control" id="BookingURL" name="BookingURL"
+																		value="{{ $BookingURLString }}" readonly>
+																</fieldset>
+															</div>
+
+															<div class="col-md-12">
+																<label  class="text-body">Term and Condition</label>
+																<fieldset class="form-group mb-12">
+																	<div id="TermAndConditionBookingOnline">
+																		{!! count($company) > 0 ? $company[0]['TermAndConditionBookingOnline'] : '' !!}
+																	</div>
+																</fieldset>
+															</div>
+
+															<div class="col-md-4">
+																<label  class="text-body">Template Booking Online</label>
+																<fieldset class="form-group mb-3">
+																	<select name="DefaultLandingPages" id="DefaultLandingPages" class="js-example-basic-single js-states form-control bg-transparent">
+																		<option value="bo1" {{ count($company) > 0 ? $company[0]['DefaultLandingPages'] == "bo1"? "selected" : '' :""}} >Template 1</option>
+																		<option value="bo2" {{ count($company) > 0 ? $company[0]['DefaultLandingPages'] == "bo2"? "selected" : '' :""}} >Template 2</option>
+																	</select>
+																</fieldset>
+															</div>
+
+															<div class="col-md-8">
+																<label  class="text-body">Preview</label>
+																<fieldset class="form-group mb-3">
+																	<img src="#" id="PreviewImageTemplate" width="100%">
+																</fieldset>
+															</div>
+
+															<div class="col-md-6">
+																<label class="text-body">Default Thema Warna</label>
+																<fieldset class="form-group mb-3">
+																	<input type="color" class="form-control" id="DefaultLandingPageColor" name="DefaultLandingPageColor" value="{{ count($company) > 0 ? $company[0]['DefaultLandingPageColor'] : '' }}" >
+																</fieldset>
+															</div>
+
+													</div>
+												</div>
 
 											</div>
 										</div>
@@ -1729,23 +2046,6 @@ var oCompany;
 			// alert("Current width=" + imgwidth + ", " + "Original height=" + imgheight);
 		});
 
-		jQuery("#fileImageCustDisplay5").change(function(){
-			var file = $(this)[0].files[0];
-			img = new Image();
-			img.src = _URL.createObjectURL(file);
-			var imgwidth = 0;
-			var imgheight = 0;
-			img.onload = function () {
-				imgwidth = this.width;
-				imgheight = this.height;
-				$('#width').val(imgwidth);
-				$('#height').val(imgheight);
-			}
-			readURL(this, "ImageCustDisplay5");
-			encodeImagetoBase64(this, "ImageCustDisplay5Base64");
-			// alert("Current width=" + imgwidth + ", " + "Original height=" + imgheight);
-		});
-
 		jQuery("#fileImageGallery1").change(function(){
 			var file = $(this)[0].files[0];
 			img = new Image();
@@ -2141,46 +2441,12 @@ var oCompany;
 		function encodeImagetoBase64(element, textOutput) {
 			$('#'+textOutput).val('');
 			var file = element.files[0];
-			if (!file) return;
-
 			var reader = new FileReader();
-			reader.onload = function(event) {
-				var img = new Image();
-				img.onload = function() {
-					// Set maximum dimensions for high-quality customer display slides
-					var max_width = 1200;
-					var max_height = 1200;
-					var width = img.width;
-					var height = img.height;
-
-					// Calculate new dimensions while maintaining aspect ratio
-					if (width > max_width || height > max_height) {
-						if (width > height) {
-							height = Math.round((height * max_width) / width);
-							width = max_width;
-						} else {
-							width = Math.round((width * max_height) / height);
-							height = max_height;
-						}
-					}
-
-					// Create HTML5 Canvas to perform client-side downscaling and compression
-					var canvas = document.createElement('canvas');
-					canvas.width = width;
-					canvas.height = height;
-					var ctx = canvas.getContext('2d');
-					
-					// Draw image with smooth scaling
-					ctx.drawImage(img, 0, 0, width, height);
-
-					// Compress to high-efficiency JPEG (0.75 quality reduces size by ~90% with zero visible quality loss)
-					var compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
-					
-					// Write compressed base64 directly to form field
-					$('#'+textOutput).val(compressedBase64);
-				};
-				img.src = event.target.result;
-			};
+			reader.onloadend = function() {
+				// $(".link").attr("href",reader.result);
+				// $(".link").text(reader.result);
+				$('#'+textOutput).val(reader.result);
+			}
 			reader.readAsDataURL(file);
 		}
 
@@ -2314,10 +2580,6 @@ var oCompany;
 	})
 
 	document.addEventListener("DOMContentLoaded", function () {
-    let tableBody = document.getElementById("tableBookingList");
-    if (!tableBody) {
-        return;
-    }
     console.log('Fetching meja list...');
     fetch('/get-meja')
         .then(response => {
@@ -2326,6 +2588,11 @@ var oCompany;
         })
         .then(data => {
             console.log('Meja data received:', data);
+            let tableBody = document.getElementById("tableBookingList");
+            if (!tableBody) {
+                console.error("Element tableBookingList tidak ditemukan!");
+                return;
+            }
             tableBody.innerHTML = "";
 
             data.forEach((meja) => {
