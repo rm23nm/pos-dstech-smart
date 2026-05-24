@@ -13,17 +13,19 @@ class SupportPage extends Migration
      */
     public function up()
     {
-        Schema::create('informasi_pages', function (Blueprint $table) {
-            $table->id();
-            $table->string('KodeInformasi')->unique();
-            $table->string('Judul');
-            $table->enum('Kategori', ['faq', 'tutorial']);
-            $table->text('Konten');
-            $table->longText('ThumbnailBase64')->nullable();
-            $table->boolean('IsPublished')->default(false);
-            $table->string('RecordOwnerID')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('informasi_pages')) {
+            Schema::create('informasi_pages', function (Blueprint $table) {
+                $table->id();
+                $table->string('KodeInformasi')->unique();
+                $table->string('Judul');
+                $table->enum('Kategori', ['faq', 'tutorial']);
+                $table->text('Konten');
+                $table->longText('ThumbnailBase64')->nullable();
+                $table->boolean('IsPublished')->default(false);
+                $table->string('RecordOwnerID')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

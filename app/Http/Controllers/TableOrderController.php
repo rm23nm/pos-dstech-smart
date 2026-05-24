@@ -393,7 +393,7 @@ class TableOrderController extends Controller
                     })
                     ->where('itemmaster.RecordOwnerID', $roid)
                     ->where('itemmaster.Active', 'Y')
-                    ->where('itemmaster.TypeItem', '<>', 4)
+                    ->whereNotIn('itemmaster.TypeItem', [2, 4])
                     ->orderBy('itemmaster.NamaItem', 'ASC')
                     ->get();
         $midtransdata = MetodePembayaran::where('RecordOwnerID','=',$roid)
