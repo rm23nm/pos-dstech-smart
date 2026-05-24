@@ -105,6 +105,64 @@ class PopulateDemoDataSeeder extends Seeder
         }
 
         // ----------------------------------------------------
+        // 1B. SEED TIKET MASUK (CL0010)
+        // ----------------------------------------------------
+        // Pastikan jenis item TIKET ada
+        DB::table('jenisitem')->updateOrInsert(
+            ['KodeJenis' => 'TIKET', 'RecordOwnerID' => 'CL0010'],
+            [
+                'NamaJenis' => 'Tiket Masuk',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        $tickets = [
+            ['KodeItem' => 'TKT-DW', 'NamaItem' => 'Tiket Masuk Dewasa', 'HargaJual' => 50000, 'Gambar' => 'https://images.unsplash.com/photo-1572402230267-f3e267c1e5d2?w=500&auto=format&fit=crop&q=60'],
+            ['KodeItem' => 'TKT-AN', 'NamaItem' => 'Tiket Masuk Anak', 'HargaJual' => 35000, 'Gambar' => 'https://images.unsplash.com/photo-1605144883445-6677f4efc4eb?w=500&auto=format&fit=crop&q=60'],
+            ['KodeItem' => 'TKT-WK', 'NamaItem' => 'Tiket Masuk Weekend', 'HargaJual' => 75000, 'Gambar' => 'https://images.unsplash.com/photo-1541935661642-e1d8825832a8?w=500&auto=format&fit=crop&q=60']
+        ];
+
+        foreach ($tickets as $tkt) {
+            $itemmasterPayload = $filterPayload('itemmaster', [
+                'KodeItem' => $tkt['KodeItem'],
+                'NamaItem' => $tkt['NamaItem'],
+                'KodeJenisItem' => 'TIKET',
+                'KodeMerk' => 'DSTech Ticket',
+                'TypeItem' => 2, // Jasa/Tiket
+                'Rak' => '-',
+                'KodeGudang' => 'UMM',
+                'KodeSupplier' => '-',
+                'Satuan' => 'PCS',
+                'Barcode' => $tkt['KodeItem'],
+                'Gambar' => $tkt['Gambar'],
+                'HargaPokokPenjualan' => 0,
+                'HargaJual' => $tkt['HargaJual'],
+                'HargaBeliTerakhir' => 0,
+                'Stock' => 999999,
+                'StockMinimum' => 0,
+                'isKonsinyasi' => 'N',
+                'Active' => 'Y',
+                'AcctHPP' => '',
+                'AcctPenjualan' => '',
+                'AcctPenjualanJasa' => '',
+                'AcctPersediaan' => '',
+                'VatPercent' => 0,
+                'TampilkanEMenu' => 0,
+                'isFlashSale' => 'N',
+                'FlashSalePrice' => 0,
+                'isBestSeller' => 'N',
+                'RecordOwnerID' => 'CL0010',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+            DB::table('itemmaster')->updateOrInsert(
+                ['KodeItem' => $tkt['KodeItem'], 'RecordOwnerID' => 'CL0010'],
+                $itemmasterPayload
+            );
+        }
+
+        // ----------------------------------------------------
         // 2. CONFIGURE DEMO RESTO & FNB ACCOUNT (CL0013)
         // ----------------------------------------------------
         $restoCompanyPayload = $filterPayload('company', [

@@ -442,6 +442,25 @@
                     showGreeting(data.name);
                 }
             }
+            if (e.originalEvent.key === 'PoSMidtransToken') {
+                const token = e.originalEvent.newValue;
+                if (token && typeof snap !== 'undefined') {
+                    snap.pay(token, {
+                        onSuccess: function(result) {
+                            localStorage.removeItem('PoSMidtransToken');
+                        },
+                        onPending: function(result) {
+                            localStorage.removeItem('PoSMidtransToken');
+                        },
+                        onError: function(result) {
+                            localStorage.removeItem('PoSMidtransToken');
+                        },
+                        onClose: function() {
+                            localStorage.removeItem('PoSMidtransToken');
+                        }
+                    });
+                }
+            }
         });
 
         function showGreeting(name) {

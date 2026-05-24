@@ -224,10 +224,10 @@ class TableOrderController extends Controller
     public function ViewNew(Request $request)
     {
         $roid = Auth::user()->RecordOwnerID;
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Jakarta');
 
         $paket = Paket::where('RecordOwnerID','=',$roid)->get();
-        $today = Carbon::now()->format('Y-m-d');
+        $today = Carbon::now('Asia/Jakarta')->format('Y-m-d');
 
         // SELF-HEALING: Re-open orders that were accidentally closed but the table is still active
         $activeTableIds = DB::table('titiklampu')
@@ -315,11 +315,18 @@ class TableOrderController extends Controller
                             COALESCE(serial_numbers.isBlocked, 0) as isBlocked,
                             COALESCE(serial_numbers.BlockedReason, '') as BlockedReason
                         ")
-                        ->leftJoin('tableorderheader', function ($value) use ($roid) {
-                            $value->on('titiklampu.id','=','tableorderheader.tableid')
-                            ->on('titiklampu.RecordOwnerID','=','tableorderheader.RecordOwnerID')
-                            ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
-                            ->where('tableorderheader.RecordOwnerID', '=', $roid);
+                        ->leftJoin('tableorderheader', function($join) use ($roid) {
+                            $join->on('titiklampu.id', '=', 'tableorderheader.tableid')
+                                 ->on('titiklampu.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID')
+                                 ->whereIn('tableorderheader.DocumentStatus', ['O', 'D'])
+                                 ->whereRaw("tableorderheader.NoTransaksi = (
+                                     SELECT t2.NoTransaksi FROM tableorderheader t2 
+                                     WHERE t2.tableid = titiklampu.id 
+                                     AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
+                                     AND t2.DocumentStatus IN ('O', 'D')
+                                     ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, id DESC
+                                     LIMIT 1
+                                 )");
                         })
                         ->leftJoin('pakettransaksi', function ($value)  {
                             $value->on('tableorderheader.paketid','=','pakettransaksi.id')
@@ -360,11 +367,15 @@ class TableOrderController extends Controller
                         ->where('titiklampu.RecordOwnerID', '=', $roid)
                         ->OrderBy('titiklampu.DigitalInput','ASC')
                         ->get();
+        
+        $titiklampu = $titiklampu->unique('id')->values();
 
         $titiklampuoption = TitikLampu::where('titiklampu.RecordOwnerID', '=', $roid)
                                 ->whereIn('titiklampu.Status',['0','-1', '1'])->get();
 
         $company = Company::Where('KodePartner','=',$roid)->get();
+        $gudangPoS = (count($company) > 0 && $company[0]->GudangPoS) ? $company[0]->GudangPoS : 'GDG01';
+
         $sales = Sales::Where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
         $sql = "pelanggan.KodePelanggan, pelanggan.NamaPelanggan, pelanggan.NoTlp1, pelanggan.NoTlp2, pelanggan.RecordOwnerID, 
@@ -373,11 +384,18 @@ class TableOrderController extends Controller
                     ->where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
         $metodepembayaran = MetodePembayaran::where('RecordOwnerID','=',$roid)->get();
-        $itemmaster = ItemMaster::select('KodeItem', 'NamaItem', 'HargaJual', 'Gambar', 'Stock', 'TypeItem')
-                    ->where('RecordOwnerID', $roid)
-                    ->where('Active', 'Y')
-                    ->where('TypeItem', '<>', 4)
-                    ->orderBy('NamaItem', 'ASC');
+
+        $itemmaster = ItemMaster::selectRaw("itemmaster.KodeItem, itemmaster.NamaItem, itemmaster.HargaJual, itemmaster.Gambar, itemmaster.TypeItem, COALESCE(itemwarehouses.Qty, 0) as Stock")
+                    ->leftJoin('itemwarehouses', function($join) use ($roid, $gudangPoS) {
+                        $join->on('itemmaster.KodeItem', '=', 'itemwarehouses.KodeItem')
+                            ->on('itemmaster.RecordOwnerID', '=', 'itemwarehouses.RecordOwnerID')
+                            ->where('itemwarehouses.KodeGudang', '=', $gudangPoS);
+                    })
+                    ->where('itemmaster.RecordOwnerID', $roid)
+                    ->where('itemmaster.Active', 'Y')
+                    ->where('itemmaster.TypeItem', '<>', 4)
+                    ->orderBy('itemmaster.NamaItem', 'ASC')
+                    ->get();
         $midtransdata = MetodePembayaran::where('RecordOwnerID','=',$roid)
                             ->where('MetodeVerifikasi','=','AUTO')->first();
         $midtransclientkey = "";
@@ -401,7 +419,7 @@ class TableOrderController extends Controller
             'sales' => $sales,
             'pelanggan' => $pelanggan,
             'metodepembayaran' => $metodepembayaran,
-            'itemmaster' => $itemmaster->get(),
+            'itemmaster' => $itemmaster,
             'midtransclientkey' => $midtransclientkey,
             'MetodePembayaranAutoID' => $MetodePembayaranAutoID,
             'kelompoklampu' => $kelompoklampu,
@@ -413,28 +431,8 @@ class TableOrderController extends Controller
 
     public function ViewSelfService(Request $request)
     {
-        $paket = Paket::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
         $roid = Auth::user()->RecordOwnerID;
-
-        // SELF-HEALING: Re-open latest orders for active tables
-        $activeTableIds = DB::table('titiklampu')
-            ->where('Status', 1)
-            ->where('RecordOwnerID', $roid)
-            ->pluck('id');
-
-        if ($activeTableIds->isNotEmpty()) {
-            foreach($activeTableIds as $tid) {
-                DB::table('tableorderheader')
-                    ->where('tableid', $tid)
-                    ->where('DocumentStatus', 'C')
-                    ->where('RecordOwnerID', $roid)
-                    ->orderBy('TglPencatatan', 'DESC')
-                    ->limit(1)
-                    ->update(['DocumentStatus' => 'O']);
-            }
-        }
-
-        // Removed auto-close logic
+        $paket = Paket::where('RecordOwnerID','=',$roid)->get();
                     
         $subqueryPembayaran = FakturPenjualanDetail::selectRaw("fakturpenjualandetail.BaseReff, fakturpenjualandetail.RecordOwnerID,
                             SUM(COALESCE(CASE WHEN fakturpenjualanheader.TotalPembayaran > fakturpenjualanheader.TotalPembelian THEN fakturpenjualanheader.TotalPembelian ELSE fakturpenjualanheader.TotalPembayaran END ,0)) as TotalPembayaran,
@@ -586,7 +584,7 @@ class TableOrderController extends Controller
             'sales' => $sales,
             'pelanggan' => $pelanggan,
             'metodepembayaran' => $metodepembayaran,
-            'itemmaster' => $itemmaster->get(),
+            'itemmaster' => $itemmaster,
             'midtransclientkey' => $midtransclientkey,
             'MetodePembayaranAutoID' => $MetodePembayaranAutoID,
             'kelompoklampu' => $kelompoklampu,
@@ -607,9 +605,21 @@ class TableOrderController extends Controller
             'DurasiPaket'=>'required'
         ]);
 
+        DB::beginTransaction();
         try {
             $now = Carbon::now('Asia/Jakarta');
             $roid = Auth::user()->RecordOwnerID;
+
+            // ATOMIC LOCK: Check table availability
+            $table = DB::table('titiklampu')
+                        ->where('id', $request->input('tableid'))
+                        ->where('RecordOwnerID', $roid)
+                        ->lockForUpdate()
+                        ->first();
+
+            if (!$table) {
+                return response()->json(['success' => false, 'message' => 'Meja tidak ditemukan.']);
+            }
 
             // Custom Chronological NoTransaksi: YYYYMMDDHHmmXXXX (16 digits)
             $prefixTrx = $now->format('Ymd');
@@ -621,9 +631,10 @@ class TableOrderController extends Controller
 
             $model = new TableOrderHeader;
             $model->NoTransaksi = $NoTransaksi;
+            $model->DocumentStatus = 'O'; // Default to Open
             $model->QueueNumber = intval(substr($NoTransaksi, -3));
-            $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi')) : $now;
-            $model->TglTransaksi = $tglTransaksi;
+            $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi'), 'Asia/Jakarta') : $now;
+            $model->TglTransaksi = $tglTransaksi->toDateString();
             $model->TglPencatatan = $now;
             $model->JenisPaket = $request->input('JenisPaket');
             $model->paketid = $request->input('paketid');
@@ -632,32 +643,39 @@ class TableOrderController extends Controller
             $model->DurasiPaket = $request->input('DurasiPaket');
             $model->Status = $request->input('Status');
             $model->KodePelanggan = $request->input('KodePelanggan');
-            $model->TaxTotal = 0;//$request->input('TaxTotal');
-            $model->GrossTotal = 0; //$request->input('GrossTotal');
-            $model->DiscTotal = 0;// $request->input('DiscTotal');
-            $model->NetTotal = 0;//$request->input('NetTotal');
+            $paket = DB::table('pakettransaksi')->where('id', $request->input('paketid'))->where('RecordOwnerID', $roid)->first();
+            $hargaPaket = $paket ? $paket->HargaNormal : 0;
+
+            $model->TaxTotal = 0;
+            $model->GrossTotal = $hargaPaket;
+            $model->DiscTotal = 0;
+            $model->NetTotal = $hargaPaket;
             
             // JamMulai Handling
-            // If provided from frontend (Slot selected), use it.
-            // If not provided (Flexible, or Menit), use NOW with the selected date.
             if ($request->input('JenisPaket') == 'DAILY' || $request->input('JenisPaket') == 'MONTHLY' || $request->input('JenisPaket') == 'YEARLY') {
-                $model->JamMulai = Carbon::parse($request->input('JamMulai'));
-                $model->JamSelesai = Carbon::parse($request->input('JamSelesai'));
+                $model->JamMulai = Carbon::parse($request->input('JamMulai'), 'Asia/Jakarta');
+                $model->JamSelesai = Carbon::parse($request->input('JamSelesai'), 'Asia/Jakarta');
             } elseif ($request->has('JamMulai') && $request->input('JamMulai') != "") {
                 $tgl = $request->input('TglBooking') ?? $tglTransaksi->toDateString();
                 $jam = $request->input('JamMulai');
-                $model->JamMulai = Carbon::parse($tgl . ' ' . $jam);
+                $jamMulaiParsed = Carbon::parse($tgl . ' ' . $jam, 'Asia/Jakarta');
+                
+                if ($jamMulaiParsed->lt($now) && $jamMulaiParsed->gt($now->copy()->subMinutes(60))) {
+                    $model->JamMulai = $now;
+                } else {
+                    $model->JamMulai = $jamMulaiParsed;
+                }
             } else {
-                $model->JamMulai = Carbon::parse($tglTransaksi->toDateString() . ' ' . $now->toTimeString());
+                $model->JamMulai = $now;
             }
 
             if ($request->input('JenisPaket') == 'JAM' || $request->input('JenisPaket') == 'PAKETMEMBER' || $request->input('JenisPaket') == 'JAMREALTIME') {
                  $jamMulai = $model->JamMulai->copy();
-                 $model->JamSelesai = $jamMulai->addHours($request->input('DurasiPaket'))->subMinute();
+                 $model->JamSelesai = $jamMulai->addHours($request->input('DurasiPaket'));
             }
 
             if ($request->input('JenisPaket') == 'MENIT') {
-                $model->JamSelesai = $model->JamMulai->copy()->addMinutes($request->input('DurasiPaket'))->subMinute();
+                $model->JamSelesai = $model->JamMulai->copy()->addMinutes($request->input('DurasiPaket'));
             }
 
             if ($request->input('JenisPaket') == 'MENITREALTIME' || $request->input('JenisPaket') == 'JAMREALTIME' || $request->input('JenisPaket') == 'PAYPERUSE') {
@@ -667,23 +685,51 @@ class TableOrderController extends Controller
                     $model->JamSelesai = null;
                 }
             }
+            // COLLISION DETECTION: Check for overlapping transactions on this table
+            $checkEnd = $model->JamSelesai ?? (clone $model->JamMulai)->addHours(24);
+            $overlap = DB::table('tableorderheader')
+                ->where('tableid', $model->tableid)
+                ->where('RecordOwnerID', $roid)
+                ->whereIn('DocumentStatus', ['O', 'D'])
+                ->where(function($q) use ($model, $checkEnd) {
+                    $q->where('JamMulai', '<', $checkEnd)
+                      ->where(DB::raw("COALESCE(JamSelesai, DATE_ADD(JamMulai, INTERVAL 24 HOUR))"), '>', $model->JamMulai);
+                })
+                ->exists();
 
-
-
-
+            if ($overlap) {
+                DB::rollBack();
+                return response()->json(['success' => false, 'message' => 'Meja sudah dipesan atau digunakan pada jam tersebut. Silakan pilih jam atau meja lain.']);
+            }
             // Future Booking Logic
             // If JamMulai > NOW, force Status to 0 (Booking/Scheduled)
-            $now = Carbon::now();
+            $now = Carbon::now('Asia/Jakarta');
             // dd($model->JamMulai->gt($now), $now, $model->JamMulai);
-            if ($model->JamMulai->gt($now)) {
+            if ($model->JamMulai->gt($now->copy()->addMinutes(60))) {
                 $model->Status = 0;
                 $model->DocumentStatus = 'D';
+            } else {
+                // Jika selisihnya di bawah 60 menit, paksa jadi Open
+                $model->DocumentStatus = 'O';
+                $model->Status = 1;
             }
             
             $model->RecordOwnerID = Auth::user()->RecordOwnerID;
+            
+            // Force Status = 1 if DocumentStatus is O (Open)
+            if ($model->DocumentStatus == 'O') {
+                $model->Status = 1;
+            }
 
-            // dd($model);
             $save = $model->save();
+
+            if ($save && $model->DocumentStatus == 'O') {
+                // SINKRONISASI LAMPU: Meja menjadi terpakai
+                DB::table('titiklampu')
+                    ->where('id', $model->tableid)
+                    ->where('RecordOwnerID', $roid)
+                    ->update(['Status' => 1]);
+            }
 
             // if ($save && $request->input('JenisPaket') == 'PAKETMEMBER') {
             //     $pelanggan = Pelanggan::where('KodePelanggan', $request->input('KodePelanggan'))
@@ -768,7 +814,7 @@ class TableOrderController extends Controller
             //             $pHeader = new PembayaranPenjualanHeader();
             //             $pHeader->Periode = $Year . $Month;
             //             $pHeader->NoTransaksi = $payNo;
-            //             $pHeader->TglTransaksi = Carbon::now();
+            //             $pHeader->TglTransaksi = Carbon::now('Asia/Jakarta');
             //             $pHeader->KodePelanggan = $pelanggan->KodePelanggan;
             //             $pHeader->TotalPembelian = $pricePerPlay;
             //             $pHeader->TotalPembayaran = $pricePerPlay;
@@ -808,12 +854,15 @@ class TableOrderController extends Controller
             //                 );
 
             if ($save) {
+                DB::commit();
                 $data['success'] = true;
                 $data['NoTransaksi'] = $NoTransaksi;
             }else{
+                DB::rollBack();
                 $data['message'] = 'Internal error, Contact System Administrator';
             }
         } catch (\Throwable $th) {
+            DB::rollBack();
             $data['message'] = 'Internal error, '. $th->getMessage() ;
         }
         return response()->json($data);
@@ -832,6 +881,9 @@ class TableOrderController extends Controller
                         ->where('RecordOwnerID','=', Auth::user()->RecordOwnerID);
 
             if ($model) {
+                $jenis = $model->first()->JenisPaket;
+                $intervalUnit = ($jenis == 'MENIT' || $jenis == 'MENITREALTIME') ? 'MINUTE' : 'HOUR';
+
                 $update = DB::table('tableorderheader')
                             ->where('NoTransaksi','=', $request->input('txtNoTransaksi_RubahDurasi'))
                             ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
@@ -839,7 +891,7 @@ class TableOrderController extends Controller
                                 [
                                     'Status' => '1',
                                     'DurasiPaket' => DB::raw('DurasiPaket + ' . $request->input('txtDurasiPaket_RubahDurasi')),
-                                    'JamSelesai' => DB::raw('DATE_ADD(JamMulai, INTERVAL DurasiPaket HOUR)')
+                                    'JamSelesai' => DB::raw("DATE_ADD(JamMulai, INTERVAL (DurasiPaket + " . $request->input('txtDurasiPaket_RubahDurasi') . ") " . $intervalUnit . ")")
                                 ]
                             );
 
@@ -865,7 +917,7 @@ class TableOrderController extends Controller
         ]);
 
         try {
-            $model = TableOrderHeader::selectRaw("tableorderheader.NoTransaksi,  COALESCE(SUM(tableorderfnb.LineTotal),0) AS totalFNB, COALESCE(SUM(fakturpenjualanheader.TotalPembelian),0) AS TotalCostTable, COALESCE(SUM(fakturpenjualanheader.TotalPembayaran), 0) SumedPayment ")
+            $model = TableOrderHeader::selectRaw("tableorderheader.NoTransaksi, tableorderheader.tableid, COALESCE(SUM(tableorderfnb.LineTotal),0) AS totalFNB, COALESCE(SUM(fakturpenjualanheader.TotalPembelian),0) AS TotalCostTable, COALESCE(SUM(fakturpenjualanheader.TotalPembayaran), 0) SumedPayment ")
                         ->leftJoin('tableorderfnb', function ($value)  {
                             $value->on('tableorderfnb.NoTransaksi','=','tableorderheader.NoTransaksi')
                             ->on('tableorderfnb.RecordOwnerID','=','tableorderheader.RecordOwnerID');
@@ -882,7 +934,7 @@ class TableOrderController extends Controller
                         })
                         ->where('tableorderheader.NoTransaksi','=',$request->input('txtNoTransaksi_CheckOut'))
                         ->where('tableorderheader.RecordOwnerID','=', Auth::user()->RecordOwnerID)
-                        ->groupBy('tableorderheader.NoTransaksi')->first();
+                        ->groupBy('tableorderheader.NoTransaksi', 'tableorderheader.tableid')->first();
             
             $totalTransaksi = $model->totalFNB + $model->TotalCostTable;
             $Status = -1;
@@ -903,12 +955,17 @@ class TableOrderController extends Controller
                             ->update(
                                 [
                                     'Status' => $Status,
-                                    'JamSelesai' => DB::raw("CASE WHEN JamSelesai IS NULL THEN NOW() ELSE JamSelesai END")
-                                    // 'JamSelesai' => DB::raw("CASE WHEN '" . $request->input('txtJenisPaket_CheckOut') . "' = 'MENIT' OR '" . $request->input('txtJenisPaket_CheckOut') . "' = 'MENITREALTIME' THEN NOW() ELSE JamSelesai END")
+                                    'JamSelesai' => DB::raw("CASE WHEN JamSelesai IS NULL THEN '" . Carbon::now('Asia/Jakarta')->toDateTimeString() . "' ELSE JamSelesai END")
                                 ]
                             );
 
                 if ($update) {
+                    // SINKRONISASI LAMPU
+                    DB::table('titiklampu')
+                        ->where('id', $model->tableid)
+                        ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                        ->update(['Status' => $Status]);
+
                     $data['success'] = true;
                 }else{
                     $data['message']= 'Update Data Paket Gagal';
@@ -1887,6 +1944,12 @@ class TableOrderController extends Controller
                         'DocumentStatus' => 'C',
                         'TotalTerbayar' => $totalTerbayar
                     ]);
+                
+                // Sinkronisasi Lampu: Langsung Matikan (Hijau)
+                DB::table('titiklampu')
+                    ->where('id', $order->tableid)
+                    ->where('RecordOwnerID', $recordOwnerID)
+                    ->update(['Status' => 0]);
             } else {
                 // Jika belum bayar
                 DB::table('tableorderheader')
@@ -1897,6 +1960,12 @@ class TableOrderController extends Controller
                         'Status' => -1,
                         'TotalTerbayar' => $totalTerbayar
                     ]);
+                
+                // Sinkronisasi Lampu: Set ke Status Checkout (Kuning/Status -1)
+                DB::table('titiklampu')
+                    ->where('id', $order->tableid)
+                    ->where('RecordOwnerID', $recordOwnerID)
+                    ->update(['Status' => -1]);
             }
 
             return response()->json([
@@ -2457,10 +2526,24 @@ class TableOrderController extends Controller
                             'Status' => 1,
                             'DocumentStatus' => 'O'
                         ]);
+                    
+                    // SINKRONISASI LAMPU: Aktifkan kembali
+                    DB::table('titiklampu')
+                        ->where('id', $currentData->tableid)
+                        ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                        ->update(['Status' => 1]);
+
                     alert()->success('Success', 'Controller berhasil direset (Fixed: Active Order Restored).');
                 } else {
                     // Tidak ada yang valid (Semua sudah expired) -> Tetap Closed semua.
-                        alert()->success('Success', 'Controller berhasil direset (Fixed: All Expired).');
+                    
+                    // SINKRONISASI LAMPU: Matikan
+                    DB::table('titiklampu')
+                        ->where('id', $currentData->tableid)
+                        ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                        ->update(['Status' => 0]);
+
+                    alert()->success('Success', 'Controller berhasil direset (Fixed: All Expired).');
                 }
                 // 2. Jika record nya = 1 langsung update saja
                 // if (count($checkOrder) == 1) { 
@@ -2729,17 +2812,23 @@ class TableOrderController extends Controller
     public function storePaket(Request $request)
     {
         $roid = Auth::user()->RecordOwnerID;
+        Log::info("DEBUG storePaket REQUEST: " . json_encode($request->all()));
         $data = array('success' => false, 'message' => '', 'data' => array(), 'NoTransaksi' => "");
 
-        $this->validate($request, [
-            'JenisPaket' => 'required',
-            'paketid' => $request->input('JenisPaket') === 'PAKETMEMBER' ? 'nullable' : 'required',
-            'tableid' => 'required',
-            'KodeSales' => 'required',
-            'DurasiPaket' => 'required',
-            'TglTransaksi' => 'required',
-            'JamMulai' => 'required'
-        ]);
+        try {
+            $this->validate($request, [
+                'JenisPaket' => 'required',
+                'paketid' => $request->input('JenisPaket') === 'PAKETMEMBER' ? 'nullable' : 'required',
+                'tableid' => 'required',
+                'KodeSales' => 'required',
+                'DurasiPaket' => 'required',
+                'TglTransaksi' => 'required',
+                'JamMulai' => 'required'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error("storePaket VALIDATION FAILED: " . json_encode($e->errors()) . " | Request: " . json_encode($request->all()));
+            return response()->json(['success' => false, 'message' => 'Validasi gagal: ' . implode(", ", array_keys($e->errors()))]);
+        }
 
         DB::beginTransaction();
         try {
@@ -2747,6 +2836,18 @@ class TableOrderController extends Controller
             $now = Carbon::now('Asia/Jakarta');
             $Year = $now->format('Y');
             $Month = $now->format('m');
+
+            // ATOMIC LOCK: Check table availability
+            $table = DB::table('titiklampu')
+                        ->where('id', $request->input('tableid'))
+                        ->where('RecordOwnerID', $roid)
+                        ->lockForUpdate()
+                        ->first();
+
+            if (!$table) {
+                DB::rollBack();
+                return response()->json(['success' => false, 'message' => 'Meja tidak ditemukan.']);
+            }
 
             // MIGRATION: Ensure QueueNumber column exists (Safer check)
             if (!Schema::hasColumn('tableorderheader', 'QueueNumber')) {
@@ -2815,6 +2916,29 @@ class TableOrderController extends Controller
                 }
             }
 
+            // COLLISION DETECTION: Check for overlapping transactions on this table
+            if ($model->JamMulai && $model->JamSelesai) {
+                $overlap = DB::table('tableorderheader')
+                    ->where('tableid', $model->tableid)
+                    ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                    ->whereIn('DocumentStatus', ['O', 'D'])
+                    ->where(function($q) use ($model) {
+                        $q->where(function($sub) use ($model) {
+                            $sub->where('JamMulai', '<', $model->JamSelesai)
+                                ->where(function($inner) use ($model) {
+                                    $inner->where('JamSelesai', '>', $model->JamMulai)
+                                          ->orWhereNull('JamSelesai');
+                                });
+                        });
+                    })
+                    ->exists();
+
+                if ($overlap) {
+                    DB::rollBack();
+                    return response()->json(['success' => false, 'message' => 'Meja sudah dipesan atau digunakan pada jam tersebut. Silakan pilih jam atau meja lain.']);
+                }
+            }
+
             // Financial Defaults
             $model->TaxTotal = 0;
             $model->GrossTotal = 0;
@@ -2833,14 +2957,11 @@ class TableOrderController extends Controller
                 }
             }
 
-            // Booking Logic - Use a 5-minute tolerance for "now"
+            // Booking Logic
             $now = Carbon::now('Asia/Jakarta');
-            $dtStart = Carbon::parse($request->input('JamMulai'), 'Asia/Jakarta');
-            // Jika JamMulai diinput lebih dari 15 menit dari sekarang, anggap BOOKING. 
-            // Namun jika kurang dari itu, anggap AKTIF (O) untuk mengatasi selisih detik/menit server.
-            $toleranceTime = (clone $now)->addMinutes(15);
 
-            if ($dtStart->gt($toleranceTime) || $isMidtrans) {
+            // Use the JamMulai that already includes the date (from line 2867)
+            if ($model->JamMulai->gt($now) || $isMidtrans) {
                 // Future Booking
                 $model->Status = 0;
                 $model->DocumentStatus = 'D';
@@ -2954,7 +3075,7 @@ class TableOrderController extends Controller
                     $currentStock = ($stock === null) ? 0 : floatval($stock);
                     if ($currentStock < $qty) {
                         $itemName = DB::table('itemmaster')->where('RecordOwnerID', Auth::user()->RecordOwnerID)->where('KodeItem', $kodeItem)->value('NamaItem') ?? $kodeItem;
-                        return response()->json(['success' => false, 'message' => "Stok item $itemName ($kodeItem) tidak mencukupi (Tersedia: $currentStock, Diminta: $qty)."], 400);
+                        return response()->json(['success' => false, 'message' => "Stok item $itemName ($kodeItem) tidak mencukupi (Tersedia: $currentStock, Diminta: $qty)."]);
                     }
                 }
 
@@ -3315,32 +3436,97 @@ public function getTableStatuses()
                 ->where('JamSelesai', '<', $now)
                 ->get();
 
+            // 0. Repair missing DocumentStatus (Force to 'O' if it looks like an active order, or 'D' if booking)
+            // This fixes tables like "Basket 5" that might have been created with empty DocumentStatus
+            // Force 'O' ONLY if JamMulai <= now
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where(function($q) {
+                    $q->whereNull('DocumentStatus')->orWhere('DocumentStatus', '');
+                })
+                ->where('Status', '!=', 0)
+                ->where('JamMulai', '<=', $now)
+                ->update(['DocumentStatus' => 'O']);
+
+            // Force 'D' if JamMulai > now
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where(function($q) {
+                    $q->whereNull('DocumentStatus')->orWhere('DocumentStatus', '');
+                })
+                ->where('JamMulai', '>', $now)
+                ->update(['DocumentStatus' => 'D', 'Status' => 0]);
+
+            // Auto-Activate Bookings ('D' -> 'O') if JamMulai <= now
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('DocumentStatus', 'D')
+                ->where('JamMulai', '<=', $now)
+                ->update(['DocumentStatus' => 'O', 'Status' => 1]);
+
             foreach ($expiredTables as $et) {
                 $netTotal = floatval($et->NetTotal ?? 0);
                 $totalPaid = floatval($et->TotalTerbayar ?? 0);
-                
-                if ($totalPaid >= $netTotal || $netTotal == 0) {
-                    // Fully Paid or Free -> Green/Kosong
+
+                // BUGFIX: Pastikan JamSelesai benar-benar sudah lewat sebelum mematikan lampu.
+                // Sebelumnya kondisi ($netTotal == 0) menyebabkan lampu langsung mati meski waktu sewa
+                // belum habis (contoh: paket gratis atau NetTotal belum ter-set di awal sesi).
+                $jamSelesai = $et->JamSelesai ? Carbon::parse($et->JamSelesai, 'Asia/Jakarta') : null;
+                $isReallyExpired = $jamSelesai && $jamSelesai->lt($now);
+
+                if (!$isReallyExpired) {
+                    // Waktu belum habis, skip - jangan matikan lampu
+                    continue;
+                }
+
+                if ($totalPaid >= $netTotal && $netTotal > 0) {
+                    // Sudah lunas dan waktu habis -> matikan (Kosong/Hijau)
+                    DB::table('tableorderheader')->where('NoTransaksi', $et->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'C']);
+                    DB::table('titiklampu')->where('id', $et->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+                } elseif ($netTotal == 0) {
+                    // NetTotal = 0 (gratis/belum diisi) DAN waktu sudah habis -> tutup
                     DB::table('tableorderheader')->where('NoTransaksi', $et->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'C']);
                     DB::table('titiklampu')->where('id', $et->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
                 } else {
-                    // Unpaid -> Checkout status (Orange)
+                    // Waktu habis tapi belum lunas -> Checkout status (Kuning/Orange)
                     DB::table('titiklampu')->where('id', $et->tableid)->where('RecordOwnerID', $roid)->update(['Status' => -1]);
                 }
             }
 
+            // A.1. Repair: If table is in Checkout status (-1) but already PAID (with rounding) 
+            // and time is not up yet, revert it back to ACTIVE (1) so it stays RED.
+            DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('Status', -1)
+                ->where('DocumentStatus', 'O')
+                ->where('JamSelesai', '>', $now)
+                ->whereRaw('ROUND(COALESCE(TotalTerbayar, 0), 0) >= ROUND(COALESCE(NetTotal, 0), 0)')
+                ->update(['Status' => 1]);
+
             // B. Flag Nearly Expired Tables (10 mins) - Bulk Update
+            // 1. Set to 99 if within 10 mins
             DB::table('titiklampu')
                 ->join('tableorderheader', 'titiklampu.id', '=', 'tableorderheader.tableid')
                 ->where('titiklampu.RecordOwnerID', $roid)
                 ->where('tableorderheader.RecordOwnerID', $roid)
                 ->where('tableorderheader.DocumentStatus', 'O')
-                ->where('titiklampu.Status', '1')
+                ->where('titiklampu.Status', 1)
                 ->whereNotNull('tableorderheader.JamSelesai')
                 ->whereBetween('tableorderheader.JamSelesai', [$now, $nearlyExpiredThreshold])
                 ->update(['titiklampu.Status' => 99]);
 
-            // C. Auto-Activate Bookings (D -> O) when JamMulai <= now
+            // 2. REVERT: Set back to 1 if > 10 mins (Fixes drift issues)
+            DB::table('titiklampu')
+                ->join('tableorderheader', 'titiklampu.id', '=', 'tableorderheader.tableid')
+                ->where('titiklampu.RecordOwnerID', $roid)
+                ->where('tableorderheader.RecordOwnerID', $roid)
+                ->where('tableorderheader.DocumentStatus', 'O')
+                ->where('titiklampu.Status', 99)
+                ->whereNotNull('tableorderheader.JamSelesai')
+                ->where('tableorderheader.JamSelesai', '>', $nearlyExpiredThreshold)
+                ->update(['titiklampu.Status' => 1]);
+
+            // C. Auto-Activate Bookings (D -> O) TEPAT saat JamMulai <= now
             $toActivate = DB::table('tableorderheader')
                 ->where('RecordOwnerID', $roid)
                 ->where('DocumentStatus', 'D')
@@ -3349,9 +3535,93 @@ public function getTableStatuses()
             
             foreach ($toActivate as $ta) {
                 DB::table('tableorderheader')->where('NoTransaksi', $ta->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'O']);
+                // Always turn ON if activating
                 DB::table('titiklampu')->where('id', $ta->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
             }
-            // B. (Removed optimized subqueries as we use TotalTerbayar now)
+
+            // D. Self-Healing: Auto-Deactivate Future Active Orders (O -> D) jika JamMulai masih di masa depan
+            $toDeactivate = DB::table('tableorderheader')
+                ->where('RecordOwnerID', $roid)
+                ->where('DocumentStatus', 'O')
+                ->where('JamMulai', '>', $now)
+                ->get();
+
+            foreach ($toDeactivate as $td) {
+                // Check if there is ANOTHER truly active order for this table
+                $hasOtherActive = DB::table('tableorderheader')
+                    ->where('tableid', $td->tableid)
+                    ->where('RecordOwnerID', $roid)
+                    ->where('DocumentStatus', 'O')
+                    ->where('NoTransaksi', '!=', $td->NoTransaksi)
+                    ->where('JamMulai', '<=', $now)
+                    ->exists();
+
+                DB::table('tableorderheader')->where('NoTransaksi', $td->NoTransaksi)->where('RecordOwnerID', $roid)->update(['DocumentStatus' => 'D', 'Status' => 0]);
+                
+                // Only turn OFF if no other active transaction exists
+                if (!$hasOtherActive) {
+                    DB::table('titiklampu')->where('id', $td->tableid)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+                }
+            }
+
+            // E. Data Consistency Repair: Force Turn ON if active order exists but light is OFF or incorrectly in Checkout/NearlyExp status
+            // This fixes cases where status became 0, -1, or 99 incorrectly.
+            $shouldBeRed = DB::table('tableorderheader')
+                ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
+                ->where('tableorderheader.RecordOwnerID', $roid)
+                ->where('titiklampu.RecordOwnerID', $roid)
+                ->where('tableorderheader.DocumentStatus', 'O')
+                ->where('tableorderheader.Status', 1)
+                ->whereIn('titiklampu.Status', [0, -1, 99]) // Fix if Green, Yellow(Checkout), or Yellow(NearlyExp)
+                ->where('tableorderheader.JamMulai', '<=', $now)
+                ->where(function($q) use ($now) {
+                    $q->where('tableorderheader.JamSelesai', '>=', $now)
+                      ->orWhereNull('tableorderheader.JamSelesai');
+                })
+                ->select('titiklampu.id', 'tableorderheader.NoTransaksi')
+                ->get();
+            
+            foreach ($shouldBeRed as $sbr) {
+                DB::table('titiklampu')->where('id', $sbr->id)->where('RecordOwnerID', $roid)->update(['Status' => 1]);
+            }
+
+
+            // F. Data Consistency Repair (Checkout Status):
+            // Force status -1 (Checkout/Yellow) if tableorderheader status is -1
+            $shouldBeYellow = DB::table('tableorderheader')
+                ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
+                ->where('tableorderheader.RecordOwnerID', $roid)
+                ->where('titiklampu.RecordOwnerID', $roid)
+                ->where('tableorderheader.Status', -1)
+                ->where('titiklampu.Status', '!=', -1)
+                ->select('titiklampu.id')
+                ->get();
+            
+            foreach ($shouldBeYellow as $sby) {
+                DB::table('titiklampu')->where('id', $sby->id)->where('RecordOwnerID', $roid)->update(['Status' => -1]);
+            }
+
+            // G. Data Consistency Repair (Force OFF): 
+            // Turn OFF if light is ON (1, 99, -1) but NO active transaction ('O' or 'D') exists.
+            // This prevents lights from being "stuck" ON after an order is manually deleted or closed incorrectly.
+            $stuckOn = DB::table('titiklampu')
+                ->where('RecordOwnerID', $roid)
+                ->whereIn('Status', [1, 99, -1]) 
+                ->whereNotExists(function($query) use ($roid) {
+                    $query->select(DB::raw(1))
+                        ->from('tableorderheader')
+                        ->whereColumn('tableorderheader.tableid', 'titiklampu.id')
+                        ->where('tableorderheader.RecordOwnerID', $roid)
+                        ->where('tableorderheader.DocumentStatus', 'O'); // Only allow light if there is an ACTIVE order
+                })
+                ->select('id')
+                ->get();
+
+            foreach ($stuckOn as $so) {
+                DB::table('titiklampu')->where('id', $so->id)->where('RecordOwnerID', $roid)->update(['Status' => 0]);
+            }
+
+            // H. (Removed optimized subqueries as we use TotalTerbayar now)
 
             // 3. MAIN STATUS QUERY (SUPER LIGHTWEIGHT)
             $titiklampu = DB::table('titiklampu')
@@ -3378,7 +3648,7 @@ public function getTableStatuses()
                     COALESCE(tableorderheader.NetTotal, 0) as NetTotal,
                     COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok
                 ")
-                ->leftJoin('tableorderheader', function($join) use ($roid) {
+                ->leftJoin('tableorderheader', function($join) use ($roid, $now) {
                     $join->on('titiklampu.id', '=', 'tableorderheader.tableid')
                          ->on('titiklampu.RecordOwnerID', '=', 'tableorderheader.RecordOwnerID')
                          ->where('tableorderheader.RecordOwnerID', '=', $roid)
@@ -3388,7 +3658,10 @@ public function getTableStatuses()
                              WHERE t2.tableid = titiklampu.id 
                              AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
                              AND t2.DocumentStatus IN ('O', 'D')
-                             ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, t2.JamMulai DESC
+                             ORDER BY 
+                                CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC,
+                                CASE WHEN t2.JamMulai <= '{$now->toDateTimeString()}' THEN 0 ELSE 1 END ASC,
+                                ABS(TIMESTAMPDIFF(SECOND, t2.JamMulai, '{$now->toDateTimeString()}')) ASC
                              LIMIT 1
                          )");
                 })
@@ -3410,8 +3683,21 @@ public function getTableStatuses()
 
             // Format data for response
             $titiklampu->transform(function ($item) {
-                $item->JamMulaiParsed = $item->JamMulai ? Carbon::parse($item->JamMulai)->format('H:i') : '-';
-                $item->JamSelesaiParsed = $item->JamSelesai ? Carbon::parse($item->JamSelesai)->format('H:i') : '-';
+                $mulai = $item->JamMulai ? Carbon::parse($item->JamMulai, 'Asia/Jakarta') : null;
+                $selesai = $item->JamSelesai ? Carbon::parse($item->JamSelesai, 'Asia/Jakarta') : null;
+                
+                if ($mulai) {
+                    $item->JamMulaiParsed = $mulai->isToday() ? $mulai->format('H:i') : $mulai->format('d/m H:i');
+                } else {
+                    $item->JamMulaiParsed = '-';
+                }
+
+                if ($selesai) {
+                    $item->JamSelesaiParsed = $selesai->isToday() ? $selesai->format('H:i') : $selesai->format('d/m H:i');
+                } else {
+                    $item->JamSelesaiParsed = '-';
+                }
+
                 $item->Status = intval($item->Status ?? $item->status ?? 0);
                 return $item;
             });
@@ -3433,6 +3719,7 @@ public function getTableStatuses()
     public function storeFnBOrder(Request $request)
     {
         $recordOwnerID = Auth::user()->RecordOwnerID;
+        Log::info("DEBUG storeFnBOrder FULL REQUEST: " . json_encode($request->all()));
         Log::critical("storeFnBOrder REACHED - Request: " . json_encode($request->all()));
 
         DB::beginTransaction();
@@ -3441,6 +3728,7 @@ public function getTableStatuses()
             $items = $request->input('items', []);
             
             if (empty($items)) {
+                Log::error("storeFnBOrder FAILED: Items empty for NoTransaksi: $noTransaksi");
                 return response()->json(['success' => false, 'message' => 'Daftar pesanan makanan kosong. Silahkan pilih menu terlebih dahulu.'], 400);
             }
             $opsiBayar = $request->input('FnbOpsiBayar') ?? $request->input('OpsiBayar') ?? 'NANTI';
@@ -3505,9 +3793,11 @@ public function getTableStatuses()
 
                     if ($currentStock < $qty) {
                         DB::rollBack();
+                        $errMsg = "Stok item $namaItem ($kodeItem) tidak mencukupi di gudang $gudangPoS (Tersedia: $currentStock, Diminta: $qty). Silahkan isi stok atau aktifkan 'Allow Negative Inventory' di pengaturan.";
+                        Log::error("storeFnBOrder FAILED: $errMsg");
                         return response()->json([
                             'success' => false, 
-                            'message' => "Stok item $namaItem ($kodeItem) tidak mencukupi di gudang $gudangPoS (Tersedia: $currentStock, Diminta: $qty). Silahkan isi stok atau aktifkan 'Allow Negative Inventory' di pengaturan."
+                            'message' => $errMsg
                         ], 400);
                     }
                 }
@@ -3535,6 +3825,7 @@ public function getTableStatuses()
                     'LineTotal' => $lineTotal + $tax + $service,
                     'isCompleted' => 0,
                     'ServiceType' => $request->input('ServiceType', 'DINE_IN'),
+                    'OrderSource' => 'POS',
                     'RecordOwnerID' => $recordOwnerID,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
@@ -4986,7 +5277,7 @@ public function getTableStatuses()
         $ppnPersen = floatval($company->PPN ?? 0);
         $servicePersen = floatval($company->ServiceCharge ?? 0);
         $periode = date('Ym');
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Jakarta');
 
         // Calculate totals
         $subtotal = 0;

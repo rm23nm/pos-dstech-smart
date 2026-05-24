@@ -219,8 +219,9 @@
 		<!--begin::Toolbar-->
 		<div class="d-flex align-items-center">
            
-			<div class="posicon">
-				<a href="{{ url('fpenjualan/pos') }}" class="btn btn-primary d-flex align-items-center justify-content-center white me-2">POS</a>
+			<div class="posicon d-flex">
+				<a href="{{ url('gate/logs') }}" class="btn btn-info d-flex align-items-center justify-content-center white me-2">Log Gate</a>
+				<a href="{{ url('fnb-pos') }}" class="btn btn-danger d-flex align-items-center justify-content-center white me-2">POS</a>
 			</div>
 			<button class="btn p-0" id="tc_aside_mobile_toggle">
 				<svg width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-justify-right" fill="currentColor"
@@ -428,7 +429,7 @@
 
 												if ($l2Name === 'bussiness partner') {
 													$targetCat = 'crm';
-												} elseif ($l2Name === 'controller') {
+												} elseif (in_array($l2Name, ['controller', 'manajemen gate'])) {
 													$targetCat = 'billiard';
 												} elseif ($l2Name === 'item master data') {
 													$targetCat = 'inventory';
@@ -726,7 +727,8 @@
 
 					<div class="topbar">	
 						
-						<div class="posicon d-lg-block d-none">
+						<div class="posicon d-lg-flex d-none">
+							<a href="{{ url('gate/logs') }}" class="btn btn-info white me-2">Log Gate</a>
 							<a href="{{ url('fpenjualan/pos') }}" class="btn btn-primary white me-2">POS</a>
 						</div>
 					

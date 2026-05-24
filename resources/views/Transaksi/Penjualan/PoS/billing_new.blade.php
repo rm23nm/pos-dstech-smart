@@ -769,6 +769,7 @@
         </div>
         <div class="clock-display" id="posHeaderClock">--:--:--</div>
         <div class="d-flex align-items-center gap-3 header-actions">
+            <a href="{{ route('ticketing-pos') }}" class="btn btn-sm btn-info text-white" style="background:#0ea5e9; border:none; padding:4px 10px; border-radius:4px;"><i class="fas fa-swimmer"></i> Ticketing / Kolam</a>
             <div class="refresh-config">
                 <i class="fas fa-sync-alt"></i>
                 <span>Auto Refresh:</span>
@@ -2979,7 +2980,7 @@
                         <div class="fnb-list-container" id="ppFnbMenuList">
                             @foreach($itemmaster as $item)
                                 <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
-                                    <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
+                                    <img src="{{ $item->Gambar ? (str_starts_with($item->Gambar, 'http') ? $item->Gambar : asset('assets/img/item/' . $item->Gambar)) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" 
                                          class="fnb-item-img" 
                                          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg=='">
                                     <div class="fnb-item-info">
@@ -3153,7 +3154,7 @@
                         @foreach($itemmaster as $item)
                             @if(in_array($item->TypeItem, [1,2,3,5]))
                             <div class="fnb-item" data-name="{{ strtolower($item->NamaItem) }}">
-                                <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwIiBmaWxsPSIjZWVlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNhYWEiIGR5PSIuM2VtIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZvb2Q8L3RleHQ+PC9zdmc+' }}" 
+                                <img src="{{ $item->Gambar ? (str_starts_with($item->Gambar, 'http') ? $item->Gambar : asset('assets/img/item/' . $item->Gambar)) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwIiBmaWxsPSIjZWVlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNhYWEiIGR5PSIuM2VtIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZvb2Q8L3RleHQ+PC9zdmc+' }}" 
                                      class="fnb-item-img" 
                                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTUwIiBmaWxsPSIjZWVlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNhYWEiIGR5PSIuM2VtIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZvb2Q8L3RleHQ+PC9zdmc+'">
                                 <div class="fnb-item-info">
@@ -4753,7 +4754,7 @@
                                     <div style="position:absolute; top:40%; left:50%; transform:translate(-50%,-50%) rotate(-15deg); background:#d32f2f; color:#fff; padding:4px 8px; border-radius:4px; font-weight:800; font-size:0.75rem; z-index:10; border:1px solid #fff; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.3);">STOK HABIS</div>
                                 @endif
 
-                                <img src="{{ $item->Gambar ? asset('assets/img/item/' . $item->Gambar) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" style="width:100px; height:100px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+                                <img src="{{ $item->Gambar ? (str_starts_with($item->Gambar, 'http') ? $item->Gambar : asset('assets/img/item/' . $item->Gambar)) : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYWFhIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kPC90ZXh0Pjwvc3ZnPg==' }}" style="width:100px; height:100px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
                                 <div style="font-weight:700; font-size:0.9rem; color:#333; height:40px; overflow:hidden; line-height:1.2;">{{ $item->NamaItem }}</div>
                                 <div style="font-weight:800; color:#e65100; margin-top:5px; font-size:1rem;">Rp {{ number_format($item->HargaJual) }}</div>
                                 <div style="font-size:0.75rem; color:{{ $isHabis ? '#d32f2f' : '#888' }}; margin-top:2px;">Stok: {{ number_format($item->Stock ?? 0) }}</div>

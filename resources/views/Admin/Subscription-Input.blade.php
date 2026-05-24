@@ -178,9 +178,9 @@
                                             // Keuangan
                                             $keuanganIds = [12, 40, 41, 56, 85, 86];
                                             // FnB
-                                            $fnbIds = [74, 116, 117];
-                                            // Hiburan
-                                            $hiburanIds = [88, 91];
+                                            $fnbIds = [74, 113, 115, 116, 117, 118];
+                                            // Hiburan & IoT
+                                            $hiburanIds = [88, 91, 121];
 
                                             if (in_array($id, $retailIds)) {
                                                 return 'retail';

@@ -1260,3 +1260,25 @@ Route::prefix('fnb-store')->group(function () {
         Route::get('/{id}/status/{orderId}', [\App\Http\Controllers\FnBStoreController::class, 'status'])->name('fnb-store.status');
     });
 });
+// Ticketing POS
+Route::get('/ticketing-pos', [\App\Http\Controllers\TicketingPoSController::class, 'index'])->name('ticketing-pos')->middleware('auth');
+Route::post('/ticketing-pos/generate-tickets', [\App\Http\Controllers\TicketingPoSController::class, 'generateTickets'])->middleware('auth');
+Route::post('/ticketing-pos/store', [\App\Http\Controllers\TicketingPoSController::class, 'storeTicketing'])->middleware('auth');
+Route::post('/ticketing-pos/check-voucher', [\App\Http\Controllers\TicketingPoSController::class, 'checkVoucher'])->middleware('auth');
+Route::post('/ticketing-pos/create-payment-token', [\App\Http\Controllers\TicketingPoSController::class, 'createMidTransTransaction'])->middleware('auth');
+Route::get('/ticketing-pos/printthermal/{NoTransaksi}', [\App\Http\Controllers\TicketingPoSController::class, 'printThermal'])->middleware('auth');
+
+
+// Rute Riwayat Gate
+Route::get('/gate/logs', [App\Http\Controllers\GateController::class, 'indexLogs']);
+
+// Rute Manajemen Gate
+Route::get('/gatedevices', [\App\Http\Controllers\GateDeviceController::class,'View'])->name('gatedevices')->middleware(['auth', 'check.session']);
+Route::get('/gatedevices/form/{id}', [\App\Http\Controllers\GateDeviceController::class,'Form'])->name('gatedevices-form')->middleware(['auth', 'check.session']);
+Route::post('/gatedevices/store', [\App\Http\Controllers\GateDeviceController::class, 'store'])->name('gatedevices-store')->middleware(['auth', 'check.session']);
+Route::post('/gatedevices/edit', [\App\Http\Controllers\GateDeviceController::class, 'edit'])->name('gatedevices-edit')->middleware(['auth', 'check.session']);
+Route::delete('/gatedevices/delete/{id}', [\App\Http\Controllers\GateDeviceController::class, 'deletedata'])->name('gatedevices-delete')->middleware(['auth', 'check.session']);
+Route::post('/gatedevices/read', [\App\Http\Controllers\GateDeviceController::class, 'ViewJson'])->name('gatedevices-ViewJson')->middleware(['auth', 'check.session']);
+
+// Master Paket Member
+Route::resource('master/memberpackage', App\Http\Controllers\MemberPackageController::class)->middleware('auth');

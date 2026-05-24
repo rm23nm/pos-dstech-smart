@@ -17,6 +17,7 @@
 | Sesi Sebelumnya | **Perbaikan Bug Gambar Customer Display Hilang & Aktifasi Slot #5** | **Selesai** | Merapatkan whitespace tag `<textarea>` Base64, menambahkan change listener `#fileImageCustDisplay5`, serta mengamankan controller dengan trim sanitasi input. Seluruh gambar tersimpan aman tanpa terhapus saat refresh. |
 | Sesi Sekarang | **Perbaikan Input Pembayaran & Kalkulasi Kembalian (Bug 300.000)** | **Selesai** | Memperbaiki parser `formatCurrency` agar menyaring desimal secara robust, serta memperbarui logika sinkronisasi pembayaran (`#JumlahBayar`) baik via klik metode bayar maupun ketikan keyboard secara real-time. |
 | Sesi Sekarang | **Penambahan Akun Demo Live & Seeding 100 Produk F&B + 100 Produk Retail** | **Selesai** | Menambahkan akun demo dan produk demo lengkap dengan gambar di VPS Live serta meng-update email demo hiburan lama. Mengatur password semua akun demo menjadi `12345678` agar sinkron dengan tombol auto-login. |
+| Sesi Sekarang | **Pembuatan Fitur Manajemen Perangkat Gate (Tripod Gate)** | **Selesai** | Memastikan keberadaan tabel `gate_devices`, membuat `GateDeviceController.php`, 2 file view (devices dan form input), rute di `web.php`, serta mendaftarkan dan memunculkan menu dinamis ke kelompok "Sewa Billing & IoT". |
 
 ---
 
@@ -35,8 +36,20 @@
 *   **Status**: **Selesai (100%)**
 
 ---
+### Langkah 4: Implementasi Penjualan Paket Member di F&B dan Retail POS
+*   **Deskripsi**: Menambahkan logika pemeriksaan tabel `member_packages` pada saat checkout transaksi di POS Retail (`storePoS`), POS FnB (`storePoSFnB`), dan POS Hiburan (`storePoSHiburan`). Jika item yang dibeli adalah paket member, sistem otomatis meng-update masa aktif (`ValidUntil`), status member, serta batas kunjungan (`MaxPlay`) dan waktu bermain (`maxTimePerPlay`) pada profil Pelanggan.
+*   **Status**: **Selesai (100%)**
+
+### Langkah 5: Modifikasi Logika Sewa/Open Table POS Hiburan (Billiard/Futsal)
+*   **Deskripsi**: Mengubah logika open table/sewa di POS Hiburan agar memeriksa status member aktif, sisa kuota bermain (`Played < MaxPlay`), serta menyetel batas waktu sewa otomatis sesuai dengan `maxTimePerPlay` member tersebut. Menambahkan penambahan counter `Played` pelanggan pada saat checkout/close sewa.
+*   **Status**: **Selesai (100%)**
+
+### Langkah 6: Verifikasi dan Integrasi Menyeluruh
+*   **Deskripsi**: Melakukan verifikasi menyeluruh terhadap perubahan di Ticketing POS, F&B/Billiard POS, dan Retail POS. Memastikan semua fitur normal berjalan tanpa regresi dan database sinkronisasi aman.
+*   **Status**: **Selesai (100%)**
+
+---
 
 ## 3. Antrean Pekerjaan Kedepan (Queue)
 1. **Penyelarasan Tampilan Multi-Tenant Live**: Memastikan transisi antar domain dan tenant demo berjalan lancar dan terisolasi dengan baik.
 2. **Monitoring Log Transaksi Demo**: Menyediakan audit trail transaksi kasir demo untuk kestabilan live server.
-

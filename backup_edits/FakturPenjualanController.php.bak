@@ -637,50 +637,6 @@ class FakturPenjualanController extends Controller
 					$errorCount += 1;
 					goto jump;
 				}
-
-				// Cek apakah item ini adalah paket member FNB
-				if (!empty($jsonData['KodePelanggan']) && $jsonData['KodePelanggan'] !== 'CASH') {
-					$package = DB::table('member_packages')
-						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-						->where('KodePaket', $key['KodeItem'])
-						->where('KategoriPaket', 'FNB')
-						->first();
-
-					if ($package) {
-						$pelanggan = DB::table('pelanggan')
-							->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-							->where('KodePelanggan', $jsonData['KodePelanggan'])
-							->first();
-
-						if ($pelanggan) {
-							$currentValidUntil = $pelanggan->ValidUntil ? Carbon::parse($pelanggan->ValidUntil, 'Asia/Jakarta') : Carbon::now('Asia/Jakarta');
-							if ($currentValidUntil->isPast()) {
-								$currentValidUntil = Carbon::now('Asia/Jakarta');
-							}
-							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
-							
-							$updateData = [
-								'IsMember' => 1,
-								'isPaidMembership' => 1,
-								'ValidUntil' => $newValidUntil,
-								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d')
-							];
-
-							if (($package->DiskonPersen ?? 0) > 0) {
-								$updateData['DiskonMemberPersen'] = $package->DiskonPersen;
-							}
-							if (($package->MaxGratisOngkir ?? 0) > 0) {
-								$updateData['SisaGratisOngkir'] = DB::raw("COALESCE(SisaGratisOngkir, 0) + (" . $package->MaxGratisOngkir . " * " . $key['Qty'] . ")");
-							}
-
-							DB::table('pelanggan')
-								->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-								->where('KodePelanggan', $jsonData['KodePelanggan'])
-								->update($updateData);
-						}
-					}
-				}
-
 				skip:
 			}
 
@@ -824,30 +780,6 @@ class FakturPenjualanController extends Controller
 					goto jump;
 				}
 			}
-
-			if ($jsonData['Status'] != 'T' && $jsonData['KodePelanggan'] != "") {
-				if (isset($jsonData['PoinDitukar']) && $jsonData['PoinDitukar'] > 0) {
-					DB::table('pelanggan')
-						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-						->where('KodePelanggan', $jsonData['KodePelanggan'])
-						->update([
-							'PoinLoyalti' => DB::raw("COALESCE(PoinLoyalti, 0) - " . intval($jsonData['PoinDitukar']))
-						]);
-				}
-
-				if (($oCompany->KonversiRupiahKePoin ?? 0) > 0) {
-					$poinDidapat = floor($jsonData['TotalPembelian'] / $oCompany->KonversiRupiahKePoin);
-					if ($poinDidapat > 0) {
-						DB::table('pelanggan')
-							->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-							->where('KodePelanggan', $jsonData['KodePelanggan'])
-							->update([
-								'PoinLoyalti' => DB::raw("COALESCE(PoinLoyalti, 0) + " . $poinDidapat)
-							]);
-					}
-				}
-			}
-
 			jump:
 	        if ($errorCount > 0) {
 		        DB::rollback();
@@ -1079,51 +1011,6 @@ class FakturPenjualanController extends Controller
 					$data['message'] = "Gagal Menyimpan Data Detail di Row ".$key->NoUrut;
 					$errorCount += 1;
 					goto jump;
-				}
-
-				// Cek apakah item ini adalah paket member
-				if (!empty($jsonData['KodePelanggan']) && $jsonData['KodePelanggan'] !== 'CASH') {
-					$package = DB::table('member_packages')
-						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-						->where('KodePaket', $key['KodeItem'])
-						->first();
-
-					if ($package) {
-						$pelanggan = DB::table('pelanggan')
-							->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-							->where('KodePelanggan', $jsonData['KodePelanggan'])
-							->first();
-
-						if ($pelanggan) {
-							$currentValidUntil = $pelanggan->ValidUntil ? Carbon::parse($pelanggan->ValidUntil, 'Asia/Jakarta') : Carbon::now('Asia/Jakarta');
-							if ($currentValidUntil->isPast()) {
-								$currentValidUntil = Carbon::now('Asia/Jakarta');
-							}
-							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
-							$maxPlay = ($package->MaxPlay ?? 0) ? (($package->MaxPlay ?? 0) * $key['Qty']) : 0;
-
-							$updateData = [
-								'IsMember' => 1,
-								'isPaidMembership' => 1,
-								'ValidUntil' => $newValidUntil,
-								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d'),
-								'MemberPrice' => $package->Harga,
-								'Played' => 0
-							];
-
-							if ($maxPlay > 0) {
-								$updateData['MaxPlay'] = DB::raw("COALESCE(MaxPlay, 0) + $maxPlay");
-							}
-							if (($package->maxTimePerPlay ?? 0) > 0) {
-								$updateData['maxTimePerPlay'] = $package->maxTimePerPlay;
-							}
-
-							DB::table('pelanggan')
-								->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-								->where('KodePelanggan', $jsonData['KodePelanggan'])
-								->update($updateData);
-						}
-					}
 				}
 
 				if($jsonData['NoReff'] == "POS-TAMBAHJAM"){
@@ -1376,29 +1263,6 @@ class FakturPenjualanController extends Controller
 				}
 			}
 
-			if ($jsonData['Status'] != 'T' && $jsonData['KodePelanggan'] != "") {
-				if (isset($jsonData['PoinDitukar']) && $jsonData['PoinDitukar'] > 0) {
-					DB::table('pelanggan')
-						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-						->where('KodePelanggan', $jsonData['KodePelanggan'])
-						->update([
-							'PoinLoyalti' => DB::raw("COALESCE(PoinLoyalti, 0) - " . intval($jsonData['PoinDitukar']))
-						]);
-				}
-
-				if (($oCompany->KonversiRupiahKePoin ?? 0) > 0) {
-					$poinDidapat = floor($jsonData['TotalPembelian'] / $oCompany->KonversiRupiahKePoin);
-					if ($poinDidapat > 0) {
-						DB::table('pelanggan')
-							->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-							->where('KodePelanggan', $jsonData['KodePelanggan'])
-							->update([
-								'PoinLoyalti' => DB::raw("COALESCE(PoinLoyalti, 0) + " . $poinDidapat)
-							]);
-					}
-				}
-			}
-
 			jump:
 			if ($errorCount > 0) {
 		        DB::rollback();
@@ -1553,50 +1417,6 @@ class FakturPenjualanController extends Controller
 					$errorCount += 1;
 					goto jump;
 				}
-
-				// Cek apakah item ini adalah paket member RETAIL
-				if (!empty($jsonData['KodePelanggan']) && $jsonData['KodePelanggan'] !== 'CASH') {
-					$package = DB::table('member_packages')
-						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-						->where('KodePaket', $key['KodeItem'])
-						->where('KategoriPaket', 'RETAIL')
-						->first();
-
-					if ($package) {
-						$pelanggan = DB::table('pelanggan')
-							->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-							->where('KodePelanggan', $jsonData['KodePelanggan'])
-							->first();
-
-						if ($pelanggan) {
-							$currentValidUntil = $pelanggan->ValidUntil ? Carbon::parse($pelanggan->ValidUntil, 'Asia/Jakarta') : Carbon::now('Asia/Jakarta');
-							if ($currentValidUntil->isPast()) {
-								$currentValidUntil = Carbon::now('Asia/Jakarta');
-							}
-							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
-							
-							$updateData = [
-								'IsMember' => 1,
-								'isPaidMembership' => 1,
-								'ValidUntil' => $newValidUntil,
-								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d')
-							];
-
-							if (($package->DiskonPersen ?? 0) > 0) {
-								$updateData['DiskonMemberPersen'] = $package->DiskonPersen;
-							}
-							if (($package->MaxGratisOngkir ?? 0) > 0) {
-								$updateData['SisaGratisOngkir'] = DB::raw("COALESCE(SisaGratisOngkir, 0) + (" . $package->MaxGratisOngkir . " * " . $key['Qty'] . ")");
-							}
-
-							DB::table('pelanggan')
-								->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-								->where('KodePelanggan', $jsonData['KodePelanggan'])
-								->update($updateData);
-						}
-					}
-				}
-
 				skip:
 			}
 
@@ -2078,30 +1898,6 @@ class FakturPenjualanController extends Controller
 					// End Save Jurnal
 				}
 			}
-
-			if ($jsonData['Status'] != 'T' && $jsonData['KodePelanggan'] != "") {
-				if (isset($jsonData['PoinDitukar']) && $jsonData['PoinDitukar'] > 0) {
-					DB::table('pelanggan')
-						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-						->where('KodePelanggan', $jsonData['KodePelanggan'])
-						->update([
-							'PoinLoyalti' => DB::raw("COALESCE(PoinLoyalti, 0) - " . intval($jsonData['PoinDitukar']))
-						]);
-				}
-
-				if (($oCompany->KonversiRupiahKePoin ?? 0) > 0) {
-					$poinDidapat = floor($jsonData['TotalPembelian'] / $oCompany->KonversiRupiahKePoin);
-					if ($poinDidapat > 0) {
-						DB::table('pelanggan')
-							->where('RecordOwnerID', Auth::user()->RecordOwnerID)
-							->where('KodePelanggan', $jsonData['KodePelanggan'])
-							->update([
-								'PoinLoyalti' => DB::raw("COALESCE(PoinLoyalti, 0) + " . $poinDidapat)
-							]);
-					}
-				}
-			}
-
 			jump:
 	        if ($errorCount > 0) {
 		        DB::rollback();

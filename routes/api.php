@@ -63,3 +63,9 @@ Route::post('/tools/generate-document', [GenerateDocumentController::class, 'gen
 
 // Webhook endpoint for centralizing subscription reporting
 Route::post('/superadmin/sync-subscription', [\App\Http\Controllers\DstechGlobalSyncController::class, 'syncSubscription']);
+// API for Tripod Gate ESP32
+Route::post('/gate/scan', [\App\Http\Controllers\GateApiController::class, 'scan'])->name('gate-scan');
+
+
+// API untuk Gate ESP32
+Route::post('/gate/check', [App\Http\Controllers\GateController::class, 'checkAccess']);

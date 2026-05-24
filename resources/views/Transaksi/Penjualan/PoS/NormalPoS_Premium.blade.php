@@ -1370,6 +1370,17 @@ License: You must have a valid license purchased only from themeforest(the above
 					</td>
 				  </tr>
 
+				  <tr class="d-flex align-items-center justify-content-between" id="rowTukarPoin" style="display: none !important;">
+					<th class="border-0 px-0 font-size-lg mb-0 font-size-bold text-success">
+						<h1 id="lblTukarPoin">Poin <button class="btn btn-sm btn-outline-success ml-2" type="button" id="btnTukarPoin">Tukar Poin</button></h1>
+					</th>
+					<td class="border-0 justify-content-end d-flex text-success font-size-lg font-size-bold px-0 font-size-lg mb-0 font-size-bold text-success">
+                        <input type="hidden" name="_NilaiTukarPoin" id="_NilaiTukarPoin" value="0">
+                        <input type="hidden" name="_PoinDitukar" id="_PoinDitukar" value="0">
+						<h1 id="valTukarPoin">- Rp. 0</h1>
+					</td>
+				  </tr>
+
 				  <tr class="d-flex align-items-center justify-content-between">
 					<th class="border-0 px-0 font-size-lg mb-0 font-size-bold text-primary">
 						<h1>Pembulatan</h1>
@@ -1769,6 +1780,9 @@ License: You must have a valid license purchased only from themeforest(the above
 	var _TipeDiskon = '';
 	var _ServicesData = [];
 	var _DiskonGrupCustomer = 0;
+	var _DiskonMemberPersen = 0;
+	var _SisaGratisOngkir = 0;
+	var _PoinLoyalti = 0;
 	var _TerminPelanggan = '';
 
 	var _Tanggal = '';
@@ -2608,6 +2622,11 @@ License: You must have a valid license purchased only from themeforest(the above
 	            	if (response.data.length > 0) {
 	            		_DiskonGrupCustomer = response.data[0]['DiskonPersen'];
 	            		_TerminPelanggan = response.data[0]['DiskonPersen'];
+
+                        _DiskonMemberPersen = parseFloat(response.data[0]['DiskonMemberPersen'] || 0);
+                        _DiskonGrupCustomer = parseFloat(_DiskonGrupCustomer || 0) + _DiskonMemberPersen;
+                        _SisaGratisOngkir = parseFloat(response.data[0]['SisaGratisOngkir'] || 0);
+                        _PoinLoyalti = parseFloat(response.data[0]['PoinLoyalti'] || 0);
 	            		// console.log(response.data[0]);
 
 	            		if (allRowsData.length > 0) {
@@ -2646,6 +2665,20 @@ License: You must have a valid license purchased only from themeforest(the above
 		    	$('#rowPaymentVoucher').attr('style', 'display: none !important;');
 		    }
 
+			// Poin Loyalti
+			if (_PoinLoyalti > 0 && _Company.length > 0 && (_Company[0]['NilaiTukarPoin'] || 0) > 0) {
+				$('#rowTukarPoin').attr('style', 'display: flex !important;');
+				$('#btnTukarPoin').show();
+				$('#lblTukarPoin').html('Poin (' + _PoinLoyalti + ') <button class="btn btn-sm btn-outline-success ml-2" type="button" id="btnTukarPoin">Tukar</button>');
+				
+				// Reset previously redeemed points on open if needed
+				// $('#_NilaiTukarPoin').val(0);
+				// $('#_PoinDitukar').val(0);
+				// $('#valTukarPoin').text('- Rp. 0');
+			} else {
+				$('#rowTukarPoin').attr('style', 'display: none !important;');
+			}
+
 			// Pembulatan
 			var TotalPembulatan = Math.ceil(TotalPenjualan);
 			var NilaiPembulatan = TotalPembulatan - TotalPenjualan;
@@ -2671,6 +2704,50 @@ License: You must have a valid license purchased only from themeforest(the above
 			var current = JSON.parse(localStorage.getItem('PoSData') || '{}');
 			current.isCheckout = false;
 			localStorage.setItem('PoSData', JSON.stringify(current));
+		});
+
+		$('#btnTukarPoin').click(function () {
+			Swal.fire({
+				title: 'Tukar Poin Loyalti',
+				text: "Anda memiliki " + _PoinLoyalti + " poin. Berapa poin yang ingin ditukar? (Tiap 1 Poin = Rp. " + parseFloat(_Company[0]['NilaiTukarPoin'] || 0).toLocaleString('id-ID') + ")",
+				icon: 'question',
+				input: 'number',
+				inputAttributes: {
+					min: 1,
+					max: _PoinLoyalti,
+					step: 1
+				},
+				showCancelButton: true,
+				confirmButtonText: 'Tukar',
+				cancelButtonText: 'Batal',
+				inputValidator: (value) => {
+					if (!value || parseInt(value) <= 0) {
+						return 'Masukkan jumlah poin yang valid!'
+					}
+					if (parseInt(value) > _PoinLoyalti) {
+						return 'Poin tidak mencukupi!'
+					}
+				}
+			}).then((result) => {
+				if (result.isConfirmed) {
+					var poinTukar = parseInt(result.value);
+					if (poinTukar > 0 && poinTukar <= _PoinLoyalti) {
+						var nilaiTukar = poinTukar * parseFloat(_Company[0]['NilaiTukarPoin'] || 0);
+						$('#_NilaiTukarPoin').val(nilaiTukar);
+						$('#_PoinDitukar').val(poinTukar);
+						$('#valTukarPoin').text('- Rp. ' + nilaiTukar.toLocaleString('id-ID'));
+						$('#btnTukarPoin').hide();
+						
+						// Recalculate total bayar
+						var TotalPenjualan = parseFloat($('#_GrandTotal').attr('originalvalue') || 0);
+						var TotalPembulatan = Math.ceil(TotalPenjualan);
+						var finalBayar = TotalPembulatan - nilaiTukar;
+						if (finalBayar < 0) finalBayar = 0;
+						formatCurrency($('#_TotalNetBayar'), finalBayar);
+						$('#_TotalNetBayarFormated').text($('#_TotalNetBayar').val());
+					}
+				}
+			});
 		});
 
 		$('#btSimpanPembayaran').click(function () {
@@ -3496,15 +3573,27 @@ License: You must have a valid license purchased only from themeforest(the above
   		}
 
   		if (_ServicesData.length > 0) {
+            var remainingGratisOngkir = _SisaGratisOngkir;
   			for (var i = 0; i < _ServicesData.length; i++) {
+                var currentSvcBiaya = parseFloat(_ServicesData[i]['Jumlah']);
+                if (remainingGratisOngkir > 0 && currentSvcBiaya > 0) {
+                    if (remainingGratisOngkir >= currentSvcBiaya) {
+                        remainingGratisOngkir -= currentSvcBiaya;
+                        currentSvcBiaya = 0;
+                    } else {
+                        currentSvcBiaya -= remainingGratisOngkir;
+                        remainingGratisOngkir = 0;
+                    }
+                }
+
   				var oItem = {
   					'NoUrut' : oDetail.length + 1,
 					'KodeItem' : _ServicesData[i]['KodeItem'],
 					'Qty' : 1,
 					'Satuan' : '',
-					'Harga' : _ServicesData[i]['Jumlah'],
+					'Harga' : currentSvcBiaya,
 					'Discount' : 0,
-					'HargaNet' : _ServicesData[i]['Jumlah'],
+					'HargaNet' : currentSvcBiaya,
 					'BaseReff' : '',
 					'BaseLine' : -1,
 					'KodeGudang' : 'UMM',
@@ -3526,7 +3615,8 @@ License: You must have a valid license purchased only from themeforest(the above
 			'KodeTermin' : _Company[0]['TerminBayarPoS'],
 			'Termin' : 0,
 			'TotalTransaksi' : jQuery('#_SubTotal').attr("originalvalue"),
-			'Potongan' : parseFloat(jQuery('#_TotalDiskon').attr("originalvalue") || 0) + parseFloat(jQuery('#_VoucherDiscount').attr("originalvalue") || 0),
+			'Potongan' : parseFloat(jQuery('#_TotalDiskon').attr("originalvalue") || 0) + parseFloat(jQuery('#_VoucherDiscount').attr("originalvalue") || 0) + parseFloat($('#_NilaiTukarPoin').val() || 0),
+			'PoinDitukar' : $('#_PoinDitukar').val() || 0,
 			'Pajak' : 0,
 			'Pembulatan' : (Status == 'T' ? 0 : jQuery('#_Pembulatan').attr("originalvalue")),
 			'TotalPembelian' : (Status == 'T' ? (parseFloat(jQuery('#_SubTotal').attr("originalvalue") || 0) - parseFloat(jQuery('#_TotalDiskon').attr("originalvalue") || 0) - parseFloat(jQuery('#_VoucherDiscount').attr("originalvalue") || 0)) : jQuery('#_TotalNetBayar').attr("originalvalue")),
@@ -3835,8 +3925,18 @@ License: You must have a valid license purchased only from themeforest(the above
 	    });
 
 	    // Jasa
+	    var originalTotalServices = 0;
 	    for (var i = 0; i < _ServicesData.length; i++) {
-	    	_tempTotalServices += parseFloat(_ServicesData[i]['Jumlah']);
+	    	originalTotalServices += parseFloat(_ServicesData[i]['Jumlah']);
+	    }
+	    
+	    _tempTotalServices = originalTotalServices;
+	    if (_SisaGratisOngkir > 0 && _tempTotalServices > 0) {
+	        if (_SisaGratisOngkir >= _tempTotalServices) {
+	            _tempTotalServices = 0;
+	        } else {
+	            _tempTotalServices -= _SisaGratisOngkir;
+	        }
 	    }
 
 	    // Diskon Grup Customer

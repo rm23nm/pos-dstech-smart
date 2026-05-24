@@ -643,8 +643,32 @@ class TableOrderController extends Controller
             $model->DurasiPaket = $request->input('DurasiPaket');
             $model->Status = $request->input('Status');
             $model->KodePelanggan = $request->input('KodePelanggan');
-            $paket = DB::table('pakettransaksi')->where('id', $request->input('paketid'))->where('RecordOwnerID', $roid)->first();
-            $hargaPaket = $paket ? $paket->HargaNormal : 0;
+
+            $paket = null;
+            $hargaPaket = 0;
+            if ($request->input('JenisPaket') == 'PAKETMEMBER') {
+                $pelanggan = DB::table('pelanggan')
+                    ->where('KodePelanggan', $request->input('KodePelanggan'))
+                    ->where('RecordOwnerID', $roid)
+                    ->first();
+
+                if (!$pelanggan) {
+                    return response()->json(['success' => false, 'message' => 'Pelanggan tidak ditemukan atau belum dipilih.']);
+                }
+                if ($pelanggan->IsMember != 1 || $pelanggan->isPaidMembership != 1) {
+                    return response()->json(['success' => false, 'message' => 'Pelanggan bukan member aktif atau paket belum dibayar.']);
+                }
+                if ($pelanggan->ValidUntil && Carbon::parse($pelanggan->ValidUntil)->isPast()) {
+                    return response()->json(['success' => false, 'message' => 'Masa berlaku paket member telah habis (Expired: ' . $pelanggan->ValidUntil . ').']);
+                }
+                if ($pelanggan->MaxPlay > 0 && $pelanggan->Played >= $pelanggan->MaxPlay) {
+                    return response()->json(['success' => false, 'message' => 'Kuota kunjungan paket member sudah habis (' . $pelanggan->Played . '/' . $pelanggan->MaxPlay . ').']);
+                }
+                $hargaPaket = 0;
+            } else {
+                $paket = DB::table('pakettransaksi')->where('id', $request->input('paketid'))->where('RecordOwnerID', $roid)->first();
+                $hargaPaket = $paket ? $paket->HargaNormal : 0;
+            }
 
             $model->TaxTotal = 0;
             $model->GrossTotal = $hargaPaket;
@@ -669,9 +693,20 @@ class TableOrderController extends Controller
                 $model->JamMulai = $now;
             }
 
-            if ($request->input('JenisPaket') == 'JAM' || $request->input('JenisPaket') == 'PAKETMEMBER' || $request->input('JenisPaket') == 'JAMREALTIME') {
+            if ($request->input('JenisPaket') == 'JAM' || $request->input('JenisPaket') == 'JAMREALTIME') {
                  $jamMulai = $model->JamMulai->copy();
                  $model->JamSelesai = $jamMulai->addHours($request->input('DurasiPaket'));
+            }
+
+            if ($request->input('JenisPaket') == 'PAKETMEMBER') {
+                 $pelangganObj = DB::table('pelanggan')
+                     ->where('KodePelanggan', $model->KodePelanggan)
+                     ->where('RecordOwnerID', $roid)
+                     ->first();
+                 $maxMinutes = ($pelangganObj && $pelangganObj->maxTimePerPlay > 0) ? $pelangganObj->maxTimePerPlay : 60;
+                 $jamMulai = $model->JamMulai->copy();
+                 $model->JamSelesai = $jamMulai->addMinutes($maxMinutes);
+                 $model->DurasiPaket = $maxMinutes / 60;
             }
 
             if ($request->input('JenisPaket') == 'MENIT') {
@@ -701,6 +736,23 @@ class TableOrderController extends Controller
                 DB::rollBack();
                 return response()->json(['success' => false, 'message' => 'Meja sudah dipesan atau digunakan pada jam tersebut. Silakan pilih jam atau meja lain.']);
             }
+
+            // COLLISION DETECTION 2: Check against Online Bookings (bookingtableonline)
+            $overlapOnline = DB::table('bookingtableonline')
+                ->where('mejaID', $model->tableid)
+                ->where('RecordOwnerID', $roid)
+                ->where('StatusTransaksi', 1) // 1 = Confirmed / Paid
+                ->where(function($q) use ($model, $checkEnd) {
+                    $q->where(DB::raw("CAST(CONCAT(TglBooking, ' ', JamMulai) AS DATETIME)"), '<', $checkEnd)
+                      ->where(DB::raw("CAST(CONCAT(TglBooking, ' ', COALESCE(JamSelesai, '23:59:59')) AS DATETIME)"), '>', $model->JamMulai);
+                })
+                ->exists();
+
+            if ($overlapOnline) {
+                DB::rollBack();
+                return response()->json(['success' => false, 'message' => 'Meja sudah dibooking secara online pada rentang waktu tersebut. Sisa waktu tidak mencukupi untuk transaksi ini.']);
+            }
+
             // Future Booking Logic
             // If JamMulai > NOW, force Status to 0 (Booking/Scheduled)
             $now = Carbon::now('Asia/Jakarta');
@@ -1813,6 +1865,25 @@ class TableOrderController extends Controller
                     ]);
             }
 
+            $headerPoint = DB::table('tableorderheader')
+                ->where('NoTransaksi', $noTransaksi)
+                ->where('RecordOwnerID', $recordOwnerID)
+                ->first();
+
+            if ($headerPoint && !empty($headerPoint->KodePelanggan) && $nominalBayar > 0) {
+                if (($company->KonversiRupiahKePoin ?? 0) > 0) {
+                    $poinDidapat = floor($nominalBayar / $company->KonversiRupiahKePoin);
+                    if ($poinDidapat > 0) {
+                        DB::table('pelanggan')
+                            ->where('RecordOwnerID', $recordOwnerID)
+                            ->where('KodePelanggan', $headerPoint->KodePelanggan)
+                            ->update([
+                                'PoinLoyalti' => DB::raw("COALESCE(PoinLoyalti, 0) + " . $poinDidapat)
+                            ]);
+                    }
+                }
+            }
+
             DB::commit();
             $msg = $shouldClose ? 'Pembayaran berhasil & order telah ditutup.' : 'Pembayaran berhasil diproses.';
             return response()->json(['success' => true, 'message' => $msg]);
@@ -1945,6 +2016,15 @@ class TableOrderController extends Controller
                         'TotalTerbayar' => $totalTerbayar
                     ]);
                 
+                if ($order->JenisPaket === 'PAKETMEMBER') {
+                    if (!empty($order->KodePelanggan) && $order->KodePelanggan !== 'CASH') {
+                        DB::table('pelanggan')
+                            ->where('KodePelanggan', $order->KodePelanggan)
+                            ->where('RecordOwnerID', $recordOwnerID)
+                            ->increment('Played');
+                    }
+                }
+
                 // Sinkronisasi Lampu: Langsung Matikan (Hijau)
                 DB::table('titiklampu')
                     ->where('id', $order->tableid)
@@ -4132,6 +4212,44 @@ public function getTableStatuses()
                 $totalMenitAdd = $unitDurasi * $durasiBaru * 30 * 24 * 60;
             } else if ($jenis === 'YEARLY') {
                 $totalMenitAdd = $unitDurasi * $durasiBaru * 365 * 24 * 60;
+            }
+
+            // COLLISION DETECTION (Extending Duration)
+            if ($header->JamSelesai) {
+                $newJamSelesai = Carbon::parse($header->JamSelesai)->addMinutes($totalMenitAdd);
+                
+                // 1. Check against regular table orders
+                $overlap = DB::table('tableorderheader')
+                    ->where('tableid', $header->tableid)
+                    ->where('RecordOwnerID', $recordOwnerID)
+                    ->whereIn('DocumentStatus', ['O', 'D'])
+                    ->where('NoTransaksi', '!=', $noTransaksi)
+                    ->where(function($q) use ($header, $newJamSelesai) {
+                        $q->where('JamMulai', '<', $newJamSelesai)
+                          ->where(DB::raw("COALESCE(JamSelesai, DATE_ADD(JamMulai, INTERVAL 24 HOUR))"), '>', $header->JamSelesai);
+                    })
+                    ->exists();
+
+                if ($overlap) {
+                    DB::rollBack();
+                    return response()->json(['success' => false, 'message' => 'Penambahan durasi dibatalkan. Waktu tambahan menabrak pesanan lain di meja ini.']);
+                }
+
+                // 2. Check against Booking Online
+                $overlapOnline = DB::table('bookingtableonline')
+                    ->where('mejaID', $header->tableid)
+                    ->where('RecordOwnerID', $recordOwnerID)
+                    ->where('StatusTransaksi', 1)
+                    ->where(function($q) use ($header, $newJamSelesai) {
+                        $q->where(DB::raw("CAST(CONCAT(TglBooking, ' ', JamMulai) AS DATETIME)"), '<', $newJamSelesai)
+                          ->where(DB::raw("CAST(CONCAT(TglBooking, ' ', COALESCE(JamSelesai, '23:59:59')) AS DATETIME)"), '>', $header->JamSelesai);
+                    })
+                    ->exists();
+
+                if ($overlapOnline) {
+                    DB::rollBack();
+                    return response()->json(['success' => false, 'message' => 'Penambahan durasi dibatalkan. Waktu tambahan menabrak reservasi online yang sudah dikonfirmasi.']);
+                }
             }
 
             // Detect Midtrans AUTO

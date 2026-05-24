@@ -42,9 +42,23 @@ class PoSController extends Controller
                     ->get();
         $company = Company::Where('KodePartner','=',Auth::user()->RecordOwnerID)->get();
 
+        $kategoriTujuan = 'HIBURAN';
+        if ($company[0]["JenisUsaha"] == 'Retail') {
+            $kategoriTujuan = 'RETAIL';
+        } elseif ($company[0]["JenisUsaha"] == 'FnB') {
+            $kategoriTujuan = 'FNB';
+        }
+
+        $excludedPackages = \DB::table('member_packages')
+            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+            ->where('KategoriPaket', '!=', $kategoriTujuan)
+            ->pluck('KodePaket')->toArray();
+
         $itemServices = ItemMaster::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
                             ->where('Active','=','Y')
-                            ->where('TypeItem','=',4)->get();
+                            ->where('TypeItem','=',4)
+                            ->whereNotIn('KodeItem', $excludedPackages)
+                            ->get();
         $metodepembayaran = MetodePembayaran::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
 
         $gruppelanggan = GrupPelanggan::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
