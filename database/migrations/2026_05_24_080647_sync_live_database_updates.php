@@ -50,9 +50,14 @@ return new class extends Migration
         foreach ($packages as $pkg) {
             $exists = DB::table('subscriptiondetail')->where('NoTransaksi', $pkg->NoTransaksi)->where('PermissionID', $perm->id)->exists();
             if (!$exists) {
+                // Get max NoUrut for this transaction to avoid strict mode error
+                $maxUrut = DB::table('subscriptiondetail')->where('NoTransaksi', $pkg->NoTransaksi)->max('NoUrut');
+                $nextUrut = $maxUrut ? $maxUrut + 1 : 1;
+
                 DB::table('subscriptiondetail')->insert([
                     'NoTransaksi' => $pkg->NoTransaksi,
-                    'PermissionID' => $perm->id
+                    'PermissionID' => $perm->id,
+                    'NoUrut' => $nextUrut
                 ]);
             }
         }
