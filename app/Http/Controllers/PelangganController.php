@@ -127,7 +127,9 @@ class PelangganController extends Controller
 
     public function Form($KodePelanggan = null)
     {
-    	$pelanggan = Pelanggan::where('KodePelanggan','=',$KodePelanggan)->get();
+    	$pelanggan = Pelanggan::where('KodePelanggan','=',$KodePelanggan)
+            ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+            ->get();
     	$gruppelanggan = GrupPelanggan::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
     	$provinsi = Provinsi::all();
         

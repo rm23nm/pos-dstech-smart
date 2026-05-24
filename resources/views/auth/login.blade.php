@@ -257,7 +257,7 @@
                         </button>
                     </div>
                     <div class="col-4">
-                        <button type="button" class="btn btn-outline-warning btn-sm w-100 py-2 font-weight-bold btn-demo-auto px-1" data-email="gor.servicepos@pos.dstechsmart.com" data-pass="12345678" style="font-size: 0.65rem; border-radius: 8px;">
+                        <button type="button" class="btn btn-outline-warning btn-sm w-100 py-2 font-weight-bold btn-demo-auto px-1" data-email="gor.service@gmail.com" data-pass="12345678" style="font-size: 0.65rem; border-radius: 8px;">
                             <i class="bi bi-controller d-block mb-1"></i> Hiburan/Rental/Hotel
                         </button>
                     </div>

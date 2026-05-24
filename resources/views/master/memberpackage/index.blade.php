@@ -58,7 +58,7 @@
                             <td>Rp {{ number_format($p->Harga, 0, ',', '.') }}</td>
                             <td>{{ $p->ValidDays }} Hari</td>
                             <td>{{ $p->MaxPlay > 0 ? $p->MaxPlay . ' x' : 'Tanpa Batas' }}</td>
-                            <td>{{ $p->maxTimePerPlay > 0 ? $p->maxTimePerPlay . ' Menit' : 'Bebas' }}</td>
+                            <td>{{ $p->maxTimePerPlay > 0 ? $p->maxTimePerPlay . ' Jam' : 'Bebas' }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" onclick="editPaket({{ $p->id }})"><i class="fas fa-edit"></i></button>
                                 <button class="btn btn-sm btn-danger" onclick="hapusPaket({{ $p->id }})"><i class="fas fa-trash"></i></button>
@@ -139,9 +139,9 @@
                 </div>
                 
                 <div class="col-md-4 mb-3 rule-time">
-                    <label>Batas Waktu Per Pertemuan</label>
+                    <label>Lama Waktu Main (Jam)</label>
                     <input type="number" name="maxTimePerPlay" id="maxTimePerPlay" class="form-control" value="0">
-                    <small>Dalam hitungan Menit. Isi 0 jika bebas.</small>
+                    <small>Dalam hitungan Jam. Isi 0 jika bebas.</small>
                 </div>
                 
                 <div class="col-md-4 mb-3 rule-discount" style="display:none;">

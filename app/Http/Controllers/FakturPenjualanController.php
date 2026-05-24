@@ -660,7 +660,6 @@ class FakturPenjualanController extends Controller
 							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
 							
 							$updateData = [
-								'IsMember' => 1,
 								'isPaidMembership' => 1,
 								'ValidUntil' => $newValidUntil,
 								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d')
@@ -1103,7 +1102,6 @@ class FakturPenjualanController extends Controller
 							$maxPlay = ($package->MaxPlay ?? 0) ? (($package->MaxPlay ?? 0) * $key['Qty']) : 0;
 
 							$updateData = [
-								'IsMember' => 1,
 								'isPaidMembership' => 1,
 								'ValidUntil' => $newValidUntil,
 								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d'),
@@ -1576,7 +1574,6 @@ class FakturPenjualanController extends Controller
 							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
 							
 							$updateData = [
-								'IsMember' => 1,
 								'isPaidMembership' => 1,
 								'ValidUntil' => $newValidUntil,
 								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d')

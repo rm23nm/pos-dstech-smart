@@ -4025,9 +4025,12 @@
                 memberError = 'Pilih Member terlebih dahulu untuk melihat ketersediaan slot.';
             } else {
                 var memberData = dataPelangganAll.find(m => m.KodePelanggan == memberId);
-                if (!memberData || memberData.isPaidMembership != 1) {
+                if (!memberData) {
                     isMemberValid = false;
-                    memberError = 'Member tidak memiliki Membership Aktif.';
+                    memberError = 'Member tidak ditemukan (Harap Refresh).';
+                } else if (memberData.isPaidMembership != 1) {
+                    isMemberValid = false;
+                    memberError = 'Member tidak memiliki Membership Aktif (Nilai saat ini: ' + memberData.isPaidMembership + '). Harap Refresh halaman jika baru membayar.';
                 }
             }
         }
@@ -4211,8 +4214,13 @@
             }
             
             var memberData = dataPelangganAll.find(m => m.KodePelanggan == memberId);
-            if (!memberData || memberData.isPaidMembership != 1) {
-                if (helper) helper.innerHTML = '<span style="color:#e53935;"><i class="fas fa-ban"></i> Member belum aktif/paid untuk Paket ini!</span>';
+            if (!memberData) {
+                if (helper) helper.innerHTML = '<span style="color:#e53935;"><i class="fas fa-ban"></i> Member tidak ditemukan (Harap Refresh).</span>';
+                confirmBtn.disabled = true;
+                inputJamSelesai.value = '';
+                return;
+            } else if (memberData.isPaidMembership != 1) {
+                if (helper) helper.innerHTML = '<span style="color:#e53935;"><i class="fas fa-ban"></i> Member belum aktif (Nilai: ' + memberData.isPaidMembership + '). Harap Refresh!</span>';
                 confirmBtn.disabled = true;
                 inputJamSelesai.value = '';
                 return;

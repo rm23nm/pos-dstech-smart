@@ -1282,3 +1282,39 @@ Route::post('/gatedevices/read', [\App\Http\Controllers\GateDeviceController::cl
 
 // Master Paket Member
 Route::resource('master/memberpackage', App\Http\Controllers\MemberPackageController::class)->middleware('auth');
+Route::get('/fix-menu', function() { \DB::table('permission')->where('PermissionName', 'Paket Member')->update(['MenuInduk' => \DB::table('permission')->where('PermissionName', 'Paket')->value('id'), 'Level' => 3]); return 'ok'; });
+
+Route::get('/sync-members', function() {
+    $members = \DB::table('pelanggan')->whereNotNull('KodePaketMember')->where('KodePaketMember', '!=', '')->get();
+    $count = 0;
+    foreach ($members as $mem) {
+        $memberConfig = \DB::table('member_packages')->where('KodePaket', $mem->KodePaketMember)->first();
+        if ($memberConfig) {
+            $updates = ['isPaidMembership' => 1];
+            if ($memberConfig->Tipe === 'QUOTA' && empty($mem->MaxPlay)) {
+                $updates['MaxPlay'] = $memberConfig->MaxPlay ?? 0;
+            }
+            if (!empty($updates)) {
+                \DB::table('pelanggan')
+                    ->where('KodePelanggan', $mem->KodePelanggan)
+                    ->where('RecordOwnerID', $mem->RecordOwnerID)
+                    ->update($updates);
+                $count++;
+            }
+        }
+    }
+    return "Berhasil sinkronisasi $count pelanggan lama.";
+});
+Route::get('/schema-pelanggan', function() { return response()->json(\DB::select('DESCRIBE pelanggan')); });
+Route::get('/debug-pelanggan', function() { return response()->json(\DB::table('pelanggan')->where('KodePelanggan', '2601000000001')->first()); });
+Route::get('/convert-hours', function() { \DB::table('member_packages')->update(['maxTimePerPlay' => \DB::raw('maxTimePerPlay / 60')]); \DB::table('pelanggan')->update(['maxTimePerPlay' => \DB::raw('maxTimePerPlay / 60')]); return 'ok'; });
+Route::get('/debug-menu', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Paket%')->get()); });
+Route::get('/debug-member-menu', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Member%')->get()); });
+Route::get('/debug-link', function() { return response()->json(\DB::table('permission')->where('Link', 'like', '%memberpackage%')->get()); });
+Route::get('/add-permission', function() { $paketId = \DB::table('permission')->where('PermissionName', 'Paket')->value('id'); \DB::table('permission')->insertOrIgnore(['PermissionName' => 'Paket Member', 'Link' => 'master/memberpackage', 'Level' => 3, 'MenuInduk' => $paketId, 'SubMenu' => 2, 'Status' => 1, 'isSuperAdmin' => 0]); return 'ok'; });
+Route::get('/debug-kds', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%KDS%')->get()); });
+Route::get('/debug-antrean', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Antrean%')->get()); });
+Route::get('/debug-subs', [App\Http\Controllers\SubscriptionController::class,'Form']);
+Route::get('/debug-users2', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->where('RoleID', 1)->orWhere('name', 'like', '%admin%')->take(10)->get()); });
+Route::get('/debug-users3', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->take(5)->get()); });
+

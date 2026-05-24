@@ -519,6 +519,8 @@
 													$targetCat = 'system';
 												} elseif ($l2Name === 'paket') {
 													$targetCat = 'billiard';
+												} elseif ($l2Name === 'paket member') {
+													$targetCat = 'billiard';
 												} elseif ($l2Name === 'master resto') {
 													$targetCat = 'resto';
 												} elseif (in_array($l2Name, ['produk', 'term and conditon', 'app setting', 'pengguna', 'invoice pengguna', 'article', 'serial number generator', 'voucher'])) {

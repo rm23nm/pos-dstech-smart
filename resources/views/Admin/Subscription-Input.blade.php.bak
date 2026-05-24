@@ -358,14 +358,11 @@
                 jQuery('.group-card-keuangan, .group-card-umum').show(); 
 
                 if (jenis == 'Retail') {
-                    // Retail: tampilkan fitur retail + Customer Display POS
-                    jQuery('.group-card-retail, .group-card-display').fadeIn();
+                    jQuery('.group-card-retail').fadeIn();
                 } else if (jenis == 'FnB') {
-                    // FnB: fitur restoran + semua layar display
                     jQuery('.group-card-fnb, .group-card-display').fadeIn();
                 } else if (jenis == 'Hiburan') {
-                    // Hiburan: fitur hiburan + semua layar display (sama seperti FnB)
-                    jQuery('.group-card-hiburan, .group-card-display').fadeIn();
+                    jQuery('.group-card-hiburan').fadeIn();
                 } else {
                     // Show all if empty
                     jQuery('.group-card-retail, .group-card-fnb, .group-card-hiburan, .group-card-display').show();

@@ -258,9 +258,7 @@ class TicketingPoSController extends Controller
                             }
                             $newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $item['qty'])->format('Y-m-d');
                             $maxPlay = ($package->MaxPlay ?? 0) ? (($package->MaxPlay ?? 0) * $item['qty']) : 0;
-                            
                             $updateData = [
-                                'IsMember' => 1,
                                 'isPaidMembership' => 1,
                                 'ValidUntil' => $newValidUntil,
                                 'TglBerlanggananPaketBulanan' => Carbon::now()->format('Y-m-d'),
@@ -311,7 +309,6 @@ class TicketingPoSController extends Controller
                                 ->where('RecordOwnerID', $user->RecordOwnerID)
                                 ->where('KodePelanggan', $jsonData['KodePelanggan'])
                                 ->update([
-                                    'IsMember' => 1,
                                     'isPaidMembership' => 1,
                                     'ValidUntil' => $newValidUntil,
                                     'KodePaketMember' => $item['code']

@@ -49,7 +49,6 @@
 											<tr>
 												<th>Kode Produk</th>
 												<th>Nama Produk</th>
-												<th>Jenis Usaha</th>
 												<th>Harga</th>
 												<th>Minimal Berlangganan (Bulan)</th>
 												<th>Akses Akutansi</th>
@@ -65,21 +64,6 @@
 												<tr>
 													<td>{{ $v['NoTransaksi'] }}</td>
 													<td>{{ $v['NamaSubscription'] }}</td>
-													<td>
-														@php
-															$jenis = $v['JenisUsaha'] ?? '';
-															$badgeClass = 'secondary';
-															$badgeIcon = '🏪';
-															if ($jenis == 'Retail') { $badgeClass = 'primary'; $badgeIcon = '🛒'; }
-															elseif ($jenis == 'FnB') { $badgeClass = 'danger'; $badgeIcon = '🍔'; }
-															elseif ($jenis == 'Hiburan') { $badgeClass = 'success'; $badgeIcon = '🎱'; }
-														@endphp
-														@if($jenis)
-															<span class="badge badge-{{ $badgeClass }}" style="font-size:0.8rem; padding: 5px 10px;">{{ $badgeIcon }} {{ $jenis }}</span>
-														@else
-															<span class="text-muted" style="font-size:0.8rem;">—</span>
-														@endif
-													</td>
 													<td>{{ number_format($v['Harga']) }}</td>
 													<td>{{ $v['LamaSubsription'] }}</td>
 													<td>

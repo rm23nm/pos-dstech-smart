@@ -48,6 +48,10 @@
 *   **Deskripsi**: Melakukan verifikasi menyeluruh terhadap perubahan di Ticketing POS, F&B/Billiard POS, dan Retail POS. Memastikan semua fitur normal berjalan tanpa regresi dan database sinkronisasi aman.
 *   **Status**: **Selesai (100%)**
 
+### Langkah 7: Perbaikan Error Undefined Data Member di Billing POS
+*   **Deskripsi**: Memperbaiki fungsi `ViewNew` di `TableOrderController` karena SQL select untuk `$pelanggan` tidak menarik kolom field member (seperti `isPaidMembership`, dll), sehingga menimbulkan error undefined pada modal transaksi Billing POS saat memilih member. Field diubah menjadi `pelanggan.*`.
+*   **Status**: **Selesai (100%)**
+
 ---
 
 ## 3. Antrean Pekerjaan Kedepan (Queue)

@@ -158,49 +158,46 @@ class UserController extends Controller
     {
         Log::debug($request->all());
         try {
-            $rules = [
+            $this->validate($request, [
                 'name' => 'required|string|max:255',
-                'email' => 'required|email',
-            ];
-
-            // Hanya validasi password jika diisi
-            if ($request->filled('password')) {
-                $rules['password'] = 'string|min:8|confirmed';
-            }
-
-            $this->validate($request, $rules);
+	            'email' => 'required|email',
+            ]);
 
             $model = User::where('id','=',$request->input('id'));
             $KelompokAkses = $request->input('KelompokAkses');
 
             if ($model) {
-                $updateData = [
-                    'name'      => $request->input('name'),
-                    'email'     => $request->input('email'),
-                    'Active'    => $request->input('Active'),
-                    'KodeSales' => $request->input('KodeSales'),
-                ];
+            	// $model->Kode = $request->input('Kode');
+             //    $model->Nama = $request->input('Nama');
 
-                // Update password hanya jika field password diisi
-                if ($request->filled('password')) {
-                    $updateData['password'] = Hash::make($request->input('password'));
-                }
-
-                \App\Services\DBLogger::update('users', ['id' => $request->input('id'), 'RecordOwnerID' => Auth::user()->RecordOwnerID], $updateData);
+                \App\Services\DBLogger::update('users', ['id' => $request->input('id'), 'RecordOwnerID' => Auth::user()->RecordOwnerID], [
+                    'name' => $request->input('name'),
+                    'email' => $request->input('email'),
+                    'Active' => $request->input('Active'),
+                    'KodeSales' => $request->input('KodeSales')
+                ]);
 
                 if ($KelompokAkses != "") {
+
                     \App\Services\DBLogger::update('userrole', ['userid' => $request->input('id'), 'RecordOwnerID' => Auth::user()->RecordOwnerID], [
                         'roleid' => $KelompokAkses
                     ]);
-            	}
 
+            		// if (!$saveRole) {
+            		// 	throw new \Exception('Gagal Menyimpan Data Akses');
+            		// 	// DB::rollback();
+            		// 	goto jump;
+            		// }
+            	}
                 alert()->success('Success','Data User berhasil disimpan.');
                 return redirect('user');
+                jump:
             } else{
                 throw new \Exception('Grup User not found.');
             }
         } catch (\Exception $e) {
             Log::debug($e->getMessage());
+
             alert()->error('Error',$e->getMessage());
             return redirect()->back();
         }

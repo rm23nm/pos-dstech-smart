@@ -378,7 +378,7 @@ class TableOrderController extends Controller
 
         $sales = Sales::Where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
-        $sql = "pelanggan.KodePelanggan, pelanggan.NamaPelanggan, pelanggan.NoTlp1, pelanggan.NoTlp2, pelanggan.RecordOwnerID, 
+        $sql = "pelanggan.*, 
                 CONCAT(COALESCE(NoTlp1,''),CASE WHEN COALESCE(NoTlp2,'') != '' THEN ' / ' ELSE '' END , COALESCE(NoTlp2,'')) NoTlpConcat ";
         $pelanggan = Pelanggan::selectRaw($sql)
                     ->where('RecordOwnerID','=',$roid)
@@ -612,8 +612,10 @@ class TableOrderController extends Controller
 
             // ATOMIC LOCK: Check table availability
             $table = DB::table('titiklampu')
-                        ->where('id', $request->input('tableid'))
-                        ->where('RecordOwnerID', $roid)
+                        ->leftJoin('tkelompoklampu', 'titiklampu.KelompokLampu', '=', 'tkelompoklampu.id')
+                        ->select('titiklampu.*', 'tkelompoklampu.NamaKelompok')
+                        ->where('titiklampu.id', $request->input('tableid'))
+                        ->where('titiklampu.RecordOwnerID', $roid)
                         ->lockForUpdate()
                         ->first();
 
@@ -664,7 +666,54 @@ class TableOrderController extends Controller
                 if ($pelanggan->MaxPlay > 0 && $pelanggan->Played >= $pelanggan->MaxPlay) {
                     return response()->json(['success' => false, 'message' => 'Kuota kunjungan paket member sudah habis (' . $pelanggan->Played . '/' . $pelanggan->MaxPlay . ').']);
                 }
+
+                if ($pelanggan->KodePaketMember) {
+                    $paketMember = DB::table('itemmaster')
+                        ->where('KodeItem', $pelanggan->KodePaketMember)
+                        ->where('RecordOwnerID', $roid)
+                        ->first();
+                        
+                    $memberConfig = DB::table('member_packages')
+                        ->where('KodePaket', $pelanggan->KodePaketMember)
+                        ->where('RecordOwnerID', $roid)
+                        ->first();
+
+                    if ($memberConfig && $memberConfig->KategoriPaket !== 'HIBURAN') {
+                        return response()->json(['success' => false, 'message' => 'Paket member Anda (' . $paketMember->NamaItem . ') tidak diperuntukkan untuk layanan Hiburan (Billing/Meja), melainkan khusus ' . $memberConfig->KategoriPaket . '.']);
+                    }
+                    
+                    if ($memberConfig && $memberConfig->Tipe === 'QUOTA') {
+                        if ($pelanggan->MaxPlay > 0 && $pelanggan->Played >= $pelanggan->MaxPlay) {
+                            return response()->json(['success' => false, 'message' => 'Kuota kunjungan paket member Anda (' . $paketMember->NamaItem . ') sudah habis.']);
+                        }
+                    }
+                        
+                    if ($paketMember && $table->NamaKelompok) {
+                        $namaPaket = strtolower($paketMember->NamaItem);
+                        $namaGrup = strtolower($table->NamaKelompok);
+                        $namaGrupClean = str_replace(['meja ', 'lapangan ', 'ruang ', 'room '], '', $namaGrup);
+                        
+                        if (str_contains($namaGrupClean, 'billiard')) {
+                            $namaGrupClean = 'billiar';
+                        }
+                        
+                        if (strpos($namaPaket, trim($namaGrupClean)) === false) {
+                            return response()->json(['success' => false, 'message' => 'Paket member Anda (' . $paketMember->NamaItem . ') tidak dapat digunakan untuk kategori ' . $table->NamaKelompok . '.']);
+                        }
+                    }
+                }
+                
+                $memberConfigFinal = DB::table('member_packages')->where('KodePaket', $pelanggan->KodePaketMember)->where('RecordOwnerID', $roid)->first();
                 $hargaPaket = 0;
+                
+                if ($memberConfigFinal && $memberConfigFinal->Tipe === 'DISCOUNT') {
+                    $normalPriceTable = DB::table('pakettransaksi')->where('id', $request->input('paketid'))->where('RecordOwnerID', $roid)->first();
+                    if ($normalPriceTable) {
+                        $diskonPersen = $memberConfigFinal->DiskonBelanja ?? 0;
+                        $hargaPaket = $normalPriceTable->HargaNormal - ($normalPriceTable->HargaNormal * ($diskonPersen / 100));
+                    }
+                }
+                
             } else {
                 $paket = DB::table('pakettransaksi')->where('id', $request->input('paketid'))->where('RecordOwnerID', $roid)->first();
                 $hargaPaket = $paket ? $paket->HargaNormal : 0;
@@ -700,13 +749,13 @@ class TableOrderController extends Controller
 
             if ($request->input('JenisPaket') == 'PAKETMEMBER') {
                  $pelangganObj = DB::table('pelanggan')
-                     ->where('KodePelanggan', $model->KodePelanggan)
-                     ->where('RecordOwnerID', $roid)
-                     ->first();
-                 $maxMinutes = ($pelangganObj && $pelangganObj->maxTimePerPlay > 0) ? $pelangganObj->maxTimePerPlay : 60;
-                 $jamMulai = $model->JamMulai->copy();
-                 $model->JamSelesai = $jamMulai->addMinutes($maxMinutes);
-                 $model->DurasiPaket = $maxMinutes / 60;
+                    ->where('KodePelanggan', $model->KodePelanggan)
+                    ->where('RecordOwnerID', $roid)
+                    ->first();
+                $maxMinutes = ($pelangganObj && $pelangganObj->maxTimePerPlay > 0) ? ($pelangganObj->maxTimePerPlay * 60) : 60;
+                $jamMulai = $model->JamMulai->copy();
+                $model->JamSelesai = $jamMulai->addMinutes($maxMinutes);
+                $model->DurasiPaket = $maxMinutes / 60;
             }
 
             if ($request->input('JenisPaket') == 'MENIT') {

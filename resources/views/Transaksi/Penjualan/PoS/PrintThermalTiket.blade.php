@@ -80,44 +80,51 @@
 </head>
 <body>
 
-    @php $ticketIndex = 0; @endphp
-    @foreach($details as $detail)
-        @for($i = 0; $i < $detail->Qty; $i++)
-            @if(isset($tickets[$ticketIndex]))
-            <div class="ticket">
-                @if(!empty($company->icon))
-                    <img src="{{ str_starts_with($company->icon, 'http') ? $company->icon : asset('storage/' . $company->icon) }}" alt="Logo" class="company-logo">
+    @if(count($tickets) == 0)
+        <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+            <h3>Tidak ada tiket fisik untuk transaksi ini.</h3>
+            <p>(Paket Member / Item Non-Tiket tidak memiliki tiket masuk)</p>
+        </div>
+    @else
+        @php $ticketIndex = 0; @endphp
+        @foreach($details as $detail)
+            @for($i = 0; $i < $detail->Qty; $i++)
+                @if(isset($tickets[$ticketIndex]))
+                <div class="ticket">
+                    @if(!empty($company->icon))
+                        <img src="{{ str_starts_with($company->icon, 'http') ? $company->icon : asset('storage/' . $company->icon) }}" alt="Logo" class="company-logo">
+                    @endif
+                    <div class="company-name">{{ $company->NamaPartner ?? 'Perusahaan' }}</div>
+                    <div class="company-contact">
+                        {{ $company->AlamatTagihan ?? '' }}<br>
+                        Telp: {{ $company->NoHP ?? $company->NoTlp ?? '-' }}
+                    </div>
+                    
+                    <div class="title">TIKET MASUK</div>
+                    
+                    <div class="ticket-name">{{ $detail->NamaItem }}</div>
+
+                    <div class="barcode-container">
+                        <!-- SVG placeholder untuk dirender oleh JsBarcode -->
+                        <svg class="barcode-svg" jsbarcode-value="{{ $tickets[$ticketIndex]->BarcodeTiket }}" jsbarcode-displayvalue="true" jsbarcode-height="50" jsbarcode-margin="0"></svg>
+                    </div>
+
+                    <div class="info">
+                        No. Trx : {{ $header->NoTransaksi }}<br>
+                        Tgl     : {{ date('d-m-Y H:i', strtotime($header->TglTransaksi)) }}<br>
+                        Harga   : Rp {{ number_format($detail->Harga, 0, ',', '.') }}
+                    </div>
+
+                    <div class="footer">
+                        Terima kasih atas kunjungan Anda.<br>
+                        Tiket hanya berlaku 1 kali scan.
+                    </div>
+                </div>
+                @php $ticketIndex++; @endphp
                 @endif
-                <div class="company-name">{{ $company->NamaPartner ?? 'Perusahaan' }}</div>
-                <div class="company-contact">
-                    {{ $company->AlamatTagihan ?? '' }}<br>
-                    Telp: {{ $company->NoHP ?? $company->NoTlp ?? '-' }}
-                </div>
-                
-                <div class="title">TIKET MASUK</div>
-                
-                <div class="ticket-name">{{ $detail->NamaItem }}</div>
-
-                <div class="barcode-container">
-                    <!-- SVG placeholder untuk dirender oleh JsBarcode -->
-                    <svg class="barcode-svg" jsbarcode-value="{{ $tickets[$ticketIndex]->BarcodeTiket }}" jsbarcode-displayvalue="true" jsbarcode-height="50" jsbarcode-margin="0"></svg>
-                </div>
-
-                <div class="info">
-                    No. Trx : {{ $header->NoTransaksi }}<br>
-                    Tgl     : {{ date('d-m-Y H:i', strtotime($header->TglTransaksi)) }}<br>
-                    Harga   : Rp {{ number_format($detail->Harga, 0, ',', '.') }}
-                </div>
-
-                <div class="footer">
-                    Terima kasih atas kunjungan Anda.<br>
-                    Tiket hanya berlaku 1 kali scan.
-                </div>
-            </div>
-            @php $ticketIndex++; @endphp
-            @endif
-        @endfor
-    @endforeach
+            @endfor
+        @endforeach
+    @endif
 
     <script>
         // Inisialisasi semua elemen yang memiliki class barcode-svg

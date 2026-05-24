@@ -81,10 +81,21 @@
 	                            		<div class="col-md-12">
 	                            			<label  class="text-body">Password</label>
 	                            			<fieldset class="form-group mb-3">
-	                            				<input type="password" class="form-control" id="password" name="password" placeholder="Masukan Password" required="" value="******************" >
+	                            				<input type="password" class="form-control" id="password" name="password" placeholder="{{ count($users) > 0 ? 'Kosongkan jika tidak ingin mengganti password' : 'Masukan Password' }}" value="">
+	                            				@if(count($users) > 0)
+	                            					<small class="text-muted">Kosongkan jika tidak ingin mengganti password</small>
+	                            				@endif
 	                            			</fieldset>
-	                            			
 	                            		</div>
+
+	                            		@if(count($users) > 0)
+	                            		<div class="col-md-12">
+	                            			<label class="text-body">Konfirmasi Password Baru</label>
+	                            			<fieldset class="form-group mb-3">
+	                            				<input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Ulangi password baru jika ingin mengganti" value="">
+	                            			</fieldset>
+	                            		</div>
+	                            		@endif
 
 	                            		<div class="col-md-4">
 	                            			<label  class="text-body">Kelompok Akses</label>
