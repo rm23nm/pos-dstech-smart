@@ -94,9 +94,12 @@ return new class extends Migration
             $name = $proc->Name;
             $res = DB::select("SHOW CREATE PROCEDURE `$name`");
             $create_stmt = $res[0]->{'Create Procedure'};
-            DB::statement("DROP PROCEDURE IF EXISTS `$name`");
-            $create_stmt = preg_replace('/CREATE DEFINER=`[^`]+`@`[^`]+` PROCEDURE/', 'CREATE PROCEDURE', $create_stmt);
-            DB::statement($create_stmt);
+            
+            if (!empty($create_stmt)) {
+                DB::statement("DROP PROCEDURE IF EXISTS `$name`");
+                $create_stmt = preg_replace('/CREATE DEFINER=`[^`]+`@`[^`]+` PROCEDURE/', 'CREATE PROCEDURE', $create_stmt);
+                DB::statement($create_stmt);
+            }
         }
     }
 
