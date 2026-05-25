@@ -32,6 +32,7 @@
                             <th>Kode Paket</th>
                             <th>Nama Paket</th>
                             <th>Kategori</th>
+                            <th>Berlaku Untuk</th>
                             <th>Tipe</th>
                             <th>Harga</th>
                             <th>Masa Aktif (Hari)</th>
@@ -46,6 +47,12 @@
                             <td>{{ $p->KodePaket }}</td>
                             <td>{{ $p->NamaPaket }}</td>
                             <td><span class="badge bg-secondary">{{ $p->KategoriPaket }}</span></td>
+                            <td>
+                                @php
+                                    $kl = collect($kelompokLampu)->where('KodeKelompok', $p->KelompokLampu)->first();
+                                @endphp
+                                {{ $kl ? $kl->NamaKelompok : 'Semua Area' }}
+                            </td>
                             <td>
                                 @if($p->Tipe == 'DISCOUNT')
                                     <span class="badge bg-info text-white">Diskon Harga</span>
@@ -119,6 +126,16 @@
                         <option value="HIBURAN">Khusus Hiburan (Billiard/Futsal)</option>
                         <option value="RETAIL">Khusus Retail</option>
                         <option value="FNB">Khusus F&B</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <label>Berlaku Untuk Lapangan/Meja</label>
+                    <select name="KelompokLampu" id="KelompokLampu" class="form-control">
+                        <option value="">Semua (Bebas)</option>
+                        @foreach($kelompokLampu as $kl)
+                            <option value="{{ $kl->KodeKelompok }}">{{ $kl->NamaKelompok }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -198,6 +215,7 @@
     function tambahPaket() {
         $('#formPaket')[0].reset();
         $('#paket_id').val('');
+        $('#KelompokLampu').val('');
         $('#KodePaket').prop('readonly', false);
         toggleRules();
         $('#modalPaketLabel').text('Tambah Paket Membership');
@@ -211,6 +229,7 @@
             $('#Harga').val(data.Harga);
             $('#ValidDays').val(data.ValidDays);
             $('#KategoriPaket').val(data.KategoriPaket);
+            $('#KelompokLampu').val(data.KelompokLampu);
             $('#Tipe').val(data.Tipe);
             $('#MaxPlay').val(data.MaxPlay);
             $('#maxTimePerPlay').val(data.maxTimePerPlay);

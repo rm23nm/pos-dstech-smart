@@ -691,6 +691,7 @@ class FakturPenjualanController extends Controller
                                 DB::table('customer_memberships')->insert([
                                     'KodePelanggan' => $jsonData['KodePelanggan'],
                                     'KodePaketMember' => $package->KodePaket,
+                                    'ValidFrom' => \Carbon\Carbon::now('Asia/Jakarta')->format('Y-m-d'),
                                     'ValidUntil' => $newValidUntil_cm,
                                     'MaxPlay' => $addedMaxPlay,
                                     'Played' => 0,
@@ -1175,6 +1176,7 @@ $updateData = [
                                 DB::table('customer_memberships')->insert([
                                     'KodePelanggan' => $jsonData['KodePelanggan'],
                                     'KodePaketMember' => $package->KodePaket,
+                                    'ValidFrom' => \Carbon\Carbon::now('Asia/Jakarta')->format('Y-m-d'),
                                     'ValidUntil' => $newValidUntil_cm,
                                     'MaxPlay' => $addedMaxPlay,
                                     'Played' => 0,
@@ -1689,6 +1691,7 @@ $updateData = [
                                 DB::table('customer_memberships')->insert([
                                     'KodePelanggan' => $jsonData['KodePelanggan'],
                                     'KodePaketMember' => $package->KodePaket,
+                                    'ValidFrom' => \Carbon\Carbon::now('Asia/Jakarta')->format('Y-m-d'),
                                     'ValidUntil' => $newValidUntil_cm,
                                     'MaxPlay' => $addedMaxPlay,
                                     'Played' => 0,

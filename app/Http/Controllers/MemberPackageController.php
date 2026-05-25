@@ -15,7 +15,8 @@ class MemberPackageController extends Controller
     {
         $user = Auth::user();
         $packages = MemberPackage::where('RecordOwnerID', $user->RecordOwnerID)->get();
-        return view('master.memberpackage.index', compact('packages'));
+        $kelompokLampu = DB::table('tkelompoklampu')->where('RecordOwnerID', $user->RecordOwnerID)->get();
+        return view('master.memberpackage.index', compact('packages', 'kelompokLampu'));
     }
 
     public function create()
@@ -36,6 +37,7 @@ class MemberPackageController extends Controller
             $package->Harga = $request->input('Harga', 0);
             $package->Tipe = $request->input('Tipe', 'UNLIMITED');
             $package->KategoriPaket = $request->input('KategoriPaket', 'HIBURAN');
+            $package->KelompokLampu = $request->input('KelompokLampu');
             $package->ValidDays = $request->input('ValidDays', 30);
             $package->MaxPlay = $request->input('MaxPlay', 0);
             $package->maxTimePerPlay = $request->input('maxTimePerPlay', 0);
@@ -108,6 +110,7 @@ class MemberPackageController extends Controller
             $package->Harga = $request->input('Harga', 0);
             $package->Tipe = $request->input('Tipe', 'UNLIMITED');
             $package->KategoriPaket = $request->input('KategoriPaket', 'HIBURAN');
+            $package->KelompokLampu = $request->input('KelompokLampu');
             $package->ValidDays = $request->input('ValidDays', 30);
             $package->MaxPlay = $request->input('MaxPlay', 0);
             $package->maxTimePerPlay = $request->input('maxTimePerPlay', 0);

@@ -258,6 +258,49 @@ class TicketingPoSController extends Controller
                             }
                             $newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $item['qty'])->format('Y-m-d');
                             $maxPlay = ($package->MaxPlay ?? 0) ? (($package->MaxPlay ?? 0) * $item['qty']) : 0;
+                            
+                            // --- NEW: Insert/Update customer_memberships ---
+                            $existingMembership = DB::table('customer_memberships')
+                                ->where('RecordOwnerID', $user->RecordOwnerID)
+                                ->where('KodePelanggan', $jsonData['KodePelanggan'])
+                                ->where('KodePaketMember', $package->KodePaket)
+                                ->orderBy('ValidUntil', 'desc')
+                                ->first();
+
+                            $currentValidUntil_cm = Carbon::now('Asia/Jakarta');
+                            if ($existingMembership && $existingMembership->ValidUntil) {
+                                $exDate = Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta');
+                                if ($exDate->isFuture()) {
+                                    $currentValidUntil_cm = $exDate;
+                                }
+                            }
+                            
+                            $addedDays = ($package->ValidDays ?? 30) * $item['qty'];
+                            $newValidUntil_cm = $currentValidUntil_cm->addDays($addedDays)->format('Y-m-d');
+                            $addedMaxPlay = ($package->MaxPlay ?? 0) * $item['qty'];
+                            
+                            if ($existingMembership && Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta')->isFuture()) {
+                                DB::table('customer_memberships')
+                                    ->where('id', $existingMembership->id)
+                                    ->update([
+                                        'ValidUntil' => $newValidUntil_cm,
+                                        'MaxPlay' => DB::raw("MaxPlay + $addedMaxPlay")
+                                    ]);
+                            } else {
+                                DB::table('customer_memberships')->insert([
+                                    'KodePelanggan' => $jsonData['KodePelanggan'],
+                                    'KodePaketMember' => $package->KodePaket,
+                                    'ValidFrom' => Carbon::now('Asia/Jakarta')->format('Y-m-d'),
+                                    'ValidUntil' => $newValidUntil_cm,
+                                    'MaxPlay' => $addedMaxPlay,
+                                    'Played' => 0,
+                                    'maxTimePerPlay' => $package->maxTimePerPlay ?? 0,
+                                    'RecordOwnerID' => $user->RecordOwnerID,
+                                    'created_at' => Carbon::now('Asia/Jakarta')
+                                ]);
+                            }
+                            // -------------------------------------------
+
                             $updateData = [
                                 'isPaidMembership' => 1,
                                 'ValidUntil' => $newValidUntil,

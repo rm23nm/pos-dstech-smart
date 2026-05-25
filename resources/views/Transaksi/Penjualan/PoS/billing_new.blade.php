@@ -3891,6 +3891,7 @@
     // ===== DATA INJECTIONS =====
     var dataPaketAll = {!! json_encode($paket) !!};
     var dataPelangganAll = {!! json_encode($pelanggan) !!}; // Data Member Injected
+    var dataCustomerMemberships = {!! json_encode($customerMemberships ?? []) !!}; // Active Memberships
     var dataGrupPelanggan = {!! json_encode($gruppelanggan) !!}; // Member Group
     var confCompany = {!! json_encode(count($company) > 0 ? $company[0] : null) !!};
 
@@ -4549,8 +4550,12 @@
         if (jenisPaket === 'PAKETMEMBER') {
             var memberData = dataPelangganAll.find(m => m.KodePelanggan == kodePelanggan);
             if (!memberData || memberData.isPaidMembership != 1) return;
+            var validMemberships = dataCustomerMemberships.filter(function(m) {
+                return m.KodePelanggan == kodePelanggan && (!m.KelompokLampu || m.KelompokLampu == selectedTitik.kelompoklampu);
+            });
+            if (validMemberships.length === 0) return;
             var durasi = parseInt(document.getElementById('ppDurasi').value) || 0;
-            var maxTime = parseInt(memberData.maxTimePerPlay) || 0;
+            var maxTime = parseInt(validMemberships[0].maxTimePerPlay) || parseInt(memberData.maxTimePerPlay) || 0;
             if (durasi !== maxTime) return;
         }
 

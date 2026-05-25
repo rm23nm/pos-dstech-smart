@@ -383,6 +383,15 @@ class TableOrderController extends Controller
         $pelanggan = Pelanggan::selectRaw($sql)
                     ->where('RecordOwnerID','=',$roid)
                     ->where('Status','=',1)->get();
+        
+        $customerMemberships = DB::table('customer_memberships')
+            ->join('member_packages', 'customer_memberships.KodePaketMember', '=', 'member_packages.KodePaket')
+            ->select('customer_memberships.*', 'member_packages.KelompokLampu')
+            ->where('customer_memberships.RecordOwnerID', $roid)
+            ->where('customer_memberships.Status', 'ACTIVE')
+            ->where('customer_memberships.ValidUntil', '>=', Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s'))
+            ->get();
+
         $metodepembayaran = MetodePembayaran::where('RecordOwnerID','=',$roid)->get();
 
         $itemmaster = ItemMaster::selectRaw("itemmaster.KodeItem, itemmaster.NamaItem, itemmaster.HargaJual, itemmaster.Gambar, itemmaster.TypeItem, COALESCE(itemwarehouses.Qty, 0) as Stock")
@@ -682,7 +691,7 @@ class TableOrderController extends Controller
                     ->where('customer_memberships.RecordOwnerID', $roid)
                     ->where('customer_memberships.ValidUntil', '>=', Carbon::now('Asia/Jakarta'))
                     ->whereRaw('(customer_memberships.MaxPlay = 0 OR customer_memberships.Played < customer_memberships.MaxPlay)')
-                    ->select('customer_memberships.*', 'member_packages.KategoriPaket', 'member_packages.Tipe', 'member_packages.DiskonBelanja', 'itemmaster.NamaItem', 'member_packages.TargetKategori')
+                    ->select('customer_memberships.*', 'member_packages.KategoriPaket', 'member_packages.Tipe', 'member_packages.KelompokLampu', 'itemmaster.NamaItem')
                     ->get();
 
                 if ($activeMemberships->isEmpty()) {
@@ -693,19 +702,10 @@ class TableOrderController extends Controller
                 foreach ($activeMemberships as $am) {
                     if ($am->KategoriPaket !== 'HIBURAN') continue;
                     
-                    // Validate category
-                    if ($am->TargetKategori) {
-                        if (strtolower(trim($am->TargetKategori)) === $namaGrupClean) {
-                            $validMembership = $am;
-                            break;
-                        }
-                    } else {
-                        // Fallback to name checking
-                        $namaPaket = strtolower($am->NamaItem);
-                        if (strpos($namaPaket, $namaGrupClean) !== false) {
-                            $validMembership = $am;
-                            break;
-                        }
+                    // Validate KelompokLampu
+                    if (empty($am->KelompokLampu) || $am->KelompokLampu == $table->KelompokLampu) {
+                        $validMembership = $am;
+                        break;
                     }
                 }
 
@@ -784,18 +784,18 @@ class TableOrderController extends Controller
                     ->where('customer_memberships.KodePelanggan', $model->KodePelanggan)
                     ->where('customer_memberships.RecordOwnerID', $roid)
                     ->where('customer_memberships.ValidUntil', '>=', Carbon::now('Asia/Jakarta'))
-                    ->select('customer_memberships.*', 'member_packages.KategoriPaket', 'itemmaster.NamaItem', 'member_packages.TargetKategori')
+                    ->select('customer_memberships.*', 'member_packages.KategoriPaket', 'itemmaster.NamaItem', 'member_packages.KelompokLampu')
                     ->get();
                     
                 $maxMinutes = 60;
                 foreach ($activeMemberships as $am) {
                     if ($am->KategoriPaket !== 'HIBURAN') continue;
                     $valid = false;
-                    if ($am->TargetKategori) {
-                        if (strtolower(trim($am->TargetKategori)) === $namaGrupClean) $valid = true;
-                    } else {
-                        if (strpos(strtolower($am->NamaItem), $namaGrupClean) !== false) $valid = true;
+                    
+                    if (empty($am->KelompokLampu) || $am->KelompokLampu == $table->KelompokLampu) {
+                        $valid = true;
                     }
+
                     if ($valid && $am->maxTimePerPlay > 0) {
                         $maxMinutes = $am->maxTimePerPlay * 60;
                         break;
