@@ -67,7 +67,7 @@
                             <td>{{ $p->MaxPlay > 0 ? $p->MaxPlay . ' x' : 'Tanpa Batas' }}</td>
                             <td>{{ $p->maxTimePerPlay > 0 ? $p->maxTimePerPlay . ' Jam' : 'Bebas' }}</td>
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editPaket({{ $p->id }})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalPaket" onclick="editPaket({{ $p->id }})"><i class="fas fa-edit"></i></button>
                                 <button class="btn btn-sm btn-danger" onclick="hapusPaket({{ $p->id }})"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
@@ -222,7 +222,9 @@
     }
 
     function editPaket(id) {
+        console.log("Editing package: ", id);
         $.get('/master/memberpackage/' + id, function(data) {
+            console.log("Data received: ", data);
             $('#paket_id').val(data.id);
             $('#KodePaket').val(data.KodePaket).prop('readonly', true);
             $('#NamaPaket').val(data.NamaPaket);
@@ -245,6 +247,7 @@
 
     $('#formPaket').on('submit', function(e) {
         e.preventDefault();
+        console.log("Submitting form...");
         $('#btnSave').prop('disabled', true).text('Menyimpan...');
         
         var id = $('#paket_id').val();
