@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\LoginSlideController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GrupPelangganController;
 use App\Http\Controllers\PelangganController;
@@ -1244,7 +1245,7 @@ Route::middleware([\App\Http\Middleware\DomainDetectionMiddleware::class])->grou
     Route::post('/logout', [\App\Http\Controllers\FnBStoreController::class, 'logoutCustom'])->name('fnb-store.logout.custom');
     
     Route::middleware([\App\Http\Middleware\CustomerAuth::class])->group(function () {
-        Route::get('/menu', [\App\Http\Controllers\FnBStoreController::class, 'menuCustom'])->name('fnb-store.menu.custom');
+        Route::get('/store-menu', [\App\Http\Controllers\FnBStoreController::class, 'menuCustom'])->name('fnb-store.menu.custom');
         Route::post('/checkout', [\App\Http\Controllers\FnBStoreController::class, 'checkoutCustom'])->name('fnb-store.checkout.custom');
         Route::get('/status/{orderId}', [\App\Http\Controllers\FnBStoreController::class, 'statusCustom'])->name('fnb-store.status.custom');
     });
@@ -1269,6 +1270,7 @@ Route::prefix('fnb-store')->group(function () {
 Route::get('/ticketing-pos', [\App\Http\Controllers\TicketingPoSController::class, 'index'])->name('ticketing-pos')->middleware('auth');
 Route::post('/ticketing-pos/generate-tickets', [\App\Http\Controllers\TicketingPoSController::class, 'generateTickets'])->middleware('auth');
 Route::post('/ticketing-pos/store', [\App\Http\Controllers\TicketingPoSController::class, 'storeTicketing'])->middleware('auth');
+Route::post('/ticketing-pos/checkin', [\App\Http\Controllers\TicketingPoSController::class, 'checkInMember'])->middleware('auth');
 Route::post('/ticketing-pos/check-voucher', [\App\Http\Controllers\TicketingPoSController::class, 'checkVoucher'])->middleware('auth');
 Route::post('/ticketing-pos/create-payment-token', [\App\Http\Controllers\TicketingPoSController::class, 'createMidTransTransaction'])->middleware('auth');
 Route::get('/ticketing-pos/printthermal/{NoTransaksi}', [\App\Http\Controllers\TicketingPoSController::class, 'printThermal'])->middleware('auth');

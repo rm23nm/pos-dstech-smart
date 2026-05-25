@@ -3945,6 +3945,16 @@
             rowJam.style.display = 'grid';
         }
 
+        if (jenis === 'PAKETMEMBER') {
+            var memberId = document.getElementById('ppKodePelanggan').value;
+            if (memberId) {
+                var memberData = dataPelangganAll.find(m => m.KodePelanggan == memberId);
+                if (memberData && memberData.maxTimePerPlay) {
+                    document.getElementById('ppDurasi').value = parseInt(memberData.maxTimePerPlay) || 1;
+                }
+            }
+        }
+
         var cat = selectedTitik && selectedTitik.namakelompok ? selectedTitik.namakelompok.toUpperCase() : "";
         dataPaketAll.forEach(function(p) {
             if (p.JenisPaket === jenis) {
@@ -4087,26 +4097,85 @@
             document.getElementById('ppDurasi').value = 1;
         }
         updateJamSelesai();
+
+        // Auto-select next slots for member package IF they just selected the first slot
+        var jenis = document.getElementById('ppJenisPaket').value;
+        if (jenis === 'PAKETMEMBER' && el.classList.contains('selected') && selectedSlots.length === 1) {
+            var memberId = document.getElementById('ppKodePelanggan').value;
+            if (memberId) {
+                var memberData = dataPelangganAll.find(m => m.KodePelanggan == memberId);
+                if (memberData && memberData.maxTimePerPlay) {
+                    var maxTime = parseInt(memberData.maxTimePerPlay) || 1;
+                    if (maxTime > 1) {
+                        var nextSlotsNeeded = maxTime - 1;
+                        var allSlotDivs = document.querySelectorAll('.slot-box:not(.booked)');
+                        var startIndex = -1;
+                        for(var i=0; i<allSlotDivs.length; i++) {
+                            if (allSlotDivs[i].dataset.idx == idx) {
+                                startIndex = i; break;
+                            }
+                        }
+                        if (startIndex !== -1) {
+                            for(var i=1; i<=nextSlotsNeeded; i++) {
+                                var nextDiv = allSlotDivs[startIndex + i];
+                                if (nextDiv && parseInt(nextDiv.dataset.idx) === parseInt(idx) + i) {
+                                    nextDiv.click(); // Programmatically click the next slot
+                                } else {
+                                    break; // Stop if not consecutive or booked
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     function validateSlotContinuity() {
         var helper = document.getElementById('ppSlotHelper');
-        if (selectedSlots.length > 1) {
-            var isValid = true;
-            for(var i=1; i<selectedSlots.length; i++) {
-                if (selectedSlots[i].idx !== selectedSlots[i-1].idx + 1) {
-                    isValid = false; break;
+        var jenis = document.getElementById('ppJenisPaket').value;
+        var reqSlots = 0;
+
+        if (jenis === 'PAKETMEMBER') {
+            var memberId = document.getElementById('ppKodePelanggan').value;
+            if (memberId) {
+                var memberData = dataPelangganAll.find(m => m.KodePelanggan == memberId);
+                if (memberData && memberData.maxTimePerPlay) {
+                    reqSlots = parseInt(memberData.maxTimePerPlay) || 0;
                 }
             }
-            if (!isValid) {
-                helper.innerHTML = '<span style="color:#e53935;"><i class="fas fa-exclamation-circle"></i> Slot harus berurutan!</span>';
-                document.getElementById('ppBtnConfirm').disabled = true;
-            } else {
-                helper.innerHTML = '<span style="color:#43a047;"><i class="fas fa-check-circle"></i> Slot valid ('+selectedSlots.length+' Jam).</span>';
-                validateForm();
+        }
+
+        var isConsecutive = true;
+        if (selectedSlots.length > 1) {
+            for(var i=1; i<selectedSlots.length; i++) {
+                if (selectedSlots[i].idx !== selectedSlots[i-1].idx + 1) {
+                    isConsecutive = false; break;
+                }
             }
+        }
+
+        if (!isConsecutive) {
+            helper.innerHTML = '<span style="color:#e53935;"><i class="fas fa-exclamation-circle"></i> Slot harus berurutan!</span>';
+            document.getElementById('ppBtnConfirm').disabled = true;
+            return;
+        }
+
+        if (jenis === 'PAKETMEMBER' && reqSlots > 0 && selectedSlots.length !== reqSlots) {
+            helper.innerHTML = '<span style="color:#e53935;"><i class="fas fa-exclamation-circle"></i> Wajib '+reqSlots+' Jam berurutan (Cari jam kosong yang cukup).</span>';
+            document.getElementById('ppBtnConfirm').disabled = true;
+            return;
+        }
+
+        if (selectedSlots.length > 0) {
+            helper.innerHTML = '<span style="color:#43a047;"><i class="fas fa-check-circle"></i> Slot valid ('+selectedSlots.length+' Jam).</span>';
+            validateForm();
         } else {
-            helper.innerHTML = 'Pilih 1 atau lebih slot berurutan.';
+            if (jenis === 'PAKETMEMBER' && reqSlots > 0) {
+                helper.innerHTML = 'Pilih slot kosong yang cukup untuk '+reqSlots+' Jam.';
+            } else {
+                helper.innerHTML = 'Pilih 1 atau lebih slot berurutan.';
+            }
             validateForm();
         }
     }
@@ -4179,13 +4248,21 @@
 
         var jenis = document.getElementById('ppJenisPaket').value;
         if(jenis === 'PAKETMEMBER') {
+            var mId = document.getElementById('ppKodePelanggan').value;
+            if (mId) {
+                var mData = dataPelangganAll.find(m => m.KodePelanggan == mId);
+                if (mData && mData.maxTimePerPlay) {
+                    document.getElementById('ppDurasi').value = parseInt(mData.maxTimePerPlay) || 1;
+                }
+            }
+
             updateJamSelesai();
             
             // Re-render slots to reflect new member status (lock/unlock)
             if (rawSlots && rawSlots.length > 0) {
                 // Clear selections
                 selectedSlots = [];
-                document.getElementById('ppDurasi').value = 1;
+                // document.getElementById('ppDurasi').value = 1;
                 renderSlots(rawSlots);
             }
         }
@@ -4474,7 +4551,7 @@
             if (!memberData || memberData.isPaidMembership != 1) return;
             var durasi = parseInt(document.getElementById('ppDurasi').value) || 0;
             var maxTime = parseInt(memberData.maxTimePerPlay) || 0;
-            if (durasi > maxTime) return;
+            if (durasi !== maxTime) return;
         }
 
         var isLangsung = document.querySelector('input[name="OpsiBayar"]:checked').value === 'LANGSUNG';

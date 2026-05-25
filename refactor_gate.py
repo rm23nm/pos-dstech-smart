@@ -1,110 +1,52 @@
-<?php
+import re
 
-namespace App\Http\Controllers;
+with open("app/Http/Controllers/GateApiController.php", "r") as f:
+    content = f.read()
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-
-class GateApiController extends Controller
-{
-    /**
-     * Endpoint untuk dipanggil oleh ESP32 saat men-scan tiket barcode atau kartu RFID
-     */
-    public function scan(Request $request)
+old_block = """    private function handleRfidScan($uid, $device)
     {
-        // Parameter:
-        // device_id: ID alat ESP32
-        // code: Barcode Tiket atau RFID UID
-        // type: 'barcode' atau 'rfid' (opsional, jika kosong sistem akan menerka berdasarkan format)
-        
-        $deviceId = $request->input('device_id');
-        $code = $request->input('code');
-        $type = $request->input('type');
-
-        if (!$deviceId || !$code) {
-            return response()->json([
-                'success' => false,
-                'open' => false,
-                'message' => 'Device ID dan Code harus diisi'
-            ], 400);
-        }
-
-        // Validasi Device
-        $device = DB::table('gate_devices')->where('DeviceID', $deviceId)->first();
-        if (!$device) {
-            return response()->json([
-                'success' => false,
-                'open' => false,
-                'message' => 'Alat Gate tidak terdaftar'
-            ], 403);
-        }
-
-        if ($type === 'rfid' || strlen($code) < 10) { 
-            // Anggap string pendek (seperti format hex) atau secara eksplisit dikirim type 'rfid' sebagai RFID Member
-            return $this->handleRfidScan($code, $device);
-        } else {
-            // Anggap sebagai barcode tiket (string panjang hasil cetakan)
-            return $this->handleBarcodeScan($code, $device);
-        }
-    }
-
-    private function handleBarcodeScan($barcode, $device)
-    {
-        $tiket = DB::table('tiket_masuk')
-                    ->where('BarcodeTiket', $barcode)
+        // Cari pelanggan dengan RFID UID tersebut
+        $member = DB::table('pelanggan')
+                    ->where('RFID_UID', $uid)
                     ->where('RecordOwnerID', $device->RecordOwnerID)
                     ->first();
 
-        if (!$tiket) {
+        if (!$member) {
             return response()->json([
                 'success' => false,
                 'open' => false,
-                'message' => 'Tiket tidak ditemukan'
+                'message' => 'Kartu Member tidak terdaftar'
             ], 404);
         }
 
-        if ($tiket->Status == 1) {
-            return response()->json([
-                'success' => false,
-                'open' => false,
-                'message' => 'Tiket sudah pernah digunakan pada ' . $tiket->WaktuPakai
-            ], 403);
-        }
-
-        // Validasi Akses Area
+        // Validasi Akses Area untuk Member
         $hasAccess = DB::table('gate_device_tickets')
                         ->where('DeviceID', $device->DeviceID)
-                        ->where('KodeItem', $tiket->KodeItem)
+                        ->where('KodeItem', $member->KodePaketMember)
                         ->exists();
 
         if (!$hasAccess) {
             return response()->json([
                 'success' => false,
                 'open' => false,
-                'message' => 'Akses Ditolak: Tiket ini tidak berlaku untuk area ini'
+                'message' => 'Akses Ditolak: Paket member Anda tidak berlaku untuk area ini'
             ], 403);
         }
 
-        // Tiket valid, tandai sudah dipakai
-        DB::table('tiket_masuk')
-            ->where('id', $tiket->id)
-            ->update([
-                'Status' => 1,
-                'WaktuPakai' => Carbon::now()
-            ]);
-
-        Log::info("Gate Opened via Tiket. Barcode: $barcode, Device: " . $device->DeviceID);
+        // TODO: Jika ada kolom masa aktif member di tabel pelanggan, bisa ditambahkan filter disini
+        // Saat ini, selama terdaftar dan status Aktif, pintu terbuka.
+        
+        Log::info("Gate Opened via Member RFID. UID: $uid, Member: " . $member->NamaPelanggan . ", Device: " . $device->DeviceID);
 
         return response()->json([
             'success' => true,
             'open' => true,
-            'message' => 'Akses Tiket Diberikan'
+            'message' => 'Akses Member Diberikan',
+            'member_name' => $member->NamaPelanggan
         ], 200);
-    }
+    }"""
 
-    private function handleRfidScan($uid, $device)
+new_block = """    private function handleRfidScan($uid, $device)
     {
         // Cari pelanggan dengan RFID UID tersebut
         $member = DB::table('pelanggan')
@@ -176,5 +118,11 @@ class GateApiController extends Controller
             'message' => 'Akses Member Diberikan',
             'member_name' => $member->NamaPelanggan
         ], 200);
-    }
-}
+    }"""
+
+content = content.replace(old_block, new_block)
+
+with open("app/Http/Controllers/GateApiController.php", "w") as f:
+    f.write(content)
+
+print("Done refactoring GateApiController handleRfidScan()")

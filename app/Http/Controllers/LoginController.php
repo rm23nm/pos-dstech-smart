@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\SubscriptionHeader;
 use App\Models\SubscriptionDetail;
 use App\Models\SubscriptionImage;
+use App\Models\LoginSlide;
 use App\Http\Controllers\InvoicePenggunaController;
 
 use App\Models\Provinsi;
@@ -56,8 +57,10 @@ class LoginController extends Controller
         }
 
         $subscriptionheader = SubscriptionHeader::all();
+        $loginslides = LoginSlide::where('is_active', 1)->orderBy('order_num', 'asc')->get();
         return view("auth.login",[
-            'subscriptionheader' => $subscriptionheader
+            'subscriptionheader' => $subscriptionheader,
+            'loginslides' => $loginslides
         ]);
     }
 
@@ -499,6 +502,31 @@ class LoginController extends Controller
                 $errorCount  += 1;
                 $errorMessage = "Gagal Menyimpan Tagihan: " . ($oSaveINV['message'] ?? '');
                 goto jump;
+            }
+
+            if ($request->input('JenisUsaha') == 'FnB') {
+                \DB::table('tipeorderresto')->insert([
+                    ['NamaJenisOrder' => 'Dine In', 'Icon' => '', 'DineIn' => 1, 'RecordOwnerID' => $KodePartner],
+                    ['NamaJenisOrder' => 'Take Away', 'Icon' => '', 'DineIn' => 0, 'RecordOwnerID' => $KodePartner],
+                    ['NamaJenisOrder' => 'Gojek', 'Icon' => '', 'DineIn' => 0, 'RecordOwnerID' => $KodePartner],
+                    ['NamaJenisOrder' => 'Grab', 'Icon' => '', 'DineIn' => 0, 'RecordOwnerID' => $KodePartner]
+                ]);
+
+                $kid = \DB::table('kelompokmeja')->insertGetId([
+                    'NamaKelompokMeja' => 'Lantai 1',
+                    'RecordOwnerID' => $KodePartner
+                ]);
+
+                \DB::table('meja')->insert([
+                    ['NamaMeja' => 'Meja 1', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                    ['NamaMeja' => 'Meja 2', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                    ['NamaMeja' => 'Meja 3', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                    ['NamaMeja' => 'Meja 4', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                    ['NamaMeja' => 'Meja 5', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                    ['NamaMeja' => 'Meja 6', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                    ['NamaMeja' => 'Meja 7', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                    ['NamaMeja' => 'Meja 8', 'KelompokMejaID' => $kid, 'RecordOwnerID' => $KodePartner, 'Status' => 1],
+                ]);
             }
         } catch (\Exception $e) {
             $errorCount +=1;

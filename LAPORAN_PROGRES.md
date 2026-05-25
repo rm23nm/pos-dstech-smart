@@ -48,8 +48,16 @@
 *   **Deskripsi**: Melakukan verifikasi menyeluruh terhadap perubahan di Ticketing POS, F&B/Billiard POS, dan Retail POS. Memastikan semua fitur normal berjalan tanpa regresi dan database sinkronisasi aman.
 *   **Status**: **Selesai (100%)**
 
+### Langkah 7: Perbaikan Menu "Paket Member" yang Hilang (Lokal & Live)
+*   **Deskripsi**: Menyelidiki hilangnya menu "Paket Member" di dashboard klien. Menemukan bahwa ID Permission 122 belum ditugaskan ke roles dan subscription active klien. Membuat script untuk menetapkan ID 122 ke tabel `permissionrole` dan `subscriptiondetail`. Melakukan perbaikan *default value constraint* untuk database live pada tabel `kelompokmeja` dan `meja`, lalu mengeksekusi script SSH ke server Live untuk menerapkan perbaikan secara utuh sehingga menu Paket Member tampil kembali.
+*   **Status**: **Selesai (100%)**
+
 ### Langkah 7: Perbaikan Error Undefined Data Member di Billing POS
 *   **Deskripsi**: Memperbaiki fungsi `ViewNew` di `TableOrderController` karena SQL select untuk `$pelanggan` tidak menarik kolom field member (seperti `isPaidMembership`, dll), sehingga menimbulkan error undefined pada modal transaksi Billing POS saat memilih member. Field diubah menjadi `pelanggan.*`.
+*   **Status**: **Selesai (100%)**
+
+### Langkah 8: Otomatisasi Input Durasi Meja untuk Paket Member
+*   **Deskripsi**: Memodifikasi JavaScript di `billing_new.blade.php` agar saat kasir memilih "Jenis Paket: PAKETMEMBER", sistem akan otomatis membaca `maxTimePerPlay` dari profil Pelanggan yang dipilih dan mengisinya ke kolom DURASI. Hal ini mencegah kasir dari kesalahan lupa mengisi durasi, yang sebelumnya menyebabkan meja hanya terbuka selama 1 jam (default input).
 *   **Status**: **Selesai (100%)**
 
 ---

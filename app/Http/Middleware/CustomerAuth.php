@@ -18,7 +18,11 @@ class CustomerAuth
     {
         if (!$request->session()->has('customer_id')) {
             $id = $request->route('id');
-            return redirect()->route('fnb-store.login', ['id' => $id])->with('error', 'Silakan login terlebih dahulu untuk melakukan pemesanan.');
+            if ($id) {
+                return redirect()->route('fnb-store.login', ['id' => $id])->with('error', 'Silakan login terlebih dahulu untuk melakukan pemesanan.');
+            } else {
+                return redirect()->route('fnb-store.login.custom')->with('error', 'Silakan login terlebih dahulu untuk melakukan pemesanan.');
+            }
         }
 
         return $next($request);

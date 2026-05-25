@@ -115,7 +115,7 @@
                                                                     </div>
                                                                     <div class="col-md-6 mb-3">
                                                                         <label>Ganti Gambar Baru (Biarkan kosong jika tidak ingin mengubah)</label>
-                                                                        <input type="file" name="image" class="form-control" accept="image/*">
+                                                                        <input type="file" name="image" class="form-control-file" accept="image/*">
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-check form-switch mt-2">
@@ -182,7 +182,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label>Gambar Slide *</label>
-                            <input type="file" name="image" class="form-control" required accept="image/*">
+                            <input type="file" name="image" class="form-control-file" required accept="image/*">
                         </div>
                     </div>
                     <div class="form-check form-switch mt-2">

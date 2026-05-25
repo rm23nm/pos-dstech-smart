@@ -236,7 +236,7 @@
 	                            		</div>
 
 	                            		<div class="col-md-4">
-	                            			<label  class="text-body">Membership Berbayar</label>
+	                            			<label  class="text-body">Membership Aktif (Status Utama)</label>
 	                            			<fieldset class="form-group mb-3">
 	                            				<select name="isPaidMembership" id="isPaidMembership" class="js-example-basic-single js-states form-control bg-transparent" name="state" >
 													<option value="1" {{ count($pelanggan) > 0 ? $pelanggan[0]['isPaidMembership'] == 1 ? "selected" : '' :""}}>Ya</option>
@@ -245,32 +245,41 @@
 	                            			</fieldset>
 	                            		</div>
 
-	                                        <div class="col-md-6">
-                                            <label  class="text-body">Maksimal Bermain Dalam 1 Periode</label>
-                                            <fieldset class="form-group mb-3">
-                                                <input type="number" class="form-control" id="MaxPlay" name="MaxPlay" placeholder="0" value="{{ count($pelanggan) > 0 ? $pelanggan[0]['MaxPlay'] : 0 }}">
-                                            </fieldset>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label  class="text-body">Sudah Bermain</label>
-                                            <fieldset class="form-group mb-3">
-                                                <input type="number" class="form-control" id="Played" name="Played" placeholder="0" value="{{ count($pelanggan) > 0 ? $pelanggan[0]['Played'] : 0 }}" readonly>
-                                            </fieldset>
-                                        </div>
-
-	                            		<div class="col-md-4">
-	                            			<label  class="text-body">Harga Member</label>
-	                            			<fieldset class="form-group mb-3">
-	                            			<input type="number" class="form-control" id="MemberPrice" name="MemberPrice" placeholder="0" value="{{ count($pelanggan) > 0 ? $pelanggan[0]['MemberPrice'] : 0 }}" >
-	                            			</fieldset>
-	                            		</div>
-
-	                            		<div class="col-md-4">
-	                            			<label  class="text-body">Lama Bermain Per Permainan (Jam)</label>
-	                            			<fieldset class="form-group mb-3">
-	                            				<input type="number" class="form-control" id="maxTimePerPlay" name="maxTimePerPlay" placeholder="0" value="{{ count($pelanggan) > 0 ? $pelanggan[0]['maxTimePerPlay'] : 0 }}" >
-	                            			</fieldset>
-	                            		</div>
+										<div class="col-md-12 mt-5">
+											<h4 class="font-weight-bold text-dark">Daftar Paket Membership</h4>
+											<div class="table-responsive">
+												<table class="table table-bordered table-hover">
+													<thead class="thead-light">
+														<tr>
+															<th>Nama Paket</th>
+															<th>Valid Until</th>
+															<th>Max Play</th>
+															<th>Played</th>
+															<th>Max Waktu / Play</th>
+															<th>Tgl Beli</th>
+														</tr>
+													</thead>
+													<tbody>
+														@if(isset($customer_memberships) && count($customer_memberships) > 0)
+															@foreach($customer_memberships as $cm)
+																<tr>
+																	<td>{{ $cm->NamaItem }}</td>
+																	<td>{{ \Carbon\Carbon::parse($cm->ValidUntil)->format('d-m-Y H:i') }}</td>
+																	<td>{{ $cm->MaxPlay == 0 ? 'Unlimited' : $cm->MaxPlay }}</td>
+																	<td>{{ $cm->Played }}</td>
+																	<td>{{ $cm->maxTimePerPlay }} Jam</td>
+																	<td>{{ \Carbon\Carbon::parse($cm->created_at)->format('d-m-Y H:i') }}</td>
+																</tr>
+															@endforeach
+														@else
+															<tr>
+																<td colspan="6" class="text-center">Belum ada paket membership.</td>
+															</tr>
+														@endif
+													</tbody>
+												</table>
+											</div>
+										</div>
 
 	                            		<div class="col-md-4">
 	                            			<label  class="text-body">Status</label>

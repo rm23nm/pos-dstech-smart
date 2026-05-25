@@ -133,10 +133,25 @@ class PelangganController extends Controller
     	$gruppelanggan = GrupPelanggan::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
     	$provinsi = Provinsi::all();
         
+        $customer_memberships = [];
+        if ($KodePelanggan) {
+            $customer_memberships = DB::table('customer_memberships')
+                ->select('customer_memberships.*', 'itemmaster.NamaItem')
+                ->leftJoin('itemmaster', function($join) {
+                    $join->on('customer_memberships.KodePaketMember', '=', 'itemmaster.KodeItem')
+                         ->on('customer_memberships.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+                })
+                ->where('customer_memberships.KodePelanggan', $KodePelanggan)
+                ->where('customer_memberships.RecordOwnerID', Auth::user()->RecordOwnerID)
+                ->orderBy('customer_memberships.ValidUntil', 'desc')
+                ->get();
+        }
+        
         return view("master.BussinessPartner.Pelanggan-Input",[
             'pelanggan' => $pelanggan,
             'gruppelanggan' => $gruppelanggan,
-            'provinsi' => $provinsi
+            'provinsi' => $provinsi,
+            'customer_memberships' => $customer_memberships
         ]);
     }
 

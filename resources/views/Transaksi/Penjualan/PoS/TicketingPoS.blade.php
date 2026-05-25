@@ -239,6 +239,10 @@
 
                 <input type="text" id="rfid-scan" class="rfid-input" placeholder="Atau Tap Kartu Disini..." autofocus>
                 <small id="member-name" class="text-success" style="display:none; font-weight:bold; margin-top:5px;"></small>
+                
+                <button id="btnCheckInGym" class="btn btn-sm btn-success mt-2 font-bold" style="width: 100%; display: none;" onclick="processGymCheckIn()">
+                    <i class="fas fa-running"></i> Check-in Member (Potong Kuota)
+                </button>
             </div>
         </div>
         
@@ -286,12 +290,14 @@
                     memberUid = member.KodePelanggan;
                     memberName = member.NamaPelanggan;
                     $('#member-name').text('✅ Member: ' + memberName).show();
+                    $('#btnCheckInGym').show();
                     $('#rfid-scan').val('');
                 }
             } else {
                 memberUid = null;
                 memberName = null;
                 $('#member-name').hide();
+                $('#btnCheckInGym').hide();
                 $('#rfid-scan').val('');
             }
         });
@@ -307,6 +313,7 @@
                     memberUid = member.KodePelanggan;
                     memberName = member.NamaPelanggan;
                     $('#member-name').text('✅ Member: ' + memberName).show();
+                    $('#btnCheckInGym').show();
                     $('#pelanggan-select').val(member.KodePelanggan).trigger('change.select2');
                     Swal.fire('Berhasil', 'Member ' + memberName + ' terdeteksi.', 'success');
                 } else {
@@ -316,6 +323,43 @@
             }
         }
     });
+
+    function processGymCheckIn() {
+        if (!memberUid) {
+            Swal.fire('Perhatian', 'Pilih atau scan member terlebih dahulu!', 'warning');
+            return;
+        }
+
+        let btn = $('#btnCheckInGym');
+        let oldHtml = btn.html();
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Memproses...');
+
+        $.ajax({
+            url: '/ticketing-pos/checkin',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                RFID_UID: memberUid
+            },
+            success: function(res) {
+                btn.prop('disabled', false).html(oldHtml);
+                if (res.success) {
+                    let sisaText = res.max_play === 'Unlimited' ? 'Sisa Kuota: Unlimited' : 'Sisa Kuota: ' + (res.max_play - res.played);
+                    Swal.fire({
+                        title: 'Check-In Sukses!',
+                        html: res.message + '<br><br><b>' + sisaText + '</b>',
+                        icon: 'success'
+                    });
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            },
+            error: function() {
+                btn.prop('disabled', false).html(oldHtml);
+                Swal.fire('Error', 'Terjadi kesalahan sistem saat check-in.', 'error');
+            }
+        });
+    }
 
     function addToCart(code, name, price, type) {
         let existing = cart.find(item => item.code === code);

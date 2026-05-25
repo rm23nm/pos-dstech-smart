@@ -659,7 +659,49 @@ class FakturPenjualanController extends Controller
 							}
 							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
 							
-							$updateData = [
+							
+                            // --- NEW: Insert to customer_memberships ---
+                            $existingMembership = DB::table('customer_memberships')
+                                ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                                ->where('KodePelanggan', $jsonData['KodePelanggan'])
+                                ->where('KodePaketMember', $package->KodePaket)
+                                ->orderBy('ValidUntil', 'desc')
+                                ->first();
+
+                            $currentValidUntil_cm = \Carbon\Carbon::now('Asia/Jakarta');
+                            if ($existingMembership && $existingMembership->ValidUntil) {
+                                $exDate = \Carbon\Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta');
+                                if ($exDate->isFuture()) {
+                                    $currentValidUntil_cm = $exDate;
+                                }
+                            }
+                            
+                            $addedDays = ($package->ValidDays ?? 30) * $key['Qty'];
+                            $newValidUntil_cm = $currentValidUntil_cm->addDays($addedDays)->format('Y-m-d H:i:s');
+                            $addedMaxPlay = ($package->MaxPlay ?? 0) * $key['Qty'];
+                            
+                            if ($existingMembership && \Carbon\Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta')->isFuture()) {
+                                DB::table('customer_memberships')
+                                    ->where('id', $existingMembership->id)
+                                    ->update([
+                                        'ValidUntil' => $newValidUntil_cm,
+                                        'MaxPlay' => DB::raw("MaxPlay + $addedMaxPlay")
+                                    ]);
+                            } else {
+                                DB::table('customer_memberships')->insert([
+                                    'KodePelanggan' => $jsonData['KodePelanggan'],
+                                    'KodePaketMember' => $package->KodePaket,
+                                    'ValidUntil' => $newValidUntil_cm,
+                                    'MaxPlay' => $addedMaxPlay,
+                                    'Played' => 0,
+                                    'maxTimePerPlay' => $package->maxTimePerPlay ?? 0,
+                                    'RecordOwnerID' => Auth::user()->RecordOwnerID,
+                                    'created_at' => \Carbon\Carbon::now('Asia/Jakarta')
+                                ]);
+                            }
+                            // -------------------------------------------
+
+$updateData = [
 								'isPaidMembership' => 1,
 								'ValidUntil' => $newValidUntil,
 								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d')
@@ -1101,7 +1143,49 @@ class FakturPenjualanController extends Controller
 							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
 							$maxPlay = ($package->MaxPlay ?? 0) ? (($package->MaxPlay ?? 0) * $key['Qty']) : 0;
 
-							$updateData = [
+							
+                            // --- NEW: Insert to customer_memberships ---
+                            $existingMembership = DB::table('customer_memberships')
+                                ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                                ->where('KodePelanggan', $jsonData['KodePelanggan'])
+                                ->where('KodePaketMember', $package->KodePaket)
+                                ->orderBy('ValidUntil', 'desc')
+                                ->first();
+
+                            $currentValidUntil_cm = \Carbon\Carbon::now('Asia/Jakarta');
+                            if ($existingMembership && $existingMembership->ValidUntil) {
+                                $exDate = \Carbon\Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta');
+                                if ($exDate->isFuture()) {
+                                    $currentValidUntil_cm = $exDate;
+                                }
+                            }
+                            
+                            $addedDays = ($package->ValidDays ?? 30) * $key['Qty'];
+                            $newValidUntil_cm = $currentValidUntil_cm->addDays($addedDays)->format('Y-m-d H:i:s');
+                            $addedMaxPlay = ($package->MaxPlay ?? 0) * $key['Qty'];
+                            
+                            if ($existingMembership && \Carbon\Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta')->isFuture()) {
+                                DB::table('customer_memberships')
+                                    ->where('id', $existingMembership->id)
+                                    ->update([
+                                        'ValidUntil' => $newValidUntil_cm,
+                                        'MaxPlay' => DB::raw("MaxPlay + $addedMaxPlay")
+                                    ]);
+                            } else {
+                                DB::table('customer_memberships')->insert([
+                                    'KodePelanggan' => $jsonData['KodePelanggan'],
+                                    'KodePaketMember' => $package->KodePaket,
+                                    'ValidUntil' => $newValidUntil_cm,
+                                    'MaxPlay' => $addedMaxPlay,
+                                    'Played' => 0,
+                                    'maxTimePerPlay' => $package->maxTimePerPlay ?? 0,
+                                    'RecordOwnerID' => Auth::user()->RecordOwnerID,
+                                    'created_at' => \Carbon\Carbon::now('Asia/Jakarta')
+                                ]);
+                            }
+                            // -------------------------------------------
+
+$updateData = [
 								'isPaidMembership' => 1,
 								'ValidUntil' => $newValidUntil,
 								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d'),
@@ -1573,7 +1657,49 @@ class FakturPenjualanController extends Controller
 							}
 							$newValidUntil = $currentValidUntil->addDays(($package->ValidDays ?? 30) * $key['Qty'])->format('Y-m-d');
 							
-							$updateData = [
+							
+                            // --- NEW: Insert to customer_memberships ---
+                            $existingMembership = DB::table('customer_memberships')
+                                ->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+                                ->where('KodePelanggan', $jsonData['KodePelanggan'])
+                                ->where('KodePaketMember', $package->KodePaket)
+                                ->orderBy('ValidUntil', 'desc')
+                                ->first();
+
+                            $currentValidUntil_cm = \Carbon\Carbon::now('Asia/Jakarta');
+                            if ($existingMembership && $existingMembership->ValidUntil) {
+                                $exDate = \Carbon\Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta');
+                                if ($exDate->isFuture()) {
+                                    $currentValidUntil_cm = $exDate;
+                                }
+                            }
+                            
+                            $addedDays = ($package->ValidDays ?? 30) * $key['Qty'];
+                            $newValidUntil_cm = $currentValidUntil_cm->addDays($addedDays)->format('Y-m-d H:i:s');
+                            $addedMaxPlay = ($package->MaxPlay ?? 0) * $key['Qty'];
+                            
+                            if ($existingMembership && \Carbon\Carbon::parse($existingMembership->ValidUntil, 'Asia/Jakarta')->isFuture()) {
+                                DB::table('customer_memberships')
+                                    ->where('id', $existingMembership->id)
+                                    ->update([
+                                        'ValidUntil' => $newValidUntil_cm,
+                                        'MaxPlay' => DB::raw("MaxPlay + $addedMaxPlay")
+                                    ]);
+                            } else {
+                                DB::table('customer_memberships')->insert([
+                                    'KodePelanggan' => $jsonData['KodePelanggan'],
+                                    'KodePaketMember' => $package->KodePaket,
+                                    'ValidUntil' => $newValidUntil_cm,
+                                    'MaxPlay' => $addedMaxPlay,
+                                    'Played' => 0,
+                                    'maxTimePerPlay' => $package->maxTimePerPlay ?? 0,
+                                    'RecordOwnerID' => Auth::user()->RecordOwnerID,
+                                    'created_at' => \Carbon\Carbon::now('Asia/Jakarta')
+                                ]);
+                            }
+                            // -------------------------------------------
+
+$updateData = [
 								'isPaidMembership' => 1,
 								'ValidUntil' => $newValidUntil,
 								'TglBerlanggananPaketBulanan' => Carbon::now('Asia/Jakarta')->format('Y-m-d')

@@ -304,6 +304,31 @@
                 
                 <!-- Background Slides -->
                 <div id="loginCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+                @if(isset($loginslides) && count($loginslides) > 0)
+                    <div class="carousel-inner">
+                        @foreach($loginslides as $index => $slide)
+                            <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                <img src="{{ asset($slide->image_path) }}" alt="{{ $slide->title }}">
+                                
+                                <!-- Dynamic Content Over Slide -->
+                                <div class="showcase-content position-absolute" style="bottom: 40px; left: 40px; right: 40px; z-index: 10;">
+                                    <h1 class="showcase-title">{{ $slide->title }}</h1>
+                                    <p class="showcase-subtitle">{{ $slide->description }}</p>
+                                    
+                                    @if($slide->demo_email)
+                                    <div class="demo-buttons-container mt-4" style="display: inline-block; min-width: 250px;">
+                                        <div class="demo-title"><i class="bi bi-stars"></i> Demo {{ $slide->title }}</div>
+                                        <button type="button" class="btn btn-demo-auto w-100 btn-light text-primary fw-bold" data-email="{{ $slide->demo_email }}" data-pass="{{ $slide->demo_password }}" style="padding: 10px 20px; border-radius: 10px; font-size: 1rem;">
+                                            <i class="bi bi-box-arrow-in-right"></i> Masuk Sekarang
+                                        </button>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                @else
                     <div class="carousel-inner">
                         <div class="carousel-item active">
                             <img src="{{ asset('images/misc/bg-login3.jpg') }}" alt="Slide 1">
@@ -317,7 +342,7 @@
                     </div>
                 </div>
 
-                <!-- Fixed Content Over Slides -->
+                <!-- Fixed Content Over Slides (Fallback) -->
                 <div class="showcase-content">
                     <h1 class="showcase-title">Satu Aplikasi,<br>Beragam Solusi Bisnis</h1>
                     <p class="showcase-subtitle">Pilih jenis usaha Anda dan nikmati kemudahan manajemen Point of Sales, Inventori, hingga Booking secara terpadu.</p>
@@ -346,6 +371,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
 
             <!-- RIGHT SIDE: LOGIN FORM -->

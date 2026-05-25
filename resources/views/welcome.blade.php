@@ -504,8 +504,9 @@
     </div>
 
     <nav>
-        <a href="{{ url('/') }}" class="logo">
+        <a href="{{ url('/') }}" class="logo" style="font-weight: 800; font-size: 1.5rem; color: #020617; gap: 10px;">
             <img src="{{ asset('images/misc/LogoFront.png') }}" alt="Logo">
+            <span>DSMS POS</span>
         </a>
         <div class="nav-links">
             <a href="#features">Fitur</a>

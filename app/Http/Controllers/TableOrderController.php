@@ -660,56 +660,73 @@ class TableOrderController extends Controller
                 if ($pelanggan->IsMember != 1 || $pelanggan->isPaidMembership != 1) {
                     return response()->json(['success' => false, 'message' => 'Pelanggan bukan member aktif atau paket belum dibayar.']);
                 }
-                if ($pelanggan->ValidUntil && Carbon::parse($pelanggan->ValidUntil)->isPast()) {
-                    return response()->json(['success' => false, 'message' => 'Masa berlaku paket member telah habis (Expired: ' . $pelanggan->ValidUntil . ').']);
+
+                // Check active memberships in customer_memberships table matching the category
+                $namaGrup = strtolower($table->NamaKelompok);
+                $namaGrupClean = str_replace(['meja ', 'lapangan ', 'ruang ', 'room '], '', $namaGrup);
+                if (str_contains($namaGrupClean, 'billiard')) {
+                    $namaGrupClean = 'billiar';
                 }
-                if ($pelanggan->MaxPlay > 0 && $pelanggan->Played >= $pelanggan->MaxPlay) {
-                    return response()->json(['success' => false, 'message' => 'Kuota kunjungan paket member sudah habis (' . $pelanggan->Played . '/' . $pelanggan->MaxPlay . ').']);
+                $namaGrupClean = trim($namaGrupClean);
+
+                $activeMemberships = DB::table('customer_memberships')
+                    ->join('member_packages', function($join) {
+                        $join->on('customer_memberships.KodePaketMember', '=', 'member_packages.KodePaket')
+                             ->on('customer_memberships.RecordOwnerID', '=', 'member_packages.RecordOwnerID');
+                    })
+                    ->join('itemmaster', function($join) {
+                        $join->on('customer_memberships.KodePaketMember', '=', 'itemmaster.KodeItem')
+                             ->on('customer_memberships.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+                    })
+                    ->where('customer_memberships.KodePelanggan', $request->input('KodePelanggan'))
+                    ->where('customer_memberships.RecordOwnerID', $roid)
+                    ->where('customer_memberships.ValidUntil', '>=', Carbon::now('Asia/Jakarta'))
+                    ->whereRaw('(customer_memberships.MaxPlay = 0 OR customer_memberships.Played < customer_memberships.MaxPlay)')
+                    ->select('customer_memberships.*', 'member_packages.KategoriPaket', 'member_packages.Tipe', 'member_packages.DiskonBelanja', 'itemmaster.NamaItem', 'member_packages.TargetKategori')
+                    ->get();
+
+                if ($activeMemberships->isEmpty()) {
+                    return response()->json(['success' => false, 'message' => 'Member tidak memiliki paket aktif yang tersedia atau kuota sudah habis.']);
                 }
 
-                if ($pelanggan->KodePaketMember) {
-                    $paketMember = DB::table('itemmaster')
-                        ->where('KodeItem', $pelanggan->KodePaketMember)
-                        ->where('RecordOwnerID', $roid)
-                        ->first();
-                        
-                    $memberConfig = DB::table('member_packages')
-                        ->where('KodePaket', $pelanggan->KodePaketMember)
-                        ->where('RecordOwnerID', $roid)
-                        ->first();
-
-                    if ($memberConfig && $memberConfig->KategoriPaket !== 'HIBURAN') {
-                        return response()->json(['success' => false, 'message' => 'Paket member Anda (' . $paketMember->NamaItem . ') tidak diperuntukkan untuk layanan Hiburan (Billing/Meja), melainkan khusus ' . $memberConfig->KategoriPaket . '.']);
-                    }
+                $validMembership = null;
+                foreach ($activeMemberships as $am) {
+                    if ($am->KategoriPaket !== 'HIBURAN') continue;
                     
-                    if ($memberConfig && $memberConfig->Tipe === 'QUOTA') {
-                        if ($pelanggan->MaxPlay > 0 && $pelanggan->Played >= $pelanggan->MaxPlay) {
-                            return response()->json(['success' => false, 'message' => 'Kuota kunjungan paket member Anda (' . $paketMember->NamaItem . ') sudah habis.']);
+                    // Validate category
+                    if ($am->TargetKategori) {
+                        if (strtolower(trim($am->TargetKategori)) === $namaGrupClean) {
+                            $validMembership = $am;
+                            break;
                         }
-                    }
-                        
-                    if ($paketMember && $table->NamaKelompok) {
-                        $namaPaket = strtolower($paketMember->NamaItem);
-                        $namaGrup = strtolower($table->NamaKelompok);
-                        $namaGrupClean = str_replace(['meja ', 'lapangan ', 'ruang ', 'room '], '', $namaGrup);
-                        
-                        if (str_contains($namaGrupClean, 'billiard')) {
-                            $namaGrupClean = 'billiar';
-                        }
-                        
-                        if (strpos($namaPaket, trim($namaGrupClean)) === false) {
-                            return response()->json(['success' => false, 'message' => 'Paket member Anda (' . $paketMember->NamaItem . ') tidak dapat digunakan untuk kategori ' . $table->NamaKelompok . '.']);
+                    } else {
+                        // Fallback to name checking
+                        $namaPaket = strtolower($am->NamaItem);
+                        if (strpos($namaPaket, $namaGrupClean) !== false) {
+                            $validMembership = $am;
+                            break;
                         }
                     }
                 }
-                
-                $memberConfigFinal = DB::table('member_packages')->where('KodePaket', $pelanggan->KodePaketMember)->where('RecordOwnerID', $roid)->first();
+
+                if (!$validMembership) {
+                    return response()->json(['success' => false, 'message' => 'Member memiliki paket aktif, tetapi tidak ada yang berlaku untuk kategori ' . $table->NamaKelompok . '.']);
+                }
+
+                // Simpan ID membership yang dipakai ke session atau update played
+                // Deduct Play Quota Immediately
+                DB::table('customer_memberships')
+                    ->where('id', $validMembership->id)
+                    ->update([
+                        'Played' => DB::raw('Played + 1')
+                    ]);
+                    
                 $hargaPaket = 0;
                 
-                if ($memberConfigFinal && $memberConfigFinal->Tipe === 'DISCOUNT') {
+                if ($validMembership->Tipe === 'DISCOUNT') {
                     $normalPriceTable = DB::table('pakettransaksi')->where('id', $request->input('paketid'))->where('RecordOwnerID', $roid)->first();
                     if ($normalPriceTable) {
-                        $diskonPersen = $memberConfigFinal->DiskonBelanja ?? 0;
+                        $diskonPersen = $validMembership->DiskonBelanja ?? 0;
                         $hargaPaket = $normalPriceTable->HargaNormal - ($normalPriceTable->HargaNormal * ($diskonPersen / 100));
                     }
                 }
@@ -748,11 +765,43 @@ class TableOrderController extends Controller
             }
 
             if ($request->input('JenisPaket') == 'PAKETMEMBER') {
-                 $pelangganObj = DB::table('pelanggan')
-                    ->where('KodePelanggan', $model->KodePelanggan)
-                    ->where('RecordOwnerID', $roid)
-                    ->first();
-                $maxMinutes = ($pelangganObj && $pelangganObj->maxTimePerPlay > 0) ? ($pelangganObj->maxTimePerPlay * 60) : 60;
+                $namaGrup = strtolower($table->NamaKelompok);
+                $namaGrupClean = str_replace(['meja ', 'lapangan ', 'ruang ', 'room '], '', $namaGrup);
+                if (str_contains($namaGrupClean, 'billiard')) {
+                    $namaGrupClean = 'billiar';
+                }
+                $namaGrupClean = trim($namaGrupClean);
+
+                $activeMemberships = DB::table('customer_memberships')
+                    ->join('member_packages', function($join) {
+                        $join->on('customer_memberships.KodePaketMember', '=', 'member_packages.KodePaket')
+                             ->on('customer_memberships.RecordOwnerID', '=', 'member_packages.RecordOwnerID');
+                    })
+                    ->join('itemmaster', function($join) {
+                        $join->on('customer_memberships.KodePaketMember', '=', 'itemmaster.KodeItem')
+                             ->on('customer_memberships.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+                    })
+                    ->where('customer_memberships.KodePelanggan', $model->KodePelanggan)
+                    ->where('customer_memberships.RecordOwnerID', $roid)
+                    ->where('customer_memberships.ValidUntil', '>=', Carbon::now('Asia/Jakarta'))
+                    ->select('customer_memberships.*', 'member_packages.KategoriPaket', 'itemmaster.NamaItem', 'member_packages.TargetKategori')
+                    ->get();
+                    
+                $maxMinutes = 60;
+                foreach ($activeMemberships as $am) {
+                    if ($am->KategoriPaket !== 'HIBURAN') continue;
+                    $valid = false;
+                    if ($am->TargetKategori) {
+                        if (strtolower(trim($am->TargetKategori)) === $namaGrupClean) $valid = true;
+                    } else {
+                        if (strpos(strtolower($am->NamaItem), $namaGrupClean) !== false) $valid = true;
+                    }
+                    if ($valid && $am->maxTimePerPlay > 0) {
+                        $maxMinutes = $am->maxTimePerPlay * 60;
+                        break;
+                    }
+                }
+
                 $jamMulai = $model->JamMulai->copy();
                 $model->JamSelesai = $jamMulai->addMinutes($maxMinutes);
                 $model->DurasiPaket = $maxMinutes / 60;
