@@ -1048,6 +1048,11 @@ Route::get('/titiklampu/power-off/{id}', [TitikLampuController::class, 'powerOff
 Route::get('/appsetting', [EnvController::class,'View'])->name('appsetting')->middleware(['auth', 'check.session']);
 Route::post('/appsetting/update', [EnvController::class, 'update'])->name('appsetting-update')->middleware(['auth', 'check.session']);
 
+Route::get('/loginslide', [LoginSlideController::class,'index'])->name('loginslide')->middleware(['auth', 'check.session']);
+Route::post('/loginslide/store', [LoginSlideController::class, 'store'])->name('loginslide-store')->middleware(['auth', 'check.session']);
+Route::post('/loginslide/update/{id}', [LoginSlideController::class, 'update'])->name('loginslide-update')->middleware(['auth', 'check.session']);
+Route::get('/loginslide/destroy/{id}', [LoginSlideController::class, 'destroy'])->name('loginslide-destroy')->middleware(['auth', 'check.session']);
+
 /*
 |--------------------------------------------------------------------------
 | Paket Per Menit
