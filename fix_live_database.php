@@ -72,7 +72,7 @@ foreach ($menus as $m) {
 
 // 3. Assign display menus to all active roles
 echo "3. Menetapkan hak akses Menu Layar Antrean ke Roles & Subscriptions...\n";
-$roles = DB::table('role')->get();
+$roles = DB::table('roles')->get();
 $menuIds = [113, 115, 116, 117, 118, 119];
 
 foreach ($roles as $role) {
