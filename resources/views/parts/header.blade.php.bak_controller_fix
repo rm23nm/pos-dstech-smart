@@ -429,25 +429,8 @@
 
 												if ($l2Name === 'bussiness partner') {
 													$targetCat = 'crm';
-												} elseif ($l2Name === 'manajemen gate') {
+												} elseif (in_array($l2Name, ['controller', 'manajemen gate'])) {
 													$targetCat = 'billiard';
-												} elseif ($l2Name === 'controller') {
-													// Check submenus to differentiate billiard controller from system serial number controller
-													$isSystemController = false;
-													if (!empty($lv2['submenu'])) {
-														foreach ($lv2['submenu'] as $lv3) {
-															$l3Name = strtolower(trim($lv3['PermissionName']));
-															if (str_contains($l3Name, 'serial number') || str_contains($l3Name, 'generator')) {
-																$isSystemController = true;
-																break;
-															}
-														}
-													}
-													if ($isSystemController) {
-														$targetCat = 'system';
-													} else {
-														$targetCat = 'billiard';
-													}
 												} elseif ($l2Name === 'item master data') {
 													$targetCat = 'inventory';
 												} elseif ($l2Name === 'finance') {

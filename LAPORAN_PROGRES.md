@@ -18,6 +18,7 @@
 | Sesi Sekarang | **Perbaikan Input Pembayaran & Kalkulasi Kembalian (Bug 300.000)** | **Selesai** | Memperbaiki parser `formatCurrency` agar menyaring desimal secara robust, serta memperbarui logika sinkronisasi pembayaran (`#JumlahBayar`) baik via klik metode bayar maupun ketikan keyboard secara real-time. |
 | Sesi Sekarang | **Penambahan Akun Demo Live & Seeding 100 Produk F&B + 100 Produk Retail** | **Selesai** | Menambahkan akun demo dan produk demo lengkap dengan gambar di VPS Live serta meng-update email demo hiburan lama. Mengatur password semua akun demo menjadi `12345678` agar sinkron dengan tombol auto-login. |
 | Sesi Sekarang | **Pembuatan Fitur Manajemen Perangkat Gate (Tripod Gate)** | **Selesai** | Memastikan keberadaan tabel `gate_devices`, membuat `GateDeviceController.php`, 2 file view (devices dan form input), rute di `web.php`, serta mendaftarkan dan memunculkan menu dinamis ke kelompok "Sewa Billing & IoT". |
+| Sesi Sekarang | **Pengelompokan Menu Controller & Generator Lisensi** | **Selesai** | Mengatur letak menu Lampu Serial Number Generator & Gate Serial Number Generator ke dalam folder "Controller" di bawah "Sistem & Pengaturan". Memperbaiki visual mapping di `header.blade.php` agar mendeteksi submenu sehingga tidak tertukar dengan menu Controller pada Sewa Billing & IoT. |
 
 ---
 

@@ -1527,7 +1527,5 @@ Route::get('/debug-link', function() { return response()->json(\DB::table('permi
 Route::get('/add-permission', function() { $paketId = \DB::table('permission')->where('PermissionName', 'Paket')->value('id'); \DB::table('permission')->insertOrIgnore(['PermissionName' => 'Paket Member', 'Link' => 'master/memberpackage', 'Level' => 3, 'MenuInduk' => $paketId, 'SubMenu' => 2, 'Status' => 1, 'isSuperAdmin' => 0]); return 'ok'; });
 Route::get('/debug-kds', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%KDS%')->get()); });
 Route::get('/debug-antrean', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Antrean%')->get()); });
-Route::get('/debug-subs', [App\Http\Controllers\SubscriptionController::class,'Form']);
 Route::get('/debug-users2', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->where('RoleID', 1)->orWhere('name', 'like', '%admin%')->take(10)->get()); });
 Route::get('/debug-users3', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->take(5)->get()); });
-
