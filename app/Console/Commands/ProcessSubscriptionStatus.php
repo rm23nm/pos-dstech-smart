@@ -262,30 +262,63 @@ class ProcessSubscriptionStatus extends Command
 
         if (!$user || empty($user->email)) {
             $this->warn("Email tidak ditemukan untuk {$company->NamaPartner}. Skip kirim email.");
-            return;
+            // We still proceed if we have NoHP for WhatsApp
         }
 
         $totalTagihan = floatval($subscription->Harga) - floatval($subscription->Potongan ?? 0);
         $startSubs    = Carbon::parse($company->EndSubs)->addDay();
         $endSubs      = (clone $startSubs)->addDays($subscription->LamaSubsription ?? 30);
+        
+        $totalTagihanStr = 'Rp ' . number_format($totalTagihan, 0, ',', '.');
+        $dueDateStr      = Carbon::parse($company->EndSubs)->format('d/m/Y');
 
-        $payload = [
-            'isSuspended'      => $isSuspended,
-            'companyName'      => $company->NamaPartner,
-            'noTransaksi'      => $noTransaksi,
-            'subscriptionName' => $subscription->NamaSubscription,
-            'totalTagihan'     => $totalTagihan,
-            'startSubs'        => $startSubs->format('d/m/Y'),
-            'endSubs'          => $endSubs->format('d/m/Y'),
-            'dueDate'          => Carbon::parse($company->EndSubs)->format('d/m/Y'),
-        ];
+        if ($user && !empty($user->email)) {
+            $payload = [
+                'isSuspended'      => $isSuspended,
+                'companyName'      => $company->NamaPartner,
+                'noTransaksi'      => $noTransaksi,
+                'subscriptionName' => $subscription->NamaSubscription,
+                'totalTagihan'     => $totalTagihan,
+                'startSubs'        => $startSubs->format('d/m/Y'),
+                'endSubs'          => $endSubs->format('d/m/Y'),
+                'dueDate'          => $dueDateStr,
+            ];
 
-        try {
-            Mail::to($user->email)->send(new SubscriptionInvoiceMail($payload));
-            $this->info("Email terkirim ke {$user->email} ({$company->NamaPartner})");
-        } catch (\Exception $e) {
-            $this->error("Gagal kirim email ke {$user->email}: " . $e->getMessage());
-            Log::error('ProcessSubscriptionStatus sendInvoiceEmail: ' . $e->getMessage());
+            try {
+                Mail::to($user->email)->send(new SubscriptionInvoiceMail($payload));
+                $this->info("Email terkirim ke {$user->email} ({$company->NamaPartner})");
+            } catch (\Exception $e) {
+                $this->error("Gagal kirim email ke {$user->email}: " . $e->getMessage());
+                Log::error('ProcessSubscriptionStatus sendInvoiceEmail: ' . $e->getMessage());
+            }
+        }
+
+        // Send WhatsApp Notification
+        if (!empty($company->NoHP)) {
+            try {
+                $waMessage = "Halo *" . ($user->name ?? $company->NamaPIC ?? $company->NamaPartner) . "*,\n\n";
+                if ($isSuspended) {
+                    $waMessage .= "Masa Aktif dan Masa Tenggang Paket Langganan *DSMS POS* Anda untuk toko *" . $company->NamaPartner . "* telah *HABIS*. Akun Anda saat ini berstatus *SUSPEND*.\n\n";
+                } else {
+                    $waMessage .= "Berikut adalah *Tagihan Perpanjangan* Paket Langganan *DSMS POS* untuk toko *" . $company->NamaPartner . "* Anda yang akan segera habis.\n\n";
+                }
+                
+                $waMessage .= "No Tagihan: *" . $noTransaksi . "*\n"
+                            . "Paket: *" . $subscription->NamaSubscription . "*\n"
+                            . "Periode: *" . $startSubs->format('d/m/Y') . " - " . $endSubs->format('d/m/Y') . "*\n"
+                            . "Total Tagihan: *" . $totalTagihanStr . "*\n"
+                            . "Jatuh Tempo: *" . $dueDateStr . "*\n\n"
+                            . "Silakan lakukan pembayaran sebelum tanggal Jatuh Tempo melalui menu *Setting -> Company* di dashboard Anda agar akun tetap aktif dan transaksi berjalan lancar.\n\n"
+                            . "Abaikan pesan ini apabila Anda sudah melakukan pembayaran.\n"
+                            . "Terima kasih,\n*Tim DSMS POS*";
+                
+                $smartpro = new \App\Services\SmartProService();
+                $smartpro->sendWhatsAppMessage($company->NoHP, $waMessage);
+                $this->info("WhatsApp terkirim ke {$company->NoHP} ({$company->NamaPartner})");
+            } catch (\Exception $e) {
+                $this->error("Gagal kirim WhatsApp ke {$company->NoHP}: " . $e->getMessage());
+                Log::error('ProcessSubscriptionStatus sendInvoiceWA: ' . $e->getMessage());
+            }
         }
     }
 }

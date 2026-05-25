@@ -358,6 +358,24 @@ class InvoicePenggunaController extends Controller
                 ]);
 
             DB::commit();
+            
+            try {
+                if ($company && !empty($company->NoHP)) {
+                    $waMessage = "Halo *" . $company->NamaPartner . "*,\n\n"
+                               . "Terima kasih, pembayaran tagihan Anda sebesar *Rp " . number_format($request->input('TotalBayar'), 0, ',', '.') . "* telah berhasil kami terima.\n\n"
+                               . "Rincian Pembayaran:\n"
+                               . "No Ref: *" . $request->input('BaseReff') . "*\n"
+                               . "Masa Aktif Berakhir: *" . Carbon::now()->addMonth()->format('d/m/Y') . "*\n\n"
+                               . "Akun Anda saat ini sudah aktif dan dapat digunakan kembali.\n\n"
+                               . "Salam hangat,\n*Tim DSMS POS*";
+                    
+                    $smartpro = new \App\Services\SmartProService();
+                    $smartpro->sendWhatsAppMessage($company->NoHP, $waMessage);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error sending payment WA: ' . $e->getMessage());
+            }
+
             alert()->success('Success', 'Data Pembayaran Berhasil disimpan.');
             return redirect('tagihanpengguna');
         } catch (\Exception $e) {
@@ -426,6 +444,24 @@ class InvoicePenggunaController extends Controller
 
             DB::commit();
             $data['success'] = true;
+
+            try {
+                if ($company && !empty($company->NoHP)) {
+                    $waMessage = "Halo *" . $company->NamaPartner . "*,\n\n"
+                               . "Terima kasih, pembayaran tagihan Anda sebesar *Rp " . number_format($jsonData['TotalBayar'], 0, ',', '.') . "* telah berhasil kami terima.\n\n"
+                               . "Rincian Pembayaran:\n"
+                               . "No Ref: *" . $jsonData['BaseReff'] . "*\n"
+                               . "Masa Aktif Berakhir: *" . Carbon::now()->addMonth()->format('d/m/Y') . "*\n\n"
+                               . "Akun Anda saat ini sudah aktif dan dapat digunakan kembali.\n\n"
+                               . "Salam hangat,\n*Tim DSMS POS*";
+                    
+                    $smartpro = new \App\Services\SmartProService();
+                    $smartpro->sendWhatsAppMessage($company->NoHP, $waMessage);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error sending payment WA: ' . $e->getMessage());
+            }
+
         } catch (\Exception $e) {
             DB::rollBack();
             $data['success'] = false;

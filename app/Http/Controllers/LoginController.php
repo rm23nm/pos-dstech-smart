@@ -101,14 +101,37 @@ class LoginController extends Controller
                         'ResetPasswordID' => $KonfirmasiID
                     ]
                 );
+            $resetLink = url('/')."/resetpassword/".$KonfirmasiID;
             $data = [
                 'title' => 'Reset Password',
-                'message' => 'Silahkan melakukan Reset Password melalui link berikut : '. url('/')."/resetpassword/".$KonfirmasiID
+                'message' => 'Silahkan melakukan Reset Password melalui link berikut : '. $resetLink
             ];
         
-            Mail::to($request->input('email'))->send(new SendMail($data,"Reset Password"));
+            try {
+                Mail::to($request->input('email'))->send(new SendMail($data,"Reset Password"));
+            } catch (\Exception $e) {
+                Log::error('Gagal kirim email reset password: ' . $e->getMessage());
+            }
 
-            alert()->success('Success','Link Reset Password telah dikirim ke email anda, Silahkan periksa inbox dan folder spam / junk');
+            // Send WhatsApp
+            try {
+                $company = DB::table('company')->where('KodePartner', $user->RecordOwnerID)->first();
+                if ($company && !empty($company->NoHP)) {
+                    $waMessage = "Halo *" . $user->name . "*,\n\n"
+                               . "Kami menerima permintaan untuk melakukan *Reset Password* pada akun DSMS POS Anda.\n\n"
+                               . "Silakan klik link berikut (berlaku sebagai OTP Anda) untuk membuat password baru:\n"
+                               . "*" . $resetLink . "*\n\n"
+                               . "Abaikan pesan ini apabila Anda tidak pernah meminta reset password.\n\n"
+                               . "Salam,\n*Tim DSMS POS*";
+                    
+                    $smartpro = new \App\Services\SmartProService();
+                    $smartpro->sendWhatsAppMessage($company->NoHP, $waMessage);
+                }
+            } catch (\Exception $e) {
+                Log::error('Gagal kirim WA reset password: ' . $e->getMessage());
+            }
+
+            alert()->success('Success','Link Reset Password telah dikirim ke email dan WhatsApp Anda.');
             return redirect('/');
         }
         else{
@@ -547,22 +570,37 @@ class LoginController extends Controller
         else{
             DB::commit();
             alert()->success('Success','Data Langganan Berhasil disimpan, Silahkan Melakukan Konfirmasi Email dengan klik link yang dikirim di email, Periksa Inbox dan folder Spam / junk');
-            return redirect('/');
-        }
+            
+            try {
+                // Send Email
+                $data = [
+                    'title' => 'Email Konfirmasi',
+                    'message' => 'Terimakasih telah melakukan pendaftaran di DSTechSmart PoS, Silahkan melakukan konfirmasi Melalui link berikut untuk mulai menggunakan Aplikasi : '. url('/')."/konfirmasi/".$KonfirmasiID
+                ];
+            
+                Mail::to($request->input('email'))->send(new SendMail($data,"Email Konfirmasi"));
+            } catch (\Exception $e) {
+                Log::error('Error sending confirmation email: ' . $e->getMessage());
+            }
 
-        try{
-            // Send Email
-            $data = [
-                'title' => 'Email Konfirmasi',
-                'message' => 'Terimakasih telah melakukan pendaftaran di DSTechSmart PoS, Silahkan melakukan konfirmasi Melalui link berikut untuk mulai menggunakan Aplikasi : '. url('/')."/konfirmasi/".$KonfirmasiID
-            ];
-        
-            Mail::to($request->input('email'))->send(new SendMail($data,"Email Konfirmasi"));
-        }
-        catch (\Exception $e) {
-            Log::debug($e->getMessage());
-            alert()->info('Info',$e->getMessage());
-            return redirect()->back();
+            try {
+                // Send WA Notification
+                $noHp = $request->input('NoHP');
+                if ($noHp) {
+                    $waMessage = "Halo *" . $request->input('NamaPIC') . "*,\n\n"
+                               . "Terima kasih telah mendaftar di *DSMS POS* (Toko: " . $request->input('NamaPartner') . ").\n"
+                               . "Akun Anda telah berhasil dibuat.\n\n"
+                               . "Silakan cek email Anda (" . $request->input('email') . ") untuk melakukan *Konfirmasi Akun* sebelum mulai menggunakan aplikasi.\n\n"
+                               . "Salam hangat,\n*Tim DSMS POS*";
+                    
+                    $smartpro = new \App\Services\SmartProService();
+                    $smartpro->sendWhatsAppMessage($noHp, $waMessage);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error sending registration WA: ' . $e->getMessage());
+            }
+
+            return redirect('/');
         }
     }
 
