@@ -329,43 +329,215 @@
                     </div>
                 </div>
                 @else
+                    <style>
+                        .showcase-caption {
+                            position: absolute;
+                            bottom: 230px;
+                            left: 50px;
+                            right: 50px;
+                            z-index: 10;
+                            color: white;
+                            text-align: left;
+                            background: rgba(0, 0, 0, 0.65);
+                            padding: 25px 35px;
+                            border-radius: 15px;
+                            backdrop-filter: blur(8px);
+                            border-left: 6px solid var(--primary-blue);
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                        }
+                        @media (max-width: 991.98px) {
+                            .showcase-caption {
+                                bottom: 200px;
+                                left: 20px;
+                                right: 20px;
+                                padding: 20px;
+                            }
+                        }
+                    </style>
                     <div class="carousel-inner">
+                        <!-- Slide 0: General / Kolase -->
                         <div class="carousel-item active">
-                            <img src="{{ asset('images/misc/bg-login3.jpg') }}" alt="Slide 1">
+                            <img src="{{ asset('images/misc/bg-login.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Satu Aplikasi">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Satu Aplikasi,<br>Beragam Solusi Bisnis</h1>
+                                <p class="showcase-subtitle mb-0">Pilih jenis usaha Anda dan nikmati kemudahan manajemen Point of Sales, Inventori, hingga Booking secara terpadu.</p>
+                            </div>
                         </div>
+                        <!-- Slide 1: Grosir & Supermarket -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/bg-login2.webp') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Slide 2">
+                            <img src="{{ asset('images/misc/slide_retail.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Grosir & Supermarket">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Grosir & Supermarket</h1>
+                                <p class="showcase-subtitle mb-0">Kelola puluhan ribu stok barang, barcode barcode scanner, dan transaksi kasir secara cepat dan akurat.</p>
+                            </div>
                         </div>
+                        <!-- Slide 2: Toko Kelontong -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/bg-login1.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Slide 3">
+                            <img src="{{ asset('images/misc/slide_kelontong.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Toko Kelontong">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Toko Kelontong</h1>
+                                <p class="showcase-subtitle mb-0">Manajemen warung dan toko kelontong modern. Catat penjualan harian dengan mudah.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 3: Bengkel Otomotif -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_bengkel.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Bengkel Otomotif">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Bengkel Otomotif</h1>
+                                <p class="showcase-subtitle mb-0">Sistem POS cerdas untuk mencatat jasa service, sparepart, dan antrian pelanggan secara real-time.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 4: Apotik & Farmasi -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_apotik.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Apotik">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Apotik & Farmasi</h1>
+                                <p class="showcase-subtitle mb-0">Pencatatan obat, cek tanggal kedaluwarsa (expired), dan kontrol stok farmasi yang detail dan rapi.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 5: Rumah Makan & Restoran -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_fnb.png') }}" onerror="this.src='{{ asset('images/misc/bg-login2.webp') }}'" alt="Rumah Makan">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Rumah Makan & Restoran</h1>
+                                <p class="showcase-subtitle mb-0">Solusi tepat untuk manajemen pesanan, pengaturan meja (table management), dan split bill.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 6: Caffe -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_caffe.png') }}" onerror="this.src='{{ asset('images/misc/bg-login2.webp') }}'" alt="Caffe">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Caffe & Coffee Shop</h1>
+                                <p class="showcase-subtitle mb-0">POS dinamis untuk coffee shop. Catat resep, varian minuman, dan sistem takeaway / dine-in.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 7: Hotel -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_hotel.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Hotel">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Hotel & Penginapan</h1>
+                                <p class="showcase-subtitle mb-0">Kemudahan manajemen check-in/check-out, tagihan layanan kamar, dan pencatatan fasilitas tamu.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 8: Olahraga -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_hiburan.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Lapangan Olahraga">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Lapangan Olahraga</h1>
+                                <p class="showcase-subtitle mb-0">Sistem booking jam otomatis untuk lapangan Badminton, Padel, Basket, dan Futsal.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 9: Billiar -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_billiar.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Billiar">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Arena Billiar</h1>
+                                <p class="showcase-subtitle mb-0">Menghitung durasi penyewaan meja biliar dengan tarif otomatis berdasarkan menit/jam (billing system).</p>
+                            </div>
+                        </div>
+                        <!-- Slide 10: GYM -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_tiket.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="GYM">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">GYM & Fitness</h1>
+                                <p class="showcase-subtitle mb-0">Manajemen membership, paket bulanan, kunjungan harian, dan penjualan suplemen dalam satu kasir.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 11: Kolam Renang -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_pool.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Kolam Renang">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Kolam Renang</h1>
+                                <p class="showcase-subtitle mb-0">POS khusus ticketing kolam renang, kontrol akses pengunjung, dan pencatatan penyewaan loker/ban.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 12: Wahana Hiburan -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_wahana.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Wahana Hiburan">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Wahana Hiburan</h1>
+                                <p class="showcase-subtitle mb-0">Cetak tiket masuk wahana, scan barcode gelang, dan laporan jumlah pengunjung yang akurat.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 13: Futsal -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_futsal.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Futsal">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Lapangan Futsal</h1>
+                                <p class="showcase-subtitle mb-0">Booking lapangan futsal dengan mudah, pencatatan otomatis, dan manajemen jadwal yang anti-bentrok.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 14: Basket -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_basket.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Basket">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Lapangan Basket</h1>
+                                <p class="showcase-subtitle mb-0">Sistem penyewaan lapangan basket terpadu, kontrol lampu otomatis sesuai durasi sewa.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 15: Fitur IoT -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_iot.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Fitur IoT">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Integrasi IoT & Smart Relay</h1>
+                                <p class="showcase-subtitle mb-0">Terhubung langsung ke lampu meja billiar atau lapangan. Lampu menyala saat billing aktif, dan mati otomatis saat waktu habis.</p>
+                            </div>
+                        </div>
+                        <!-- Slide 16: Kelebihan Produk -->
+                        <div class="carousel-item">
+                            <img src="{{ asset('images/misc/slide_kelebihan.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Kelebihan Produk">
+                            <div class="showcase-caption">
+                                <h1 class="showcase-title">Kelebihan Produk Kami</h1>
+                                <p class="showcase-subtitle mb-0">100% Cloud Base, Laporan Real-time, Mendukung Multi Cabang, dan Keamanan Data Tingkat Tinggi dengan dukungan AI.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Fixed Content Over Slides (Fallback) -->
                 <div class="showcase-content">
-                    <h1 class="showcase-title">Satu Aplikasi,<br>Beragam Solusi Bisnis</h1>
-                    <p class="showcase-subtitle">Pilih jenis usaha Anda dan nikmati kemudahan manajemen Point of Sales, Inventori, hingga Booking secara terpadu.</p>
                     
                     <div class="demo-buttons-container">
                         <div class="demo-title"><i class="bi bi-stars"></i> Coba Akun Demo Sekarang</div>
-                        <div class="row g-3">
-                            <div class="col-4">
+                        <style>
+                            .demo-scroll-container {
+                                overflow-x: auto;
+                                scrollbar-width: none;
+                                -ms-overflow-style: none;
+                                scroll-behavior: smooth;
+                                padding-bottom: 10px;
+                            }
+                            .demo-scroll-container::-webkit-scrollbar {
+                                display: none;
+                            }
+                            .demo-btn-wrapper {
+                                flex: 0 0 auto;
+                                min-width: 120px;
+                            }
+                        </style>
+                        <div class="demo-scroll-container d-flex gap-3">
+                            <div class="demo-btn-wrapper">
                                 <button type="button" class="btn btn-demo-auto resto w-100" data-email="demoresto@pos.dstechsmart.com" data-pass="12345678">
                                     <i class="bi bi-cup-hot"></i>
                                     <span style="font-size: 0.75rem;">Resto / F&B</span>
                                 </button>
                             </div>
-                            <div class="col-4">
+                            <div class="demo-btn-wrapper">
                                 <button type="button" class="btn btn-demo-auto retail w-100" data-email="demoretail@pos.dstechsmart.com" data-pass="12345678">
                                     <i class="bi bi-cart3"></i>
                                     <span style="font-size: 0.75rem;">Retail / Shop</span>
                                 </button>
                             </div>
-                            <div class="col-4">
+                            <div class="demo-btn-wrapper">
                                 <button type="button" class="btn btn-demo-auto hiburan w-100" data-email="gor.servicepos@gmail.com" data-pass="12345678">
                                     <i class="bi bi-controller"></i>
                                     <span style="font-size: 0.7rem;">Hiburan / Sewa</span>
+                                </button>
+                            </div>
+                            <div class="demo-btn-wrapper">
+                                <button type="button" class="btn btn-demo-auto w-100" style="color: #6f42c1;" data-email="demotiket@pos.dstechsmart.com" data-pass="demo123">
+                                    <i class="bi bi-ticket-perforated"></i>
+                                    <span style="font-size: 0.7rem;">Tiket GYM</span>
                                 </button>
                             </div>
                         </div>

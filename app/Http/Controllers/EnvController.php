@@ -40,6 +40,11 @@ class EnvController extends Controller
             $env = file_get_contents($path);
 
             foreach ($data as $key => $value) {
+                // Hapus newline agar format .env tidak rusak saat disave dari textarea
+                if (is_string($value)) {
+                    $value = str_replace(["\r\n", "\r", "\n"], ' ', $value);
+                }
+
                 $pattern = "/^{$key}=.*/m";
                 $replacement = "{$key}='{$value}'";
 

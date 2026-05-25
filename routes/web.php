@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LoginSlideController;
 use App\Http\Controllers\DashboardController;
@@ -91,6 +92,7 @@ Route::middleware([\App\Http\Middleware\DomainDetectionMiddleware::class])->grou
     Route::get('/', [LoginController::class, 'landing_page'])->name('landingpage');
 });
 Route::get('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/chat/send', [ChatbotController::class, 'sendMessage'])->name('chat.send');
 Route::get('/daftar', [LoginController::class,'Register'])->name('daftar');
 Route::post('/action-login', [LoginController::class, 'action_login'])->name('action-login');
 Route::post('/action-daftar', [LoginController::class, 'actionRegister'])->name('action-daftar');

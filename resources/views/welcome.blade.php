@@ -547,8 +547,54 @@
                 <a href="https://wa.me/6282258493130" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Demo Gratis</a>
             </div>
         </div>
-        <div class="hero-image">
-            <img src="/dsms_pos_hero_1778634845227.png" alt="DSMS POS Interface">
+        <div class="hero-image" style="position: relative;">
+            <img id="heroSliderImg" src="{{ asset('images/misc/slide_retail.png') }}" alt="DSMS POS Interface">
+            <div id="heroSliderCaption" style="position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(0, 0, 0, 0.65); padding: 20px 25px; border-radius: 15px; backdrop-filter: blur(8px); border-left: 6px solid var(--primary-blue); box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: opacity 0.5s;">
+                <h3 id="heroSliderTitle" style="color: white; margin-bottom: 5px; font-weight: 700; font-size: 1.4rem;">Grosir & Supermarket</h3>
+                <p id="heroSliderSubtitle" style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 0;">Kelola puluhan ribu stok barang, barcode barcode scanner, dan transaksi kasir secara cepat dan akurat.</p>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const heroSlides = [
+                        { image: "{{ asset('images/misc/slide_retail.png') }}", title: "Grosir & Supermarket", subtitle: "Kelola puluhan ribu stok barang, barcode barcode scanner, dan transaksi kasir secara cepat dan akurat." },
+                        { image: "{{ asset('images/misc/slide_kelontong.png') }}", title: "Toko Kelontong", subtitle: "Manajemen warung dan toko kelontong modern. Catat penjualan harian dengan mudah." },
+                        { image: "{{ asset('images/misc/slide_bengkel.png') }}", title: "Bengkel Otomotif", subtitle: "Sistem POS cerdas untuk mencatat jasa service, sparepart, dan antrian pelanggan secara real-time." },
+                        { image: "{{ asset('images/misc/slide_apotik.png') }}", title: "Apotik & Farmasi", subtitle: "Pencatatan obat, cek tanggal kedaluwarsa (expired), dan kontrol stok farmasi yang detail dan rapi." },
+                        { image: "{{ asset('images/misc/slide_fnb.png') }}", title: "Rumah Makan & Restoran", subtitle: "Solusi tepat untuk manajemen pesanan, pengaturan meja (table management), dan split bill." },
+                        { image: "{{ asset('images/misc/slide_caffe.png') }}", title: "Caffe & Coffee Shop", subtitle: "POS dinamis untuk coffee shop. Catat resep, varian minuman, dan sistem takeaway / dine-in." },
+                        { image: "{{ asset('images/misc/slide_hotel.png') }}", title: "Hotel & Penginapan", subtitle: "Kemudahan manajemen check-in/check-out, tagihan layanan kamar, dan pencatatan fasilitas tamu." },
+                        { image: "{{ asset('images/misc/slide_hiburan.png') }}", title: "Lapangan Olahraga", subtitle: "Sistem booking jam otomatis untuk lapangan Badminton, Padel, Basket, dan Futsal." },
+                        { image: "{{ asset('images/misc/slide_billiar.png') }}", title: "Arena Billiar", subtitle: "Menghitung durasi penyewaan meja biliar dengan tarif otomatis berdasarkan menit/jam (billing system)." },
+                        { image: "{{ asset('images/misc/slide_tiket.png') }}", title: "GYM & Fitness", subtitle: "Manajemen membership, paket bulanan, kunjungan harian, dan penjualan suplemen dalam satu kasir." },
+                        { image: "{{ asset('images/misc/slide_pool.png') }}", title: "Kolam Renang", subtitle: "POS khusus ticketing kolam renang, kontrol akses pengunjung, dan pencatatan penyewaan loker/ban." },
+                        { image: "{{ asset('images/misc/slide_wahana.png') }}", title: "Wahana Hiburan", subtitle: "Cetak tiket masuk wahana, scan barcode gelang, dan laporan jumlah pengunjung yang akurat." },
+                        { image: "{{ asset('images/misc/slide_futsal.png') }}", title: "Lapangan Futsal", subtitle: "Booking lapangan futsal dengan mudah, pencatatan otomatis, dan manajemen jadwal yang anti-bentrok." },
+                        { image: "{{ asset('images/misc/slide_basket.png') }}", title: "Lapangan Basket", subtitle: "Sistem penyewaan lapangan basket terpadu, kontrol lampu otomatis sesuai durasi sewa." },
+                        { image: "{{ asset('images/misc/slide_iot.png') }}", title: "Integrasi IoT & Smart Relay", subtitle: "Terhubung langsung ke lampu meja billiar atau lapangan. Lampu menyala saat billing aktif, dan mati otomatis saat waktu habis." },
+                        { image: "{{ asset('images/misc/slide_kelebihan.png') }}", title: "Kelebihan Produk Kami", subtitle: "100% Cloud Base, Laporan Real-time, Mendukung Multi Cabang, dan Keamanan Data Tingkat Tinggi dengan dukungan AI." }
+                    ];
+                    let currentSlide = 0;
+                    const heroImgEl = document.getElementById('heroSliderImg');
+                    const heroCaptionEl = document.getElementById('heroSliderCaption');
+                    const heroTitleEl = document.getElementById('heroSliderTitle');
+                    const heroSubtitleEl = document.getElementById('heroSliderSubtitle');
+                    
+                    if (heroImgEl && heroCaptionEl) {
+                        setInterval(() => {
+                            heroImgEl.style.opacity = 0.2; // fade out image
+                            heroCaptionEl.style.opacity = 0; // fade out text
+                            setTimeout(() => {
+                                currentSlide = (currentSlide + 1) % heroSlides.length;
+                                heroImgEl.src = heroSlides[currentSlide].image;
+                                heroTitleEl.innerText = heroSlides[currentSlide].title;
+                                heroSubtitleEl.innerText = heroSlides[currentSlide].subtitle;
+                                heroImgEl.style.opacity = 1; // fade in image
+                                heroCaptionEl.style.opacity = 1; // fade in text
+                            }, 500);
+                        }, 4000);
+                    }
+                });
+            </script>
         </div>
     </section>
 
@@ -689,6 +735,238 @@
             
             // Re-trigger reveal to fix visibility
             reveal();
+        }
+    </script>
+
+    <style>
+        .chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: 0.3s;
+        }
+        .chatbot-btn:hover {
+            transform: scale(1.1);
+        }
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            max-width: 90vw;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .chatbot-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chatbot-header h5 {
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chatbot-close {
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+        }
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .chat-msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .msg-bot {
+            background: white;
+            color: #333;
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 2px;
+            align-self: flex-start;
+        }
+        .msg-user {
+            background: var(--primary-blue);
+            color: white;
+            border-bottom-right-radius: 2px;
+            align-self: flex-end;
+        }
+        .chatbot-input {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+        .chatbot-input input:focus {
+            border-color: var(--primary-blue);
+        }
+        .chatbot-input button {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .chatbot-input button:hover {
+            background: #2563eb;
+        }
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: transparent;
+            padding: 5px 10px;
+        }
+        .typing-indicator span {
+            height: 6px;
+            width: 6px;
+            background: #94a3b8;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+
+    <div class="chatbot-btn" onclick="toggleChatbot()">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <h5><i class="fas fa-robot"></i> DSMS AI Assistant</h5>
+            <button class="chatbot-close" onclick="toggleChatbot()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chat-msg msg-bot">
+                Halo! Saya AI Assistant dari DSMS POS. Ada yang bisa saya bantu terkait produk atau fitur kasir kami?
+            </div>
+            <div class="typing-indicator" id="typingIndicator">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="Ketik pesan..." onkeypress="handleChatKey(event)">
+            <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChatbot() {
+            const chatWin = document.getElementById('chatbotWindow');
+            chatWin.style.display = chatWin.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            const typing = document.getElementById('typingIndicator');
+            const messagesContainer = document.getElementById('chatbotMessages');
+            messagesContainer.appendChild(typing);
+            typing.style.display = 'block';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const response = await fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                typing.style.display = 'none';
+                
+                if (data.success) {
+                    addMessage(data.reply, 'bot');
+                } else {
+                    addMessage('Maaf, ada gangguan sistem saat ini.', 'bot');
+                }
+            } catch (error) {
+                typing.style.display = 'none';
+                addMessage('Koneksi terputus. Silakan coba lagi.', 'bot');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const container = document.getElementById('chatbotMessages');
+            const typing = document.getElementById('typingIndicator');
+            const div = document.createElement('div');
+            div.className = `chat-msg msg-${sender}`;
+            div.innerHTML = text;
+            
+            // Insert before typing indicator
+            container.insertBefore(div, typing);
+            container.scrollTop = container.scrollHeight;
         }
     </script>
 </body>

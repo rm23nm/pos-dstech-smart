@@ -1031,6 +1031,237 @@
 	@include('sweetalert::alert')
 
 	@stack('scripts')
+    @if(!request()->is('*pos*') && !request()->is('*display*') && !request()->is('*kds*') && !request()->is('*antrean*'))
+    <style>
+        .chatbot-btn-backend {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #1bc5bd;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 9999;
+            transition: 0.3s;
+        }
+        .chatbot-btn-backend:hover {
+            transform: scale(1.1);
+        }
+        .chatbot-window-backend {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            max-width: 90vw;
+            height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            overflow: hidden;
+            border: 1px solid #e4e6ef;
+        }
+        .chatbot-header-backend {
+            background: #1bc5bd;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chatbot-header-backend h5 {
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+        .chatbot-close-backend {
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+        }
+        .chatbot-messages-backend {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .chat-msg-backend {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .msg-bot-backend {
+            background: white;
+            color: #3f4254;
+            border: 1px solid #e4e6ef;
+            align-self: flex-start;
+        }
+        .msg-user-backend {
+            background: #1bc5bd;
+            color: white;
+            align-self: flex-end;
+        }
+        .chatbot-input-backend {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e4e6ef;
+            display: flex;
+            gap: 10px;
+        }
+        .chatbot-input-backend input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #e4e6ef;
+            border-radius: 5px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+        .chatbot-input-backend input:focus {
+            border-color: #1bc5bd;
+        }
+        .chatbot-input-backend button {
+            background: #1bc5bd;
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .chatbot-input-backend button:hover {
+            background: #17a2b8;
+        }
+        .typing-indicator-backend {
+            display: none;
+            align-self: flex-start;
+            background: transparent;
+            padding: 5px 10px;
+        }
+        .typing-indicator-backend span {
+            height: 6px;
+            width: 6px;
+            background: #94a3b8;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: bounce-backend 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator-backend span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator-backend span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce-backend {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+
+    <div class="chatbot-btn-backend" onclick="toggleChatbotBackend()">
+        <i class="fas fa-headset"></i>
+    </div>
+
+    <div class="chatbot-window-backend" id="chatbotWindowBackend">
+        <div class="chatbot-header-backend">
+            <h5><i class="fas fa-robot"></i> DSMS Support Assistant</h5>
+            <button class="chatbot-close-backend" onclick="toggleChatbotBackend()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chatbot-messages-backend" id="chatbotMessagesBackend">
+            <div class="chat-msg-backend msg-bot-backend">
+                Halo! Saya AI Support Internal Anda. Ada yang bisa saya bantu terkait fitur aplikasi, cara input barang, atau menu lainnya?
+            </div>
+            <div class="typing-indicator-backend" id="typingIndicatorBackend">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="chatbot-input-backend">
+            <input type="text" id="chatInputBackend" placeholder="Tanya cara pemakaian..." onkeypress="handleChatKeyBackend(event)">
+            <button onclick="sendChatMessageBackend()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChatbotBackend() {
+            const chatWin = document.getElementById('chatbotWindowBackend');
+            chatWin.style.display = chatWin.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function handleChatKeyBackend(e) {
+            if (e.key === 'Enter') sendChatMessageBackend();
+        }
+
+        async function sendChatMessageBackend() {
+            const input = document.getElementById('chatInputBackend');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessageBackend(message, 'user');
+            input.value = '';
+
+            const typing = document.getElementById('typingIndicatorBackend');
+            const messagesContainer = document.getElementById('chatbotMessagesBackend');
+            messagesContainer.appendChild(typing);
+            typing.style.display = 'block';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                let token = '{{ csrf_token() }}';
+
+                const response = await fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    },
+                    body: JSON.stringify({ message: message, context: 'backend' })
+                });
+                
+                const data = await response.json();
+                typing.style.display = 'none';
+                
+                if (data.success) {
+                    addMessageBackend(data.reply, 'bot');
+                } else {
+                    addMessageBackend('Maaf, sistem sedang sibuk.', 'bot');
+                }
+            } catch (error) {
+                typing.style.display = 'none';
+                addMessageBackend('Koneksi terputus.', 'bot');
+            }
+        }
+
+        function addMessageBackend(text, sender) {
+            const container = document.getElementById('chatbotMessagesBackend');
+            const typing = document.getElementById('typingIndicatorBackend');
+            const div = document.createElement('div');
+            div.className = `chat-msg-backend msg-${sender}-backend`;
+            div.innerHTML = text;
+            
+            container.insertBefore(div, typing);
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+    @endif
 </body>
 <!--end::Body-->
 

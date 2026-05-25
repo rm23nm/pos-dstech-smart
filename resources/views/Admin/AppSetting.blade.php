@@ -138,6 +138,27 @@
                                             </fieldset>
                                         </div>
 
+                                        <div class="col-md-12 mt-4">
+                                            <h4 class="text-primary font-weight-bold">Pengaturan AI Assistant</h4>
+                                            <hr>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="text-body">Persona AI Frontend (Halaman Depan / Landing Page)</label>
+                                            <fieldset class="form-group mb-3">
+                                                <textarea class="form-control" id="GEMINI_PROMPT_FRONTEND" name="GEMINI_PROMPT_FRONTEND" rows="4" placeholder="Instruksi sistem untuk AI Customer Service halaman depan...">{{ $envArray['GEMINI_PROMPT_FRONTEND'] ?? '' }}</textarea>
+                                                <small class="text-muted">Gunakan satu paragraf panjang tanpa jeda baris (Enter) agar tidak merusak struktur penyimpanan.</small>
+                                            </fieldset>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="text-body">Persona AI Backend (Dashboard Internal POS)</label>
+                                            <fieldset class="form-group mb-3">
+                                                <textarea class="form-control" id="GEMINI_PROMPT_BACKEND" name="GEMINI_PROMPT_BACKEND" rows="4" placeholder="Instruksi sistem untuk AI Support Technical Assistant...">{{ $envArray['GEMINI_PROMPT_BACKEND'] ?? '' }}</textarea>
+                                                <small class="text-muted">Panduan menu aplikasi untuk user di dalam dashboard.</small>
+                                            </fieldset>
+                                        </div>
+
 
                                         <div class="col-md-12">
                                             <button type="submit" class="btn btn-success text-white font-weight-bold me-1 mb-1">Simpan</button>
