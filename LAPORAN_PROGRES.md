@@ -61,6 +61,14 @@
 *   **Deskripsi**: Memodifikasi JavaScript di `billing_new.blade.php` agar saat kasir memilih "Jenis Paket: PAKETMEMBER", sistem akan otomatis membaca `maxTimePerPlay` dari profil Pelanggan yang dipilih dan mengisinya ke kolom DURASI. Hal ini mencegah kasir dari kesalahan lupa mengisi durasi, yang sebelumnya menyebabkan meja hanya terbuka selama 1 jam (default input).
 *   **Status**: **Selesai (100%)**
 
+### Langkah 9: Perbaikan Menu Layar Antrean Tidak Tampil di Live
+*   **Deskripsi**: Menemukan bahwa di server live, menu `Antrian FNB Dapur`, `Info Kitchen`, dll. (ID 113, 115, 116, 117, 118, 119) tidak ada di database, meskipun sudah ada di lokal. Telah membuat file `fix_live_database.php` yang akan men-generate ulang permission menu tersebut beserta penugasan role dan langganan (subscription).
+*   **Status**: **Menunggu Eksekusi (Live)** - File `fix_live_database.php` sudah disiapkan.
+
+### Langkah 10: Perbaikan Error POS Hiburan (KelompokLampu Unknown Column)
+*   **Deskripsi**: Saat POS Hiburan diakses di live, muncul error SQLSTATE `Unknown column 'member_packages.KelompokLampu'`. Ini terjadi karena kolom `KelompokLampu` belum dimigrasikan ke database live. Telah membuat file migrasi baru `2026_05_25_214500_add_kelompok_lampu_to_member_packages.php` dan logika penambahan kolom juga ditambahkan ke script `fix_live_database.php` sebagai alternatif eksekusi langsung.
+*   **Status**: **Menunggu Eksekusi (Live)** - Silakan jalankan `fix_live_database.php` di VPS Live.
+
 ---
 
 ## 3. Antrean Pekerjaan Kedepan (Queue)

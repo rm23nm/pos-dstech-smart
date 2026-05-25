@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class KelompokLampu extends Migration
+class AddKelompokLampuToMemberPackages extends Migration
 {
     /**
      * Run the migrations.
@@ -29,6 +29,12 @@ class KelompokLampu extends Migration
      */
     public function down()
     {
-        //
+        if (Schema::hasTable('member_packages')) {
+            Schema::table('member_packages', function (Blueprint $table) {
+                if (Schema::hasColumn('member_packages', 'KelompokLampu')) {
+                    $table->dropColumn('KelompokLampu');
+                }
+            });
+        }
     }
 }
