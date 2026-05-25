@@ -290,10 +290,14 @@ class ItemMasterController extends Controller
           }
           $model->VatPercent = $jsonData['VatPercent'];
           $model->Active = 'Y';
-          $model->AcctHPP = empty($jsonData['AcctHPP']) ? "" : $jsonData['AcctHPP'];
-          $model->AcctPenjualan = empty($jsonData['AcctPenjualan']) ? "" : $jsonData['AcctPenjualan'];
-          $model->AcctPenjualanJasa = empty($jsonData['AcctPenjualanJasa']) ? "" : $jsonData['AcctPenjualanJasa'];
-          $model->AcctPersediaan = empty($jsonData['AcctPersediaan']) ? "" : $jsonData['AcctPersediaan'];
+
+          $setting = \App\Models\SettingAccount::where('RecordOwnerID', Auth::user()->RecordOwnerID)->first();
+          
+          $model->AcctHPP = !empty($jsonData['AcctHPP']) ? $jsonData['AcctHPP'] : ($setting->InvAcctHargaPokokPenjualan ?? "");
+          $model->AcctPenjualan = !empty($jsonData['AcctPenjualan']) ? $jsonData['AcctPenjualan'] : ($setting->InvAcctPendapatanJual ?? "");
+          $model->AcctPenjualanJasa = !empty($jsonData['AcctPenjualanJasa']) ? $jsonData['AcctPenjualanJasa'] : ($setting->InvAcctPendapatanJasa ?? "");
+          $model->AcctPersediaan = !empty($jsonData['AcctPersediaan']) ? $jsonData['AcctPersediaan'] : ($setting->InvAcctPersediaan ?? "");
+          
           $model->Gambar = $jsonData['Gambar'];
           $model->TampilkanEMenu = isset($jsonData['TampilkanEMenu']) ? $jsonData['TampilkanEMenu'] : 0;
           $model->RecordOwnerID = Auth::user()->RecordOwnerID;
@@ -428,9 +432,8 @@ class ItemMasterController extends Controller
                       ->where('RecordOwnerID','=', Auth::user()->RecordOwnerID);
 
             if ($model) {
-              // $model->Kode = $request->input('Kode');
-             //    $model->Nama = $request->input('Nama');
-             
+              $setting = \App\Models\SettingAccount::where('RecordOwnerID', Auth::user()->RecordOwnerID)->first();
+              
               \App\Services\DBLogger::update('itemmaster', ['KodeItem' => $request->input('KodeItem'), 'RecordOwnerID' => Auth::user()->RecordOwnerID], [
                     'NamaItem' => $jsonData['NamaItem'],
                     'KodeJenisItem' => empty($jsonData['KodeJenisItem']) ? "" : $jsonData['KodeJenisItem'],
@@ -451,10 +454,10 @@ class ItemMasterController extends Controller
                     'Active' => $jsonData['Active'],
                     'VatPercent' => $jsonData['VatPercent'],
                     'TampilkanEMenu' => isset($jsonData['TampilkanEMenu']) ? $jsonData['TampilkanEMenu'] : 0,
-                    'AcctHPP' => empty($jsonData['AcctHPP']) ? "" :$jsonData['AcctHPP'],
-                    'AcctPenjualan' => empty($jsonData['AcctPenjualan']) ? "" : $jsonData['AcctPenjualan'],
-                    'AcctPenjualanJasa' => empty($jsonData['AcctPenjualanJasa']) ? "" : $jsonData['AcctPenjualanJasa'],
-                    'AcctPersediaan' => empty($jsonData['AcctPersediaan']) ? "" : $jsonData['AcctPersediaan'],
+                    'AcctHPP' => !empty($jsonData['AcctHPP']) ? $jsonData['AcctHPP'] : ($setting->InvAcctHargaPokokPenjualan ?? ""),
+                    'AcctPenjualan' => !empty($jsonData['AcctPenjualan']) ? $jsonData['AcctPenjualan'] : ($setting->InvAcctPendapatanJual ?? ""),
+                    'AcctPenjualanJasa' => !empty($jsonData['AcctPenjualanJasa']) ? $jsonData['AcctPenjualanJasa'] : ($setting->InvAcctPendapatanJasa ?? ""),
+                    'AcctPersediaan' => !empty($jsonData['AcctPersediaan']) ? $jsonData['AcctPersediaan'] : ($setting->InvAcctPersediaan ?? ""),
                     'Gambar' => $jsonData['Gambar']
                 ]);
           
