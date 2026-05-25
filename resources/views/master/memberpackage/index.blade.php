@@ -124,6 +124,7 @@
                     <label>Peruntukan Paket <span class="text-danger">*</span></label>
                     <select name="KategoriPaket" id="KategoriPaket" class="form-control" onchange="toggleRules()" required>
                         <option value="HIBURAN">Khusus Hiburan (Billiard/Futsal)</option>
+                        <option value="UMUM">Fasilitas Umum (Gym / Kolam Renang)</option>
                         <option value="RETAIL">Khusus Retail</option>
                         <option value="FNB">Khusus F&B</option>
                     </select>

@@ -1906,17 +1906,20 @@
 			errorCount += 1;
 			oErrorList.push("Jenis Item Harus diisi");
 		}
-		if (jQuery('#KodeMerk').val() == "" || jQuery('#KodeMerk').val() == -99) {
-			errorCount += 1;
-			oErrorList.push("Merk Harus diisi");
-		}
-		if (jQuery('#Satuan').val() == "" || jQuery('#Satuan').val() == -99) {
-			errorCount += 1;
-			oErrorList.push("Satuan Harus diisi");
-		}
-		if (jQuery('#KodeGudang').val() == "" || jQuery('#KodeGudang').val() == -99) {
-			errorCount += 1;
-			oErrorList.push("Gudang Harus diisi");
+		var typeItem = jQuery('#TypeItem').val();
+		if (typeItem == "1" || typeItem == "3" || typeItem == "6") {
+			if (jQuery('#KodeMerk').val() == "" || jQuery('#KodeMerk').val() == -99) {
+				errorCount += 1;
+				oErrorList.push("Merk Harus diisi");
+			}
+			if (jQuery('#Satuan').val() == "" || jQuery('#Satuan').val() == -99) {
+				errorCount += 1;
+				oErrorList.push("Satuan Harus diisi");
+			}
+			if (jQuery('#KodeGudang').val() == "" || jQuery('#KodeGudang').val() == -99) {
+				errorCount += 1;
+				oErrorList.push("Gudang Harus diisi");
+			}
 		}
 
 		if (jQuery('#TypeItem').val() == 3 ) {

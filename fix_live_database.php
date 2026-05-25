@@ -49,6 +49,10 @@ $menus = [
     [
         'id' => 119, 'PermissionName' => 'Customer Display POS', 'Link' => 'fpenjualan/custdisplay_new', 'Icon' => 'fas fa-tablet-alt',
         'Level' => 2, 'MenuInduk' => 114, 'SubMenu' => 2, 'Order' => 26.6, 'Status' => 1, 'isSuperAdmin' => 0
+    ],
+    [
+        'id' => 121, 'PermissionName' => 'Manajemen Gate', 'Link' => 'gatedevices', 'Icon' => 'fas fa-door-open',
+        'Level' => 2, 'MenuInduk' => 1, 'SubMenu' => 0, 'Order' => 99, 'Status' => 1, 'isSuperAdmin' => 0
     ]
 ];
 
@@ -73,7 +77,7 @@ foreach ($menus as $m) {
 // 3. Assign display menus to all active roles
 echo "3. Menetapkan hak akses Menu Layar Antrean ke Roles & Subscriptions...\n";
 $roles = DB::table('roles')->get();
-$menuIds = [113, 115, 116, 117, 118, 119];
+$menuIds = [113, 115, 116, 117, 118, 119, 121];
 
 foreach ($roles as $role) {
     foreach ($menuIds as $mid) {

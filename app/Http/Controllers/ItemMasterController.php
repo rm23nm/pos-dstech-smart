@@ -268,14 +268,14 @@ class ItemMasterController extends Controller
 
           $model->KodeItem = $jsonData['KodeItem'];
           $model->NamaItem = $jsonData['NamaItem'];
-          $model->KodeJenisItem = $jsonData['KodeJenisItem'];
-          $model->KodeMerk = $jsonData['KodeMerk'];
-          $model->TypeItem = $jsonData['TypeItem'];
-          $model->Rak = $jsonData['Rak'];
-          $model->KodeGudang = $jsonData['KodeGudang'];
-          $model->KodeSupplier = $jsonData['KodeSupplier'];
-          $model->Satuan = $jsonData['Satuan'];
-          $model->Barcode = $jsonData['Barcode'];
+          $model->KodeJenisItem = empty($jsonData['KodeJenisItem']) ? "" : $jsonData['KodeJenisItem'];
+          $model->KodeMerk = empty($jsonData['KodeMerk']) ? "" : $jsonData['KodeMerk'];
+          $model->TypeItem = empty($jsonData['TypeItem']) ? "" : $jsonData['TypeItem'];
+          $model->Rak = empty($jsonData['Rak']) ? "" : $jsonData['Rak'];
+          $model->KodeGudang = empty($jsonData['KodeGudang']) ? "" : $jsonData['KodeGudang'];
+          $model->KodeSupplier = empty($jsonData['KodeSupplier']) ? "" : $jsonData['KodeSupplier'];
+          $model->Satuan = empty($jsonData['Satuan']) ? "" : $jsonData['Satuan'];
+          $model->Barcode = empty($jsonData['Barcode']) ? "" : $jsonData['Barcode'];
           $model->Gambar = "";
           $model->HargaPokokPenjualan = $jsonData['HargaPokokPenjualan'];
           $model->HargaJual = $jsonData['HargaJual'];
@@ -433,14 +433,14 @@ class ItemMasterController extends Controller
              
               \App\Services\DBLogger::update('itemmaster', ['KodeItem' => $request->input('KodeItem'), 'RecordOwnerID' => Auth::user()->RecordOwnerID], [
                     'NamaItem' => $jsonData['NamaItem'],
-                    'KodeJenisItem' => $jsonData['KodeJenisItem'],
-                    'KodeMerk' => $jsonData['KodeMerk'],
-                    'TypeItem' => $jsonData['TypeItem'],
-                    'Rak' => $jsonData['Rak'],
-                    'KodeGudang' => $jsonData['KodeGudang'],
-                    'KodeSupplier' => $jsonData['KodeSupplier'],
-                    'Satuan' => $jsonData['Satuan'],
-                    'Barcode' => $jsonData['Barcode'],
+                    'KodeJenisItem' => empty($jsonData['KodeJenisItem']) ? "" : $jsonData['KodeJenisItem'],
+                    'KodeMerk' => empty($jsonData['KodeMerk']) ? "" : $jsonData['KodeMerk'],
+                    'TypeItem' => empty($jsonData['TypeItem']) ? "" : $jsonData['TypeItem'],
+                    'Rak' => empty($jsonData['Rak']) ? "" : $jsonData['Rak'],
+                    'KodeGudang' => empty($jsonData['KodeGudang']) ? "" : $jsonData['KodeGudang'],
+                    'KodeSupplier' => empty($jsonData['KodeSupplier']) ? "" : $jsonData['KodeSupplier'],
+                    'Satuan' => empty($jsonData['Satuan']) ? "" : $jsonData['Satuan'],
+                    'Barcode' => empty($jsonData['Barcode']) ? "" : $jsonData['Barcode'],
                     'Gambar' => "",
                     'HargaPokokPenjualan' => $jsonData['HargaPokokPenjualan'],
                     'HargaJual' => $jsonData['HargaJual'],
