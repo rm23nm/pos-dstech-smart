@@ -641,6 +641,12 @@
 			if(ItemMasterDataEdited[0]['AcctPersediaan'] == ""){
 				jQuery('#AcctPersediaan').val(dataSetting[0]['InvAcctPersediaan']).trigger('change');
 			}	
+		} else {
+			// Jika tambah baru
+			jQuery('#AcctHPP').val(dataSetting[0]['InvAcctHargaPokokPenjualan']).trigger('change');
+			jQuery('#AcctPenjualan').val(dataSetting[0]['InvAcctPendapatanJual']).trigger('change');
+			jQuery('#AcctPenjualanJasa').val(dataSetting[0]['InvAcctPendapatanJasa']).trigger('change');
+			jQuery('#AcctPersediaan').val(dataSetting[0]['InvAcctPersediaan']).trigger('change');
 		}
 
 		if (bahanrakitan.length > 0) {
