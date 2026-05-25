@@ -22,15 +22,31 @@ class ProcessSubscriptionStatus extends Command
 
     public function handle()
     {
-        $this->processSuspensions();
-        $this->generateInvoices();
+        $reportData = [];
+        $this->processSuspensions($reportData);
+        $this->generateInvoices($reportData);
+
+        // Jika ada tagihan yang dibuat hari ini, kirim laporan ke Superadmin
+        if (count($reportData) > 0) {
+            $adminEmail = env('MAIL_FROM_ADDRESS');
+            if ($adminEmail) {
+                try {
+                    Mail::to($adminEmail)->send(new \App\Mail\SuperadminExpiryReportMail($reportData));
+                    $this->info("Email laporan harian tagihan berhasil dikirim ke {$adminEmail}");
+                } catch (\Exception $e) {
+                    $this->error("Gagal mengirim email laporan harian ke Superadmin: " . $e->getMessage());
+                    Log::error('ProcessSubscriptionStatus ReportMail: ' . $e->getMessage());
+                }
+            }
+        }
+
         return 0;
     }
 
     // -------------------------------------------------------------------------
     // Task 1: suspend companies past their grace period, then invoice if needed
     // -------------------------------------------------------------------------
-    private function processSuspensions(): void
+    private function processSuspensions(&$reportData): void
     {
         $this->info('Mengecek langganan yang sudah expired...');
 
@@ -41,7 +57,7 @@ class ProcessSubscriptionStatus extends Command
                 $q->where('company.isSuspended', '!=', 1)->orWhereNull('company.isSuspended');
             })
             ->whereRaw('DATE_ADD(company.EndSubs, INTERVAL COALESCE(terminpembayaran.ExtraDays, 0) DAY) < CURDATE()')
-            ->select('company.*', DB::raw('COALESCE(terminpembayaran.ExtraDays, 0) as ExtraDays'))
+            ->select('company.*', DB::raw('COALESCE(terminpembayaran.ExtraDays, 0) as ExtraDays'), DB::raw('DATEDIFF(company.EndSubs, CURDATE()) as SisaHari'))
             ->get();
 
         $count = 0;
@@ -68,6 +84,15 @@ class ProcessSubscriptionStatus extends Command
             $noTransaksi = $this->createInvoiceIfNeeded($company, $subscription, isSuspended: true);
             if ($noTransaksi) {
                 $this->sendInvoiceEmail($company, $subscription, $noTransaksi, isSuspended: true);
+                
+                // Tambahkan ke laporan rekap admin
+                $reportData[] = [
+                    'companyName' => $company->NamaPartner,
+                    'subscriptionName' => $subscription->NamaSubscription ?? 'Paket Tidak Diketahui',
+                    'sisaHari' => $company->SisaHari,
+                    'dueDate' => Carbon::parse($company->EndSubs)->format('d/m/Y'),
+                    'isSuspended' => true
+                ];
             }
         }
 
@@ -77,25 +102,40 @@ class ProcessSubscriptionStatus extends Command
     // -------------------------------------------------------------------------
     // Task 2: generate invoices for companies expiring within 7 days
     // -------------------------------------------------------------------------
-    private function generateInvoices(): void
+    private function generateInvoices(&$reportData): void
     {
-        $this->info('Mengecek langganan yang akan habis dalam 7 hari...');
+        $this->info('Mengecek langganan yang akan habis (30 hari tahunan, 10 hari bulanan)...');
 
         $companies = DB::table('company')
             ->leftJoin('terminpembayaran', 'company.TerminBayarPoS', '=', 'terminpembayaran.id')
+            ->leftJoin('subscriptionheader', 'company.KodePaketLangganan', '=', 'subscriptionheader.NoTransaksi')
             ->where('company.isActive', 1)
             ->where(function ($q) {
                 $q->where('company.isSuspended', '!=', 1)->orWhereNull('company.isSuspended');
             })
             // still within grace period
             ->whereRaw('DATE_ADD(company.EndSubs, INTERVAL COALESCE(terminpembayaran.ExtraDays, 0) DAY) >= CURDATE()')
-            // EndSubs is within 7 days
-            ->whereRaw('company.EndSubs <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)')
-            ->select('company.*', DB::raw('COALESCE(terminpembayaran.ExtraDays, 0) as ExtraDays'))
+            // Cek kondisi 30 hari (tahunan) atau 10 hari (bulanan)
+            ->where(function ($query) {
+                // Tahunan: LamaSubsription >= 365, tagihan 30 hari sebelum
+                $query->where(function ($q) {
+                    $q->where('subscriptionheader.LamaSubsription', '>=', 365)
+                      ->whereRaw('company.EndSubs <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)');
+                })
+                // Bulanan: LamaSubsription < 365, tagihan 10 hari sebelum
+                ->orWhere(function ($q) {
+                    $q->where(function ($q2) {
+                        $q2->whereNull('subscriptionheader.LamaSubsription')
+                           ->orWhere('subscriptionheader.LamaSubsription', '<', 365);
+                    })
+                    ->whereRaw('company.EndSubs <= DATE_ADD(CURDATE(), INTERVAL 10 DAY)');
+                });
+            })
+            ->select('company.*', 'subscriptionheader.LamaSubsription', 'subscriptionheader.NamaSubscription', DB::raw('COALESCE(terminpembayaran.ExtraDays, 0) as ExtraDays'), DB::raw('DATEDIFF(company.EndSubs, CURDATE()) as SisaHari'))
             ->get();
 
         if ($companies->isEmpty()) {
-            $this->info('Tidak ada langganan yang akan habis dalam 7 hari.');
+            $this->info('Tidak ada langganan yang akan habis dalam rentang waktu yang ditentukan.');
             return;
         }
 
@@ -116,6 +156,15 @@ class ProcessSubscriptionStatus extends Command
             if ($noTransaksi) {
                 $this->sendInvoiceEmail($company, $subscription, $noTransaksi, isSuspended: false);
                 $count++;
+                
+                // Tambahkan ke laporan rekap admin
+                $reportData[] = [
+                    'companyName' => $company->NamaPartner,
+                    'subscriptionName' => $company->NamaSubscription ?? 'Paket Tidak Diketahui',
+                    'sisaHari' => $company->SisaHari,
+                    'dueDate' => Carbon::parse($company->EndSubs)->format('d/m/Y'),
+                    'isSuspended' => false
+                ];
             }
         }
 
