@@ -52,9 +52,10 @@
                             		@csrf
 	                            	<div class="form-group row">
 	                            		<div class="col-md-6">
-	                            			<label  class="text-body">Device ID</label>
+	                            			<label  class="text-body">Device ID / Serial Number Lisensi</label>
 	                            			<fieldset class="form-group mb-3">
-	                            				<input type="text" class="form-control" id="DeviceID" name="DeviceID" placeholder="Contoh: ESP-GATE-01" value="{{ count($device) > 0 ? $device[0]->DeviceID : '' }}" required="">
+	                            				<input type="text" class="form-control" id="DeviceID" name="DeviceID" placeholder="Masukkan Serial Number yang sah" value="{{ count($device) > 0 ? $device[0]->DeviceID : '' }}" required {{ count($device) > 0 ? 'readonly' : '' }}>
+                                                <small class="text-muted">Masukkan Serial Number Lisensi Gate yang dibeli dari sistem pusat.</small>
                                                 <input type="hidden" class="form-control" id="id" name="id" value="{{ count($device) > 0 ? $device[0]->id : '' }}">
 	                            			</fieldset>
 	                            		</div>

@@ -86,13 +86,29 @@ class GateDeviceController extends Controller
 
             $deviceId = $request->input('DeviceID');
 
-            // Check if exists
+            // Check if exists in gate_devices
             $check = DB::table('gate_devices')
                         ->where('DeviceID', $deviceId)
                         ->exists();
 
             if ($check) {
-                alert()->error('Error', 'Device ID sudah terdaftar');
+                alert()->error('Error', 'Device ID (Serial Number) sudah terdaftar di alat lain');
+                return redirect()->back();
+            }
+
+            // Check if SN exists in gate_serial_numbers and belongs to the partner
+            $serialNumberData = DB::table('gate_serial_numbers')
+                ->where('SerialNumber', $deviceId)
+                ->where('KodePartner', Auth::user()->RecordOwnerID)
+                ->first();
+            
+            if (!$serialNumberData) {
+                alert()->error('Error', 'Serial Number tidak valid atau bukan milik anda');
+                return redirect()->back();
+            }
+
+            if ($serialNumberData->isBlocked == 1) {
+                alert()->error('Error', 'Serial Number Blocked : ' . $serialNumberData->BlockedReason);
                 return redirect()->back();
             }
 
@@ -147,7 +163,23 @@ class GateDeviceController extends Controller
                         ->exists();
 
             if ($check) {
-                alert()->error('Error', 'Device ID sudah terdaftar di perangkat lain');
+                alert()->error('Error', 'Device ID (Serial Number) sudah terdaftar di perangkat lain');
+                return redirect()->back();
+            }
+
+            // Check if SN exists in gate_serial_numbers and belongs to the partner
+            $serialNumberData = DB::table('gate_serial_numbers')
+                ->where('SerialNumber', $deviceId)
+                ->where('KodePartner', Auth::user()->RecordOwnerID)
+                ->first();
+            
+            if (!$serialNumberData) {
+                alert()->error('Error', 'Serial Number tidak valid atau bukan milik anda');
+                return redirect()->back();
+            }
+
+            if ($serialNumberData->isBlocked == 1) {
+                alert()->error('Error', 'Serial Number Blocked : ' . $serialNumberData->BlockedReason);
                 return redirect()->back();
             }
 

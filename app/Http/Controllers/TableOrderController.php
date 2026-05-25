@@ -386,7 +386,7 @@ class TableOrderController extends Controller
         
         $customerMemberships = DB::table('customer_memberships')
             ->join('member_packages', 'customer_memberships.KodePaketMember', '=', 'member_packages.KodePaket')
-            ->select('customer_memberships.*', 'member_packages.KelompokLampu')
+            ->select('customer_memberships.*', 'member_packages.KelompokLampu', 'member_packages.NamaPaket')
             ->where('customer_memberships.RecordOwnerID', $roid)
             ->where('customer_memberships.ValidUntil', '>=', Carbon::now('Asia/Jakarta')->format('Y-m-d H:i:s'))
             ->get();
@@ -433,7 +433,8 @@ class TableOrderController extends Controller
             'kelompoklampu' => $kelompoklampu,
             'gruppelanggan' => $gruppelanggan,
             'oKodeSales' => Auth::user()->KodeSales,
-            'jenisLangganan' => $jenisLangganan
+            'jenisLangganan' => $jenisLangganan,
+            'customerMemberships' => $customerMemberships
         ]);
     }
 
@@ -3056,7 +3057,7 @@ class TableOrderController extends Controller
             $model->TglPencatatan = $now;
             $model->JenisPaket = $request->input('JenisPaket');
             $model->paketid = $request->input('paketid');
-            if ($model->JenisPaket === 'PAKETMEMBER' && empty($model->paketid)) {
+            if ($model->JenisPaket === 'PAKETMEMBER') {
                 $model->paketid = -1;
             }
             $model->tableid = $request->input('tableid');
@@ -3823,7 +3824,8 @@ public function getTableStatuses()
                     tableorderheader.JenisPaket,
                     COALESCE(tableorderheader.TotalTerbayar, 0) as TotalPembayaran,
                     COALESCE(tableorderheader.NetTotal, 0) as NetTotal,
-                    COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok
+                    COALESCE(tkelompoklampu.NamaKelompok,'') AS NamaKelompok,
+                    titiklampu.KelompokLampu
                 ")
                 ->leftJoin('tableorderheader', function($join) use ($roid, $now) {
                     $join->on('titiklampu.id', '=', 'tableorderheader.tableid')

@@ -1186,7 +1186,6 @@
                         rawjammulai:    mockEl.dataset.rawjammulai,
                         rawjamselesai:  mockEl.dataset.rawjamselesai,
                         namakelompok:   mockEl.dataset.namakelompok,
-                        kelompoklampu:  mockEl.dataset.kelompoklampu || '',
                         gambar:         mockEl.dataset.gambar,
                         statuslabel:    mockEl.dataset.statuslabel,
                         totalPembayaran: parseFloat(mockEl.dataset.totalPembayaran || 0),
@@ -1221,7 +1220,6 @@
             rawjammulai:    el.dataset.rawjammulai,
             rawjamselesai:  el.dataset.rawjamselesai,
             namakelompok:   el.dataset.namakelompok,
-            kelompoklampu:  el.dataset.kelompoklampu || '',
             gambar:         el.dataset.gambar,
             statuslabel:    el.dataset.statuslabel,
             totalPembayaran: parseFloat(el.dataset.totalPembayaran || 0)
