@@ -357,7 +357,7 @@
                     <div class="carousel-inner">
                         <!-- Slide 0: General / Kolase -->
                         <div class="carousel-item active">
-                            <img src="{{ asset('images/misc/bg-login.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Satu Aplikasi">
+                            <img src="{{ asset('images/misc/bg-login3.jpg') }}" onerror="this.src='{{ asset('images/misc/bg-login2.webp') }}'" alt="Satu Aplikasi">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Satu Aplikasi,<br>Beragam Solusi Bisnis</h1>
                                 <p class="showcase-subtitle mb-0">Pilih jenis usaha Anda dan nikmati kemudahan manajemen Point of Sales, Inventori, hingga Booking secara terpadu.</p>
@@ -535,9 +535,15 @@
                                 </button>
                             </div>
                             <div class="demo-btn-wrapper">
-                                <button type="button" class="btn btn-demo-auto w-100" style="color: #6f42c1;" data-email="demotiket@pos.dstechsmart.com" data-pass="demo123">
+                                <button type="button" class="btn btn-demo-auto w-100" style="color: #6f42c1;" data-email="demogate@pos.dstechsmart.com" data-pass="12345678">
                                     <i class="bi bi-ticket-perforated"></i>
-                                    <span style="font-size: 0.7rem;">Tiket GYM</span>
+                                    <span style="font-size: 0.7rem;">Tiket / Gate</span>
+                                </button>
+                            </div>
+                            <div class="demo-btn-wrapper">
+                                <button type="button" class="btn btn-demo-auto w-100" style="color: #dc3545;" data-email="demoapotek@pos.dstechsmart.com" data-pass="12345678">
+                                    <i class="bi bi-capsule"></i>
+                                    <span style="font-size: 0.7rem;">Apotek</span>
                                 </button>
                             </div>
                         </div>

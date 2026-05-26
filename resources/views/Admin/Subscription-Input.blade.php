@@ -78,6 +78,8 @@
                                                 <option value="Retail" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Retail" ? 'selected' : '' : '' }} >Retail</option>
                                                 <option value="FnB" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "FnB" ? 'selected' : '' : '' }}>Food and Beverage</option>
                                                 <option value="Hiburan" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Hiburan" ? 'selected' : '' : '' }}>Hiburan</option>
+                                                <option value="Apotek" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Apotek" ? 'selected' : '' : '' }}>Apotek / Klinik</option>
+                                                <option value="TiketGate" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "TiketGate" ? 'selected' : '' : '' }}>Tiket & Smart Gate</option>
                                             </select>
                                         </fieldset>
                                     </div>
@@ -311,7 +313,6 @@
 @endsection
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ asset('js/jquery.nestable.js')}}"></script>
 <script type="text/javascript">
 	$(function () {

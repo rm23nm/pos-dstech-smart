@@ -712,6 +712,14 @@
 	                    allowSorting: false 
 	                },
 	                {
+	                    dataField: "ExpiredDate",
+	                    caption: "Expired Date",
+	                    dataType: "date",
+	                    format: "yyyy-MM-dd",
+	                    allowEditing:AllowManipulation,
+	                    allowSorting: false 
+	                },
+	                {
 	                    dataField: "HargaNet",
 	                    caption: "HargaNet",
 	                    allowEditing:AllowManipulation,
@@ -776,7 +784,7 @@
 
 			// console.log(dataGridInstance)
 			var allRowsData  = dataGridInstance.option("dataSource");
-        	var newData = { NoUrut: allRowsData.length + 1,BaseLine:-1,KodeItem:"",KodeGudang:"", QtyOrder: 0,QtyFaktur:0, Satuan: "", Harga:0, Discount:0, HargaNet:0,LineStatus:'' }
+        	var newData = { NoUrut: allRowsData.length + 1,BaseLine:-1,KodeItem:"",KodeGudang:"", QtyOrder: 0,QtyFaktur:0, Satuan: "", Harga:0, Discount:0, HargaNet:0,ExpiredDate:null,LineStatus:'' }
         	dataGridInstance.option("dataSource", [...dataGridInstance.option("dataSource"), newData]);
         	dataGridInstance.refresh();
 
@@ -835,7 +843,7 @@
 	                    
 
 	                    var allRowsData  = dataGridInstance.option("dataSource");
-	                    var newData = { NoUrut: allRowsData.length + 1,BaseLine:-1,KodeItem:"",KodeGudang:"", QtyOrder: 0,QtyFaktur:0, Satuan: "", Harga:0, Discount:0, HargaNet:0,LineStatus:'' }
+	                    var newData = { NoUrut: allRowsData.length + 1,BaseLine:-1,KodeItem:"",KodeGudang:"", QtyOrder: 0,QtyFaktur:0, Satuan: "", Harga:0, Discount:0, HargaNet:0,ExpiredDate:null,LineStatus:'' }
         				dataGridInstance.option("dataSource", [...dataGridInstance.option("dataSource"), newData]);
         				dataGridInstance.refresh();
 			        }

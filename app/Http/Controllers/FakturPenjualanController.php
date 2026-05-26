@@ -65,18 +65,16 @@ class FakturPenjualanController extends Controller
 	   	$KodePelanggan = $request->input('KodePelanggan');
 	   	$Status = $request->input('Status');
 
-	   	$sql = "DISTINCT fakturpenjualanheader.NoTransaksi, DATE_FORMAT(fakturpenjualanheader.TglTransaksi, '%d-%m-%Y %H:%i') TglTransaksi,fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, fakturpenjualanheader.KodePelanggan, pelanggan.NamaPelanggan, fakturpenjualanheader.Termin, terminpembayaran.NamaTermin, fakturpenjualanheader.TotalPembelian, fakturpenjualanheader.TotalPembayaran, fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur TotalHutang, COALESCE(orderpenjualanheader.NoTransaksi, '') AS NoOrder, orderpenjualanheader.TglTransaksi TglOrder, fakturpenjualanheader.TotalRetur,
-	   		CASE WHEN fakturpenjualanheader.Status = 'O' THEN 'OPEN' ELSE 
-   				CASE WHEN fakturpenjualanheader.Status = 'T' THEN 'DRAFT' ELSE 
-   					CASE WHEN fakturpenjualanheader.Status = 'D' THEN 'CANCEL' ELSE
-   						CASE WHEN  fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur <= 0 && fakturpenjualanheader.TotalRetur = 0 THEN 'LUNAS' ELSE
-   							CASE WHEN  fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur > 0 THEN 'BELUM LUNAS' ELSE 
-   								CASE WHEN fakturpenjualanheader.Status = 'C' THEN 'CLOSE' ELSE '' END
-   							END
-   						END
-   					END
-   				END
-   			END AS StatusDocument, fakturpenjualanheader.Transaksi, COUNT(*) TotalItems, '-' Keterangan ";
+	   	$sql = "DISTINCT fakturpenjualanheader.NoTransaksi, DATE_FORMAT(fakturpenjualanheader.TglTransaksi, '%d-%m-%Y %H:%i') TglTransaksi,fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, fakturpenjualanheader.KodePelanggan, pelanggan.NamaPelanggan, fakturpenjualanheader.Termin, terminpembayaran.NamaTermin, fakturpenjualanheader.TotalPembelian, fakturpenjualanheader.TotalPembayaran, fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur TotalHutang, COALESCE(orderpenjualanheader.NoTransaksi, '') AS NoOrder, orderpenjualanheader.TglTransaksi TglOrder, fakturpenjualanheader.TotalRetur, fakturpenjualanheader.NoResep, fakturpenjualanheader.NamaDokter, fakturpenjualanheader.NamaPasien,
+	   			CASE WHEN fakturpenjualanheader.Status = 'O' THEN 'OPEN' ELSE 
+	   				CASE WHEN fakturpenjualanheader.Status = 'T' THEN 'DRAFT' ELSE 
+	   					CASE WHEN fakturpenjualanheader.Status = 'D' THEN 'CANCEL' ELSE
+	   						CASE WHEN  fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur <= 0 && fakturpenjualanheader.TotalRetur = 0 THEN 'LUNAS' ELSE
+	   							CASE WHEN  fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur > 0 THEN 'BELUM LUNAS' ELSE '' END
+	   						END
+	   					END
+	   				END
+	   			END AS StatusDocument, fakturpenjualanheader.Transaksi, COUNT(*) TotalItems, '-' Keterangan ";
 	   	$model = FakturPenjualanHeader::selectRaw($sql)
     				->leftJoin('terminpembayaran', function ($value){
     					$value->on('fakturpenjualanheader.KodeTermin','=','terminpembayaran.id')
@@ -108,7 +106,7 @@ class FakturPenjualanController extends Controller
     	if ($Status != "") {
     		$model->where("fakturpenjualanheader.Status", $Status);
     	}
-    	$model->groupBy('fakturpenjualanheader.NoTransaksi', 'fakturpenjualanheader.TglTransaksi', 'fakturpenjualanheader.TglJatuhTempo', 'fakturpenjualanheader.NoReff', 'fakturpenjualanheader.KodePelanggan', 'pelanggan.NamaPelanggan', 'fakturpenjualanheader.Termin', 'terminpembayaran.NamaTermin', 'fakturpenjualanheader.TotalPembelian', 'fakturpenjualanheader.TotalPembayaran', 'fakturpenjualanheader.TotalRetur', 'orderpenjualanheader.NoTransaksi', 'orderpenjualanheader.TglTransaksi', 'fakturpenjualanheader.Status', 'fakturpenjualanheader.Transaksi');
+    	$model->groupBy('fakturpenjualanheader.NoTransaksi', 'fakturpenjualanheader.TglTransaksi', 'fakturpenjualanheader.TglJatuhTempo', 'fakturpenjualanheader.NoReff', 'fakturpenjualanheader.KodePelanggan', 'pelanggan.NamaPelanggan', 'fakturpenjualanheader.Termin', 'terminpembayaran.NamaTermin', 'fakturpenjualanheader.TotalPembelian', 'fakturpenjualanheader.TotalPembayaran', 'fakturpenjualanheader.TotalRetur', 'orderpenjualanheader.NoTransaksi', 'orderpenjualanheader.TglTransaksi', 'fakturpenjualanheader.Status', 'fakturpenjualanheader.Transaksi', 'fakturpenjualanheader.NoResep', 'fakturpenjualanheader.NamaDokter', 'fakturpenjualanheader.NamaPasien');
    		$model->orderBy('fakturpenjualanheader.TglTransaksi','DESC');
         $data['data']= $model->get();
         return response()->json($data);
@@ -2297,6 +2295,9 @@ $updateData = [
 			$model->Keterangan = $jsonData['Keterangan'];
 			$model->MetodeBayar = empty($jsonData['MetodeBayar']) ? "" : $jsonData['MetodeBayar'];
 			$model->ReffPembayaran = empty($jsonData['ReffPembayaran']) ? "" : $jsonData['ReffPembayaran'];
+			$model->NoResep = empty($jsonData['NoResep']) ? "" : $jsonData['NoResep'];
+			$model->NamaDokter = empty($jsonData['NamaDokter']) ? "" : $jsonData['NamaDokter'];
+			$model->NamaPasien = empty($jsonData['NamaPasien']) ? "" : $jsonData['NamaPasien'];
 			$model->KodeSales = empty($jsonData['KodeSales']) ? "" : $jsonData['KodeSales'];
 			$model->Posted = 0;
 			$model->CreatedBy = Auth::user()->name;
@@ -3566,7 +3567,7 @@ $updateData = [
 
    function CetakFaktur($NoTransaksi = null) {
 	$sql = "DISTINCT fakturpenjualanheader.NoTransaksi, DATE_FORMAT(fakturpenjualanheader.TglTransaksi, '%d-%m-%Y %H:%i') TglTransaksi,
-			fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, 
+			fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, fakturpenjualanheader.NoResep, fakturpenjualanheader.NamaDokter, fakturpenjualanheader.NamaPasien, 
 			fakturpenjualanheader.KodePelanggan, pelanggan.NamaPelanggan, fakturpenjualanheader.Termin, 
 			terminpembayaran.NamaTermin, fakturpenjualanheader.TotalPembelian, fakturpenjualanheader.Pajak,
 			fakturpenjualanheader.TotalPembayaran, fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur TotalHutang, 
@@ -3615,7 +3616,7 @@ $updateData = [
 
    function PrintThermalReciept($NoTransaksi = null){
 	$sql = "DISTINCT fakturpenjualanheader.NoTransaksi, DATE_FORMAT(fakturpenjualanheader.TglTransaksi, '%d-%m-%Y %H:%i') TglTransaksi,
-		fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, 
+		fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, fakturpenjualanheader.NoResep, fakturpenjualanheader.NamaDokter, fakturpenjualanheader.NamaPasien, 
 		fakturpenjualanheader.KodePelanggan, pelanggan.NamaPelanggan, fakturpenjualanheader.Termin, 
 		terminpembayaran.NamaTermin, fakturpenjualanheader.TotalPembelian, fakturpenjualanheader.Pajak,
 		fakturpenjualanheader.TotalPembayaran, fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur TotalHutang, 

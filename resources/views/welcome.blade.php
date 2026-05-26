@@ -639,9 +639,14 @@
             <button class="tab-btn" onclick="filterPackages('Hiburan')">Hiburan</button>
         </div>
 
+        <div class="billing-tabs reveal" style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; background: #f1f5f9; padding: 0.5rem; border-radius: 50px; width: fit-content; margin-left: auto; margin-right: auto;">
+            <button class="billing-btn active" data-duration="1" onclick="filterBilling(1)" style="border: none; padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer; background: var(--primary-red); color: white; transition: 0.3s;">Bulanan</button>
+            <button class="billing-btn" data-duration="12" onclick="filterBilling(12)" style="border: none; padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer; background: transparent; color: var(--text-dim); transition: 0.3s;">Tahunan</button>
+        </div>
+
         <div class="pricing-grid" id="package-grid">
             @foreach($subscriptionheader as $item)
-            <div class="pricing-card reveal package-item" data-type="{{ $item->JenisUsaha }}">
+            <div class="pricing-card reveal package-item" data-type="{{ $item->JenisUsaha }}" data-duration="{{ $item->LamaSubsription }}">
                 <div class="type-badge">{{ $item->JenisUsaha }}</div>
                 <div class="plan-name">{{ $item->NamaSubscription }}</div>
                 <div class="plan-price">
@@ -712,8 +717,11 @@
         reveal();
 
         // Package filtering
+        let currentType = 'All';
+        let currentDuration = '1';
+
         function filterPackages(type) {
-            // Update buttons
+            currentType = type;
             const btns = document.querySelectorAll('.tab-btn');
             btns.forEach(btn => {
                 if(btn.innerText === type || (type === 'All' && btn.innerText === 'Semua')) {
@@ -722,20 +730,49 @@
                     btn.classList.remove('active');
                 }
             });
+            applyFilters();
+        }
 
-            // Filter items
+        function filterBilling(duration) {
+            currentDuration = duration.toString();
+            const btns = document.querySelectorAll('.billing-btn');
+            btns.forEach(btn => {
+                if(btn.getAttribute('data-duration') === currentDuration) {
+                    btn.classList.add('active');
+                    btn.style.background = 'var(--primary-red)';
+                    btn.style.color = 'white';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'var(--text-dim)';
+                }
+            });
+            applyFilters();
+        }
+
+        function applyFilters() {
             const items = document.querySelectorAll('.package-item');
             items.forEach(item => {
-                if (type === 'All' || item.getAttribute('data-type') === type) {
+                const matchType = (currentType === 'All' || item.getAttribute('data-type') === currentType);
+                const itemDuration = parseInt(item.getAttribute('data-duration'), 10) || 12;
+                let matchDuration = false;
+                
+                if (currentDuration === '1' && itemDuration <= 6) matchDuration = true;
+                if (currentDuration === '12' && itemDuration > 6) matchDuration = true;
+                
+                if (matchType && matchDuration) {
                     item.style.display = 'flex';
                 } else {
                     item.style.display = 'none';
                 }
             });
-            
-            // Re-trigger reveal to fix visibility
             reveal();
         }
+        
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            applyFilters();
+        });
     </script>
 
     <style>

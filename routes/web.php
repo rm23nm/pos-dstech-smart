@@ -754,6 +754,8 @@ Route::get('/diskonperiodik/export', [DiskonPeriodikController::class,'Export'])
 
 Route::get('/report/kartustock', [ReportController::class, 'KartuStock'])->name('report-kartustock')->middleware(['auth', 'check.session']);
 Route::get('/report/saldostock', [ReportController::class, 'RptSaldoStock'])->name('report-saldostock')->middleware(['auth', 'check.session']);
+Route::get('/report/expired', [ReportController::class, 'RptExpired'])->name('report-expired')->middleware(['auth', 'check.session']);
+Route::post('/report/expired/sendwa', [ReportController::class, 'SendExpiredWA'])->name('report-expired-sendwa')->middleware(['auth', 'check.session']);
 Route::post('/report/getpapersize', [ReportController::class, 'GetKertas'])->name('report-getpapersize')->middleware(['auth', 'check.session']);
 Route::get('/report/generatebarcode', [ReportController::class, 'GenerateBarcode'])->name('report-generatebarcode')->middleware(['auth', 'check.session']);
 Route::get('/report/generatetemplate', [ReportController::class, 'GenerateBarcodeTemplate'])->name('report-generatetemplate')->middleware(['auth', 'check.session']);

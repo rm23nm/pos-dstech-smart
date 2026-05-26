@@ -2002,7 +2002,42 @@
                             // window.close(); // Optional: close window after print
                         };
                     <\/script>
-                </body>
+                
+<script>
+    var _globalBarcodeScannerBuffer = "";
+    var _globalBarcodeScannerTimer = null;
+    
+    $(document).on("keypress", function(e) {
+        if (e.target.id === "_Barcode") return; // Ignore if already focused on barcode
+        
+        if (e.key && e.key.length === 1 && !e.ctrlKey && !e.altKey) {
+            _globalBarcodeScannerBuffer += e.key;
+            
+            if (_globalBarcodeScannerTimer) clearTimeout(_globalBarcodeScannerTimer);
+            
+            _globalBarcodeScannerTimer = setTimeout(function() {
+                _globalBarcodeScannerBuffer = "";
+            }, 60); // Scanner types very fast
+            
+        } else if (e.key === "Enter" || e.keyCode === 13) {
+            if (_globalBarcodeScannerBuffer.length >= 3) {
+                // It's a scanner!
+                e.preventDefault();
+                $('#_Barcode').val(_globalBarcodeScannerBuffer);
+                _globalBarcodeScannerBuffer = "";
+                $('#_Barcode').focus();
+                
+                var eEnter = $.Event('keypress');
+                eEnter.which = 13;
+                eEnter.keyCode = 13;
+                $('#_Barcode').trigger(eEnter);
+            } else {
+                _globalBarcodeScannerBuffer = "";
+            }
+        }
+    });
+</script>
+</body>
             </html>
         `);
         printWindow.document.close();
@@ -2959,6 +2994,27 @@
                             </select>
                         </div>
                     </div>
+
+                    @if(isset($company[0]) && $company[0]->JenisUsaha == 'Apotek')
+                    <!-- Row: Apotek -->
+                    <div class="pp-row">
+                        <div class="pp-field">
+                            <label class="pp-label" style="color: #d32f2f;"><i class="fas fa-stethoscope"></i> Dokter (Opsional)</label>
+                            <input type="text" class="pp-input" id="ppNamaDokter" placeholder="Nama Dokter">
+                        </div>
+                        <div class="pp-field">
+                            <label class="pp-label" style="color: #d32f2f;"><i class="fas fa-user-injured"></i> Pasien (Opsional)</label>
+                            <input type="text" class="pp-input" id="ppNamaPasien" placeholder="Nama Pasien">
+                        </div>
+                    </div>
+                    <div class="pp-row">
+                        <div class="pp-field">
+                            <label class="pp-label" style="color: #d32f2f;"><i class="fas fa-file-medical"></i> No Resep</label>
+                            <input type="text" class="pp-input" id="ppNoResep" placeholder="Boleh dikosongkan">
+                        </div>
+                    </div>
+                    @endif
+
 
                     <!-- Row: Sales Guard -->
                     <div class="pp-row">
@@ -4701,6 +4757,9 @@
             NominalBayar: parseFormattedRp(document.getElementById('ppNominalBayar').value),
             KodeVoucher: document.getElementById('ppKodeVoucher').value.trim(),
             ServiceType: document.querySelector('input[name="ppServiceType"]:checked').value,
+            NamaDokter: document.getElementById('ppNamaDokter') ? document.getElementById('ppNamaDokter').value : '',
+            NamaPasien: document.getElementById('ppNamaPasien') ? document.getElementById('ppNamaPasien').value : '',
+            NoResep: document.getElementById('ppNoResep') ? document.getElementById('ppNoResep').value : '',
             fnbItems: ppFnbCart
         };
 
@@ -5282,5 +5341,40 @@
     </script>
 
     <script src="{{ asset('js/sweetalert.js') }}"></script>
+
+<script>
+    var _globalBarcodeScannerBuffer = "";
+    var _globalBarcodeScannerTimer = null;
+    
+    $(document).on("keypress", function(e) {
+        if (e.target.id === "_Barcode") return; // Ignore if already focused on barcode
+        
+        if (e.key && e.key.length === 1 && !e.ctrlKey && !e.altKey) {
+            _globalBarcodeScannerBuffer += e.key;
+            
+            if (_globalBarcodeScannerTimer) clearTimeout(_globalBarcodeScannerTimer);
+            
+            _globalBarcodeScannerTimer = setTimeout(function() {
+                _globalBarcodeScannerBuffer = "";
+            }, 60); // Scanner types very fast
+            
+        } else if (e.key === "Enter" || e.keyCode === 13) {
+            if (_globalBarcodeScannerBuffer.length >= 3) {
+                // It's a scanner!
+                e.preventDefault();
+                $('#_Barcode').val(_globalBarcodeScannerBuffer);
+                _globalBarcodeScannerBuffer = "";
+                $('#_Barcode').focus();
+                
+                var eEnter = $.Event('keypress');
+                eEnter.which = 13;
+                eEnter.keyCode = 13;
+                $('#_Barcode').trigger(eEnter);
+            } else {
+                _globalBarcodeScannerBuffer = "";
+            }
+        }
+    });
+</script>
 </body>
 </html>

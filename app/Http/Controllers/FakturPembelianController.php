@@ -456,6 +456,7 @@ class FakturPembelianController extends Controller
 						$modelDetail->Harga = $key['Harga'];
 						$modelDetail->VatPercent = $key['VatPercent'];
 						$modelDetail->Discount = $key['Discount'];
+						$modelDetail->ExpiredDate = empty($key['ExpiredDate']) ? null : $key['ExpiredDate'];
 
 						$modelDetail->BaseReff = $key['BaseReff'];
 						$modelDetail->BaseLine = $key['BaseLine'];
@@ -477,6 +478,18 @@ class FakturPembelianController extends Controller
 						$modelDetail->RecordOwnerID = Auth::user()->RecordOwnerID;
 
 						$save = $modelDetail->save();
+
+						if ($save && !empty($key['ExpiredDate'])) {
+							// Update itemmaster with nearest expired date or newly input expired date
+							$item = \App\Models\ItemMaster::where('KodeItem', $key['KodeItem'])
+										->where('RecordOwnerID', Auth::user()->RecordOwnerID)->first();
+							if ($item) {
+								if (empty($item->ExpiredDate) || $item->ExpiredDate > $key['ExpiredDate']) {
+									$item->ExpiredDate = $key['ExpiredDate'];
+									$item->save();
+								}
+							}
+						}
 
 						if (!$save) {
 							$data['message'] = "Gagal Menyimpan Data Detail di Row ".$key->NoUrut;

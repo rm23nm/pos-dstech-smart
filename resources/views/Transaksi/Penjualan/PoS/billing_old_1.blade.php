@@ -1266,6 +1266,41 @@ License: You must have a valid license purchased only from themeforest(the above
 @endif
 <script src="{{asset('api/datatable/jquery.dataTables.min.js')}}"></script>
 
+
+<script>
+    var _globalBarcodeScannerBuffer = "";
+    var _globalBarcodeScannerTimer = null;
+    
+    $(document).on("keypress", function(e) {
+        if (e.target.id === "_Barcode") return; // Ignore if already focused on barcode
+        
+        if (e.key && e.key.length === 1 && !e.ctrlKey && !e.altKey) {
+            _globalBarcodeScannerBuffer += e.key;
+            
+            if (_globalBarcodeScannerTimer) clearTimeout(_globalBarcodeScannerTimer);
+            
+            _globalBarcodeScannerTimer = setTimeout(function() {
+                _globalBarcodeScannerBuffer = "";
+            }, 60); // Scanner types very fast
+            
+        } else if (e.key === "Enter" || e.keyCode === 13) {
+            if (_globalBarcodeScannerBuffer.length >= 3) {
+                // It's a scanner!
+                e.preventDefault();
+                $('#_Barcode').val(_globalBarcodeScannerBuffer);
+                _globalBarcodeScannerBuffer = "";
+                $('#_Barcode').focus();
+                
+                var eEnter = $.Event('keypress');
+                eEnter.which = 13;
+                eEnter.keyCode = 13;
+                $('#_Barcode').trigger(eEnter);
+            } else {
+                _globalBarcodeScannerBuffer = "";
+            }
+        }
+    });
+</script>
 </body>
 <!--end::Body-->
 </html>
@@ -2598,11 +2633,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				data: JSON.stringify(oData),
 				success: function(response) {
 					if (response.success == true) {
-						let formattedAmount = parseFloat(response.Kembalian).toLocaleString('en-US', {
-							style: 'decimal',
-							minimumFractionDigits: 2,
-							maximumFractionDigits: 2
-						});
+						let valToFormat = parseFloat(response.Kembalian); if (isNaN(valToFormat)) valToFormat = 0; let formattedAmount = "Rp. " + parseFloat(valToFormat).toLocaleString("id-ID", {minimumFractionDigits: 0, maximumFractionDigits: 0});
 						PrintStruk(response.LastTRX);
 					}
 					else{
@@ -4091,11 +4122,7 @@ License: You must have a valid license purchased only from themeforest(the above
 				data: JSON.stringify(oData),
 				success: function(response) {
 					if (response.success == true) {
-						let formattedAmount = parseFloat(response.Kembalian).toLocaleString('en-US', {
-							style: 'decimal',
-							minimumFractionDigits: 2,
-							maximumFractionDigits: 2
-						});
+						let valToFormat = parseFloat(response.Kembalian); if (isNaN(valToFormat)) valToFormat = 0; let formattedAmount = "Rp. " + parseFloat(valToFormat).toLocaleString("id-ID", {minimumFractionDigits: 0, maximumFractionDigits: 0});
 						PrintStruk(response.LastTRX);
 						// Swal.fire({
 						// 	title: "KEMBALIAN "+formattedAmount,

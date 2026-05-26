@@ -3370,6 +3370,13 @@ class TableOrderController extends Controller
                     $fakturHeader->PajakHiburan = $model->TotalPajakHiburan;
                     $fakturHeader->BiayaLayanan = $model->BiayaLayanan + $adminFeeRp;
                     $fakturHeader->RecordOwnerID = Auth::user()->RecordOwnerID;
+
+                    if (isset($company) && $company->JenisUsaha == 'Apotek') {
+                        $fakturHeader->NamaDokter = $request->input('NamaDokter');
+                        $fakturHeader->NamaPasien = $request->input('NamaPasien');
+                        $fakturHeader->NoResep = $request->input('NoResep');
+                    }
+
                     $fakturHeader->created_at = Carbon::now();
                     $fakturHeader->CreatedBy = Auth::user()->name;
                     $fakturHeader->save();
@@ -4669,6 +4676,13 @@ public function getTableStatuses()
                     $fH->BiayaLayanan = $sessionData['serviceRp'] + $sessionData['adminFeeRp'];
                     $fH->SyaratDanKetentuan = "";
                     $fH->RecordOwnerID = $recordOwnerID;
+
+                    if (isset($company) && $company->JenisUsaha == 'Apotek') {
+                        $fH->NamaDokter = $sessionData['NamaDokter'] ?? '';
+                        $fH->NamaPasien = $sessionData['NamaPasien'] ?? '';
+                        $fH->NoResep = $sessionData['NoResep'] ?? '';
+                    }
+
                     $fH->save();
 
                     // 2. Create Faktur Detail
@@ -5543,6 +5557,9 @@ public function getTableStatuses()
                     'ppnPersen' => $ppnPersen,
                     'gudangPos' => $gudangPos,
                     'periode' => $periode,
+                    'NamaDokter' => $request->input('NamaDokter'),
+                    'NamaPasien' => $request->input('NamaPasien'),
+                    'NoResep' => $request->input('NoResep')
                 ]]);
 
                 // Midtrans Snap Token
@@ -5613,6 +5630,13 @@ public function getTableStatuses()
             $fH->BiayaLayanan = $serviceRp + $adminFeeRp;
             $fH->SyaratDanKetentuan = "";
             $fH->RecordOwnerID = $recordOwnerID;
+
+            if (isset($company) && $company->JenisUsaha == 'Apotek') {
+                $fH->NamaDokter = $request->input('NamaDokter');
+                $fH->NamaPasien = $request->input('NamaPasien');
+                $fH->NoResep = $request->input('NoResep');
+            }
+
             $fH->save();
 
             // Faktur Detail - per item

@@ -63,7 +63,7 @@ class ItemMaster extends BaseModel
         END 
       END ItemType, 
       itemmaster.Rak, 1 As QtyKonversi, itemmaster.Satuan, COALESCE(itemmaster.VatPercent,0) VatPercent, COALESCE(itemmaster.Gambar,'') Gambar, itemmaster.TampilkanEMenu,
-      COALESCE(itemmaster.isFlashSale, 'N') isFlashSale, COALESCE(itemmaster.FlashSalePrice, 0) FlashSalePrice, itemmaster.FlashSaleUntil, COALESCE(itemmaster.isBestSeller, 'N') isBestSeller ";
+      COALESCE(itemmaster.isFlashSale, 'N') isFlashSale, COALESCE(itemmaster.FlashSalePrice, 0) FlashSalePrice, itemmaster.FlashSaleUntil, COALESCE(itemmaster.isBestSeller, 'N') isBestSeller, itemmaster.ExpiredDate ";
         $itemmaster = ItemMaster::selectRaw($sql)
                 ->leftJoin('jenisitem', function ($value){
                   $value->on('jenisitem.KodeJenis','=','itemmaster.KodeJenisItem')
@@ -128,7 +128,7 @@ class ItemMaster extends BaseModel
             END 
           END ItemType, itemmaster.Rak, CASE WHEN COALESCE(itemkonversi.QtyKonversi,0) = 0 then 1 else COALESCE(itemkonversi.QtyKonversi,0) end QtyKonversi,
           itemkonversi.Satuan, COALESCE(itemmaster.VatPercent,0) VatPercent, COALESCE(itemmaster.Gambar,'') Gambar,itemmaster.TampilkanEMenu,
-          COALESCE(itemmaster.isFlashSale, 'N') isFlashSale, COALESCE(itemmaster.FlashSalePrice, 0) FlashSalePrice, itemmaster.FlashSaleUntil, COALESCE(itemmaster.isBestSeller, 'N') isBestSeller ";
+          COALESCE(itemmaster.isFlashSale, 'N') isFlashSale, COALESCE(itemmaster.FlashSalePrice, 0) FlashSalePrice, itemmaster.FlashSaleUntil, COALESCE(itemmaster.isBestSeller, 'N') isBestSeller, NULL as ExpiredDate ";
           $itemmaster2 = ItemMaster::selectRaw($sql2)
                   ->leftJoin('jenisitem', function ($value){
                     $value->on('jenisitem.KodeJenis','=','itemmaster.KodeJenisItem')

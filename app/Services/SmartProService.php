@@ -177,6 +177,58 @@ class SmartProService
         return $this->sendWaMessage($formattedPhone, $message);
     }
 
+    /**
+     * Kirim notifikasi expired barang.
+     * Mendukung per-client API Key & Sender.
+     * Jika apiKey / sender null, fallback ke master secret key.
+     *
+     * @param string      $phone   Nomor tujuan
+     * @param string      $message Isi pesan
+     * @param string|null $apiKey  API Key milik client (dari kolom SmartproApiKey di company)
+     * @param string|null $sender  Nomor/device pengirim client (dari kolom SmartproSender di company)
+     */
+    public function sendExpiredNotification(string $phone, string $message, ?string $apiKey = null, ?string $sender = null): bool
+    {
+        $formattedPhone = $this->formatPhone($phone);
+        if (empty($formattedPhone)) {
+            Log::warning('[SmartPro] sendExpiredNotification: nomor tidak valid: ' . $phone);
+            return false;
+        }
+
+        try {
+            if (!empty($apiKey)) {
+                // Gunakan API Key per client langsung ke endpoint /api/send
+                $response = Http::timeout(20)
+                    ->withHeaders(['Authorization' => 'Bearer ' . $apiKey])
+                    ->post("{$this->baseUrl}/api/send", [
+                        'number'  => $formattedPhone,
+                        'message' => $message,
+                        'sender'  => $sender ?? '',
+                    ]);
+            } else {
+                // Fallback: gunakan master secret key (endpoint eksternal)
+                $response = Http::timeout(20)->post("{$this->baseUrl}/api/external/send-notification", [
+                    'secret'  => $this->secretKey,
+                    'user_id' => $this->waUserId,
+                    'number'  => $formattedPhone,
+                    'message' => $message,
+                ]);
+            }
+
+            if ($response->successful()) {
+                Log::info("[SmartPro] Notif Expired terkirim ke: {$formattedPhone}");
+                return true;
+            }
+
+            Log::warning("[SmartPro] Gagal kirim Notif Expired ke {$formattedPhone}: " . $response->body());
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error("[SmartPro] Error sendExpiredNotification: " . $e->getMessage());
+            return false;
+        }
+    }
+
     // =====================================================================
     // HELPER INTERNAL
     // =====================================================================

@@ -492,6 +492,21 @@
                     allowEditing:false
                 },
                 {
+                    dataField: "NoResep",
+                    caption: "No. Resep",
+                    allowEditing:false
+                },
+                {
+                    dataField: "NamaDokter",
+                    caption: "Dokter",
+                    allowEditing:false
+                },
+                {
+                    dataField: "NamaPasien",
+                    caption: "Pasien",
+                    allowEditing:false
+                },
+                {
                     dataField: "NamaTermin",
                     caption: "Termin",
                     allowEditing:false

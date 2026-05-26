@@ -308,6 +308,13 @@
 					                            				<input type="text" class="form-control" id="HargaBeliTerakhir" name="HargaBeliTerakhir" value="{{ count($itemmaster) > 0 ? $itemmaster[0]['HargaBeliTerakhir'] : '0' }}" {{ count($itemmaster) > 0 ? $itemmaster[0]['HargaBeliTerakhir'] > 0 ? "readonly" : "" : "" }}>
 					                            			</fieldset>
 					                            		</div>
+
+					                            		<div class="col-md-4">
+					                            			<label  class="text-body">Tanggal Kedaluwarsa (ED)</label>
+					                            			<fieldset class="form-group mb-3">
+					                            				<input type="date" class="form-control" id="ExpiredDate" name="ExpiredDate" value="{{ count($itemmaster) > 0 ? $itemmaster[0]['ExpiredDate'] : '' }}">
+					                            			</fieldset>
+					                            		</div>
 					                            		<center><b>Konversi Satuan</b></center>
 					                            		<hr>
 					                            		<div class="col-md-12">
@@ -1016,6 +1023,7 @@
 			'HargaPokokPenjualan' : jQuery('#HargaPokokPenjualan').val(),
 			'HargaJual' : jQuery('#HargaJual').val(),
 			'HargaBeliTerakhir' : jQuery('#HargaBeliTerakhir').val(),
+			'ExpiredDate' : jQuery('#ExpiredDate').val(),
 			'Stock' : jQuery('#Stock').val(),
 			'StockMinimum' : jQuery('#StockMinimum').val(),
 			'isKonsinyasi' : jQuery('#isKonsinyasi').val(),

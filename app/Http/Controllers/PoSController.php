@@ -89,6 +89,19 @@ class PoSController extends Controller
                     'printer' => $printer
                 ]);
                 break;
+            case 'Apotek':
+                $viewName = "Transaksi.Penjualan.PoS.ApotekPoS";
+                return view($viewName,[
+                    'pelanggan' => $pelanggan,
+                    'company' => $company,
+                    'itemServices' =>$itemServices,
+                    'metodepembayaran' => $metodepembayaran,
+                    'sales' => $sales,
+                    'gruppelanggan' => $gruppelanggan,
+                    'provinsi' => $provinsi,
+                    'printer' => $printer
+                ]);
+                break;
             case 'FnB':
                 // alert()->error('Error','Fitur PoS untuk Bisnis FnB Belum Tersedia');
                 // return redirect()->back();
@@ -161,6 +174,9 @@ class PoSController extends Controller
                 break;
             case 'Hiburan' :
                 return redirect()->route('billing-new');
+                break;
+            case 'TiketGate':
+                return redirect()->route('ticketing-pos');
                 break;
             default:
                 alert()->error('Error','Jenis Usaha belum ada');

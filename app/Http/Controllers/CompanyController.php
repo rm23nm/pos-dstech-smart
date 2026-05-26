@@ -388,6 +388,10 @@ class CompanyController extends Controller
                     'CustomDomainKDS' => $request->input('CustomDomainKDS'),
                     'MidtransClientKey' => $request->input('MidtransClientKey'),
                     'MidtransServerKey' => $request->input('MidtransServerKey'),
+                    'ExpiredAlertDays' => empty($request->input('ExpiredAlertDays')) ? 90 : (int)$request->input('ExpiredAlertDays'),
+                    'ExpiredAlertWA' => $request->input('ExpiredAlertWA'),
+                    'SmartproApiKey' => $request->input('SmartproApiKey'),
+                    'SmartproSender' => $request->input('SmartproSender'),
                 ]);
             
                 

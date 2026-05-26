@@ -581,6 +581,58 @@
 																<input type="text" class="form-control" name="MidtransServerKey" placeholder="SB-Mid-server-..." value="{{ count($company) > 0 ? $company[0]['MidtransServerKey'] : '' }}">
 															</fieldset>
 														</div>
+
+														{{-- ===== SECTION: NOTIFIKASI EXPIRED WA ===== --}}
+														<div class="col-md-12 mt-4">
+															<hr>
+															<h4 class="mb-3"><i class="fab fa-whatsapp text-success mr-2"></i> Pengaturan Notifikasi WA Barang Expired</h4>
+															<div class="alert alert-light-success py-2 px-3 mb-4">
+																<small><i class="fas fa-bell me-1"></i> Sistem akan mengirimkan peringatan otomatis setiap hari pukul <b>08:00 pagi</b> ke nomor WA yang didaftarkan di bawah ini, jika ada barang yang mendekati atau sudah melewati tanggal kedaluwarsa.</small>
+															</div>
+														</div>
+
+														<div class="col-md-3">
+															<label class="text-body fw-bold">Hari Peringatan Expired</label>
+															<fieldset class="form-group mb-3">
+																<div class="input-group">
+																	<input type="number" class="form-control" name="ExpiredAlertDays" placeholder="90" min="1" max="365" value="{{ count($company) > 0 ? ($company[0]['ExpiredAlertDays'] ?? 90) : 90 }}">
+																	<div class="input-group-append"><span class="input-group-text">hari</span></div>
+																</div>
+																<small class="text-muted">Peringatan warna kuning akan muncul untuk barang yang akan expired dalam jumlah hari ini.</small>
+															</fieldset>
+														</div>
+
+														<div class="col-md-9">
+															<label class="text-body fw-bold">Nomor WA Tujuan Notifikasi</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="ExpiredAlertWA" placeholder="628123456789,628987654321" value="{{ count($company) > 0 ? ($company[0]['ExpiredAlertWA'] ?? '') : '' }}">
+																<small class="text-muted">Masukkan nomor WA dalam format internasional (62xxx). Untuk lebih dari satu nomor, pisahkan dengan koma. Contoh: <code>6281234567,6287654321</code></small>
+															</fieldset>
+														</div>
+
+														<div class="col-md-12 mt-2">
+															<hr>
+															<h5 class="mb-3"><i class="fas fa-key text-warning mr-2"></i> Kredensial Smartpro (Akun Client)</h5>
+															<div class="alert alert-light-warning py-2 px-3 mb-4">
+																<small><i class="fas fa-info-circle me-1"></i> Masukkan API Key dan Nomor Pengirim dari akun <b>Smartpro</b> Anda sendiri. Jika dikosongkan, sistem akan menggunakan akun Smartpro master. Login ke <a href="https://smartpro.dstechsmart.com" target="_blank">smartpro.dstechsmart.com</a> untuk mendapatkan API Key.</small>
+															</div>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Smartpro API Key</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="SmartproApiKey" placeholder="Masukkan API Key dari akun Smartpro Anda" value="{{ count($company) > 0 ? ($company[0]['SmartproApiKey'] ?? '') : '' }}">
+															</fieldset>
+														</div>
+
+														<div class="col-md-6">
+															<label class="text-body fw-bold">Nomor WA Pengirim (Device Smartpro)</label>
+															<fieldset class="form-group mb-3">
+																<input type="text" class="form-control" name="SmartproSender" placeholder="628xxx (nomor WA yang terhubung di Smartpro)" value="{{ count($company) > 0 ? ($company[0]['SmartproSender'] ?? '') : '' }}">
+															</fieldset>
+														</div>
+														{{-- ===== END SECTION ===== --}}
+
 													</div>
 												</div>
 

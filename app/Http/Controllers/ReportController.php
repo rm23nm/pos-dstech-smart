@@ -17,9 +17,159 @@ use App\Models\Gudang;
 use App\Models\KelompokRekening;
 use App\Models\Company;
 use App\Models\Rekening;
+use App\Services\SmartProService;
 
 class ReportController extends Controller
 {
+    function RptExpired(Request $request) {
+        $KodeItem = $request->input('KodeItem');
+
+        // Ambil setting alert dari company
+        $company = Company::where('KodePartner', Auth::user()->RecordOwnerID)->first();
+        $alertDays = $company->ExpiredAlertDays ?? 90;
+        
+        $sql = "itemmaster.KodeItem, itemmaster.NamaItem, itemmaster.Barcode, 
+                itemmaster.HargaPokokPenjualan, itemmaster.HargaJual, COALESCE(itemwarehouses.Qty,0) as Stock, 
+                satuan.NamaSatuan, itemmaster.ExpiredDate";
+                
+        $query = \App\Models\ItemMaster::selectRaw($sql)
+            ->leftJoin('itemwarehouses', function($join) {
+                $join->on('itemwarehouses.KodeItem', '=', 'itemmaster.KodeItem')
+                     ->on('itemwarehouses.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+            })
+            ->leftJoin('satuan', function($join) {
+                $join->on('satuan.KodeSatuan', '=', 'itemmaster.Satuan')
+                     ->on('satuan.RecordOwnerID', '=', 'itemmaster.RecordOwnerID');
+            })
+            ->where('itemmaster.RecordOwnerID', Auth::user()->RecordOwnerID)
+            ->whereNotNull('itemmaster.ExpiredDate');
+
+        if (!empty($KodeItem)) {
+            $query->where('itemmaster.KodeItem', $KodeItem);
+        }
+
+        $query->orderBy('itemmaster.ExpiredDate', 'ASC');
+
+        return view('report.inventory.LaporanExpired', [
+            'data' => $query->get(),
+            'KodeItem' => $KodeItem,
+            'alertDays' => $alertDays,
+            'company' => $company,
+        ]);
+    }
+
+    function SendExpiredWA(Request $request) {
+        $data = ['success' => false, 'message' => ''];
+        try {
+            $company = Company::where('KodePartner', Auth::user()->RecordOwnerID)->first();
+
+            if (empty($company->ExpiredAlertWA)) {
+                $data['message'] = 'Nomor WA tujuan belum diatur di Pengaturan Perusahaan.';
+                return response()->json($data);
+            }
+
+            $alertDays = $company->ExpiredAlertDays ?? 90;
+            $namaToko  = $company->NamaPartner ?? 'Toko';
+            $today     = now()->format('d-m-Y');
+            $threshold = now()->addDays($alertDays)->format('Y-m-d');
+
+            // Ambil barang sudah expired
+            $sudahExpired = \App\Models\ItemMaster::selectRaw(
+                    "itemmaster.NamaItem, COALESCE(itemwarehouses.Qty,0) as Stock, 
+                     satuan.NamaSatuan, itemmaster.ExpiredDate")
+                ->leftJoin('itemwarehouses', function($j) {
+                    $j->on('itemwarehouses.KodeItem','=','itemmaster.KodeItem')
+                      ->on('itemwarehouses.RecordOwnerID','=','itemmaster.RecordOwnerID');
+                })
+                ->leftJoin('satuan', function($j) {
+                    $j->on('satuan.KodeSatuan','=','itemmaster.Satuan')
+                      ->on('satuan.RecordOwnerID','=','itemmaster.RecordOwnerID');
+                })
+                ->where('itemmaster.RecordOwnerID', Auth::user()->RecordOwnerID)
+                ->whereNotNull('itemmaster.ExpiredDate')
+                ->whereDate('itemmaster.ExpiredDate', '<', now()->format('Y-m-d'))
+                ->orderBy('itemmaster.ExpiredDate', 'ASC')
+                ->get();
+
+            // Ambil barang akan expired
+            $akanExpired = \App\Models\ItemMaster::selectRaw(
+                    "itemmaster.NamaItem, COALESCE(itemwarehouses.Qty,0) as Stock, 
+                     satuan.NamaSatuan, itemmaster.ExpiredDate")
+                ->leftJoin('itemwarehouses', function($j) {
+                    $j->on('itemwarehouses.KodeItem','=','itemmaster.KodeItem')
+                      ->on('itemwarehouses.RecordOwnerID','=','itemmaster.RecordOwnerID');
+                })
+                ->leftJoin('satuan', function($j) {
+                    $j->on('satuan.KodeSatuan','=','itemmaster.Satuan')
+                      ->on('satuan.RecordOwnerID','=','itemmaster.RecordOwnerID');
+                })
+                ->where('itemmaster.RecordOwnerID', Auth::user()->RecordOwnerID)
+                ->whereNotNull('itemmaster.ExpiredDate')
+                ->whereDate('itemmaster.ExpiredDate', '>=', now()->format('Y-m-d'))
+                ->whereDate('itemmaster.ExpiredDate', '<=', $threshold)
+                ->orderBy('itemmaster.ExpiredDate', 'ASC')
+                ->get();
+
+            if ($sudahExpired->isEmpty() && $akanExpired->isEmpty()) {
+                $data['success'] = true;
+                $data['message'] = 'Tidak ada barang yang expired atau mendekati expired. Notifikasi tidak dikirim.';
+                return response()->json($data);
+            }
+
+            // Susun pesan WA
+            $pesan = "\u{1F6A8} *PERINGATAN EXPIRED BARANG* \u{1F6A8}\n";
+            $pesan .= "*{$namaToko}*\n";
+            $pesan .= "Tanggal: {$today}\n\n";
+            $pesan .= "Berikut barang yang perlu diperhatikan:\n";
+
+            if ($sudahExpired->isNotEmpty()) {
+                $pesan .= "\n\u{26D4} *SUDAH EXPIRED:*\n";
+                foreach ($sudahExpired as $item) {
+                    $ed = \Carbon\Carbon::parse($item->ExpiredDate)->format('d-m-Y');
+                    $pesan .= "\u{2022} {$item->NamaItem} | Stok: {$item->Stock} {$item->NamaSatuan} | ED: {$ed}\n";
+                }
+            }
+
+            if ($akanExpired->isNotEmpty()) {
+                $pesan .= "\n\u{26A0}\uFE0F *AKAN EXPIRED (dalam {$alertDays} hari):*\n";
+                foreach ($akanExpired as $item) {
+                    $ed = \Carbon\Carbon::parse($item->ExpiredDate)->format('d-m-Y');
+                    $pesan .= "\u{2022} {$item->NamaItem} | Stok: {$item->Stock} {$item->NamaSatuan} | ED: {$ed}\n";
+                }
+            }
+
+            $pesan .= "\nMohon segera ditindaklanjuti. \u{1F64F}";
+
+            // Kirim ke semua nomor tujuan
+            $nomors = array_filter(array_map('trim', explode(',', $company->ExpiredAlertWA)));
+
+            // Gunakan SmartPro per-client jika ada, fallback ke master
+            $apiKey = $company->SmartproApiKey ?? null;
+            $sender = $company->SmartproSender ?? null;
+
+            $sent = 0;
+            $failed = 0;
+            foreach ($nomors as $nomor) {
+                try {
+                    $smartpro = new SmartProService();
+                    $ok = $smartpro->sendExpiredNotification($nomor, $pesan, $apiKey, $sender);
+                    if ($ok) $sent++; else $failed++;
+                } catch (\Exception $e) {
+                    Log::error('[ExpiredWA] Gagal kirim ke ' . $nomor . ': ' . $e->getMessage());
+                    $failed++;
+                }
+            }
+
+            $data['success'] = true;
+            $data['message'] = "Notifikasi WA terkirim ke {$sent} nomor" . ($failed > 0 ? ", gagal {$failed} nomor." : '.');
+
+        } catch (\Exception $e) {
+            Log::error('[SendExpiredWA] ' . $e->getMessage());
+            $data['message'] = $e->getMessage();
+        }
+        return response()->json($data);
+    }
+
     function KartuStock(Request $request){
 
         $TglAwal = $request->input('TglAwal');

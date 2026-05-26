@@ -269,6 +269,7 @@ class ItemMasterController extends Controller
           $model->KodeItem = $jsonData['KodeItem'];
           $model->NamaItem = $jsonData['NamaItem'];
           $model->KodeJenisItem = empty($jsonData['KodeJenisItem']) ? "" : $jsonData['KodeJenisItem'];
+          $model->ExpiredDate = empty($jsonData['ExpiredDate']) ? null : $jsonData['ExpiredDate'];
           $model->KodeMerk = empty($jsonData['KodeMerk']) ? "" : $jsonData['KodeMerk'];
           $model->TypeItem = empty($jsonData['TypeItem']) ? "" : $jsonData['TypeItem'];
           $model->Rak = empty($jsonData['Rak']) ? "" : $jsonData['Rak'];
@@ -437,6 +438,7 @@ class ItemMasterController extends Controller
               \App\Services\DBLogger::update('itemmaster', ['KodeItem' => $request->input('KodeItem'), 'RecordOwnerID' => Auth::user()->RecordOwnerID], [
                     'NamaItem' => $jsonData['NamaItem'],
                     'KodeJenisItem' => empty($jsonData['KodeJenisItem']) ? "" : $jsonData['KodeJenisItem'],
+                    'ExpiredDate' => empty($jsonData['ExpiredDate']) ? null : $jsonData['ExpiredDate'],
                     'KodeMerk' => empty($jsonData['KodeMerk']) ? "" : $jsonData['KodeMerk'],
                     'TypeItem' => empty($jsonData['TypeItem']) ? "" : $jsonData['TypeItem'],
                     'Rak' => empty($jsonData['Rak']) ? "" : $jsonData['Rak'],

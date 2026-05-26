@@ -20,6 +20,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('table:sync-status')->everyMinute();
         $schedule->command('table:check-finished')->everyMinute();
         $schedule->command('subscription:process-status')->dailyAt('00:05');
+        $schedule->command('cron:cleanup-dormant')->dailyAt('00:30');
+        // Kirim notifikasi WA barang expired setiap hari pukul 08:00
+        $schedule->command('expired:send-alert')->dailyAt('08:00');
     }
 
     /**

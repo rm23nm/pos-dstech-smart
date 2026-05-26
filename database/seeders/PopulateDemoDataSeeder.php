@@ -535,5 +535,239 @@ class PopulateDemoDataSeeder extends Seeder
         $setupCompanyRolesAndPermissions('CL0010', 'gor.servicepos@pos.dstechsmart.com', '2003');
         $setupCompanyRolesAndPermissions('CL0013', 'demoresto@pos.dstechsmart.com', 'PFNB003');
         $setupCompanyRolesAndPermissions('CL0014', 'demoretail@pos.dstechsmart.com', '2022');
+
+        // ----------------------------------------------------
+        // 7. CONFIGURE DEMO APOTEK ACCOUNT (demoapotek)
+        // ----------------------------------------------------
+        // A. Setup master data
+        DB::table('gruppelanggan')->updateOrInsert(
+            ['KodeGrup' => '1001', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaGrup' => 'UMM', 'LevelHarga' => 1, 'DiskonPersen' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('pelanggan')->updateOrInsert(
+            ['KodePelanggan' => 'CUST-UMUM', 'RecordOwnerID' => 'demoapotek'],
+            [
+                'NamaPelanggan' => 'Pelanggan Umum',
+                'KodeGrupPelanggan' => '1001',
+                'Status' => 1,
+                'ProvID' => -1,
+                'KotaID' => -1,
+                'KelID' => -1,
+                'KecID' => -1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        DB::table('gudang')->updateOrInsert(
+            ['KodeGudang' => 'UMM', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaGudang' => 'Gudang Utama Apotek', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('satuan')->updateOrInsert(
+            ['KodeSatuan' => 'TABLET', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaSatuan' => 'Tablet', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+        DB::table('satuan')->updateOrInsert(
+            ['KodeSatuan' => 'BOTOL', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaSatuan' => 'Botol', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+        DB::table('satuan')->updateOrInsert(
+            ['KodeSatuan' => 'STRIP', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaSatuan' => 'Strip', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('jenisitem')->updateOrInsert(
+            ['KodeJenis' => 'OBAT_BEBAS', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaJenis' => 'Obat Bebas', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+        DB::table('jenisitem')->updateOrInsert(
+            ['KodeJenis' => 'OBAT_RESEP', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaJenis' => 'Obat Resep/Keras', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+        DB::table('jenisitem')->updateOrInsert(
+            ['KodeJenis' => 'ALKES', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaJenis' => 'Alat Kesehatan', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('merk')->updateOrInsert(
+            ['KodeMerk' => 'GENERIK', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaMerk' => 'Obat Generik', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+        DB::table('merk')->updateOrInsert(
+            ['KodeMerk' => 'PATEN', 'RecordOwnerID' => 'demoapotek'],
+            ['NamaMerk' => 'Obat Paten', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('supplier')->updateOrInsert(
+            ['KodeSupplier' => 'SP0001', 'RecordOwnerID' => 'demoapotek'],
+            [
+                'NamaSupplier' => 'PBF Kalbe Farma',
+                'Status' => 1,
+                'NoTlp1' => '081234567890',
+                'Alamat' => '-',
+                'Email' => '-',
+                'ProvID' => -1,
+                'KotaID' => -1,
+                'KelID' => -1,
+                'KecID' => -1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        DB::table('settingaccount')->updateOrInsert(
+            ['RecordOwnerID' => 'demoapotek'],
+            [
+                'InvAcctHargaPokokPenjualan' => 5110001,
+                'InvAcctPendapatanJual' => 4110001,
+                'InvAcctPendapatanJasa' => 4110002,
+                'InvAcctPersediaan' => 1310001,
+                'InvAcctPendapatanNonInventory' => 4110003,
+                'InvAcctPendapatanLainLain' => 4110003,
+                'InvAcctPenyesuaiaanStockMasuk' => 7111001,
+                'InvAcctPenyesuaiaanStockKeluar' => 8111001,
+                'PbAcctPajakPembelian' => 1130001,
+                'PbAcctPembayaranTunai' => 1110001,
+                'PbAcctPembayaranNonTunai' => 1120001,
+                'PbAcctHutang' => 2110001,
+                'PbAcctUangMukaPembelian' => 1410001,
+                'PjAcctPajakPenjualan' => 2130001,
+                'PjAcctPenjualanTunai' => 1110001,
+                'PjAcctPenjualanNonTunai' => 1120001,
+                'PjAcctPiutang' => 1140001,
+                'PjAcctUangMukaPenjualan' => 4120001,
+                'PjAcctGoodsInTransit' => 1310002,
+                'PjAcctReturnPenjualan' => 4120001,
+                'PjAcctPajakHiburan' => 2130002,
+                'KnAcctHutangKonsinyasi' => 2110001,
+                'KnAcctPembayaranHutang' => 1110001,
+                'KnAcctPenerimaanKonsinyasi' => 2110002,
+                'OthAcctModal' => 3110001,
+                'OthAcctPrive' => 3110004,
+                'OthAcctLabaDitahan' => 3110002,
+                'OthAcctLabaTahunBerjalan' => 3110003,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        // B. Seed Products
+        $apotekProducts = [
+            [
+                'KodeItem' => 'APT-0001',
+                'NamaItem' => 'Paracetamol 500mg Strip',
+                'KodeJenisItem' => 'OBAT_BEBAS',
+                'KodeMerk' => 'GENERIK',
+                'Satuan' => 'STRIP',
+                'HargaJual' => 8500,
+                'HargaPokok' => 5000,
+                'Barcode' => 'APT0001',
+                'Gambar' => '/images/apotek/paracetamol.png',
+                'Stock' => 250
+            ],
+            [
+                'KodeItem' => 'APT-0002',
+                'NamaItem' => 'Amoxicillin 500mg Strip',
+                'KodeJenisItem' => 'OBAT_RESEP',
+                'KodeMerk' => 'GENERIK',
+                'Satuan' => 'STRIP',
+                'HargaJual' => 15000,
+                'HargaPokok' => 10000,
+                'Barcode' => 'APT0002',
+                'Gambar' => '/images/apotek/amoxicillin.png',
+                'Stock' => 150
+            ],
+            [
+                'KodeItem' => 'APT-0003',
+                'NamaItem' => 'OBH Tropica Cough Syrup 100ml',
+                'KodeJenisItem' => 'OBAT_BEBAS',
+                'KodeMerk' => 'PATEN',
+                'Satuan' => 'BOTOL',
+                'HargaJual' => 22000,
+                'HargaPokok' => 16000,
+                'Barcode' => 'APT0003',
+                'Gambar' => '/images/apotek/obh_cough_syrup.png',
+                'Stock' => 80
+            ],
+            [
+                'KodeItem' => 'APT-0004',
+                'NamaItem' => 'Vitamin C 1000mg Tube',
+                'KodeJenisItem' => 'OBAT_BEBAS',
+                'KodeMerk' => 'PATEN',
+                'Satuan' => 'BOTOL',
+                'HargaJual' => 45000,
+                'HargaPokok' => 32000,
+                'Barcode' => 'APT0004',
+                'Gambar' => '/images/apotek/vitamin_c.png',
+                'Stock' => 120
+            ],
+            [
+                'KodeItem' => 'APT-0005',
+                'NamaItem' => 'Betadine Antiseptic Solution 30ml',
+                'KodeJenisItem' => 'OBAT_BEBAS',
+                'KodeMerk' => 'PATEN',
+                'Satuan' => 'BOTOL',
+                'HargaJual' => 28500,
+                'HargaPokok' => 20000,
+                'Barcode' => 'APT0005',
+                'Gambar' => '/images/apotek/betadine.png',
+                'Stock' => 90
+            ],
+            [
+                'KodeItem' => 'APT-0006',
+                'NamaItem' => 'Masker Medis 3-Ply Box 50s',
+                'KodeJenisItem' => 'ALKES',
+                'KodeMerk' => 'PATEN',
+                'Satuan' => 'STRIP',
+                'HargaJual' => 35000,
+                'HargaPokok' => 22000,
+                'Barcode' => 'APT0006',
+                'Gambar' => '/images/apotek/medical_mask.png',
+                'Stock' => 60
+            ],
+        ];
+
+        foreach ($apotekProducts as $prod) {
+            $itemmasterPayload = $filterPayload('itemmaster', [
+                'KodeItem' => $prod['KodeItem'],
+                'NamaItem' => $prod['NamaItem'],
+                'KodeJenisItem' => $prod['KodeJenisItem'],
+                'KodeMerk' => $prod['KodeMerk'],
+                'TypeItem' => 1, // Inventory
+                'Rak' => '-',
+                'KodeGudang' => 'UMM',
+                'KodeSupplier' => 'SP0001',
+                'Satuan' => $prod['Satuan'],
+                'Barcode' => $prod['Barcode'],
+                'Gambar' => $prod['Gambar'],
+                'HargaPokokPenjualan' => $prod['HargaPokok'],
+                'HargaJual' => $prod['HargaJual'],
+                'HargaBeliTerakhir' => $prod['HargaPokok'],
+                'Stock' => $prod['Stock'],
+                'StockMinimum' => 5,
+                'isKonsinyasi' => 'N',
+                'Active' => 'Y',
+                'AcctHPP' => 5110001,
+                'AcctPenjualan' => 4110001,
+                'AcctPenjualanJasa' => 4110002,
+                'AcctPersediaan' => 1310001,
+                'VatPercent' => 0,
+                'TampilkanEMenu' => 0,
+                'isFlashSale' => 'N',
+                'FlashSalePrice' => 0,
+                'isBestSeller' => 'N',
+                'RecordOwnerID' => 'demoapotek',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+            DB::table('itemmaster')->updateOrInsert(
+                ['KodeItem' => $prod['KodeItem'], 'RecordOwnerID' => 'demoapotek'],
+                $itemmasterPayload
+            );
+        }
+
+        $setupCompanyRolesAndPermissions('demoapotek', 'demoapotek@pos.dstechsmart.com', 'PKT-APOTEK-12');
     }
 }

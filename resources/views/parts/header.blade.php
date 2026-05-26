@@ -435,17 +435,28 @@
 													// Check submenus to differentiate billiard controller from system serial number controller
 													$isSystemController = false;
 													if (!empty($lv2['submenu'])) {
-														foreach ($lv2['submenu'] as $lv3) {
+														foreach ($lv2['submenu'] as $keyLv3 => $lv3) {
 															$l3Name = strtolower(trim($lv3['PermissionName']));
+															
+															// Filter out Lampu and Table Order for TiketGate
+															if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] === 'TiketGate') {
+																if (str_contains($l3Name, 'lampu') || str_contains($l3Name, 'table order')) {
+																	unset($lv2['submenu'][$keyLv3]);
+																	continue;
+																}
+															}
+															
 															if (str_contains($l3Name, 'serial number') || str_contains($l3Name, 'generator')) {
 																$isSystemController = true;
-																break;
 															}
 														}
 													}
 													if ($isSystemController) {
 														$targetCat = 'system';
 													} else {
+														if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] === 'TiketGate') {
+															continue;
+														}
 														$targetCat = 'billiard';
 													}
 												} elseif ($l2Name === 'item master data') {
@@ -535,6 +546,16 @@
 												} elseif (in_array($l2Name, ['autorisasi', 'pengguna'])) {
 													$targetCat = 'system';
 												} elseif ($l2Name === 'paket') {
+													if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] === 'TiketGate') {
+														if (!empty($lv2['submenu'])) {
+															foreach ($lv2['submenu'] as $keyLv3 => $lv3) {
+																$l3Name = strtolower(trim($lv3['PermissionName']));
+																if (str_contains($l3Name, 'lampu') || str_contains($l3Name, 'paket transaksi')) {
+																	unset($lv2['submenu'][$keyLv3]);
+																}
+															}
+														}
+													}
 													$targetCat = 'billiard';
 												} elseif ($l2Name === 'paket member') {
 													$targetCat = 'billiard';
@@ -747,10 +768,15 @@
 					<div class="topbar">	
 						
 						<div class="posicon d-lg-flex d-none">
-							<a href="{{ url('gate/logs') }}" class="btn btn-info white me-2">Log Gate</a>
-							<a href="{{ url('fpenjualan/pos') }}" class="btn btn-primary white me-2">POS</a>
+							@if(isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] === 'TiketGate')
+								<a href="{{ url('gate/logs') }}" class="btn btn-info white me-2">Log Gate</a>
+								<a href="{{ url('fpenjualan/pos') }}" class="btn btn-primary white me-2">POS Tiket</a>
+							@else
+								<a href="{{ url('fpenjualan/pos') }}" class="btn btn-primary white me-2">
+									<i class="fas fa-cash-register mr-1"></i> POS Kasir
+								</a>
+							@endif
 						</div>
-					
 
 						<!--begin::Quick Actions-->
 						<div class="dropdown">

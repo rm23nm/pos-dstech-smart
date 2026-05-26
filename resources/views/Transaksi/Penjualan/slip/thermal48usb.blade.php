@@ -159,8 +159,18 @@
             </tr>
             <tr>
                 <td>Cashier #: <span>{{$faktur[0]['Cashier'] }}</span></td>
-                {{-- <td>Bill # : <span>yyyy</span></td> --}}
             </tr>
+            @if(isset($faktur[0]['NoResep']) && $faktur[0]['NoResep'])
+            <tr>
+                <td>Resep : <span>{{$faktur[0]['NoResep']}}</span></td>
+            </tr>
+            <tr>
+                <td>Dokter: <span>{{$faktur[0]['NamaDokter']}}</span></td>
+            </tr>
+            <tr>
+                <td>Pasien: <span>{{$faktur[0]['NamaPasien']}}</span></td>
+            </tr>
+            @endif
             <tr>
                 <th class="center-align" colspan="2"><span class="receipt">Original Receipt</span></th>
             </tr>

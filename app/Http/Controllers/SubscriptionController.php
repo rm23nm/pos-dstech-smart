@@ -44,6 +44,10 @@ class SubscriptionController extends Controller
                         // ->where('permissionrole.roleid','=',$userrole->roleid)
                         // ->where('permissionrole.RecordOwnerID','=', Auth::user()->RecordOwnerID)
                         ->where("permission.Status","=","1")
+                        ->where(function($q) {
+                            $q->whereNull("permission.isSuperAdmin")
+                              ->orWhere("permission.isSuperAdmin", 0);
+                        })
                         ->where("permission.Level","=","1")->get();
 
         foreach ($permissionrole as $lv1) {
@@ -65,6 +69,10 @@ class SubscriptionController extends Controller
                     // ->where('permissionrole.roleid','=',$userrole->roleid)
                     // ->where('permissionrole.RecordOwnerID','=', Auth::user()->RecordOwnerID)
                     ->where("permission.Status","=","1")
+                    ->where(function($q) {
+                        $q->whereNull("permission.isSuperAdmin")
+                          ->orWhere("permission.isSuperAdmin", 0);
+                    })
                     ->where("permission.Level","=","2")
                     ->where("permission.MenuInduk","=",$lv1->id)
                     ->get();
@@ -87,6 +95,10 @@ class SubscriptionController extends Controller
                     // ->where('permissionrole.roleid','=',$userrole->roleid)
                     // ->where('permissionrole.RecordOwnerID','=', Auth::user()->RecordOwnerID)
                     ->where("permission.Status","=","1")
+                    ->where(function($q) {
+                        $q->whereNull("permission.isSuperAdmin")
+                          ->orWhere("permission.isSuperAdmin", 0);
+                    })
                     ->where("permission.Level","=","3")
                     ->where("permission.MenuInduk","=",$lv2->id)
                     ->get();
