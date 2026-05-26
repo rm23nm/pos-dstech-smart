@@ -21,6 +21,12 @@
 | Sesi Sekarang | **Pengelompokan Menu Controller & Generator Lisensi** | **Selesai** | Mengatur letak menu Lampu Serial Number Generator & Gate Serial Number Generator ke dalam folder "Controller" di bawah "Sistem & Pengaturan". Memperbaiki visual mapping di `header.blade.php` agar mendeteksi submenu sehingga tidak tertukar dengan menu Controller pada Sewa Billing & IoT. |
 | Sesi Sekarang | **Penyelarasan Multi-Tenant Live & Session Isolation** | **Selesai** | Mengatur session domain wildcard (`.pos.dstechsmart.com`) agar fitur KDS dan layar antrean di subdomain bisa diakses tanpa login ulang. Menambahkan pencegahan cross-tenant access di `DomainDetectionMiddleware.php` yang akan mem-force logout jika user tenant lain mencoba mengakses subdomain yang bukan miliknya. |
 | Sesi Sekarang | **Monitoring Log Transaksi Demo** | **Selesai** | Mengimplementasikan Audit Trail pada kasir Retail, F&B, dan Hiburan (`FakturPenjualanController`). Transaksi oleh akun demo akan di-log secara senyap ke dalam file teks `storage/logs/demo_transactions.log` tanpa merubah database. |
+| Sesi Sekarang | **Sinkronisasi Database (Live ke Lokal)** | **Selesai** | Melakukan backup database live menggunakan `mysqldump` dan mengimpornya ke database lokal `xpos` setelah membersihkan file dari comment sandbox mode serta meningkatkan `max_allowed_packet` ke 512MB. |
+| Sesi Sekarang | **Penyediaan Akun Demo Apotek & Tiket/Gate** | **Selesai** | Memperbarui `PopulateDemoDataSeeder.php` untuk mendaftarkan profil company dan user admin demo `demoapotek` (Apotek) dan `demogate` (Tiket/Gate), melengkapi data master/produk, mensinkronisasikan hak akses paket (Retail & Hiburan), serta mengeksekusi seeding di database Lokal dan Live VPS via SSH. |
+| Sesi Sekarang | **Restorasi Kolom Khusus Apotek (`NoResep`, `ExpiredDate`, dll)** | **Selesai** | Menambahkan logic pada `setup_demo_apotek.php` untuk merestorasi kolom `NoResep`, `NamaDokter`, `NamaPasien` di tabel `fakturpenjualanheader` dan `ExpiredDate` di tabel `itemmaster` pada database Lokal dan Live. Mengatasi error 500 saat memuat data POS Apotek. |
+| Sesi Sekarang | **Penyalinan Ulang Metode Pembayaran untuk Seluruh Demo** | **Selesai** | Mengeksekusi script `copy_payment_methods.php` pada database Lokal dan Live. Mengembalikan dan mengisi ulang metode pembayaran (Cash, Qris, Transfer, EDC) yang sempat kosong pada akun-akun demo agar modal kasir/pembayaran berfungsi normal. |
+| Sesi Sekarang | **Perbaikan Error KodeTermin Null (Simpan Transaksi)** | **Selesai** | Membuat default termin COD untuk semua akun demo (`demoapotek`, `CL0010`, `CL0013`, `CL0014`) dan menyetel `TerminBayarPoS` pada seting perusahaan melalui script `fix_all_companies_settings.php`. |
+| Sesi Sekarang | **Perbaikan Pilihan Metode Pembayaran Tidak Bisa Diklik** | **Selesai** | Mengubah selektor jQuery dari `$('#'+item.id)` menjadi `$(item)` pada file views `ApotekPoS.blade.php`, `FnBPoS.blade.php`, `NormalPoS.blade.php`, dan `NormalPoS_Premium.blade.php` agar kompatibel dengan ID numerik. |
 
 
 ---
@@ -80,7 +86,16 @@
 *   **Deskripsi**: Menambahkan Audit Trail khusus untuk mencatat transaksi yang dilakukan oleh akun demo (`CL0014`, `demoapotek`, `DEMOGATE`). Logika pencatatan disisipkan pada tiga controller kasir (Retail, F&B, dan Hiburan) dalam `FakturPenjualanController`. Jika terdeteksi transaksi dari akun demo, sistem akan menuliskannya secara persisten ke dalam `storage/logs/demo_transactions.log`. Cara ini diambil sebagai langkah teraman yang tidak memerlukan modifikasi tabel database sesuai dengan standar instruksi pengguna, namun tetap memberikan keandalan tracking aktivitas demo di server live.
 *   **Status**: **Selesai (100%)**
 
+### Langkah 13: Perbaikan Error KodeTermin Null saat Simpan Transaksi POS
+*   **Deskripsi**: Mengatasi error database constraint `Column 'KodeTermin' cannot be null` saat checkout transaksi demo. Ditemukan bahwa kolom `TerminBayarPoS` pada tabel `company` bernilai kosong (null/empty) untuk beberapa perusahaan demo, sehingga checkout POS mengirim data null. Dibuat dan dijalankan script `fix_all_companies_settings.php` baik di database Lokal maupun Live VPS untuk membuat termin COD secara otomatis dan menyetelnya sebagai termin default POS untuk semua akun demo (`demoapotek`, `CL0010`, `CL0013`, `CL0014`).
+*   **Status**: **Selesai (100%)**
+
+### Langkah 14: Perbaikan Tombol Metode Pembayaran POS Tidak Bisa Diklik
+*   **Deskripsi**: Mengatasi masalah tombol pilihan metode pembayaran tidak merespon saat diklik pada modal checkout POS. Hal ini disebabkan selektor jQuery `$('#'+item.id)` gagal memproses ID numerik murni (misal `#185`) untuk menarik data atribut `StsPyment`, `CaraVerifikasi`, dan `TipePembayaran`, sehingga bernilai `undefined`. Logika Javascript diperbaiki di 4 view POS (`ApotekPoS.blade.php`, `FnBPoS.blade.php`, `NormalPoS.blade.php`, `NormalPoS_Premium.blade.php`) menggunakan data objek DOM `$(item)` secara langsung. File-file view dicadangkan di folder `BackupUbah` terlebih dahulu sesuai regulasi backup.
+*   **Status**: **Selesai (100%)**
+
 ---
 
 ## 3. Antrean Pekerjaan Kedepan (Queue)
 *(Saat ini belum ada antrean pekerjaan baru. Menunggu instruksi selanjutnya dari User)*
+

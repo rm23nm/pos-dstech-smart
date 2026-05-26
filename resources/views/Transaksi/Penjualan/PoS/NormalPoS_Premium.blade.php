@@ -1988,9 +1988,9 @@ License: You must have a valid license purchased only from themeforest(the above
 	            listItems.forEach(i => i.classList.remove('active'));
 
 	            // Add active class to the clicked item
-	            var Sts = $('#'+item.id).attr('stspyment');
-				_MetodeVerifikasiPembayaran = $('#'+item.id).attr('CaraVerifikasi');
-				_TipePembayaran = $('#'+item.id).attr('TipePembayaran');
+	            var Sts = $(item).attr('StsPyment') || $(item).attr('stspyment');
+				_MetodeVerifikasiPembayaran = $(item).attr('CaraVerifikasi') || $(item).attr('caraverifikasi');
+				_TipePembayaran = $(item).attr('TipePembayaran') || $(item).attr('tipepembayaran');
 				
 	            if (Sts =='Y') {
 	            	item.classList.add('active');
