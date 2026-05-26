@@ -179,6 +179,8 @@ class LoginController extends Controller
     public function action_login(Request $request)
     {
         try {
+            \Log::debug('ENTERED action_login: email=' . $request->input('email'));
+            
             $this->validate($request, [
                 'email'=>'required',
                 'password'=>'required',
@@ -256,10 +258,11 @@ class LoginController extends Controller
                     ];
 
                     if (!in_array(strtolower($user->email), $demoEmails)) {
-                        if ($user->current_session_id && Session::getHandler()->read($user->current_session_id)) {
-                            Auth::logout();
-                            throw new \Exception('Akun hanya bisa login di satu device saja');
-                            goto jump;
+                        if ($user->current_session_id && $user->current_session_id !== Session::getId()) {
+                            if (Session::getHandler()->read($user->current_session_id)) {
+                                // Hapus session lama dari file/redis agar device lama langsung ter-logout
+                                Session::getHandler()->destroy($user->current_session_id);
+                            }
                         }
                     }
 

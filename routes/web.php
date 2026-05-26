@@ -1533,3 +1533,9 @@ Route::get('/debug-kds', function() { return response()->json(\DB::table('permis
 Route::get('/debug-antrean', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Antrean%')->get()); });
 Route::get('/debug-users2', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->where('RoleID', 1)->orWhere('name', 'like', '%admin%')->take(10)->get()); });
 Route::get('/debug-users3', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->take(5)->get()); });
+
+Route::get('/test-db', function() {
+    $user = App\Models\User::where('email', 'fulladmin@gmail.com')->first();
+    $company = App\Models\Company::where('KodePartner', $user ? $user->RecordOwnerID : '')->first();
+    return response()->json(['user' => $user, 'company' => $company]);
+});
