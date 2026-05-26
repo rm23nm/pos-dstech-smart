@@ -896,6 +896,21 @@ $updateData = [
 	        else{
 		        DB::commit();
 		        $data['success'] = true;
+                
+                // [Demo Audit Trail]
+                $demoAccounts = ['CL0014', 'demoapotek', 'DEMOGATE', '999999'];
+                if (in_array(\Illuminate\Support\Facades\Auth::user()->RecordOwnerID, $demoAccounts)) {
+                    \Illuminate\Support\Facades\Log::build([
+                        'driver' => 'single',
+                        'path' => storage_path('logs/demo_transactions.log'),
+                    ])->info('Demo Transaction POS FnB', [
+                        'Tenant' => \Illuminate\Support\Facades\Auth::user()->RecordOwnerID,
+                        'User' => \Illuminate\Support\Facades\Auth::user()->name,
+                        'NoTransaksi' => $NoTransaksi ?? 'N/A',
+                        'Total' => $jsonData['TotalTagihan'] ?? 0,
+                        'Waktu' => \Carbon\Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ]);
+                }
 	        }
 
 		} catch (\Exception $e) {
@@ -1489,6 +1504,21 @@ $updateData = [
 	        else{
 		        DB::commit();
 		        $data['success'] = true;
+                
+                // [Demo Audit Trail]
+                $demoAccounts = ['CL0014', 'demoapotek', 'DEMOGATE', '999999'];
+                if (in_array(\Illuminate\Support\Facades\Auth::user()->RecordOwnerID, $demoAccounts)) {
+                    \Illuminate\Support\Facades\Log::build([
+                        'driver' => 'single',
+                        'path' => storage_path('logs/demo_transactions.log'),
+                    ])->info('Demo Transaction POS Hiburan', [
+                        'Tenant' => \Illuminate\Support\Facades\Auth::user()->RecordOwnerID,
+                        'User' => \Illuminate\Support\Facades\Auth::user()->name,
+                        'NoTransaksi' => $NoTransaksi ?? 'N/A',
+                        'Total' => $jsonData['TotalTagihan'] ?? 0,
+                        'Waktu' => \Carbon\Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ]);
+                }
 	        }
 
 		} catch (\Throwable $th) {
@@ -2495,6 +2525,21 @@ $updateData = [
 			} else {
 				DB::commit();
 				$data['success'] = true;
+                
+                // [Demo Audit Trail]
+                $demoAccounts = ['CL0014', 'demoapotek', 'DEMOGATE', '999999'];
+                if (in_array(\Illuminate\Support\Facades\Auth::user()->RecordOwnerID, $demoAccounts)) {
+                    \Illuminate\Support\Facades\Log::build([
+                        'driver' => 'single',
+                        'path' => storage_path('logs/demo_transactions.log'),
+                    ])->info('Demo Transaction POS Retail', [
+                        'Tenant' => \Illuminate\Support\Facades\Auth::user()->RecordOwnerID,
+                        'User' => \Illuminate\Support\Facades\Auth::user()->name,
+                        'NoTransaksi' => $NoTransaksi ?? 'N/A',
+                        'Total' => $jsonData['TotalTagihan'] ?? 0,
+                        'Waktu' => \Carbon\Carbon::now('Asia/Jakarta')->toDateTimeString()
+                    ]);
+                }
 				$data['LastTRX'] = $NoTransaksi;
 			}
 		} catch (Exception $e) {

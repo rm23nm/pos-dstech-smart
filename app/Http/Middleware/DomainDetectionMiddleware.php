@@ -31,6 +31,21 @@ class DomainDetectionMiddleware
             if ($company) {
                 $request->attributes->set('detected_roid', $company->KodePartner);
                 
+                // Tenant Isolation Check
+                if (\Illuminate\Support\Facades\Auth::check()) {
+                    $user = \Illuminate\Support\Facades\Auth::user();
+                    // Allow superadmin (999999) or the exact tenant owner
+                    if ($user->RecordOwnerID !== '999999' && $user->RecordOwnerID !== $company->KodePartner) {
+                        // User from different tenant trying to access this subdomain
+                        \Illuminate\Support\Facades\Auth::logout();
+                        session()->invalidate();
+                        session()->regenerateToken();
+                        
+                        return redirect('/login')
+                            ->withErrors(['message' => 'Akses ditolak. Anda login sebagai tenant lain. Sesi Anda telah dihentikan untuk keamanan.']);
+                    }
+                }
+                
                 // Determine the context type
                 if ($host === $company->CustomDomain) {
                     $request->attributes->set('domain_context', 'STORE');

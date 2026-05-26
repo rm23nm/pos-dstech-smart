@@ -19,6 +19,9 @@
 | Sesi Sekarang | **Penambahan Akun Demo Live & Seeding 100 Produk F&B + 100 Produk Retail** | **Selesai** | Menambahkan akun demo dan produk demo lengkap dengan gambar di VPS Live serta meng-update email demo hiburan lama. Mengatur password semua akun demo menjadi `12345678` agar sinkron dengan tombol auto-login. |
 | Sesi Sekarang | **Pembuatan Fitur Manajemen Perangkat Gate (Tripod Gate)** | **Selesai** | Memastikan keberadaan tabel `gate_devices`, membuat `GateDeviceController.php`, 2 file view (devices dan form input), rute di `web.php`, serta mendaftarkan dan memunculkan menu dinamis ke kelompok "Sewa Billing & IoT". |
 | Sesi Sekarang | **Pengelompokan Menu Controller & Generator Lisensi** | **Selesai** | Mengatur letak menu Lampu Serial Number Generator & Gate Serial Number Generator ke dalam folder "Controller" di bawah "Sistem & Pengaturan". Memperbaiki visual mapping di `header.blade.php` agar mendeteksi submenu sehingga tidak tertukar dengan menu Controller pada Sewa Billing & IoT. |
+| Sesi Sekarang | **Penyelarasan Multi-Tenant Live & Session Isolation** | **Selesai** | Mengatur session domain wildcard (`.pos.dstechsmart.com`) agar fitur KDS dan layar antrean di subdomain bisa diakses tanpa login ulang. Menambahkan pencegahan cross-tenant access di `DomainDetectionMiddleware.php` yang akan mem-force logout jika user tenant lain mencoba mengakses subdomain yang bukan miliknya. |
+| Sesi Sekarang | **Monitoring Log Transaksi Demo** | **Selesai** | Mengimplementasikan Audit Trail pada kasir Retail, F&B, dan Hiburan (`FakturPenjualanController`). Transaksi oleh akun demo akan di-log secara senyap ke dalam file teks `storage/logs/demo_transactions.log` tanpa merubah database. |
+
 
 ---
 
@@ -69,8 +72,15 @@
 *   **Deskripsi**: Saat POS Hiburan diakses di live, muncul error SQLSTATE `Unknown column 'member_packages.KelompokLampu'`. Ini terjadi karena kolom `KelompokLampu` belum dimigrasikan ke database live. Eksekusi script `fix_live_database.php` melalui SSH telah memastikan kolom ini terbuat dan error 500 teratasi.
 *   **Status**: **Selesai (100%)**
 
+### Langkah 11: Implementasi Shared Session & Tenant Isolation (Multi-Tenant Live)
+*   **Deskripsi**: Mengonfigurasi `SESSION_DOMAIN=.pos.dstechsmart.com` di `.env` (Lokal & Live) agar login satu kali di domain utama otomatis memberikan sesi akses (shared session) ke custom subdomain KDS, Antrean, Booking, dan E-Menu (contoh: `demoresto.pos.dstechsmart.com/queue-management`). Menambahkan proteksi **Tenant Isolation** di `DomainDetectionMiddleware.php` dengan cara memvalidasi `Auth::user()->RecordOwnerID` dengan `KodePartner` subdomain; apabila user lintas tenant mencoba mengakses secara acak, sistem otomatis akan melakukan logout dan memunculkan error agar keamanan data terjaga dan mencegah "session bleeding".
+*   **Status**: **Selesai (100%)**
+
+### Langkah 12: Pembuatan Monitoring Log Transaksi Demo
+*   **Deskripsi**: Menambahkan Audit Trail khusus untuk mencatat transaksi yang dilakukan oleh akun demo (`CL0014`, `demoapotek`, `DEMOGATE`). Logika pencatatan disisipkan pada tiga controller kasir (Retail, F&B, dan Hiburan) dalam `FakturPenjualanController`. Jika terdeteksi transaksi dari akun demo, sistem akan menuliskannya secara persisten ke dalam `storage/logs/demo_transactions.log`. Cara ini diambil sebagai langkah teraman yang tidak memerlukan modifikasi tabel database sesuai dengan standar instruksi pengguna, namun tetap memberikan keandalan tracking aktivitas demo di server live.
+*   **Status**: **Selesai (100%)**
+
 ---
 
 ## 3. Antrean Pekerjaan Kedepan (Queue)
-1. **Penyelarasan Tampilan Multi-Tenant Live**: Memastikan transisi antar domain dan tenant demo berjalan lancar dan terisolasi dengan baik.
-2. **Monitoring Log Transaksi Demo**: Menyediakan audit trail transaksi kasir demo untuk kestabilan live server.
+*(Saat ini belum ada antrean pekerjaan baru. Menunggu instruksi selanjutnya dari User)*
