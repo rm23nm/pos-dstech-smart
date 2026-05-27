@@ -35,6 +35,7 @@
             display: flex;
             height: 100vh;
             width: 100vw;
+            flex-direction: row-reverse;
         }
 
         /* Left Side: Promotional Slider */
@@ -51,17 +52,18 @@
         /* Right Side: Billing Details */
         .billing-side {
             flex: 0.8;
-            background: var(--card-bg);
+            background: #213B5C;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
             z-index: 10;
         }
 
         .billing-header {
             padding: 30px;
-            border-bottom: 1px solid #eee;
-            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
         }
 
         .billing-header .logo img {
@@ -72,7 +74,7 @@
         .billing-header h2 {
             margin: 0;
             font-weight: 700;
-            color: var(--primary-color);
+            color: #ffffff;
             letter-spacing: -0.5px;
         }
 
@@ -84,8 +86,8 @@
 
         .billing-footer {
             padding: 30px;
-            background: #fdfdfd;
-            border-top: 1px solid #eee;
+            background: #1a2f4c;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Slider Styles */
@@ -124,8 +126,8 @@
         .order-table th {
             text-align: left;
             padding: 12px 10px;
-            color: var(--text-muted);
-            border-bottom: 2px solid #f0f0f0;
+            color: #cbd5e1;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -133,8 +135,8 @@
 
         .order-table td {
             padding: 15px 10px;
-            border-bottom: 1px solid #f9f9f9;
-            color: var(--text-main);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #ffffff;
             font-weight: 500;
         }
 
@@ -153,21 +155,21 @@
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            color: var(--text-muted);
+            color: #cbd5e1;
             font-weight: 500;
         }
 
         .summary-row.grand-total {
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 2px solid var(--primary-color);
-            color: var(--text-main);
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
             font-size: 1.8rem;
             font-weight: 800;
         }
 
         .summary-row.grand-total span:last-child {
-            color: var(--primary-color);
+            color: #ffffff;
         }
 
         /* Running Text Overlay */

@@ -1539,3 +1539,7 @@ Route::get('/test-db', function() {
     $company = App\Models\Company::where('KodePartner', $user ? $user->RecordOwnerID : '')->first();
     return response()->json(['user' => $user, 'company' => $company]);
 });
+
+Route::get('/check_demo_users', function() { require_once 'check_demo_users.php'; return 'Done'; });
+
+Route::get('/check_demo_users_2', function() { $res = ''; foreach(['demotiket@pos.dstechsmart.com','demoapotek@pos.dstechsmart.com','demoresto@pos.dstechsmart.com','demogate@pos.dstechsmart.com','demolaundry@pos.dstechsmart.com'] as $email) { $user = App\Models\User::where('email', $email)->first(); $res .= $email . ' | '; if ($user) { $res .= 'USER EXISTS (RO: ' . $user->RecordOwnerID . ') | '; $company = App\Models\Company::where('KodePartner', $user->RecordOwnerID)->first(); if ($company) { $res .= 'COMPANY EXISTS (' . $company->NamaPartner . ' - Active: ' . $company->isActive . ')<br>'; } else { $res .= 'COMPANY MISSING<br>'; } } else { $res .= 'USER MISSING<br>'; } } return $res; });

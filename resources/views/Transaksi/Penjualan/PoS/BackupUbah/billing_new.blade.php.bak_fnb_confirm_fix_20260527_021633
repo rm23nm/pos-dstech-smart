@@ -5202,12 +5202,12 @@
         }
 
         swal({
-            title: "Konfirmasi Pembayaran",
-            text: "Proses pembayaran FnB sebesar " + formatRp(grandTotal) + "?",
+            title: "Konfirmasi",
+            text: "Simpan penjualan FnB sebesar " + formatRp(grandTotal) + "?",
             type: "question",
             showCancelButton: true,
             confirmButtonColor: "#e65100",
-            confirmButtonText: "Ya, Bayar",
+            confirmButtonText: "Ya, Simpan",
             cancelButtonText: "Batal"
         }).then((result) => {
             if (!result.value) return;

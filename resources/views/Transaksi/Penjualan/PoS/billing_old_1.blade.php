@@ -3319,7 +3319,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			jQuery('#dtNamaPaket_Detail').text(filteredData[0]["NamaPaket"]);
 			jQuery('#dtJamMulai_Detail').text(genfnFormatingDate(filteredData[0]["JamMulai"]));
 			jQuery('#lblNamaCustomer').text(filteredData[0]["NamaPelanggan"]);
-			// formatCurrency($('#_TotalItem'), _tempTotalItem);
+			// $('#_TotalItem').text(_tempTotalItem);
 
 			var _HargaNormal = filteredPaket[0]["HargaNormal"];
 			var _HargaBaru = filteredPaket[0]["HargaBaru"];

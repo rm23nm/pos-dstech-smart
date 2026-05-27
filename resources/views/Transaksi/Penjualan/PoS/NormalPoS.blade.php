@@ -1172,9 +1172,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										'HargaPokokPenjualan'	: response.data[0]['HargaPokokPenjualan'],
 				            		}
 
-				            		dataSource.store().insert(item).then(function() {
-								        dataSource.reload();
-								    })
+				            		allRowsData.push(item);
 
 				     //        		dataGridInstance.option("dataSource", [...dataGridInstance.option("dataSource"), item]);
 									// dataGridInstance.refresh();
@@ -1693,9 +1691,8 @@ License: You must have a valid license purchased only from themeforest(the above
 				icon: "error",
 				title: "Opps...",
 				text: "Printer Belum ditentukan, Silahkan melakukan setting di menu Master -> Pengaturan Toko -> Perusahaan",
-			}).then((result) => {
-				return;
 			});
+			return;
 		}
 
 		if(_Company[0]["LebarKertas"] == ""){
@@ -1703,9 +1700,8 @@ License: You must have a valid license purchased only from themeforest(the above
 				icon: "error",
 				title: "Opps...",
 				text: "Lebar Kertas Belum ditentukan, Silahkan melakukan setting di menu Master -> Pengaturan Toko -> Perusahaan",
-			}).then((result) => {
-				return;
 			});
+			return;
 		}
 
 		if(_Printer["PrinterInterface"] == "Bluetooth"){
@@ -1747,12 +1743,11 @@ License: You must have a valid license purchased only from themeforest(the above
 			window.open(url, "_blank");
 			location.reload();
 		}
-		else{
-			Swal.fire({
-				icon: "error",
-				title: "Opps...",
-				text: "Interface belum tersedia",
-			});
+		else {
+			let url = "{{ url('') }}";
+			url += "/fpenjualan/printthermal/"+NoTransaksi;
+			window.open(url, "_blank");
+			location.reload();
 		}
 	}
 
@@ -2589,7 +2584,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 		// console.log(_tempTotalTax)
 
-	    formatCurrency($('#_TotalItem'), _tempTotalItem);
+	    $('#_TotalItem').text(_tempTotalItem);
 	    formatCurrency($('#_SubTotal'), _tempSubTotal);
 	    formatCurrency($('#_TotalDiskon'), _tempTotalDiskon);
 	    formatCurrency($('#_TotalServices'), _tempTotalServices);
@@ -2630,8 +2625,8 @@ License: You must have a valid license purchased only from themeforest(the above
     function editDraft(NoTransaksi) {
     	jQuery('#_NoTransaksi').text(NoTransaksi)
     	var dataGridInstance = jQuery('#gridContainerDetail').dxDataGrid('instance');
-        var dataSource = dataGridInstance.getDataSource();
-        dataGridInstance.option("dataSource", []);
+        // Cleared array safely
+		allRowsData = [];
     	// Load Header
     	$.ajax({
 			async:false,
@@ -2684,12 +2679,12 @@ License: You must have a valid license purchased only from themeforest(the above
 	        			'Total' 	 	: 0
 	        		}
 
-	        		dataSource.store().insert(item).then(function() {
-				        dataSource.reload();
-				    })
+	        		allRowsData.push(item);
 				    xLine +=1;
-            	});
-            	CalculateTotal()
+        	});
+        	dataGridInstance.option('dataSource', allRowsData);
+        	dataGridInstance.refresh();
+        	CalculateTotal()
 
             	jQuery('#folderpop').modal('hide');
             }

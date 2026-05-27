@@ -3886,9 +3886,8 @@ License: You must have a valid license purchased only from themeforest(the above
 				icon: "error",
 				title: "Opps...",
 				text: "Printer Belum ditentukan, Silahkan melakukan setting di menu Master -> Pengaturan Toko -> Perusahaan",
-			}).then((result) => {
-				return;
 			});
+			return;
 			return; // Hentikan eksekusi selanjutnya
 		}
 
@@ -3897,9 +3896,8 @@ License: You must have a valid license purchased only from themeforest(the above
 				icon: "error",
 				title: "Opps...",
 				text: "Lebar Kertas Belum ditentukan, Silahkan melakukan setting di menu Master -> Pengaturan Toko -> Perusahaan",
-			}).then((result) => {
-				return;
 			});
+			return;
 			return; // Hentikan eksekusi
 		}
 
@@ -3942,12 +3940,11 @@ License: You must have a valid license purchased only from themeforest(the above
 			window.open(url, "_blank");
 			location.reload();
 		}
-		else{
-			Swal.fire({
-				icon: "error",
-				title: "Opps...",
-				text: "Interface belum tersedia",
-			});
+		else {
+			let url = "{{ url('') }}";
+			url += "/fpenjualan/printthermal/"+NoTransaksi;
+			window.open(url, "_blank");
+			location.reload();
 		}
 	}
 
@@ -4777,7 +4774,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	    }
 
 	    // Update UI elements
-	    formatCurrency($('#_TotalItem'), _tempTotalItem);
+	    $('#_TotalItem').text(_tempTotalItem);
 	    formatCurrency($('#_SubTotal'), _tempSubTotal);
 	    formatCurrency($('#_TotalDiskon'), _tempTotalDiskon);
 	    formatCurrency($('#_VoucherDiscount'), _tempVoucherDiscount);

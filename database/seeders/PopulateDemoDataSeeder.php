@@ -539,7 +539,62 @@ class PopulateDemoDataSeeder extends Seeder
         // ----------------------------------------------------
         // 7. CONFIGURE DEMO APOTEK ACCOUNT (demoapotek)
         // ----------------------------------------------------
-        // A. Setup master data
+        // A. Setup Company and User
+        $apotekCompanyPayload = $filterPayload('company', [
+            'KodePartner' => 'demoapotek',
+            'NamaPartner' => 'Demo Apotek & Klinik Medika',
+            'NamaPIC' => 'Demo Apotek',
+            'AlamatTagihan' => '-',
+            'NoHP' => '081234567892',
+            'NoTlp' => '081234567892',
+            'NIKPIC' => '-',
+            'tempStore' => '',
+            'icon' => '',
+            'StartSubs' => Carbon::now()->toDateString(),
+            'EndSubs' => Carbon::now()->addYears(10)->toDateString(),
+            'ExtraDays' => 0,
+            'NPWP' => '-',
+            'TglPKP' => Carbon::now()->toDateString(),
+            'PPN' => 0,
+            'isHargaJualIncludePPN' => 0,
+            'isPostingAkutansi' => 0,
+            'NamaPosPrinter' => '',
+            'FooterNota' => '',
+            'JenisUsaha' => 'Retail',
+            'isActive' => 1,
+            'isInitialSetting' => 1,
+            'MaximalUser' => 999,
+            'KodePaketLangganan' => '2022',
+            'Email' => 'demoapotek@pos.dstechsmart.com',
+            'GudangPoS' => 'UMM',
+            'TerminBayarPoS' => '',
+            'TypeBackgraund' => 'Color',
+            'Backgraund' => '#ffffff',
+            'TypeKitchenBackgraund' => 'Color',
+            'KitchenBackgraund' => '#ffffff',
+            'QueueDesignSetting' => 'QueueManagement',
+            'CustDisplayDesignSetting' => 'default',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        DB::table('company')->updateOrInsert(['KodePartner' => 'demoapotek'], $apotekCompanyPayload);
+
+        DB::table('users')->updateOrInsert(
+            ['email' => 'demoapotek@pos.dstechsmart.com'],
+            [
+                'name' => 'Demo Apotek Admin',
+                'password' => Hash::make('12345678'),
+                'Active' => 'Y',
+                'isConfirmed' => 1,
+                'RecordOwnerID' => 'demoapotek',
+                'BranchID' => '',
+                'email_verified_at' => Carbon::now(),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        // B. Setup master data
         DB::table('gruppelanggan')->updateOrInsert(
             ['KodeGrup' => '1001', 'RecordOwnerID' => 'demoapotek'],
             ['NamaGrup' => 'UMM', 'LevelHarga' => 1, 'DiskonPersen' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
@@ -653,7 +708,7 @@ class PopulateDemoDataSeeder extends Seeder
             ]
         );
 
-        // B. Seed Products
+        // C. Seed Products
         $apotekProducts = [
             [
                 'KodeItem' => 'APT-0001',
@@ -768,6 +823,173 @@ class PopulateDemoDataSeeder extends Seeder
             );
         }
 
-        $setupCompanyRolesAndPermissions('demoapotek', 'demoapotek@pos.dstechsmart.com', 'PKT-APOTEK-12');
+        $setupCompanyRolesAndPermissions('demoapotek', 'demoapotek@pos.dstechsmart.com', '2022');
+
+        // ----------------------------------------------------
+        // 8. CONFIGURE DEMO TIKET & GATE ACCOUNT (demogate)
+        // ----------------------------------------------------
+        // A. Setup Company and User
+        $gateCompanyPayload = $filterPayload('company', [
+            'KodePartner' => 'demogate',
+            'NamaPartner' => 'Demo Wisata & Tripod Gate System',
+            'NamaPIC' => 'Demo Gate',
+            'AlamatTagihan' => '-',
+            'NoHP' => '081234567893',
+            'NoTlp' => '081234567893',
+            'NIKPIC' => '-',
+            'tempStore' => '',
+            'icon' => '',
+            'StartSubs' => Carbon::now()->toDateString(),
+            'EndSubs' => Carbon::now()->addYears(10)->toDateString(),
+            'ExtraDays' => 0,
+            'NPWP' => '-',
+            'TglPKP' => Carbon::now()->toDateString(),
+            'PPN' => 0,
+            'isHargaJualIncludePPN' => 0,
+            'isPostingAkutansi' => 0,
+            'NamaPosPrinter' => '',
+            'FooterNota' => '',
+            'JenisUsaha' => 'Hiburan',
+            'isActive' => 1,
+            'isInitialSetting' => 1,
+            'MaximalUser' => 999,
+            'KodePaketLangganan' => '2003',
+            'Email' => 'demogate@pos.dstechsmart.com',
+            'GudangPoS' => 'UMM',
+            'TerminBayarPoS' => '',
+            'TypeBackgraund' => 'Color',
+            'Backgraund' => '#ffffff',
+            'TypeKitchenBackgraund' => 'Color',
+            'KitchenBackgraund' => '#ffffff',
+            'QueueDesignSetting' => 'QueueManagement',
+            'CustDisplayDesignSetting' => 'default',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        DB::table('company')->updateOrInsert(['KodePartner' => 'demogate'], $gateCompanyPayload);
+
+        DB::table('users')->updateOrInsert(
+            ['email' => 'demogate@pos.dstechsmart.com'],
+            [
+                'name' => 'Demo Gate Admin',
+                'password' => Hash::make('12345678'),
+                'Active' => 'Y',
+                'isConfirmed' => 1,
+                'RecordOwnerID' => 'demogate',
+                'BranchID' => '',
+                'email_verified_at' => Carbon::now(),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        // B. Setup master data
+        DB::table('gruppelanggan')->updateOrInsert(
+            ['KodeGrup' => '1001', 'RecordOwnerID' => 'demogate'],
+            ['NamaGrup' => 'UMM', 'LevelHarga' => 1, 'DiskonPersen' => 0, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('pelanggan')->updateOrInsert(
+            ['KodePelanggan' => 'CUST-UMUM', 'RecordOwnerID' => 'demogate'],
+            [
+                'NamaPelanggan' => 'Pelanggan Umum',
+                'KodeGrupPelanggan' => '1001',
+                'Status' => 1,
+                'ProvID' => -1,
+                'KotaID' => -1,
+                'KelID' => -1,
+                'KecID' => -1,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        DB::table('gudang')->updateOrInsert(
+            ['KodeGudang' => 'UMM', 'RecordOwnerID' => 'demogate'],
+            ['NamaGudang' => 'Gudang Utama Gate', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('jenisitem')->updateOrInsert(
+            ['KodeJenis' => 'TIKET', 'RecordOwnerID' => 'demogate'],
+            ['NamaJenis' => 'Tiket Masuk', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+        );
+
+        DB::table('settingaccount')->updateOrInsert(
+            ['RecordOwnerID' => 'demogate'],
+            [
+                'InvAcctHargaPokokPenjualan' => 5110001,
+                'InvAcctPendapatanJual' => 4110001,
+                'InvAcctPendapatanJasa' => 4110002,
+                'InvAcctPersediaan' => 1310001,
+                'InvAcctPendapatanNonInventory' => 4110003,
+                'InvAcctPendapatanLainLain' => 4110003,
+                'InvAcctPenyesuaiaanStockMasuk' => 7111001,
+                'InvAcctPenyesuaiaanStockKeluar' => 8111001,
+                'PbAcctPajakPembelian' => 1130001,
+                'PbAcctPembayaranTunai' => 1110001,
+                'PbAcctPembayaranNonTunai' => 1120001,
+                'PbAcctHutang' => 2110001,
+                'PbAcctUangMukaPembelian' => 1410001,
+                'PjAcctPajakPenjualan' => 2130001,
+                'PjAcctPenjualanTunai' => 1110001,
+                'PjAcctPenjualanNonTunai' => 1120001,
+                'PjAcctPiutang' => 1140001,
+                'PjAcctUangMukaPenjualan' => 4120001,
+                'PjAcctGoodsInTransit' => 1310002,
+                'PjAcctReturnPenjualan' => 4120001,
+                'PjAcctPajakHiburan' => 2130002,
+                'KnAcctHutangKonsinyasi' => 2110001,
+                'KnAcctPembayaranHutang' => 1110001,
+                'KnAcctPenerimaanKonsinyasi' => 2110002,
+                'OthAcctModal' => 3110001,
+                'OthAcctPrive' => 3110004,
+                'OthAcctLabaDitahan' => 3110002,
+                'OthAcctLabaTahunBerjalan' => 3110003,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        $gateTickets = [
+            ['KodeItem' => 'GT-0001', 'NamaItem' => 'Tiket Masuk Terusan', 'HargaJual' => 100000, 'Gambar' => 'https://images.unsplash.com/photo-1541935661642-e1d8825832a8?w=500&auto=format&fit=crop&q=60'],
+            ['KodeItem' => 'GT-0002', 'NamaItem' => 'Tiket Masuk Reguler', 'HargaJual' => 40000, 'Gambar' => 'https://images.unsplash.com/photo-1572402230267-f3e267c1e5d2?w=500&auto=format&fit=crop&q=60'],
+        ];
+
+        foreach ($gateTickets as $tkt) {
+            $itemmasterPayload = $filterPayload('itemmaster', [
+                'KodeItem' => $tkt['KodeItem'],
+                'NamaItem' => $tkt['NamaItem'],
+                'KodeJenisItem' => 'TIKET',
+                'KodeMerk' => 'DSTech Ticket',
+                'TypeItem' => 2, // Jasa/Tiket
+                'Rak' => '-',
+                'KodeGudang' => 'UMM',
+                'KodeSupplier' => '-',
+                'Satuan' => 'PCS',
+                'Barcode' => $tkt['KodeItem'],
+                'Gambar' => $tkt['Gambar'],
+                'HargaPokokPenjualan' => 0,
+                'HargaJual' => $tkt['HargaJual'],
+                'HargaBeliTerakhir' => 0,
+                'Stock' => 999999,
+                'StockMinimum' => 0,
+                'isKonsinyasi' => 'N',
+                'Active' => 'Y',
+                'VatPercent' => 0,
+                'TampilkanEMenu' => 0,
+                'isFlashSale' => 'N',
+                'FlashSalePrice' => 0,
+                'isBestSeller' => 'N',
+                'RecordOwnerID' => 'demogate',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+            DB::table('itemmaster')->updateOrInsert(
+                ['KodeItem' => $tkt['KodeItem'], 'RecordOwnerID' => 'demogate'],
+                $itemmasterPayload
+            );
+        }
+
+        $setupCompanyRolesAndPermissions('demogate', 'demogate@pos.dstechsmart.com', '2003');
     }
 }

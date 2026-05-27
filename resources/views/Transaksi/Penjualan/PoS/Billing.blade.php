@@ -4642,7 +4642,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			jQuery('#lblNamaCustomer').text(filteredData[0]["NamaPelanggan"]);
 			tglBerlangganan = filteredData[0]["TglBerlanggananPaketBulanan"];
 
-			// formatCurrency($('#_TotalItem'), _tempTotalItem);
+			// $('#_TotalItem').text(_tempTotalItem);
 
 			var _HargaNormal = filteredPaket[0]["HargaNormal"];
 			var _HargaBaru = filteredPaket[0]["HargaBaru"];

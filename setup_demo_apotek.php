@@ -24,6 +24,12 @@ if (!Schema::hasColumn('fakturpenjualanheader', 'NamaPasien')) {
     echo "Added NamaPasien column to fakturpenjualanheader.\n";
 }
 
+// Add ExpiredDate to itemmaster if missing
+if (!Schema::hasColumn('itemmaster', 'ExpiredDate')) {
+    DB::statement('ALTER TABLE itemmaster ADD COLUMN ExpiredDate DATE NULL;');
+    echo "Added ExpiredDate column to itemmaster.\n";
+}
+
 // Check if JenisUsaha column exists in company table
 if (!Schema::hasColumn('company', 'JenisUsaha')) {
     DB::statement("ALTER TABLE company ADD COLUMN JenisUsaha VARCHAR(50) DEFAULT 'Retail';");

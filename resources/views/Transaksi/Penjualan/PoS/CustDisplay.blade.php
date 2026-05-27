@@ -1407,7 +1407,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 	function CalculateTotal(data) {
 		var _tempTotalItem = data["data"].length;
-	    formatCurrency($('#_TotalItem'), _tempTotalItem);
+	    $('#_TotalItem').text(_tempTotalItem);
 	    formatCurrency($('#_SubTotal'), data["Total"]);
 	    formatCurrency($('#_TotalDiskon'), data["Discount"]);
 	    formatCurrency($('#_GrandTotal, .GrandTotalSelector'), data["Net"]);

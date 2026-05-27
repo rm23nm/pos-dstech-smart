@@ -84,9 +84,18 @@ class CustDisplayController extends Controller
             array_push($oImageData, $image);
         }
 
+        // Fallback to sample data if no media is configured
+        if (empty($oImageData)) {
+            $oImageData = [
+                ['type' => 'image', 'url' => 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1920&auto=format&fit=crop'],
+                ['type' => 'image', 'url' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1920&auto=format&fit=crop'],
+                ['type' => 'video', 'url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ?autoplay=0&mute=1&enablejsapi=1', 'id' => 'aqz-KE-bpKQ']
+            ];
+        }
+
         // dd(json_encode($oImageData));
 
-	    return view("Transaksi.Penjualan.PoS.CustDisplay",[
+	    return view("Transaksi.Penjualan.PoS.CustDisplay_new",[
             'company' => $company,
             'midtransclientkey' => $midtransclientkey,
             'MetodePembayaranAutoID' => $MetodePembayaranAutoID,
@@ -123,6 +132,15 @@ class CustDisplayController extends Controller
                 $image = array('type' => 'video', 'url' => $url, 'id' => $company->$vidField);
                 array_push($oImageData, $image);
             }
+        }
+
+        // Fallback to sample data if no media is configured
+        if (empty($oImageData)) {
+            $oImageData = [
+                ['type' => 'image', 'url' => 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1920&auto=format&fit=crop'],
+                ['type' => 'image', 'url' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1920&auto=format&fit=crop'],
+                ['type' => 'video', 'url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ?autoplay=0&mute=1&enablejsapi=1', 'id' => 'aqz-KE-bpKQ']
+            ];
         }
 
         return view("Transaksi.Penjualan.PoS.CustDisplay_new",[

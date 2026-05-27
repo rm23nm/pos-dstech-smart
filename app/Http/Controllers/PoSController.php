@@ -173,7 +173,7 @@ class PoSController extends Controller
                 return redirect()->back();
                 break;
             case 'Hiburan' :
-                return redirect()->route('billing-new');
+                return redirect()->route('ticketing-pos');
                 break;
             case 'TiketGate':
                 return redirect()->route('ticketing-pos');
