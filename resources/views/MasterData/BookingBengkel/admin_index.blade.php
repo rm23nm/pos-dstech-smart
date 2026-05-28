@@ -89,7 +89,7 @@
                                         <button class="btn btn-sm btn-info btn-confirm" data-id="{{ $b->id }}" data-status="1">Konfirmasi</button>
                                         <button class="btn btn-sm btn-danger btn-confirm" data-id="{{ $b->id }}" data-status="3">Batal</button>
                                     @elseif($b->StatusBooking == 1)
-                                        <button class="btn btn-sm btn-success btn-confirm" data-id="{{ $b->id }}" data-status="2" title="Tandai masuk antrean PKB">Proses PKB</button>
+                                        <button class="btn btn-sm btn-success btn-confirm" data-id="{{ $b->id }}" data-status="2" data-advisor="{{ $b->KodeAdvisor }}" title="Tandai masuk antrean PKB">Proses PKB</button>
                                     @endif
                                 </td>
                             </tr>
@@ -115,36 +115,71 @@
             let id = jQuery(this).data('id');
             let status = jQuery(this).data('status');
             let actionText = jQuery(this).text();
+            let currentAdvisor = jQuery(this).data('advisor') || '';
 
-            Swal.fire({
-                title: 'Ubah Status',
-                text: `Anda yakin ingin merubah status menjadi ${actionText}?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Lanjutkan'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    jQuery.ajax({
-                        url: "{{ route('admin-booking.update') }}",
-                        type: 'POST',
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            id: id,
-                            StatusBooking: status
-                        },
-                        success: function(res) {
-                            if(res.success) {
-                                Swal.fire('Berhasil!', res.message, 'success').then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error!', res.message, 'error');
-                            }
-                        }
-                    });
+            if (status == 2) {
+                let options = {
+                    '': '-- Sesuai Default Kendaraan / Belum Ditentukan --'
+                };
+                @if(isset($advisors))
+                    @foreach($advisors as $adv)
+                        options['{{ $adv->KodeMekanik }}'] = '{{ $adv->NamaMekanik }}';
+                    @endforeach
+                @endif
+
+                Swal.fire({
+                    title: 'Proses PKB',
+                    text: 'Silakan pilih atau sesuaikan Service Advisor untuk PKB ini',
+                    icon: 'info',
+                    input: 'select',
+                    inputOptions: options,
+                    inputValue: currentAdvisor,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Lanjutkan'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        processUpdate(id, status, result.value);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Ubah Status',
+                    text: `Anda yakin ingin merubah status menjadi ${actionText}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Lanjutkan'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        processUpdate(id, status, null);
+                    }
+                });
+            }
+        });
+
+        function processUpdate(id, status, advisor) {
+            jQuery.ajax({
+                url: "{{ route('admin-booking.update') }}",
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: id,
+                    StatusBooking: status,
+                    KodeAdvisor: advisor
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Berhasil!', response.message, 'success').then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Gagal!', response.message, 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error!', 'Terjadi kesalahan sistem', 'error');
                 }
             });
-        });
+        }
     });
 </script>
 @endpush

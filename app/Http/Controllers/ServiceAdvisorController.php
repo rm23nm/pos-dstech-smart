@@ -162,9 +162,17 @@ class ServiceAdvisorController extends Controller
         $user = Auth::user();
         $recordOwnerID = $user->RecordOwnerID;
 
+        $item = DB::table('itemmaster')
+            ->where('KodeItem', $request->KodeItem)
+            ->where('RecordOwnerID', $recordOwnerID)
+            ->first();
+
+        $namaItem = $item ? $item->NamaItem : '-';
+
         DB::table('bengkel_work_order_details')->insert([
             'NoPKB' => $request->NoPKB,
             'KodeItem' => $request->KodeItem,
+            'NamaItem' => $namaItem,
             'Qty' => $request->Qty,
             'Harga' => $request->Harga,
             'Subtotal' => $request->Qty * $request->Harga,

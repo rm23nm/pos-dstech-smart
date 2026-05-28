@@ -177,6 +177,17 @@
                             <label class="form-label fw-semibold">Keluhan / Catatan Tambahan</label>
                             <textarea class="form-control" name="Keluhan" rows="3" placeholder="Jelaskan kendala pada kendaraan Anda..."></textarea>
                         </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Pilih Service Advisor (Opsional)</label>
+                            <select name="KodeAdvisor" class="form-select">
+                                <option value="">-- Bebas (Akan Disesuaikan Bengkel) --</option>
+                                <?php if(isset($advisors)): ?>
+                                    <?php $__currentLoopData = $advisors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $adv): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($adv->KodeMekanik); ?>"><?php echo e($adv->NamaMekanik); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnSubmit">
                             <i class="fas fa-calendar-check me-2"></i> Konfirmasi Booking

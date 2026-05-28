@@ -132,4 +132,94 @@ class BookingBengkelAuthController extends Controller
         Auth::guard('pelanggan')->logout();
         return redirect()->route('booking-bengkel', $kodePartner);
     }
+
+    /**
+     * Ambil rincian transaksi (history)
+     */
+    public function getHistoryDetail(Request $request, $kodePartner)
+    {
+        $noTransaksi = $request->input('NoTransaksi');
+        $pelanggan = Auth::guard('pelanggan')->user();
+
+        // Validasi kepemilikan transaksi
+        $header = \App\Models\FakturPenjualanHeader::where('NoTransaksi', $noTransaksi)
+            ->where('KodePelanggan', $pelanggan->KodePelanggan)
+            ->where('RecordOwnerID', $kodePartner)
+            ->first();
+
+        if (!$header) {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan']);
+        }
+
+        $details = \Illuminate\Support\Facades\DB::table('fakturpenjualandetail')
+            ->where('NoTransaksi', $noTransaksi)
+            ->where('RecordOwnerID', $kodePartner)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'header' => $header,
+            'details' => $details
+        ]);
+    }
+
+    /**
+     * Cetak Faktur untuk Pelanggan
+     */
+    public function printFaktur($kodePartner, $noTransaksi)
+    {
+        $pelanggan = Auth::guard('pelanggan')->user();
+
+        // Validasi kepemilikan transaksi
+        $header = \App\Models\FakturPenjualanHeader::where('NoTransaksi', $noTransaksi)
+            ->where('KodePelanggan', $pelanggan->KodePelanggan)
+            ->where('RecordOwnerID', $kodePartner)
+            ->first();
+
+        if (!$header) {
+            abort(404, 'Faktur tidak ditemukan atau Anda tidak memiliki akses.');
+        }
+
+        $sql = "DISTINCT fakturpenjualanheader.NoTransaksi, DATE_FORMAT(fakturpenjualanheader.TglTransaksi, '%d-%m-%Y %H:%i') TglTransaksi,
+            fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, fakturpenjualanheader.NoResep, fakturpenjualanheader.NamaDokter, fakturpenjualanheader.NamaPasien, 
+            fakturpenjualanheader.KodePelanggan, pelanggan.NamaPelanggan, fakturpenjualanheader.Termin, 
+            terminpembayaran.NamaTermin, fakturpenjualanheader.TotalPembelian, fakturpenjualanheader.Pajak,
+            fakturpenjualanheader.TotalPembayaran, fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur TotalHutang, 
+            fakturpenjualanheader.TotalRetur,fakturpenjualandetail.NoUrut, fakturpenjualandetail.KodeItem,
+            itemmaster.NamaItem,fakturpenjualandetail.Qty, fakturpenjualandetail.Harga, fakturpenjualandetail.Discount,
+            fakturpenjualandetail.HargaNet, fakturpenjualandetail.VatPercent,  COALESCE(pelanggan.Alamat,'') Alamat, 
+            coalesce(pelanggan.NoTlp1) NoTlpPelanggan,COALESCE(pelanggan.Email,'') Email,
+            'CLOSE' AS StatusDocument, fakturpenjualanheader.Transaksi, company.NamaPartner, company.AlamatTagihan,
+            company.NoTlp, company.NoHP, company.icon,fakturpenjualanheader.TotalTransaksi, 
+            fakturpenjualanheader.Potongan, company.NPWP, '' CompanyEmail ";
+
+        $model = \App\Models\FakturPenjualanHeader::selectRaw($sql)
+            ->leftJoin('terminpembayaran', function ($value){
+                $value->on('fakturpenjualanheader.KodeTermin','=','terminpembayaran.id')
+                ->on('terminpembayaran.RecordOwnerID','=','fakturpenjualanheader.RecordOwnerID');
+            })
+            ->leftJoin('pelanggan', function ($value){
+                $value->on('fakturpenjualanheader.KodePelanggan','=','pelanggan.KodePelanggan')
+                ->on('pelanggan.RecordOwnerID','=','fakturpenjualanheader.RecordOwnerID');
+            })
+            ->leftJoin('fakturpenjualandetail', function ($value){
+                $value->on('fakturpenjualandetail.NoTransaksi','=','fakturpenjualanheader.NoTransaksi')
+                ->on('fakturpenjualandetail.RecordOwnerID','=','fakturpenjualanheader.RecordOwnerID');
+            })
+            ->leftJoin('itemmaster', function ($value){
+                $value->on('fakturpenjualandetail.KodeItem','=','itemmaster.KodeItem')
+                ->on('fakturpenjualandetail.RecordOwnerID','=','itemmaster.RecordOwnerID');
+            })
+            ->leftJoin('company', 'company.KodePartner', 'fakturpenjualanheader.RecordOwnerID')
+            ->where('fakturpenjualanheader.RecordOwnerID', $kodePartner)
+            ->where('fakturpenjualanheader.NoTransaksi', $noTransaksi)
+            ->get();
+
+        $oCompany = \App\Models\Company::where('KodePartner', $kodePartner)->first();
+        $slip = $oCompany['DefaultSlip'] ?? 'SlipFaktur'; // Fallback if empty
+
+        return view("Transaksi.Penjualan.slip.".$slip, [
+            'faktur'=> $model
+        ]);
+    }
 }

@@ -120,6 +120,7 @@
                                             <th>Tanggal</th>
                                             <th>Total (Rp)</th>
                                             <th>Status</th>
+                                            <th class="text-end pe-4">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -130,6 +131,14 @@
                                                 <td>{{ isset($trx->TotalTransaksi) ? number_format($trx->TotalTransaksi, 0, ',', '.') : '-' }}</td>
                                                 <td>
                                                     <span class="badge bg-success rounded-pill">Selesai</span>
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <button class="btn btn-sm btn-outline-primary btn-detail-history" data-no="{{ $trx->NoTransaksi }}">
+                                                        <i class="fas fa-search me-1"></i> Detail
+                                                    </button>
+                                                    <a href="{{ route('booking-bengkel.print-faktur', ['kodePartner' => $kodePartner, 'noTransaksi' => $trx->NoTransaksi]) }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-print me-1"></i> Cetak
+                                                    </a>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -158,6 +167,105 @@
         </div>
     </footer>
 
+    <!-- Modal Detail History -->
+    <div class="modal fade" id="modalDetailHistory" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-file-invoice me-2"></i>Detail Transaksi <span id="detailNoTrans" class="text-primary"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="loadingDetail" class="text-center py-4 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Mengambil data rincian...</p>
+                    </div>
+                    <div id="contentDetail" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nama Item / Jasa</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Harga (Rp)</th>
+                                        <th class="text-end">Subtotal (Rp)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailItemsBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end text-muted">Total</th>
+                                        <th class="text-end fw-bold text-primary fs-5" id="detailGrandTotal">0</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.btn-detail-history').click(function() {
+                const noTransaksi = $(this).data('no');
+                $('#detailNoTrans').text('#' + noTransaksi);
+                $('#loadingDetail').removeClass('d-none');
+                $('#contentDetail').addClass('d-none');
+                $('#detailItemsBody').empty();
+                $('#detailGrandTotal').text('0');
+                
+                const modal = new bootstrap.Modal(document.getElementById('modalDetailHistory'));
+                modal.show();
+
+                $.ajax({
+                    url: "{{ route('booking-bengkel.history-detail', $kodePartner) }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        NoTransaksi: noTransaksi
+                    },
+                    success: function(res) {
+                        $('#loadingDetail').addClass('d-none');
+                        if(res.success && res.details.length > 0) {
+                            $('#contentDetail').removeClass('d-none');
+                            let html = '';
+                            res.details.forEach(item => {
+                                let harga = parseInt(item.Harga) || 0;
+                                let qty = parseFloat(item.Qty) || 0;
+                                let total = parseInt(item.TotalTransaksi) || 0;
+                                html += `<tr>
+                                    <td>${item.NamaItem}</td>
+                                    <td class="text-center">${qty}</td>
+                                    <td class="text-end">${harga.toLocaleString('id-ID')}</td>
+                                    <td class="text-end fw-bold">${total.toLocaleString('id-ID')}</td>
+                                </tr>`;
+                            });
+                            $('#detailItemsBody').html(html);
+                            $('#detailGrandTotal').text(parseInt(res.header.TotalTransaksi).toLocaleString('id-ID'));
+                        } else {
+                            $('#detailItemsBody').html('<tr><td colspan="4" class="text-center text-muted">Data rincian tidak tersedia</td></tr>');
+                            $('#contentDetail').removeClass('d-none');
+                        }
+                    },
+                    error: function() {
+                        $('#loadingDetail').addClass('d-none');
+                        $('#detailItemsBody').html('<tr><td colspan="4" class="text-center text-danger">Gagal mengambil data</td></tr>');
+                        $('#contentDetail').removeClass('d-none');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

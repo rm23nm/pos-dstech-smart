@@ -44,7 +44,9 @@ class BookingBengkelController extends Controller
             $company->save();
         }
 
-        return view('Booking.Bengkel.index', compact('company', 'kodePartner'));
+        $advisors = \Illuminate\Support\Facades\DB::table('mekanik')->where('RecordOwnerID', $kodePartner)->get();
+
+        return view('Booking.Bengkel.index', compact('company', 'kodePartner', 'advisors'));
     }
 
     /**
@@ -143,6 +145,7 @@ class BookingBengkelController extends Controller
             'NamaPelanggan' => $request->NamaPelanggan,
             'NoHP' => $request->NoHP,
             'Keluhan' => $request->Keluhan,
+            'KodeAdvisor' => $request->KodeAdvisor ?? null,
             'StatusBooking' => 0, // Pending
             'created_at' => Carbon::now('Asia/Jakarta'),
             'updated_at' => Carbon::now('Asia/Jakarta')
@@ -178,7 +181,9 @@ class BookingBengkelController extends Controller
             ->orderBy('JamBooking', 'ASC')
             ->get();
 
-        return view('MasterData.BookingBengkel.admin_index', compact('bookings', 'startDate', 'endDate', 'status'));
+        $advisors = DB::table('mekanik')->where('RecordOwnerID', $recordOwnerID)->get();
+
+        return view('MasterData.BookingBengkel.admin_index', compact('bookings', 'startDate', 'endDate', 'status', 'advisors'));
     }
 
     /**
@@ -253,13 +258,16 @@ class BookingBengkelController extends Controller
                     ->first();
                 $kodeAdvisor = $knd ? $knd->KodeAdvisor : null;
 
+                // Prioritaskan advisor dari form proses (jika admin mengubah), lalu dari booking online, lalu default kendaraan
+                $finalAdvisor = $request->KodeAdvisor ?: ($booking->KodeAdvisor ?: $kodeAdvisor);
+
                 DB::table('bengkel_work_orders')->insert([
                     'NoPKB' => $noPkb,
                     'TglPKB' => Carbon::today('Asia/Jakarta')->toDateString(),
                     'PlatNomor' => $booking->PlatNomor,
                     'KodePelanggan' => $booking->KodePelanggan ?? '',
                     'NamaPelanggan' => $booking->NamaPelanggan ?? '',
-                    'KodeMekanik' => $kodeAdvisor, 
+                    'KodeMekanik' => $finalAdvisor, 
                     'EstimasiWaktu' => 0,
                     'Keluhan' => json_encode($keluhanJson),
                     'StatusServis' => 0,

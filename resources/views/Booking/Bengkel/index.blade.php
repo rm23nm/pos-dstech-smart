@@ -175,6 +175,17 @@
                             <label class="form-label fw-semibold">Keluhan / Catatan Tambahan</label>
                             <textarea class="form-control" name="Keluhan" rows="3" placeholder="Jelaskan kendala pada kendaraan Anda..."></textarea>
                         </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Pilih Service Advisor (Opsional)</label>
+                            <select name="KodeAdvisor" class="form-select">
+                                <option value="">-- Bebas (Akan Disesuaikan Bengkel) --</option>
+                                @if(isset($advisors))
+                                    @foreach($advisors as $adv)
+                                        <option value="{{ $adv->KodeMekanik }}">{{ $adv->NamaMekanik }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnSubmit">
                             <i class="fas fa-calendar-check me-2"></i> Konfirmasi Booking

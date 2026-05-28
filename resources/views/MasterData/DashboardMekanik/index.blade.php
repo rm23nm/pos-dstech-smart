@@ -95,6 +95,23 @@
                     <form id="updateForm">
                         @csrf
                           <input type="hidden" name="id" id="pkb_id">
+                          <input type="hidden" id="modalNoPKB">
+                          <div class="form-group mb-3">
+                              <label class="fw-bold mb-2">Item / Jasa / Sparepart</label>
+                              <div class="table-responsive">
+                                  <table class="table table-sm table-bordered">
+                                      <thead class="bg-light">
+                                          <tr>
+                                              <th>Nama Item</th>
+                                              <th width="15%">Qty</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody id="itemsTableBody">
+                                          <tr><td colspan="2" class="text-center">Loading...</td></tr>
+                                      </tbody>
+                                  </table>
+                              </div>
+                          </div>
                           <div class="form-group mb-3">
                               <label class="fw-bold mb-2">Keluhan / Permintaan</label>
                               <div id="keluhanChecklist" class="border rounded p-2 bg-light">
@@ -214,7 +231,7 @@
                             var laporan = row.LaporanMekanik ? row.LaporanMekanik.replace(/"/g, '&quot;') : '';
                             var keluhan = row.Keluhan ? row.Keluhan.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, "\\n").replace(/\r/g, "\\r") : '';
                             var mekanikCode = row.KodeMekanik ? row.KodeMekanik : '';
-                            return `<button class="btn btn-sm btn-primary" onclick="openUpdateModal(${data}, ${row.StatusServis}, '${laporan}', '${keluhan}', '${mekanikCode}')"><i class="fas fa-edit"></i> Update</button>`;
+                            return `<button class="btn btn-sm btn-primary" onclick="openUpdateModal(${data}, '${row.NoPKB}', ${row.StatusServis}, '${laporan}', '${keluhan}', '${mekanikCode}')"><i class="fas fa-edit"></i> Update</button>`;
                         }
                     }
                 ]
@@ -226,12 +243,36 @@
             }, 10000);
         });
 
-        function openUpdateModal(id, status, laporan, keluhanStr, mekanikCode) {
+        function openUpdateModal(id, noPKB, status, laporan, keluhanStr, mekanikCode) {
             jQuery('#pkb_id').val(id);
+            jQuery('#modalNoPKB').val(noPKB);
             jQuery('#StatusServis').val(status);
             jQuery('#LaporanMekanik').val(laporan);
             jQuery('#KodeMekanikUpdate').val(mekanikCode || '');
             
+            // Fetch items
+            jQuery('#itemsTableBody').html('<tr><td colspan="2" class="text-center">Loading...</td></tr>');
+            jQuery.ajax({
+                url: "{{ url('dashboard-mekanik/items') }}/" + noPKB,
+                type: "GET",
+                success: function(res) {
+                    if (res.success) {
+                        let html = '';
+                        if (res.data.length === 0) {
+                            html = '<tr><td colspan="2" class="text-center">Belum ada item</td></tr>';
+                        } else {
+                            res.data.forEach(item => {
+                                html += `<tr>
+                                    <td>${item.NamaItem}</td>
+                                    <td class="text-center">${item.Qty}</td>
+                                </tr>`;
+                            });
+                        }
+                        jQuery('#itemsTableBody').html(html);
+                    }
+                }
+            });
+
             let keluhanHtml = '';
             try {
                 if (keluhanStr) {

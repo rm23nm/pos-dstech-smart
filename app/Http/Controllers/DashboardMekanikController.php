@@ -179,4 +179,16 @@ class DashboardMekanikController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Status berhasil diperbarui!']);
     }
+
+    public function getItems($noPKB)
+    {
+        $user = Auth::user();
+        
+        $items = DB::table('bengkel_work_order_details')
+            ->where('NoPKB', $noPKB)
+            ->where('RecordOwnerID', $user->RecordOwnerID)
+            ->get();
+            
+        return response()->json(['success' => true, 'data' => $items]);
+    }
 }

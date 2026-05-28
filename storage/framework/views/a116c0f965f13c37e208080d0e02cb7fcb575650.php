@@ -52,11 +52,64 @@
                 </div>
             </div>
 
-            <!-- History Servis -->
+            <!-- Data Booking -->
             <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-primary"><i class="fas fa-calendar-alt me-2"></i>Jadwal Booking Anda</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <?php if(isset($bookings) && count($bookings) > 0): ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Tanggal & Waktu</th>
+                                            <th>Kendaraan</th>
+                                            <th>Keluhan</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $__currentLoopData = $bookings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $book): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <tr>
+                                                <td class="ps-4 fw-bold">
+                                                    <?php echo e(\Carbon\Carbon::parse($book->TglBooking)->format('d M Y')); ?><br>
+                                                    <small class="text-muted"><?php echo e($book->JamBooking); ?></small>
+                                                </td>
+                                                <td><?php echo e($book->PlatNomor); ?></td>
+                                                <td><?php echo e(\Illuminate\Support\Str::limit($book->Keluhan, 30)); ?></td>
+                                                <td>
+                                                    <?php if($book->StatusBooking == 0): ?>
+                                                        <span class="badge bg-warning text-dark">Menunggu</span>
+                                                    <?php elseif($book->StatusBooking == 1): ?>
+                                                        <span class="badge bg-info text-white">Dikonfirmasi</span>
+                                                    <?php elseif($book->StatusBooking == 2): ?>
+                                                        <span class="badge bg-primary">Proses Servis</span>
+                                                    <?php elseif($book->StatusBooking == 3): ?>
+                                                        <span class="badge bg-success">Selesai</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-danger">Batal</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">Anda belum memiliki jadwal booking yang aktif.</p>
+                                <a href="<?php echo e(route('booking-bengkel.index', $kodePartner)); ?>" class="btn btn-sm btn-outline-primary mt-2">Buat Booking Baru</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- History Servis -->
                 <div class="card h-100">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 text-primary"><i class="fas fa-history me-2"></i>Riwayat Servis Kendaraan</h5>
+                        <h5 class="mb-0 text-secondary"><i class="fas fa-history me-2"></i>Riwayat Servis (Selesai)</h5>
                     </div>
                     <div class="card-body p-0">
                         <?php if($history && count($history) > 0): ?>
@@ -68,6 +121,7 @@
                                             <th>Tanggal</th>
                                             <th>Total (Rp)</th>
                                             <th>Status</th>
+                                            <th class="text-end pe-4">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -78,6 +132,14 @@
                                                 <td><?php echo e(isset($trx->TotalTransaksi) ? number_format($trx->TotalTransaksi, 0, ',', '.') : '-'); ?></td>
                                                 <td>
                                                     <span class="badge bg-success rounded-pill">Selesai</span>
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <button class="btn btn-sm btn-outline-primary btn-detail-history" data-no="<?php echo e($trx->NoTransaksi); ?>">
+                                                        <i class="fas fa-search me-1"></i> Detail
+                                                    </button>
+                                                    <a href="<?php echo e(route('booking-bengkel.print-faktur', ['kodePartner' => $kodePartner, 'noTransaksi' => $trx->NoTransaksi])); ?>" target="_blank" class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-print me-1"></i> Cetak
+                                                    </a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -90,8 +152,7 @@
                                     <i class="fas fa-box-open"></i>
                                 </div>
                                 <h5 class="fw-bold">Belum Ada Riwayat</h5>
-                                <p class="text-muted">Anda belum memiliki riwayat servis di bengkel ini.</p>
-                                <a href="<?php echo e(route('booking-bengkel.index', $kodePartner)); ?>" class="btn btn-primary mt-2">Buat Booking Sekarang</a>
+                                <p class="text-muted">Kendaraan Anda belum memiliki riwayat servis yang diselesaikan di bengkel ini.</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -107,7 +168,106 @@
         </div>
     </footer>
 
+    <!-- Modal Detail History -->
+    <div class="modal fade" id="modalDetailHistory" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-file-invoice me-2"></i>Detail Transaksi <span id="detailNoTrans" class="text-primary"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="loadingDetail" class="text-center py-4 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Mengambil data rincian...</p>
+                    </div>
+                    <div id="contentDetail" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nama Item / Jasa</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Harga (Rp)</th>
+                                        <th class="text-end">Subtotal (Rp)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailItemsBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end text-muted">Total</th>
+                                        <th class="text-end fw-bold text-primary fs-5" id="detailGrandTotal">0</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.btn-detail-history').click(function() {
+                const noTransaksi = $(this).data('no');
+                $('#detailNoTrans').text('#' + noTransaksi);
+                $('#loadingDetail').removeClass('d-none');
+                $('#contentDetail').addClass('d-none');
+                $('#detailItemsBody').empty();
+                $('#detailGrandTotal').text('0');
+                
+                const modal = new bootstrap.Modal(document.getElementById('modalDetailHistory'));
+                modal.show();
+
+                $.ajax({
+                    url: "<?php echo e(route('booking-bengkel.history-detail', $kodePartner)); ?>",
+                    type: "POST",
+                    data: {
+                        _token: "<?php echo e(csrf_token()); ?>",
+                        NoTransaksi: noTransaksi
+                    },
+                    success: function(res) {
+                        $('#loadingDetail').addClass('d-none');
+                        if(res.success && res.details.length > 0) {
+                            $('#contentDetail').removeClass('d-none');
+                            let html = '';
+                            res.details.forEach(item => {
+                                let harga = parseInt(item.Harga) || 0;
+                                let qty = parseFloat(item.Qty) || 0;
+                                let total = parseInt(item.TotalTransaksi) || 0;
+                                html += `<tr>
+                                    <td>${item.NamaItem}</td>
+                                    <td class="text-center">${qty}</td>
+                                    <td class="text-end">${harga.toLocaleString('id-ID')}</td>
+                                    <td class="text-end fw-bold">${total.toLocaleString('id-ID')}</td>
+                                </tr>`;
+                            });
+                            $('#detailItemsBody').html(html);
+                            $('#detailGrandTotal').text(parseInt(res.header.TotalTransaksi).toLocaleString('id-ID'));
+                        } else {
+                            $('#detailItemsBody').html('<tr><td colspan="4" class="text-center text-muted">Data rincian tidak tersedia</td></tr>');
+                            $('#contentDetail').removeClass('d-none');
+                        }
+                    },
+                    error: function() {
+                        $('#loadingDetail').addClass('d-none');
+                        $('#detailItemsBody').html('<tr><td colspan="4" class="text-center text-danger">Gagal mengambil data</td></tr>');
+                        $('#contentDetail').removeClass('d-none');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 <?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/Booking/Bengkel/dashboard.blade.php ENDPATH**/ ?>

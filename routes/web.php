@@ -1330,7 +1330,6 @@ Route::post('/mekanik/update/{id}', [MekanikController::class, 'update'])->name(
 Route::post('/mekanik/destroy', [MekanikController::class, 'destroy'])->name('mekanik.destroy')->middleware(['auth', 'check.session']);
 
 // Master Kendaraan
-Route::get('/kendaraan', [KendaraanController::class, 'index'])->name('kendaraan')->middleware(['auth', 'check.session']);
 Route::post('/kendaraan/getData', [KendaraanController::class, 'getData'])->name('kendaraan.getData')->middleware(['auth', 'check.session']);
 Route::post('/kendaraan/store', [KendaraanController::class, 'store'])->name('kendaraan.store')->middleware(['auth', 'check.session']);
 Route::post('/kendaraan/update/{id}', [KendaraanController::class, 'update'])->name('kendaraan.update')->middleware(['auth', 'check.session']);
@@ -1353,6 +1352,7 @@ Route::post('/service-advisor/pelanggan/store', [ServiceAdvisorController::class
 Route::get('/dashboard-mekanik', [DashboardMekanikController::class, 'index'])->name('dashboard-mekanik')->middleware(['auth', 'check.session']);
 Route::post('/dashboard-mekanik/getData', [DashboardMekanikController::class, 'getData'])->name('dashboard-mekanik.getData')->middleware(['auth', 'check.session']);
 Route::post('/dashboard-mekanik/update/{id}', [DashboardMekanikController::class, 'updateStatus'])->name('dashboard-mekanik.update')->middleware(['auth', 'check.session']);
+Route::get('/dashboard-mekanik/items/{noPKB}', [DashboardMekanikController::class, 'getItems'])->name('dashboard-mekanik.items')->middleware(['auth', 'check.session']);
 Route::get('/queue-bengkel', [DashboardMekanikController::class, 'queueDisplay'])->name('queue-bengkel')->middleware(['auth', 'check.session']);
 Route::post('/queue-bengkel/getData', [DashboardMekanikController::class, 'queueGetData'])->name('queue-bengkel-getData')->middleware(['auth', 'check.session']);
 Route::post('/queue-bengkel/updateStatus', [DashboardMekanikController::class, 'queueUpdateStatus'])->name('queue-bengkel-updateStatus')->middleware(['auth', 'check.session']);
@@ -1413,6 +1413,8 @@ Route::post('/booking-bengkel/{kodePartner}/login', [\App\Http\Controllers\Booki
 Route::post('/booking-bengkel/{kodePartner}/register', [\App\Http\Controllers\BookingBengkelAuthController::class, 'register'])->name('booking-bengkel.register');
 Route::get('/booking-bengkel/{kodePartner}/logout', [\App\Http\Controllers\BookingBengkelAuthController::class, 'logout'])->name('booking-bengkel.logout');
 Route::get('/booking-bengkel/{kodePartner}/dashboard', [\App\Http\Controllers\BookingBengkelAuthController::class, 'dashboard'])->name('booking-bengkel.dashboard');
+Route::post('/booking-bengkel/{kodePartner}/history-detail', [\App\Http\Controllers\BookingBengkelAuthController::class, 'getHistoryDetail'])->name('booking-bengkel.history-detail');
+Route::get('/booking-bengkel/{kodePartner}/print-faktur/{noTransaksi}', [\App\Http\Controllers\BookingBengkelAuthController::class, 'printFaktur'])->name('booking-bengkel.print-faktur');
 
 
 // Admin routes (requires auth)
