@@ -228,10 +228,14 @@ class BookingBengkelAuthController extends Controller
             ->get();
 
         $oCompany = \App\Models\Company::where('KodePartner', $kodePartner)->first();
-        $slip = $oCompany['DefaultSlip'] ?? 'SlipFaktur'; // Fallback if empty
+        $slip = !empty($oCompany['DefaultSlip']) ? $oCompany['DefaultSlip'] : 'slip1'; // Fallback if empty
+
+        $modelArray = json_decode(json_encode($model), true);
 
         return view("Transaksi.Penjualan.slip.".$slip, [
-            'faktur'=> $model
+            'faktur' => $model,
+            'data' => $modelArray,
+            'company' => $oCompany
         ]);
     }
 }
