@@ -23,7 +23,7 @@ class BookingBengkelAuthController extends Controller
 
         $pelanggan = Auth::guard('pelanggan')->user();
         if (!$pelanggan) {
-            return redirect()->route('booking-bengkel', $kodePartner);
+            return redirect()->route('booking-bengkel.index', $kodePartner);
         }
 
         // Ambil histori servis dari FakturPenjualanHeader untuk pelanggan ini
@@ -130,7 +130,7 @@ class BookingBengkelAuthController extends Controller
     public function logout(Request $request, $kodePartner)
     {
         Auth::guard('pelanggan')->logout();
-        return redirect()->route('booking-bengkel', $kodePartner);
+        return redirect()->route('booking-bengkel.index', $kodePartner);
     }
 
     /**
