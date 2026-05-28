@@ -229,8 +229,12 @@ class PoSController extends Controller
             case 'TiketGate':
                 return redirect()->route('ticketing-pos');
                 break;
+            case 'Dealer':
+                return redirect()->route('dealer.pos.index');
+                break;
             default:
                 alert()->error('Error','Jenis Usaha belum ada');
+                return redirect()->back();
                 break;
         }
     }

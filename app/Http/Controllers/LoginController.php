@@ -254,7 +254,8 @@ class LoginController extends Controller
                         'demoresto@pos.dstrechsmart.com',
                         'demoretail@pos.dstechsmart.com',
                         'gor.servicepos@pos.dstechsmart.com',
-                        'demotiket@pos.dstechsmart.com'
+                        'demotiket@pos.dstechsmart.com',
+                        'demoparkir@pos.dstechsmart.com'
                     ];
 
                     if (!in_array(strtolower($user->email), $demoEmails)) {
@@ -276,6 +277,9 @@ class LoginController extends Controller
                         if ($oPartner->isActive == 1) {
                             if (strtolower($user->email) == 'demotiket@pos.dstechsmart.com') {
                                 return redirect('ticketing-pos');
+                            }
+                            if (strtolower($user->email) == 'demoparkir@pos.dstechsmart.com' || $oPartner->JenisUsaha == 'Parkir') {
+                                return redirect()->route('parkir.dashboard');
                             }
                             return redirect('dashboard');
                         }

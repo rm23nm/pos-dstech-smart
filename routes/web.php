@@ -28,7 +28,6 @@ use App\Http\Controllers\HargaJualController;
 use App\Http\Controllers\OrderPembelianController;
 use App\Http\Controllers\DocumentNumberingController;
 use App\Http\Controllers\FakturPembelianController;
-use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\ReturPembelianController;
 use App\Http\Controllers\PengakuanBarangController;
@@ -47,8 +46,6 @@ use App\Http\Controllers\BiayaController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\DiskonPeriodikController;
-use App\Http\Controllers\LaporanKomisiMekanikController;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\PaymentGatewayController;
@@ -76,11 +73,6 @@ use App\Http\Controllers\DocumentOutputController;
 use App\Http\Controllers\KelompokLampuController;
 use App\Http\Controllers\QueueManagementController;
 use App\Http\Controllers\QueueBengkelController;
-use App\Http\Controllers\RiwayatServisController;
-use App\Http\Controllers\MekanikController;
-use App\Http\Controllers\ServiceAdvisorController;
-use App\Http\Controllers\DashboardMekanikController;
-use App\Http\Controllers\PermintaanSparepartController;
 use App\Http\Controllers\DiscountVoucherController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\SupportPageController;
@@ -605,8 +597,6 @@ Route::post('/fpenjualan/readdetail', [FakturPenjualanController::class, 'ViewDe
 Route::post('/fpenjualan/findheader', [FakturPenjualanController::class, 'FindHeader'])->name('fpenjualan-findheader')->middleware(['auth', 'check.session']);
 Route::get('/fpenjualan/pos', [PoSController::class, 'View'])->name('fpenjualan-pos')->middleware(['auth', 'check.session']);
 Route::get('/fpenjualan/bengkelpos', [PoSController::class, 'ViewBengkel'])->name('fpenjualan-bengkelpos')->middleware(['auth', 'check.session']);
-Route::get('/fpenjualan/tarik-pkb', [PoSController::class, 'getTarikPKB'])->name('fpenjualan-tarik-pkb')->middleware(['auth', 'check.session']);
-Route::post('/fpenjualan/tarik-pkb/store/{noPkb}', [PoSController::class, 'storeTarikPKB'])->name('fpenjualan-tarik-pkb-store')->middleware(['auth', 'check.session']);
 Route::post('/fpenjualan/getDiskon', [PoSController::class, 'GetDiscount'])->name('fpenjualan-getDiskon')->middleware(['auth', 'check.session']);
 Route::post('/fpenjualan/retailPos', [FakturPenjualanController::class, 'storePoS'])->name('fpenjualan-retailPos')->middleware(['auth', 'check.session']);
 Route::post('/fpenjualan/editStatus', [FakturPenjualanController::class, 'EditTransactionStatus'])->name('fpenjualan-editStatus')->middleware(['auth', 'check.session']);
@@ -782,14 +772,6 @@ Route::get('/report/neracasaldo', [ReportController::class, 'RptNeracaSaldo'])->
 Route::get('/report/labarugi', [ReportController::class, 'rptLabaRugi'])->name('report-labarugi')->middleware(['auth', 'check.session']);
 Route::get('/report/bukubesar', [ReportController::class, 'RptBukuBesar'])->name('report-bukubesar')->middleware(['auth', 'check.session']);
 Route::get('/report/cashflow', [ReportController::class, 'rptCashFlow'])->name('report-cashflow')->middleware(['auth', 'check.session']);
-
-Route::get('/report/komisi-mekanik', [LaporanKomisiMekanikController::class, 'index'])->name('laporan-komisi-mekanik')->middleware(['auth', 'check.session']);
-Route::post('/report/komisi-mekanik/get-data', [LaporanKomisiMekanikController::class, 'getData'])->name('laporan-komisi-mekanik-data')->middleware(['auth', 'check.session']);
-
-Route::get('/add-menu-komisi', function() {
-    $cols = DB::select('SHOW COLUMNS FROM permission');
-    return response()->json($cols);
-});
 
 
 
@@ -1322,38 +1304,38 @@ Route::post('/gatedevices/edit', [\App\Http\Controllers\GateDeviceController::cl
 Route::delete('/gatedevices/delete/{id}', [\App\Http\Controllers\GateDeviceController::class, 'deletedata'])->name('gatedevices-delete')->middleware(['auth', 'check.session']);
 Route::post('/gatedevices/read', [\App\Http\Controllers\GateDeviceController::class, 'ViewJson'])->name('gatedevices-ViewJson')->middleware(['auth', 'check.session']);
 
-// Rute Mekanik
-Route::get('/mekanik', [MekanikController::class, 'index'])->name('mekanik')->middleware(['auth', 'check.session']);
-Route::post('/billing/store-paket', [TableOrderController::class, 'storePaket'])->name('billing-store-paket')->middleware(['auth', 'check.session']);
-Route::post('/billing/midtrans-success', [TableOrderController::class, 'handleMidtransSuccess'])->name('billing-midtrans-success')->middleware(['auth', 'check.session']);
-Route::post('/billing/midtrans-cancel', [TableOrderController::class, 'handleMidtransCancel'])->name('billing-midtrans-cancel')->middleware(['auth', 'check.session']);
-Route::post('/billing/store-fnb-order', [TableOrderController::class, 'storeFnBOrder'])->name('billing-store-fnb-order')->middleware(['auth', 'check.session']);
-Route::post('/billing/store-tambah-durasi', [TableOrderController::class, 'storeTambahDurasi'])->name('billing-store-tambah-durasi')->middleware(['auth', 'check.session']);
-Route::get('/billing/get-table-statuses', [TableOrderController::class, 'getTableStatuses'])->name('billing-get-table-statuses')->middleware(['auth', 'check.session']);
-Route::post('/billing/jual-fnb-standalone', [TableOrderController::class, 'jualFnBStandalone'])->name('billing-jual-fnb-standalone')->middleware(['auth', 'check.session']);
-// GetMaximalPaketMenit
-/*
-|--------------------------------------------------------------------------
-| Booking Online
-|--------------------------------------------------------------------------
-|
-*/
-Route::get('/booking/{id}', [BookingOnlineController::class,'indexRev2'])->name('booking-index');   
-Route::get('/booking', [BookingOnlineController::class, 'getData'])->name('booking');
-Route::post('/booking/create-gateway', [BookingOnlineController::class, 'createMidTransTransaction'])->name('booking-create-gateway');
-Route::post('/booking/pay-gateway', [BookingOnlineController::class, 'SimpanPembayaranJson'])->name('booking-pay-gateway');
-Route::get('/booking/{id}/get-bookedtable', [BookingOnlineController::class, 'getBookingsByDate'])->name('booking-get-bookedtable');
-Route::get('/booking/{id}/get-DiscountVoucher', [BookingOnlineController::class, 'getDiscountVoucher'])->name('booking-get-DiscountVoucher');
-Route::get('/bookinglist', [BookingOnlineController::class, 'View'])->name('bookinglist')->middleware(['auth', 'check.session']);
-Route::get('/booking/generateVoucher', [BookingOnlineController::class, 'ViewGenerateVoucher'])->name('booking-generateVoucher');
-Route::post('/booking/voucher-store', [BookingOnlineController::class, 'storeVoucher'])->name('booking-voucherStore');
-Route::get('/booking/get-listVoucher', [BookingOnlineController::class, 'getListVoucher'])->name('booking-getListVoucher');
-Route::get('/get-Bookings', [BookingOnlineController::class, 'getBookings'])->name('booking-getBookings')->middleware(['auth', 'check.session']);
-Route::get('/booking/get-detailBooking/{noTransaksi}', [BookingOnlineController::class, 'getBookingDetail'])->name('booking-getDetailBooking');
-Route::get('/booking/get-meja-by-transaksi/{noTransaksi}', [BookingOnlineController::class, 'getMejaByTransaksi'])->name('booking-getMejaByTransaksi');
-Route::post('/booking/insert-tableorderheader', [BookingOnlineController::class, 'insertTableOrder'])->name('booking-insertTableorderheader');
-Route::post('/get-BookingsList', [BookingOnlineController::class, 'getBookingsList'])->name('booking-getBookingsList')->middleware(['auth', 'check.session']);
-Route::post('/getjadwal', [BookingOnlineController::class, 'getjadwalMeja'])->name('booking-getjadwal')->middleware(['auth', 'check.session']);
+// Master Paket Member
+Route::resource('master/memberpackage', App\Http\Controllers\MemberPackageController::class)->middleware('auth');
+Route::get('/fix-menu', function() { \DB::table('permission')->where('PermissionName', 'Paket Member')->update(['MenuInduk' => \DB::table('permission')->where('PermissionName', 'Paket')->value('id'), 'Level' => 3]); return 'ok'; });
+
+Route::get('/sync-members', function() {
+    $members = \DB::table('pelanggan')->whereNotNull('KodePaketMember')->where('KodePaketMember', '!=', '')->get();
+    $count = 0;
+    foreach ($members as $mem) {
+        $memberConfig = \DB::table('member_packages')->where('KodePaket', $mem->KodePaketMember)->first();
+        if ($memberConfig) {
+            $updates = ['isPaidMembership' => 1];
+            if ($memberConfig->Tipe === 'QUOTA' && empty($mem->MaxPlay)) {
+                $updates['MaxPlay'] = $memberConfig->MaxPlay ?? 0;
+            }
+            if (!empty($updates)) {
+                \DB::table('pelanggan')
+                    ->where('KodePelanggan', $mem->KodePelanggan)
+                    ->where('RecordOwnerID', $mem->RecordOwnerID)
+                    ->update($updates);
+                $count++;
+            }
+        }
+    }
+    return "Berhasil sinkronisasi $count pelanggan lama.";
+});
+Route::get('/schema-pelanggan', function() { return response()->json(\DB::select('DESCRIBE pelanggan')); });
+Route::get('/debug-pelanggan', function() { return response()->json(\DB::table('pelanggan')->where('KodePelanggan', '2601000000001')->first()); });
+Route::get('/convert-hours', function() { \DB::table('member_packages')->update(['maxTimePerPlay' => \DB::raw('maxTimePerPlay / 60')]); \DB::table('pelanggan')->update(['maxTimePerPlay' => \DB::raw('maxTimePerPlay / 60')]); return 'ok'; });
+Route::get('/debug-menu', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Paket%')->get()); });
+Route::get('/debug-member-menu', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Member%')->get()); });
+Route::get('/debug-link', function() { return response()->json(\DB::table('permission')->where('Link', 'like', '%memberpackage%')->get()); });
+Route::get('/add-permission', function() { $paketId = \DB::table('permission')->where('PermissionName', 'Paket')->value('id'); \DB::table('permission')->insertOrIgnore(['PermissionName' => 'Paket Member', 'Link' => 'master/memberpackage', 'Level' => 3, 'MenuInduk' => $paketId, 'SubMenu' => 2, 'Status' => 1, 'isSuperAdmin' => 0]); return 'ok'; });
 Route::post('/get-FnBItems', [BookingOnlineController::class, 'getFnBItems'])->name('booking-getFnBItems');
 
 /*
@@ -1430,6 +1412,9 @@ Route::post('/voucher/check', [VoucherController::class, 'checkVoucher'])->name(
 
 Route::get('/queue/{id}', [QueueManagementController::class,'index'])->name('queue-management');
 Route::post('/queue/getData', [QueueManagementController::class, 'handleQueue'])->name('queue-getData');
+Route::get('/queue-bengkel/{id}', [QueueBengkelController::class,'index'])->name('queue-bengkel');
+Route::post('/queue-bengkel/getData', [QueueBengkelController::class, 'getData'])->name('queue-bengkel-getData');
+Route::post('/queue-bengkel/updateStatus', [QueueBengkelController::class, 'updateStatus'])->name('queue-bengkel-updateStatus');
 
 // Redirect routes for Display/Monitor compatibility
 Route::get('/monitorantrean', function() {
@@ -1517,48 +1502,6 @@ Route::post('/gatedevices/edit', [\App\Http\Controllers\GateDeviceController::cl
 Route::delete('/gatedevices/delete/{id}', [\App\Http\Controllers\GateDeviceController::class, 'deletedata'])->name('gatedevices-delete')->middleware(['auth', 'check.session']);
 Route::post('/gatedevices/read', [\App\Http\Controllers\GateDeviceController::class, 'ViewJson'])->name('gatedevices-ViewJson')->middleware(['auth', 'check.session']);
 
-// Rute Mekanik
-Route::get('/mekanik', [MekanikController::class, 'index'])->name('mekanik')->middleware(['auth', 'check.session']);
-Route::post('/mekanik/getData', [MekanikController::class, 'getData'])->name('mekanik.getData')->middleware(['auth', 'check.session']);
-Route::post('/mekanik/store', [MekanikController::class, 'store'])->name('mekanik.store')->middleware(['auth', 'check.session']);
-Route::post('/mekanik/update/{id}', [MekanikController::class, 'update'])->name('mekanik.update')->middleware(['auth', 'check.session']);
-Route::post('/mekanik/destroy', [MekanikController::class, 'destroy'])->name('mekanik.destroy')->middleware(['auth', 'check.session']);
-
-// Master Kendaraan
-Route::get('/kendaraan', [KendaraanController::class, 'index'])->name('kendaraan.index')->middleware(['auth', 'check.session']);
-Route::post('/kendaraan/getData', [KendaraanController::class, 'getData'])->name('kendaraan.getData')->middleware(['auth', 'check.session']);
-Route::post('/kendaraan/store', [KendaraanController::class, 'store'])->name('kendaraan.store')->middleware(['auth', 'check.session']);
-Route::post('/kendaraan/update/{id}', [KendaraanController::class, 'update'])->name('kendaraan.update')->middleware(['auth', 'check.session']);
-Route::post('/kendaraan/destroy', [KendaraanController::class, 'destroy'])->name('kendaraan.destroy')->middleware(['auth', 'check.session']);
-
-// Service Advisor
-Route::get('/service-advisor', [ServiceAdvisorController::class, 'index'])->name('service-advisor')->middleware(['auth', 'check.session']);
-Route::get('/service-advisor/display', [ServiceAdvisorController::class, 'customerDisplay'])->name('service-advisor.display')->middleware(['auth', 'check.session']);
-Route::post('/service-advisor/getData', [ServiceAdvisorController::class, 'getData'])->name('service-advisor.getData')->middleware(['auth', 'check.session']);
-Route::post('/service-advisor/store', [ServiceAdvisorController::class, 'store'])->name('service-advisor.store')->middleware(['auth', 'check.session']);
-Route::post('/service-advisor/batal/{id}', [ServiceAdvisorController::class, 'batal'])->name('service-advisor.batal')->middleware(['auth', 'check.session']);
-Route::get('/service-advisor/items', [ServiceAdvisorController::class, 'getItems'])->name('service-advisor.items')->middleware(['auth', 'check.session']);
-Route::get('/service-advisor/details/{noPkb}', [ServiceAdvisorController::class, 'getDetails'])->name('service-advisor.details')->middleware(['auth', 'check.session']);
-Route::post('/service-advisor/details/store', [ServiceAdvisorController::class, 'storeDetail'])->name('service-advisor.details.store')->middleware(['auth', 'check.session']);
-Route::post('/service-advisor/details/delete/{id}', [ServiceAdvisorController::class, 'deleteDetail'])->name('service-advisor.details.delete')->middleware(['auth', 'check.session']);
-Route::post('/service-advisor/kendaraan/store', [ServiceAdvisorController::class, 'storeKendaraan'])->name('service-advisor.kendaraan.store')->middleware(['auth', 'check.session']);
-Route::post('/service-advisor/pelanggan/store', [ServiceAdvisorController::class, 'storePelanggan'])->name('service-advisor.pelanggan.store')->middleware(['auth', 'check.session']);
-
-// Dashboard Mekanik
-Route::get('/dashboard-mekanik', [DashboardMekanikController::class, 'index'])->name('dashboard-mekanik')->middleware(['auth', 'check.session']);
-Route::post('/dashboard-mekanik/getData', [DashboardMekanikController::class, 'getData'])->name('dashboard-mekanik.getData')->middleware(['auth', 'check.session']);
-Route::post('/dashboard-mekanik/update/{id}', [DashboardMekanikController::class, 'updateStatus'])->name('dashboard-mekanik.update')->middleware(['auth', 'check.session']);
-Route::get('/dashboard-mekanik/items/{noPKB}', [DashboardMekanikController::class, 'getItems'])->name('dashboard-mekanik.items')->middleware(['auth', 'check.session']);
-Route::get('/queue-bengkel', [DashboardMekanikController::class, 'queueDisplay'])->name('queue-bengkel')->middleware(['auth', 'check.session']);
-Route::post('/queue-bengkel/getData', [DashboardMekanikController::class, 'queueGetData'])->name('queue-bengkel-getData')->middleware(['auth', 'check.session']);
-Route::post('/queue-bengkel/updateStatus', [DashboardMekanikController::class, 'queueUpdateStatus'])->name('queue-bengkel-updateStatus')->middleware(['auth', 'check.session']);
-
-// Gudang Permintaan Sparepart
-Route::get('/gudang/permintaan-sparepart', [PermintaanSparepartController::class, 'index'])->name('permintaan-sparepart')->middleware(['auth', 'check.session']);
-Route::post('/gudang/permintaan-sparepart/getData', [PermintaanSparepartController::class, 'getData'])->name('permintaan-sparepart.getData')->middleware(['auth', 'check.session']);
-Route::post('/gudang/permintaan-sparepart/serahkan/{id}', [PermintaanSparepartController::class, 'serahkan'])->name('permintaan-sparepart.serahkan')->middleware(['auth', 'check.session']);
-Route::post('/gudang/permintaan-sparepart/tolak/{id}', [PermintaanSparepartController::class, 'tolak'])->name('permintaan-sparepart.tolak')->middleware(['auth', 'check.session']);
-
 // Master Paket Member
 Route::resource('master/memberpackage', App\Http\Controllers\MemberPackageController::class)->middleware('auth');
 Route::get('/fix-menu', function() { \DB::table('permission')->where('PermissionName', 'Paket Member')->update(['MenuInduk' => \DB::table('permission')->where('PermissionName', 'Paket')->value('id'), 'Level' => 3]); return 'ok'; });
@@ -1591,31 +1534,19 @@ Route::get('/debug-menu', function() { return response()->json(\DB::table('permi
 Route::get('/debug-member-menu', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Member%')->get()); });
 Route::get('/debug-link', function() { return response()->json(\DB::table('permission')->where('Link', 'like', '%memberpackage%')->get()); });
 Route::get('/add-permission', function() { $paketId = \DB::table('permission')->where('PermissionName', 'Paket')->value('id'); \DB::table('permission')->insertOrIgnore(['PermissionName' => 'Paket Member', 'Link' => 'master/memberpackage', 'Level' => 3, 'MenuInduk' => $paketId, 'SubMenu' => 2, 'Status' => 1, 'isSuperAdmin' => 0]); return 'ok'; });
+Route::get('/debug-kds', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%KDS%')->get()); });
+Route::get('/debug-antrean', function() { return response()->json(\DB::table('permission')->where('PermissionName', 'like', '%Antrean%')->get()); });
+Route::get('/debug-users2', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->where('RoleID', 1)->orWhere('name', 'like', '%admin%')->take(10)->get()); });
+Route::get('/debug-users3', function() { return response()->json(\Illuminate\Support\Facades\DB::table('users')->select('name', 'email')->take(5)->get()); });
 
-Route::get('/test-table', function() {
-    ob_start();
-    require_once base_path('check_table.php');
-    $out = ob_get_clean();
-    return $out;
+Route::get('/test-db', function() {
+    $user = App\Models\User::where('email', 'fulladmin@gmail.com')->first();
+    $company = App\Models\Company::where('KodePartner', $user ? $user->RecordOwnerID : '')->first();
+    return response()->json(['user' => $user, 'company' => $company]);
 });
-// --- Booking Bengkel Routes ---
-// Public route (no middleware required)
-Route::get('/booking-bengkel/{kodePartner}', [\App\Http\Controllers\BookingBengkelController::class, 'index'])->name('booking-bengkel.index');
-Route::post('/booking-bengkel/{kodePartner}/store', [\App\Http\Controllers\BookingBengkelController::class, 'store'])->name('booking-bengkel.store');
-Route::post('/booking-bengkel/{kodePartner}/check-customer', [\App\Http\Controllers\BookingBengkelController::class, 'checkCustomer'])->name('booking-bengkel.checkCustomer');
 
-// Member Auth Routes
-Route::post('/booking-bengkel/{kodePartner}/login', [\App\Http\Controllers\BookingBengkelAuthController::class, 'login'])->name('booking-bengkel.login');
-Route::post('/booking-bengkel/{kodePartner}/register', [\App\Http\Controllers\BookingBengkelAuthController::class, 'register'])->name('booking-bengkel.register');
-Route::get('/booking-bengkel/{kodePartner}/logout', [\App\Http\Controllers\BookingBengkelAuthController::class, 'logout'])->name('booking-bengkel.logout');
-Route::get('/booking-bengkel/{kodePartner}/dashboard', [\App\Http\Controllers\BookingBengkelAuthController::class, 'dashboard'])->name('booking-bengkel.dashboard');
-Route::post('/booking-bengkel/{kodePartner}/history-detail', [\App\Http\Controllers\BookingBengkelAuthController::class, 'getHistoryDetail'])->name('booking-bengkel.history-detail');
-Route::get('/booking-bengkel/{kodePartner}/print-faktur/{noTransaksi}', [\App\Http\Controllers\BookingBengkelAuthController::class, 'printFaktur'])->name('booking-bengkel.print-faktur');
+Route::get('/check_demo_users', function() { require_once 'check_demo_users.php'; return 'Done'; });
+
+Route::get('/check_demo_users_2', function() { $res = ''; foreach(['demotiket@pos.dstechsmart.com','demoapotek@pos.dstechsmart.com','demoresto@pos.dstechsmart.com','demogate@pos.dstechsmart.com','demolaundry@pos.dstechsmart.com'] as $email) { $user = App\Models\User::where('email', $email)->first(); $res .= $email . ' | '; if ($user) { $res .= 'USER EXISTS (RO: ' . $user->RecordOwnerID . ') | '; $company = App\Models\Company::where('KodePartner', $user->RecordOwnerID)->first(); if ($company) { $res .= 'COMPANY EXISTS (' . $company->NamaPartner . ' - Active: ' . $company->isActive . ')<br>'; } else { $res .= 'COMPANY MISSING<br>'; } } else { $res .= 'USER MISSING<br>'; } } return $res; });
 
 
-// Admin routes (requires auth)
-Route::group(['middleware' => ['auth', 'check.session']], function () {
-    Route::get('/admin-booking-bengkel', [\App\Http\Controllers\BookingBengkelController::class, 'adminIndex'])->name('admin.booking.bengkel');
-    Route::post('/admin-booking-bengkel/update-status', [\App\Http\Controllers\BookingBengkelController::class, 'updateStatus'])->name('admin-booking.update');
-    Route::get('/report/booking-bengkel', [\App\Http\Controllers\BookingBengkelController::class, 'reportBooking'])->name('report.booking.bengkel');
-});

@@ -271,6 +271,7 @@
 						<!--begin::Menu Nav-->
 						<div id="accordion">
 							<ul class="nav flex-column">
+								@if(!isset($cData[0]['JenisUsaha']) || $cData[0]['JenisUsaha'] != 'Parkir')
 								<li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
 									<a href="{{ route('dashboard') }}" class="nav-link">
 										<span class="svg-icon nav-icon">
@@ -286,8 +287,6 @@
 										</span>
 									</a>
 								</li>
-
-
 
 								<li class="nav-item">
 									<a href="https://api.whatsapp.com/send/?phone=6282258493130&text=Saya%20ada%20kendala%20di%20PoS&type=phone_number&app_absent=0" target="_blank" class="nav-link">
@@ -312,6 +311,7 @@
 										</span>
 									</a>
 								</li>
+								@endif
 								
 								@php
 									if(!function_exists('is_nav_exact_active')) {
@@ -423,7 +423,28 @@
 											'Icon' => 'fas fa-tools',
 											'submenu' => [],
 											'ParentType' => 1
-										]
+										],
+										'dealer' => [
+											'PermissionName' => 'Dealer Kendaraan',
+											'Icon' => 'fas fa-car-side',
+											'submenu' => [
+												[
+													'PermissionName' => 'Stok Unit Kendaraan',
+													'Link' => 'dealer/inventory',
+													'Icon' => 'fas fa-boxes',
+													'submenu' => [],
+													'ParentType' => 0
+												],
+												[
+													'PermissionName' => 'POS Penjualan Kendaraan',
+													'Link' => 'dealer/pos',
+													'Icon' => 'fas fa-cash-register',
+													'submenu' => [],
+													'ParentType' => 0
+												]
+											],
+											'ParentType' => 1
+										],
 									];
 
 									// Traverse $navbars and sort L2 items into the correct premium categories
@@ -648,11 +669,18 @@
 										unset($activePremiumCategories['resto']);
 										unset($activePremiumCategories['billiard']);
 									}
+									// Untuk usaha Parkir: sembunyikan semua menu yang tidak relevan
+									if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] == 'Parkir') {
+										$keysToRemove = ['pos', 'billiard', 'booking', 'display', 'resto', 'inventory', 'consignment', 'purchasing', 'crm', 'finance', 'accounting', 'reports_sales', 'reports_accounting', 'bengkel', 'dealer'];
+										foreach ($keysToRemove as $removeKey) {
+											unset($activePremiumCategories[$removeKey]);
+										}
+									}
 
 									$sectionGroups = [
 										'front_office' => [
 											'label' => 'OPERASIONAL (FRONT-OFFICE)',
-											'keys' => ['pos', 'billiard', 'booking', 'display']
+											'keys' => ['pos', 'billiard', 'booking', 'display', 'dealer']
 										],
 										'back_office' => [
 											'label' => 'MANAJEMEN & INVENTORI (BACK-OFFICE)',

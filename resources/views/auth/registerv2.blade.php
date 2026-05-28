@@ -194,6 +194,8 @@
                             <option value="Retail">Retail</option>
                             <option value="FnB">Food and Beverage</option>
                             <option value="Hiburan">Hiburan</option>
+                            <option value="Dealer">Dealer Kendaraan</option>
+                            <option value="Parkir">Smart Gate (Parkir)</option>
                         </select>
                     </div>
                 </div>

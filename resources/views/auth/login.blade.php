@@ -573,6 +573,12 @@
                                 </button>
                             </div>
                             <div class="demo-btn-wrapper">
+                                <a href="https://smartaccess.dstechsmart.com" target="_blank" class="btn w-100" style="color: #20c997; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <i class="bi bi-p-square" style="font-size: 1.5rem; margin-bottom: 5px;"></i>
+                                    <span style="font-size: 0.7rem; font-weight: normal;">Parkir (Gate)</span>
+                                </a>
+                            </div>
+                            <div class="demo-btn-wrapper">
                                 <button type="button" class="btn btn-demo-auto w-100" style="color: #dc3545;" data-email="demoapotek@pos.dstechsmart.com" data-pass="12345678">
                                     <i class="bi bi-capsule"></i>
                                     <span style="font-size: 0.7rem;">Apotek</span>
@@ -582,6 +588,12 @@
                                 <button type="button" class="btn btn-demo-auto w-100" style="color: #e65100;" data-email="demobengkel@pos.dstechsmart.com" data-pass="12345678">
                                     <i class="bi bi-wrench-adjustable-circle-fill"></i>
                                     <span style="font-size: 0.7rem;">Bengkel</span>
+                                </button>
+                            </div>
+                            <div class="demo-btn-wrapper">
+                                <button type="button" class="btn btn-demo-auto w-100" style="color: #0d6efd;" data-email="dealer@dstechsmart.com" data-pass="dealer123">
+                                    <i class="bi bi-car-front-fill"></i>
+                                    <span style="font-size: 0.7rem;">Dealer Kendaraan</span>
                                 </button>
                             </div>
                         </div>
@@ -693,7 +705,9 @@
                 // Auto Scroll behavior
                 function startAutoScroll() {
                     autoScrollInterval = setInterval(() => {
-                        if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10) {
+                        const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+                        // Added Math.ceil to prevent fractional pixel issues
+                        if (Math.ceil(scrollContainer.scrollLeft) >= maxScrollLeft - 5) {
                             // Reached the end, scroll back to start
                             scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
                         } else {
