@@ -151,10 +151,22 @@ class BookingBengkelAuthController extends Controller
             return response()->json(['success' => false, 'message' => 'Data tidak ditemukan']);
         }
 
-        $details = \Illuminate\Support\Facades\DB::table('fakturpenjualandetail')
-            ->where('NoTransaksi', $noTransaksi)
-            ->where('RecordOwnerID', $kodePartner)
-            ->get();
+        if (!empty($header->NoPKB)) {
+            $details = \Illuminate\Support\Facades\DB::table('bengkel_work_order_details')
+                ->where('NoPKB', $header->NoPKB)
+                ->where('RecordOwnerID', $kodePartner)
+                ->get();
+        } else {
+            $details = \Illuminate\Support\Facades\DB::table('fakturpenjualandetail')
+                ->leftJoin('itemmaster', function ($join) use ($kodePartner) {
+                    $join->on('fakturpenjualandetail.KodeItem', '=', 'itemmaster.KodeItem')
+                         ->where('itemmaster.RecordOwnerID', '=', $kodePartner);
+                })
+                ->where('fakturpenjualandetail.NoTransaksi', $noTransaksi)
+                ->where('fakturpenjualandetail.RecordOwnerID', $kodePartner)
+                ->select('fakturpenjualandetail.*', 'itemmaster.NamaItem')
+                ->get();
+        }
 
         return response()->json([
             'success' => true,

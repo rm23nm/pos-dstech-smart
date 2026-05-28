@@ -242,11 +242,11 @@
                             $('#contentDetail').removeClass('d-none');
                             let html = '';
                             res.details.forEach(item => {
-                                let harga = parseInt(item.Harga) || 0;
+                                let harga = parseInt(item.HargaNet) || parseInt(item.Harga) || 0;
                                 let qty = parseFloat(item.Qty) || 0;
-                                let total = parseInt(item.TotalTransaksi) || 0;
+                                let total = harga * qty;
                                 html += `<tr>
-                                    <td>${item.NamaItem}</td>
+                                    <td>${item.NamaItem || item.Keterangan || item.KodeItem}</td>
                                     <td class="text-center">${qty}</td>
                                     <td class="text-end">${harga.toLocaleString('id-ID')}</td>
                                     <td class="text-end fw-bold">${total.toLocaleString('id-ID')}</td>
