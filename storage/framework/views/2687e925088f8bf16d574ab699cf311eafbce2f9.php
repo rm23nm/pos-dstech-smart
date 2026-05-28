@@ -304,31 +304,31 @@
                 
                 <!-- Background Slides -->
                 <div id="loginCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000" data-bs-pause="false">
-                @if(isset($loginslides) && count($loginslides) > 0)
+                <?php if(isset($loginslides) && count($loginslides) > 0): ?>
                     <div class="carousel-inner">
-                        @foreach($loginslides as $index => $slide)
-                            <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                <img src="{{ asset($slide->image_path) }}" alt="{{ $slide->title }}">
+                        <?php $__currentLoopData = $loginslides; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $slide): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="carousel-item <?php echo e($index == 0 ? 'active' : ''); ?>">
+                                <img src="<?php echo e(asset($slide->image_path)); ?>" alt="<?php echo e($slide->title); ?>">
                                 
                                 <!-- Dynamic Content Over Slide -->
                                 <div class="showcase-content position-absolute" style="bottom: 40px; left: 40px; right: 40px; z-index: 10;">
-                                    <h1 class="showcase-title">{{ $slide->title }}</h1>
-                                    <p class="showcase-subtitle">{{ $slide->description }}</p>
+                                    <h1 class="showcase-title"><?php echo e($slide->title); ?></h1>
+                                    <p class="showcase-subtitle"><?php echo e($slide->description); ?></p>
                                     
-                                    @if($slide->demo_email)
+                                    <?php if($slide->demo_email): ?>
                                     <div class="demo-buttons-container mt-4" style="display: inline-block; min-width: 250px;">
-                                        <div class="demo-title"><i class="bi bi-stars"></i> Demo {{ $slide->title }}</div>
-                                        <button type="button" class="btn btn-demo-auto w-100 btn-light text-primary fw-bold" data-email="{{ $slide->demo_email }}" data-pass="{{ $slide->demo_password }}" style="padding: 10px 20px; border-radius: 10px; font-size: 1rem;">
+                                        <div class="demo-title"><i class="bi bi-stars"></i> Demo <?php echo e($slide->title); ?></div>
+                                        <button type="button" class="btn btn-demo-auto w-100 btn-light text-primary fw-bold" data-email="<?php echo e($slide->demo_email); ?>" data-pass="<?php echo e($slide->demo_password); ?>" style="padding: 10px 20px; border-radius: 10px; font-size: 1rem;">
                                             <i class="bi bi-box-arrow-in-right"></i> Masuk Sekarang
                                         </button>
                                     </div>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                 </div>
-                @else
+                <?php else: ?>
                     <style>
                         .showcase-caption {
                             position: absolute;
@@ -357,7 +357,7 @@
                     <div class="carousel-inner">
                         <!-- Slide 0: General / Kolase -->
                         <div class="carousel-item active">
-                            <img src="{{ asset('images/misc/bg-login3.jpg') }}" onerror="this.src='{{ asset('images/misc/bg-login2.webp') }}'" alt="Satu Aplikasi">
+                            <img src="<?php echo e(asset('images/misc/bg-login3.jpg')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login2.webp')); ?>'" alt="Satu Aplikasi">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Satu Aplikasi,<br>Beragam Solusi Bisnis</h1>
                                 <p class="showcase-subtitle mb-0">Pilih jenis usaha Anda dan nikmati kemudahan manajemen Point of Sales, Inventori, hingga Booking secara terpadu.</p>
@@ -365,7 +365,7 @@
                         </div>
                         <!-- Slide 1: Grosir & Supermarket -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_retail.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Grosir & Supermarket">
+                            <img src="<?php echo e(asset('images/misc/slide_retail.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login3.jpg')); ?>'" alt="Grosir & Supermarket">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Grosir & Supermarket</h1>
                                 <p class="showcase-subtitle mb-0">Kelola puluhan ribu stok barang, barcode barcode scanner, dan transaksi kasir secara cepat dan akurat.</p>
@@ -373,7 +373,7 @@
                         </div>
                         <!-- Slide 2: Toko Kelontong -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_kelontong.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Toko Kelontong">
+                            <img src="<?php echo e(asset('images/misc/slide_kelontong.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login3.jpg')); ?>'" alt="Toko Kelontong">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Toko Kelontong</h1>
                                 <p class="showcase-subtitle mb-0">Manajemen warung dan toko kelontong modern. Catat penjualan harian dengan mudah.</p>
@@ -381,7 +381,7 @@
                         </div>
                         <!-- Slide 3: Bengkel Otomotif -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_bengkel.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Bengkel Otomotif">
+                            <img src="<?php echo e(asset('images/misc/slide_bengkel.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login3.jpg')); ?>'" alt="Bengkel Otomotif">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Bengkel Otomotif</h1>
                                 <p class="showcase-subtitle mb-0">Sistem POS cerdas untuk mencatat jasa service, sparepart, dan antrian pelanggan secara real-time.</p>
@@ -389,7 +389,7 @@
                         </div>
                         <!-- Slide 4: Apotik & Farmasi -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_apotik.png') }}" onerror="this.src='{{ asset('images/misc/bg-login3.jpg') }}'" alt="Apotik">
+                            <img src="<?php echo e(asset('images/misc/slide_apotik.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login3.jpg')); ?>'" alt="Apotik">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Apotik & Farmasi</h1>
                                 <p class="showcase-subtitle mb-0">Pencatatan obat, cek tanggal kedaluwarsa (expired), dan kontrol stok farmasi yang detail dan rapi.</p>
@@ -397,7 +397,7 @@
                         </div>
                         <!-- Slide 5: Rumah Makan & Restoran -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_fnb.png') }}" onerror="this.src='{{ asset('images/misc/bg-login2.webp') }}'" alt="Rumah Makan">
+                            <img src="<?php echo e(asset('images/misc/slide_fnb.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login2.webp')); ?>'" alt="Rumah Makan">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Rumah Makan & Restoran</h1>
                                 <p class="showcase-subtitle mb-0">Solusi tepat untuk manajemen pesanan, pengaturan meja (table management), dan split bill.</p>
@@ -405,7 +405,7 @@
                         </div>
                         <!-- Slide 6: Caffe -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_caffe.png') }}" onerror="this.src='{{ asset('images/misc/bg-login2.webp') }}'" alt="Caffe">
+                            <img src="<?php echo e(asset('images/misc/slide_caffe.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login2.webp')); ?>'" alt="Caffe">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Caffe & Coffee Shop</h1>
                                 <p class="showcase-subtitle mb-0">POS dinamis untuk coffee shop. Catat resep, varian minuman, dan sistem takeaway / dine-in.</p>
@@ -413,7 +413,7 @@
                         </div>
                         <!-- Slide 7: Hotel -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_hotel.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Hotel">
+                            <img src="<?php echo e(asset('images/misc/slide_hotel.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login1.png')); ?>'" alt="Hotel">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Hotel & Penginapan</h1>
                                 <p class="showcase-subtitle mb-0">Kemudahan manajemen check-in/check-out, tagihan layanan kamar, dan pencatatan fasilitas tamu.</p>
@@ -421,7 +421,7 @@
                         </div>
                         <!-- Slide 8: Olahraga -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_hiburan.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Lapangan Olahraga">
+                            <img src="<?php echo e(asset('images/misc/slide_hiburan.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login1.png')); ?>'" alt="Lapangan Olahraga">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Lapangan Olahraga</h1>
                                 <p class="showcase-subtitle mb-0">Sistem booking jam otomatis untuk lapangan Badminton, Padel, Basket, dan Futsal.</p>
@@ -429,7 +429,7 @@
                         </div>
                         <!-- Slide 9: Billiar -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_billiar.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Billiar">
+                            <img src="<?php echo e(asset('images/misc/slide_billiar.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login1.png')); ?>'" alt="Billiar">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Arena Billiar</h1>
                                 <p class="showcase-subtitle mb-0">Menghitung durasi penyewaan meja biliar dengan tarif otomatis berdasarkan menit/jam (billing system).</p>
@@ -437,7 +437,7 @@
                         </div>
                         <!-- Slide 10: GYM -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_tiket.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="GYM">
+                            <img src="<?php echo e(asset('images/misc/slide_tiket.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login.png')); ?>'" alt="GYM">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">GYM & Fitness</h1>
                                 <p class="showcase-subtitle mb-0">Manajemen membership, paket bulanan, kunjungan harian, dan penjualan suplemen dalam satu kasir.</p>
@@ -445,7 +445,7 @@
                         </div>
                         <!-- Slide 11: Kolam Renang -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_pool.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Kolam Renang">
+                            <img src="<?php echo e(asset('images/misc/slide_pool.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login.png')); ?>'" alt="Kolam Renang">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Kolam Renang</h1>
                                 <p class="showcase-subtitle mb-0">POS khusus ticketing kolam renang, kontrol akses pengunjung, dan pencatatan penyewaan loker/ban.</p>
@@ -453,7 +453,7 @@
                         </div>
                         <!-- Slide 12: Wahana Hiburan -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_wahana.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Wahana Hiburan">
+                            <img src="<?php echo e(asset('images/misc/slide_wahana.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login.png')); ?>'" alt="Wahana Hiburan">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Wahana Hiburan</h1>
                                 <p class="showcase-subtitle mb-0">Cetak tiket masuk wahana, scan barcode gelang, dan laporan jumlah pengunjung yang akurat.</p>
@@ -461,7 +461,7 @@
                         </div>
                         <!-- Slide 13: Futsal -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_futsal.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Futsal">
+                            <img src="<?php echo e(asset('images/misc/slide_futsal.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login1.png')); ?>'" alt="Futsal">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Lapangan Futsal</h1>
                                 <p class="showcase-subtitle mb-0">Booking lapangan futsal dengan mudah, pencatatan otomatis, dan manajemen jadwal yang anti-bentrok.</p>
@@ -469,7 +469,7 @@
                         </div>
                         <!-- Slide 14: Basket -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_basket.png') }}" onerror="this.src='{{ asset('images/misc/bg-login1.png') }}'" alt="Basket">
+                            <img src="<?php echo e(asset('images/misc/slide_basket.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login1.png')); ?>'" alt="Basket">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Lapangan Basket</h1>
                                 <p class="showcase-subtitle mb-0">Sistem penyewaan lapangan basket terpadu, kontrol lampu otomatis sesuai durasi sewa.</p>
@@ -477,7 +477,7 @@
                         </div>
                         <!-- Slide 15: Fitur IoT -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_iot.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Fitur IoT">
+                            <img src="<?php echo e(asset('images/misc/slide_iot.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login.png')); ?>'" alt="Fitur IoT">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Integrasi IoT & Smart Relay</h1>
                                 <p class="showcase-subtitle mb-0">Terhubung langsung ke lampu meja billiar atau lapangan. Lampu menyala saat billing aktif, dan mati otomatis saat waktu habis.</p>
@@ -485,7 +485,7 @@
                         </div>
                         <!-- Slide 16: Kelebihan Produk -->
                         <div class="carousel-item">
-                            <img src="{{ asset('images/misc/slide_kelebihan.png') }}" onerror="this.src='{{ asset('images/misc/bg-login.png') }}'" alt="Kelebihan Produk">
+                            <img src="<?php echo e(asset('images/misc/slide_kelebihan.png')); ?>" onerror="this.src='<?php echo e(asset('images/misc/bg-login.png')); ?>'" alt="Kelebihan Produk">
                             <div class="showcase-caption">
                                 <h1 class="showcase-title">Kelebihan Produk Kami</h1>
                                 <p class="showcase-subtitle mb-0">100% Cloud Base, Laporan Real-time, Mendukung Multi Cabang, dan Keamanan Data Tingkat Tinggi dengan dukungan AI.</p>
@@ -601,7 +601,7 @@
                         </div>
                     </div>
                 </div>
-                @endif
+                <?php endif; ?>
             </div>
 
             <!-- RIGHT SIDE: LOGIN FORM -->
@@ -609,13 +609,13 @@
                 <div class="login-form-container">
                     
                     <div class="brand-header">
-                        <img src="{{ asset('images/misc/LogoFront.png') }}" alt="logo" class="brand-logo">
+                        <img src="<?php echo e(asset('images/misc/LogoFront.png')); ?>" alt="logo" class="brand-logo">
                         <div class="brand-name">DSMS POS</div>
                         <div class="brand-tagline">Welcome back! Please enter your details.</div>
                     </div>
 
-                    <form method="post" action="{{ route('action-login') }}">
-                        @csrf
+                    <form method="post" action="<?php echo e(route('action-login')); ?>">
+                        <?php echo csrf_field(); ?>
                         <div class="mb-4">
                             <label class="form-label">Email / Username</label>
                             <div class="input-group">
@@ -627,7 +627,7 @@
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <label class="form-label mb-0">Password</label>
-                                <a href="{{ route('forgotpassword') }}" class="text-decoration-none fw-semibold" style="font-size: 0.85rem; color: var(--primary-blue);">Lupa Password?</a>
+                                <a href="<?php echo e(route('forgotpassword')); ?>" class="text-decoration-none fw-semibold" style="font-size: 0.85rem; color: var(--primary-blue);">Lupa Password?</a>
                             </div>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
@@ -642,7 +642,7 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-login">MASUK <i class="bi bi-box-arrow-in-right ms-1"></i></button>
-                            <a href="{{ route('daftar') }}" class="btn btn-register">DAFTAR AKUN BARU</a>
+                            <a href="<?php echo e(route('daftar')); ?>" class="btn btn-register">DAFTAR AKUN BARU</a>
                         </div>
                     </form>
 
@@ -657,7 +657,7 @@
         </div>
     </div>
 
-    @include('sweetalert::alert')
+    <?php echo $__env->make('sweetalert::alert', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -736,3 +736,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/auth/login.blade.php ENDPATH**/ ?>
