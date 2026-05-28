@@ -1458,7 +1458,7 @@ License: You must have a valid license purchased only from themeforest(the above
 												<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between py-2" StsPyment={{$ko->Active}} id={{ $ko->id }} CaraVerifikasi={{$ko->MetodeVerifikasi}} TipePembayaran={{$ko->TipePembayaran}}>
 													<div class="list-left d-flex align-items-center">
 														<span class="d-flex align-items-center justify-content-center rounded svg-icon w-45px h-45px bg-light-dark text-white me-2">
-															<img src="{{ $ko->Image }}" class="bi bi-lightning-fill" width="80%">
+															<img src="{{ $ko->Image }}" class="bi bi-lightning-fill" width="80%" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FzaCIgdmlld0JveD0iMCAwIDE2IDE2Ij4gPHBhdGggZD0iTTggMTBhMiAyIDAgMTAwLTQgMiAyIDAgMDAwIDR6Ii8+IDxwYXRoIGQ9Ik0wIDRhMiAyIDAgMDExMiAwaDFhMiAyIDAgMDExMiAwdjFIMHYtMXptMTUtMmEyIDIgMCAwMTAgNGgxYTIgMiAwIDAxMCA0djFoLTE1di0xaDFhMiAyIDAgMDEwLTRIMHYtMWgxNXYxeiIvPiA8L3N2Zz4=';">
 														</span>
 													  <div class="list-content">
 														<span class="list-title text-body">{{ $ko->NamaMetodePembayaran}}</span>

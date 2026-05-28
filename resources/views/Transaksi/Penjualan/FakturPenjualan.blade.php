@@ -494,17 +494,20 @@
                 {
                     dataField: "NoResep",
                     caption: "No. Resep",
-                    allowEditing:false
+                    allowEditing:false,
+                    visible: {{ isset($company) && in_array($company->JenisUsaha, ['APOTEK', 'KLINIK']) ? 'true' : 'false' }}
                 },
                 {
                     dataField: "NamaDokter",
                     caption: "Dokter",
-                    allowEditing:false
+                    allowEditing:false,
+                    visible: {{ isset($company) && in_array($company->JenisUsaha, ['APOTEK', 'KLINIK']) ? 'true' : 'false' }}
                 },
                 {
                     dataField: "NamaPasien",
                     caption: "Pasien",
-                    allowEditing:false
+                    allowEditing:false,
+                    visible: {{ isset($company) && in_array($company->JenisUsaha, ['APOTEK', 'KLINIK']) ? 'true' : 'false' }}
                 },
                 {
                     dataField: "NamaTermin",

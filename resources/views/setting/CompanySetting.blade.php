@@ -124,9 +124,25 @@
 													<li class="nav-item" >
 														<a class="nav-link" id="invoice-tab" data-bs-toggle="pill" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false">Tagihan</a>
 													</li>
-													<li class="nav-item" >
-														<a class="nav-link disabled" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Pengaturan Display</a>
+													<li class="nav-item mt-3" >
+														<a class="nav-link disabled font-weight-bolder text-dark" style="background:transparent; padding-bottom: 5px; padding-left:15px;" aria-selected="false">Pengaturan Display</a>
 													</li>
+													<li class="nav-item" >
+														<a class="nav-link disabled" id="custdisplay-pos-tab" data-bs-toggle="pill" href="#custdisplay-pos" role="tab" aria-controls="custdisplay-pos" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-computer me-2"></i> Tampilan POS & Kasir</a>
+													</li>
+													<li class="nav-item" >
+														<a class="nav-link disabled" id="custdisplay-antrean-tab" data-bs-toggle="pill" href="#custdisplay-antrean" role="tab" aria-controls="custdisplay-antrean" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-presentation me-2"></i> Customer Display</a>
+													</li>
+													@if ($company[0]['JenisUsaha'] == "Hiburan" || $company[0]['JenisUsaha'] == "FnB")
+													<li class="nav-item" >
+														<a class="nav-link disabled" id="custdisplay-ecatalog-tab" data-bs-toggle="pill" href="#custdisplay-ecatalog" role="tab" aria-controls="custdisplay-ecatalog" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-internet me-2"></i> E-Catalog & Booking Hiburan</a>
+													</li>
+													@endif
+													@if (in_array($company[0]['JenisUsaha'], ["Retail", "Bengkel", "Servis"]))
+													<li class="nav-item" >
+														<a class="nav-link disabled" id="website-bengkel-tab" data-bs-toggle="pill" href="#website-bengkel" role="tab" aria-controls="website-bengkel" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-internet me-2"></i> Website Booking Bengkel</a>
+													</li>
+													@endif
 													<li class="nav-item" >
 														<a class="nav-link" id="domain-tab" data-bs-toggle="pill" href="#domain" role="tab" aria-controls="domain" aria-selected="false">Domain & Midtrans</a>
 													</li>
@@ -160,9 +176,25 @@
 													<li class="nav-item" >
 														<a class="nav-link" id="invoice-tab" data-bs-toggle="pill" href="#invoice" role="tab" aria-controls="invoice" aria-selected="false">Tagihan</a>
 													</li>
-													<li class="nav-item" >
-														<a class="nav-link" id="custdisplay-tab" data-bs-toggle="pill" href="#custdisplay" role="tab" aria-controls="custdisplay" aria-selected="false">Pengaturan Display</a>
+													<li class="nav-item mt-3" >
+														<a class="nav-link disabled font-weight-bolder text-dark" style="background:transparent; padding-bottom: 5px; padding-left:15px;" aria-selected="false">Pengaturan Display</a>
 													</li>
+													<li class="nav-item" >
+														<a class="nav-link" id="custdisplay-pos-tab" data-bs-toggle="pill" href="#custdisplay-pos" role="tab" aria-controls="custdisplay-pos" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-computer me-2"></i> Tampilan POS & Kasir</a>
+													</li>
+													<li class="nav-item" >
+														<a class="nav-link" id="custdisplay-antrean-tab" data-bs-toggle="pill" href="#custdisplay-antrean" role="tab" aria-controls="custdisplay-antrean" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-presentation me-2"></i> Customer Display</a>
+													</li>
+													@if ($company[0]['JenisUsaha'] == "Hiburan" || $company[0]['JenisUsaha'] == "FnB")
+													<li class="nav-item" >
+														<a class="nav-link" id="custdisplay-ecatalog-tab" data-bs-toggle="pill" href="#custdisplay-ecatalog" role="tab" aria-controls="custdisplay-ecatalog" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-internet me-2"></i> E-Catalog & Booking Hiburan</a>
+													</li>
+													@endif
+													@if (in_array($company[0]['JenisUsaha'], ["Retail", "Bengkel", "Servis"]))
+													<li class="nav-item" >
+														<a class="nav-link" id="website-bengkel-tab" data-bs-toggle="pill" href="#website-bengkel" role="tab" aria-controls="website-bengkel" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-internet me-2"></i> Website Booking Bengkel</a>
+													</li>
+													@endif
 													<li class="nav-item" >
 														<a class="nav-link" id="domain-tab" data-bs-toggle="pill" href="#domain" role="tab" aria-controls="domain" aria-selected="false">Domain & Midtrans</a>
 													</li>
@@ -257,7 +289,7 @@
 														<div class="col-md-4">
 					                            			<label  class="text-body">Email</label>
 					                            			<fieldset class="form-group mb-3">
-					                            				<input type="text" class="form-control" id="Email" name="Email" placeholder="Masukan Nomor Email" value="{{ count($company) > 0 ? $company[0]['Email'] == '' ? $userdata->email : $company[0]['Email'] : '' }}"  >
+					                            				<input type="text" class="form-control" id="Email" name="Email" placeholder="Masukan Nomor Email" value="{{ count($company) > 0 ? ($company[0]['Email'] == '' ? ($userdata ? $userdata->email : Auth::user()->email) : $company[0]['Email']) : '' }}"  >
 					                            			</fieldset>
 					                            			
 					                            		</div>
@@ -636,7 +668,7 @@
 													</div>
 												</div>
 
-												<div class="tab-pane fade" id="custdisplay" role="tabpanel" aria-labelledby="custdisplay-tab">
+												<div class="tab-pane fade" id="custdisplay-pos" role="tabpanel" aria-labelledby="custdisplay-pos-tab">
 													<div class="row">
 														
 														<!-- CARD 1: DISPLAY POS & KASIR -->
@@ -650,7 +682,7 @@
 															</div>
 															<div class="card-body py-4">
 																<div class="row">
-																	<div class="col-md-4 mb-3">
+																	<div class="col-md-4 mb-3 d-none">
 																		<label class="text-body fw-bold">Template Tampilan POS Retail</label>
 																		<fieldset class="form-group mb-3">
 																			<select name="PosTemplate" id="PosTemplate" class="js-example-basic-single js-states form-control bg-transparent">
@@ -660,7 +692,7 @@
 																		</fieldset>
 																	</div>
 																	
-																	<div class="col-md-4 mb-3">
+																	<div class="col-md-4 mb-3 d-none">
 																		<label class="text-body fw-bold">Type Background POS</label>
 																		<fieldset class="form-group mb-3">
 																			<select name="TypeBackgraund" id="TypeBackgraund" class="js-example-basic-single js-states form-control bg-transparent">
@@ -670,7 +702,7 @@
 																		</fieldset>
 																	</div>
 																	
-																	<div class="col-md-4 mb-3">
+																	<div class="col-md-4 mb-3 d-none">
 																		<label class="text-body fw-bold">Background POS</label>
 																		<fieldset class="form-group mb-3" id="backgroundInput">
 																			<!-- Dinamis oleh JS -->
@@ -678,7 +710,7 @@
 																	</div>
 																	
 																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Type Kitchen Background</label>
+																		<label class="text-body fw-bold">Tipe Layar Antrean/Proses (KDS)</label>
 																		<fieldset class="form-group mb-3">
 																			<select name="TypeKitchenBackgraund" id="TypeKitchenBackgraund" class="js-example-basic-single js-states form-control bg-transparent">
 																				<option value="Color" {{ count($company) > 0 && $company[0]['TypeKitchenBackgraund'] == 'Color' ? 'selected' : '' }}>Color</option>
@@ -688,7 +720,7 @@
 																	</div>
 																	
 																	<div class="col-md-6 mb-3">
-																		<label class="text-body fw-bold">Kitchen Background</label>
+																		<label class="text-body fw-bold">Background Layar (KDS)</label>
 																		<fieldset class="form-group mb-3" id="kitchenBackgroundInput">
 																			<!-- Dinamis oleh JS -->
 																		</fieldset>
@@ -696,7 +728,11 @@
 																</div>
 															</div>
 														</div>
+													</div>
+												</div>
 
+												<div class="tab-pane fade" id="custdisplay-antrean" role="tabpanel" aria-labelledby="custdisplay-antrean-tab">
+													<div class="row">
 														<!-- CARD 2: CUSTOMER DISPLAY -->
 														<div class="card card-custom gutter-b mb-6 border border-light-success bg-white shadow-sm rounded">
 															<div class="card-header h-auto py-3 bg-light-success border-0 rounded-top">
@@ -776,7 +812,12 @@
 																</div>
 															</div>
 														</div>
+													</div>
+												</div>
 
+												@if ($company[0]['JenisUsaha'] == "Hiburan" || $company[0]['JenisUsaha'] == "FnB")
+												<div class="tab-pane fade" id="custdisplay-ecatalog" role="tabpanel" aria-labelledby="custdisplay-ecatalog-tab">
+													<div class="row">
 														<!-- CARD 3: WEBSITE UTAMA & BOOKING ONLINE -->
 														<div class="card card-custom gutter-b mb-6 border border-light-info bg-white shadow-sm rounded">
 															<div class="card-header h-auto py-3 bg-light-info border-0 rounded-top">
@@ -1039,6 +1080,169 @@
 														
 													</div>
 												</div>
+												@endif
+
+												@if (in_array($company[0]['JenisUsaha'], ["Retail", "Bengkel", "Servis"]))
+												<div class="tab-pane fade" id="website-bengkel" role="tabpanel" aria-labelledby="website-bengkel-tab">
+													<div class="row">
+														<!-- CARD 4: WEBSITE BENGKEL -->
+														<div class="card card-custom gutter-b mb-6 border border-light-info bg-white shadow-sm rounded">
+															<div class="card-header h-auto py-3 bg-light-info border-0 rounded-top">
+																<div class="card-title m-0">
+																	<h3 class="card-label text-info font-weight-bolder m-0" style="font-size: 1.25rem;">
+																		<i class="flaticon-internet me-2 text-info"></i> Website Booking Bengkel
+																	</h3>
+																</div>
+															</div>
+															<div class="card-body py-4">
+																
+																<!-- Accordion Banners Bengkel -->
+																<h5 class="text-dark font-weight-bold mb-4 mt-2">Banners & Promosi Utama Website Bengkel</h5>
+																<div class="accordion mb-4" id="accordionBannersBengkel">
+																	@for ($b = 1; $b <= 3; $b++)
+																	<div class="accordion-item border mb-2 rounded">
+																		<h2 class="accordion-header" id="headingBannerBengkel{{$b}}">
+																			<button class="accordion-button {{ $b > 1 ? 'collapsed' : '' }} py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBannerBengkel{{$b}}" aria-expanded="{{ $b == 1 ? 'true' : 'false' }}" aria-controls="collapseBannerBengkel{{$b}}">
+																				Banner Promosi #{{$b}}
+																			</button>
+																		</h2>
+																		<div id="collapseBannerBengkel{{$b}}" class="accordion-collapse collapse {{ $b == 1 ? 'show' : '' }}" aria-labelledby="headingBannerBengkel{{$b}}" data-bs-parent="#accordionBannersBengkel">
+																			<div class="accordion-body">
+																				<div class="row">
+																					<div class="col-sm-12 mb-3">
+																						<label class="text-body fw-bold">Banner Header</label>
+																						<fieldset class="form-group mb-2">
+																							<div id="BannerHeader{{$b}}">
+																								{!! count($company) > 0 ? $company[0]['BannerHeader'.$b] : '' !!}
+																							</div>
+																						</fieldset>
+																					</div>
+																					<div class="col-sm-12 mb-3">
+																						<label class="text-body fw-bold">Banner Text (Deskripsi)</label>
+																						<fieldset class="form-group mb-2">
+																							<div id="BannerText{{$b}}">
+																								{!! count($company) > 0 ? $company[0]['BannerText'.$b] : '' !!}
+																							</div>
+																						</fieldset>
+																					</div>
+																					<div class="col-sm-12 mb-3">
+																						<label class="text-body fw-bold">Gambar Banner</label>
+																						<fieldset class="form-group mb-2">
+																							<textarea id="Banner{{$b}}Base64" name="Banner{{$b}}Base64" style="display: none;">{{ count($company) > 0 ? $company[0]['Banner'.$b] : '' }}</textarea>
+																							<input type="file" id="fileBanner{{$b}}" name="fileBanner{{$b}}" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																							<div class="xContainer border rounded p-1 text-center bg-light">
+																								<div id="Banner{{$b}}_Preview" class="image_result_sample" style="max-height: 200px; overflow: hidden; display: flex; align-items: center; justify-content: center;" onclick="document.getElementById('fileBanner{{$b}}').click();">
+																									@if (count($company) > 0 && !empty($company[0]['Banner'.$b]))
+																										<img src="{{$company[0]['Banner'.$b]}}" style="max-height: 100%; max-width: 100%;">
+																									@else
+																										<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg" style="max-height: 100%; max-width: 100%;">
+																									@endif
+																								</div>
+																							</div>
+																						</fieldset>
+																					</div>
+																				</div>
+																			</div>
+																		</div>
+																	</div>
+																	@endfor
+																</div>
+																
+																<hr class="my-4">
+																
+																<!-- Booking Online Info -->
+																<h5 class="text-dark font-weight-bold mb-4">Pengaturan Landing Page & Booking Bengkel</h5>
+																<div class="row">
+																	
+																	<div class="col-md-12 mb-3">
+																		<label class="text-body fw-bold">Warna Tema Website Bengkel</label>
+																		<fieldset class="form-group mb-3">
+																			<input type="color" class="form-control" id="DefaultLandingPageColor" name="DefaultLandingPageColor" value="{{ count($company) > 0 ? $company[0]['DefaultLandingPageColor'] : '' }}" >
+																		</fieldset>
+																	</div>
+																	
+																	<div class="col-md-12 mb-4">
+																		<label class="text-body fw-bold">Upload Image Banner Hero Bengkel</label>
+																		<fieldset class="form-group mb-3">
+																			<textarea id="BannerBookingBase64" name="BannerBookingBase64" style="display: none;">{{ count($company) > 0 ? $company[0]['BannerBooking'] : '' }}</textarea>
+																			<input type="file" id="fileBannerBooking" name="fileBannerBooking" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+																			<div class="xContainer border rounded p-1 text-center bg-light">
+																				<div id="BannerBooking_Preview" class="image_result_sample" style="max-height: 250px; overflow: hidden; display: flex; align-items: center; justify-content: center;" onclick="document.getElementById('fileBannerBooking').click();">
+																					@if (count($company) > 0 && !empty($company[0]['BannerBooking']))
+																						<img src="{{$company[0]['BannerBooking']}}" style="max-height: 100%; max-width: 100%;">
+																					@else
+																						<img src="https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty.jpg" style="max-height: 100%; max-width: 100%;">
+																					@endif
+																				</div>
+																			</div>
+																		</fieldset>
+																	</div>
+																	
+																	<div class="col-md-12 mb-3">
+																		<label class="text-body fw-bold">Headline Banner (Judul Utama)</label>
+																		<fieldset class="form-group mb-3">
+																			<div id="HeadlineBanner">
+																				{!! count($company) > 0 ? $company[0]['HeadlineBanner'] : '' !!}
+																			</div>
+																		</fieldset>
+																	</div>
+																	
+																	<div class="col-md-12 mb-4">
+																		<label class="text-body fw-bold">Sub Headline Banner (Teks Bawah Judul)</label>
+																		<fieldset class="form-group mb-3">
+																			<div id="SubHeadlineBanner">
+																				{!! count($company) > 0 ? $company[0]['SubHeadlineBanner'] : '' !!}
+																			</div>
+																		</fieldset>
+																	</div>
+																	
+																</div>
+																
+																<hr class="my-4">
+																
+																<!-- Syarat & Ketentuan -->
+																<h5 class="text-dark font-weight-bold mb-4">Deskripsi Bengkel & Informasi Tambahan</h5>
+																<div class="row">
+																	
+																	<div class="col-md-12 mb-3">
+																		<label class="text-body fw-bold">About Us (Tentang Bengkel Kami)</label>
+																		<fieldset class="form-group mb-3">
+																			<div id="AboutUs">
+																				{!! count($company) > 0 ? $company[0]['AboutUs'] : '' !!}
+																			</div>
+																		</fieldset>
+																	</div>
+																	
+																	<div class="col-md-12 mb-4">
+																		<label class="text-body fw-bold">Syarat & Ketentuan Booking Servis</label>
+																		<fieldset class="form-group mb-3">
+																			<div id="TermAndConditionBookingOnline">
+																				{!! count($company) > 0 ? $company[0]['TermAndConditionBookingOnline'] : '' !!}
+																			</div>
+																		</fieldset>
+																	</div>
+																</div>
+																
+																<hr class="my-4">
+																
+																<!-- Tautan Cepat -->
+																<h5 class="text-dark font-weight-bold mb-3">Tautan Cepat Website Booking Bengkel</h5>
+																<div class="row">
+																	<div class="col-md-12 mb-3">
+																		<div class="d-flex align-items-center">
+																			<a href="{{ count($company) > 0 ? url('booking-bengkel/'.$company[0]['KodePartner']) : '#' }}" target="_blank" class="btn btn-outline-primary font-weight-bold">
+																				<i class="flaticon-link me-1"></i> Buka Website Booking Bengkel
+																			</a>
+																		</div>
+																	</div>
+																</div>
+																
+															</div>
+														</div>
+														
+													</div>
+												</div>
+												@endif
 
 
 
@@ -1164,47 +1368,30 @@ var _URL = window.URL || window.webkitURL;
 var _URLePub = window.URL || window.webkitURL;
 var oCompany;
 	$(function () {
-		const quill_BannerHeader1 = new Quill('#BannerHeader1', {
-			theme: 'snow'
-		});
-		const quill_BannerHeader2 = new Quill('#BannerHeader2', {
-			theme: 'snow'
-		});
-		const quill_BannerHeader3 = new Quill('#BannerHeader3', {
-			theme: 'snow'
-		});
+		let quill_BannerHeader1, quill_BannerHeader2, quill_BannerHeader3;
+		let quill_BannerText1, quill_BannerText2, quill_BannerText3;
+		let quill_PromoDsiplay, quill_HeadlineBanner, quill_SubHeadlineBanner;
+		let quill_TermAndCondition, quill_AboutUs, quill_TermAndConditionBookingOnline;
 
-		const quill_BannerText1 = new Quill('#BannerText1', {
-			theme: 'snow'
-		});
-		const quill_BannerText2 = new Quill('#BannerText2', {
-			theme: 'snow'
-		});
-		const quill_BannerText3 = new Quill('#BannerText3', {
-			theme: 'snow'
-		});
+		if(document.getElementById('BannerHeader1')) quill_BannerHeader1 = new Quill('#BannerHeader1', { theme: 'snow' });
+		if(document.getElementById('BannerHeader2')) quill_BannerHeader2 = new Quill('#BannerHeader2', { theme: 'snow' });
+		if(document.getElementById('BannerHeader3')) quill_BannerHeader3 = new Quill('#BannerHeader3', { theme: 'snow' });
 
-		const quill_PromoDsiplay = new Quill('#PromoDsiplay', {
-			theme: 'snow'
-		});
+		if(document.getElementById('BannerText1')) quill_BannerText1 = new Quill('#BannerText1', { theme: 'snow' });
+		if(document.getElementById('BannerText2')) quill_BannerText2 = new Quill('#BannerText2', { theme: 'snow' });
+		if(document.getElementById('BannerText3')) quill_BannerText3 = new Quill('#BannerText3', { theme: 'snow' });
 
-		const quill_HeadlineBanner = new Quill('#HeadlineBanner', {
-			theme: 'snow'
-		});
-		const quill_SubHeadlineBanner = new Quill('#SubHeadlineBanner', {
-			theme: 'snow'
-		});
+		if(document.getElementById('PromoDsiplay')) quill_PromoDsiplay = new Quill('#PromoDsiplay', { theme: 'snow' });
 
-		const quill_TermAndCondition = new Quill('#TermAndCondition', {
-			theme: 'snow'
-		});
-		const quill_AboutUs = new Quill('#AboutUs', {
-			theme: 'snow'
-		});
+		if(document.getElementById('HeadlineBanner')) quill_HeadlineBanner = new Quill('#HeadlineBanner', { theme: 'snow' });
+		if(document.getElementById('SubHeadlineBanner')) quill_SubHeadlineBanner = new Quill('#SubHeadlineBanner', { theme: 'snow' });
 
-		const quill_TermAndConditionBookingOnline = new Quill('#TermAndConditionBookingOnline', {
+		if(document.getElementById('TermAndCondition')) quill_TermAndCondition = new Quill('#TermAndCondition', { theme: 'snow' });
+		if(document.getElementById('AboutUs')) quill_AboutUs = new Quill('#AboutUs', { theme: 'snow' });
+
+		if(document.getElementById('TermAndConditionBookingOnline')) quill_TermAndConditionBookingOnline = new Quill('#TermAndConditionBookingOnline', {
 			theme:'snow'
-		})
+		});
 		jQuery(document).ready(function () {
 
 			// 
@@ -1336,18 +1523,18 @@ var oCompany;
 			var submitButton = form.find("button[type='submit']");
 			submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
 
-			var BannerHeader1 = quill_BannerHeader1.root.innerHTML;
-			var BannerHeader2 = quill_BannerHeader2.root.innerHTML;
-			var BannerHeader3 = quill_BannerHeader3.root.innerHTML;
-			var BannerText1 = quill_BannerText1.root.innerHTML;
-			var BannerText2 = quill_BannerText2.root.innerHTML;
-			var BannerText3 = quill_BannerText3.root.innerHTML;
-			var PromoDsiplay = quill_PromoDsiplay.root.innerHTML;
-			var HeadlineBanner = quill_HeadlineBanner.root.innerHTML;
-			var SubHeadlineBanner = quill_SubHeadlineBanner.root.innerHTML;
-			var TermAndCondition = quill_TermAndCondition.root.innerHTML;
-			var AboutUs = quill_AboutUs.root.innerHTML;
-			var TermAndConditionBookingOnline = quill_TermAndConditionBookingOnline.root.innerHTML;
+			var BannerHeader1 = quill_BannerHeader1 ? quill_BannerHeader1.root.innerHTML : '';
+			var BannerHeader2 = quill_BannerHeader2 ? quill_BannerHeader2.root.innerHTML : '';
+			var BannerHeader3 = quill_BannerHeader3 ? quill_BannerHeader3.root.innerHTML : '';
+			var BannerText1 = quill_BannerText1 ? quill_BannerText1.root.innerHTML : '';
+			var BannerText2 = quill_BannerText2 ? quill_BannerText2.root.innerHTML : '';
+			var BannerText3 = quill_BannerText3 ? quill_BannerText3.root.innerHTML : '';
+			var PromoDsiplay = quill_PromoDsiplay ? quill_PromoDsiplay.root.innerHTML : '';
+			var HeadlineBanner = quill_HeadlineBanner ? quill_HeadlineBanner.root.innerHTML : '';
+			var SubHeadlineBanner = quill_SubHeadlineBanner ? quill_SubHeadlineBanner.root.innerHTML : '';
+			var TermAndCondition = quill_TermAndCondition ? quill_TermAndCondition.root.innerHTML : '';
+			var AboutUs = quill_AboutUs ? quill_AboutUs.root.innerHTML : '';
+			var TermAndConditionBookingOnline = quill_TermAndConditionBookingOnline ? quill_TermAndConditionBookingOnline.root.innerHTML : '';
 			
 
 			formData.push({ name: "BannerHeader1", value: BannerHeader1 });

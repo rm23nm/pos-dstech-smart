@@ -51,9 +51,11 @@ class FakturPenjualanController extends Controller
     {
     	$keyword = $request->input('keyword');
 	    $pelanggan = Pelanggan::where('RecordOwnerID','=',Auth::user()->RecordOwnerID);
+		$oCompany = Company::where('KodePartner', Auth::user()->RecordOwnerID)->first();
 
 	    return view("Transaksi.Penjualan.FakturPenjualan",[
 	    	'pelanggan' => $pelanggan->get(), 
+			'company' => $oCompany
 	    ]);
     }
 
@@ -65,7 +67,7 @@ class FakturPenjualanController extends Controller
 	   	$KodePelanggan = $request->input('KodePelanggan');
 	   	$Status = $request->input('Status');
 
-	   	$sql = "DISTINCT fakturpenjualanheader.NoTransaksi, DATE_FORMAT(fakturpenjualanheader.TglTransaksi, '%d-%m-%Y %H:%i') TglTransaksi,fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, fakturpenjualanheader.KodePelanggan, pelanggan.NamaPelanggan, fakturpenjualanheader.Termin, terminpembayaran.NamaTermin, fakturpenjualanheader.TotalPembelian, fakturpenjualanheader.TotalPembayaran, fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur TotalHutang, COALESCE(orderpenjualanheader.NoTransaksi, '') AS NoOrder, orderpenjualanheader.TglTransaksi TglOrder, fakturpenjualanheader.TotalRetur, fakturpenjualanheader.NoResep, fakturpenjualanheader.NamaDokter, fakturpenjualanheader.NamaPasien,
+	   	$sql = "DISTINCT fakturpenjualanheader.NoTransaksi, DATE_FORMAT(fakturpenjualanheader.TglTransaksi, '%d-%m-%Y %H:%i') TglTransaksi,fakturpenjualanheader.TglJatuhTempo, fakturpenjualanheader.NoReff, fakturpenjualanheader.KodePelanggan, pelanggan.NamaPelanggan, fakturpenjualanheader.Termin, COALESCE(terminpembayaran.NamaTermin, CASE WHEN fakturpenjualanheader.KodeTermin='1' THEN 'CASH' ELSE fakturpenjualanheader.KodeTermin END) as NamaTermin, fakturpenjualanheader.TotalPembelian, fakturpenjualanheader.TotalPembayaran, fakturpenjualanheader.TotalPembelian - COALESCE(fakturpenjualanheader.TotalPembayaran,0) - fakturpenjualanheader.TotalRetur TotalHutang, COALESCE(orderpenjualanheader.NoTransaksi, '') AS NoOrder, orderpenjualanheader.TglTransaksi TglOrder, fakturpenjualanheader.TotalRetur, fakturpenjualanheader.NoResep, fakturpenjualanheader.NamaDokter, fakturpenjualanheader.NamaPasien,
 	   			CASE WHEN fakturpenjualanheader.Status = 'O' THEN 'OPEN' ELSE 
 	   				CASE WHEN fakturpenjualanheader.Status = 'T' THEN 'DRAFT' ELSE 
 	   					CASE WHEN fakturpenjualanheader.Status = 'D' THEN 'CANCEL' ELSE
@@ -106,7 +108,7 @@ class FakturPenjualanController extends Controller
     	if ($Status != "") {
     		$model->where("fakturpenjualanheader.Status", $Status);
     	}
-    	$model->groupBy('fakturpenjualanheader.NoTransaksi', 'fakturpenjualanheader.TglTransaksi', 'fakturpenjualanheader.TglJatuhTempo', 'fakturpenjualanheader.NoReff', 'fakturpenjualanheader.KodePelanggan', 'pelanggan.NamaPelanggan', 'fakturpenjualanheader.Termin', 'terminpembayaran.NamaTermin', 'fakturpenjualanheader.TotalPembelian', 'fakturpenjualanheader.TotalPembayaran', 'fakturpenjualanheader.TotalRetur', 'orderpenjualanheader.NoTransaksi', 'orderpenjualanheader.TglTransaksi', 'fakturpenjualanheader.Status', 'fakturpenjualanheader.Transaksi', 'fakturpenjualanheader.NoResep', 'fakturpenjualanheader.NamaDokter', 'fakturpenjualanheader.NamaPasien');
+    	$model->groupBy('fakturpenjualanheader.NoTransaksi', 'fakturpenjualanheader.TglTransaksi', 'fakturpenjualanheader.TglJatuhTempo', 'fakturpenjualanheader.NoReff', 'fakturpenjualanheader.KodePelanggan', 'pelanggan.NamaPelanggan', 'fakturpenjualanheader.Termin', 'fakturpenjualanheader.KodeTermin', 'terminpembayaran.NamaTermin', 'fakturpenjualanheader.TotalPembelian', 'fakturpenjualanheader.TotalPembayaran', 'fakturpenjualanheader.TotalRetur', 'orderpenjualanheader.NoTransaksi', 'orderpenjualanheader.TglTransaksi', 'fakturpenjualanheader.Status', 'fakturpenjualanheader.Transaksi', 'fakturpenjualanheader.NoResep', 'fakturpenjualanheader.NamaDokter', 'fakturpenjualanheader.NamaPasien');
    		$model->orderBy('fakturpenjualanheader.TglTransaksi','DESC');
         $data['data']= $model->get();
         return response()->json($data);
@@ -960,7 +962,7 @@ $updateData = [
 			$model->TglJatuhTempo = $jsonData['TglJatuhTempo'];
 			$model->NoReff = $jsonData['NoReff'];
 			$model->KodePelanggan = $jsonData['KodePelanggan'];
-			$model->KodeTermin = $jsonData['KodeTermin'];
+			$model->KodeTermin = empty($jsonData['KodeTermin']) ? '1' : $jsonData['KodeTermin'];
 			$model->Termin = $jsonData['Termin'];
 			$model->TotalTransaksi = $jsonData['TotalTransaksi'];
 			$model->Potongan = $jsonData['Potongan'];
@@ -1548,6 +1550,20 @@ $updateData = [
 				$errorCount +=1;
 				goto jump;
 			}
+
+			if (isset($jsonData['NoPKB']) && $jsonData['NoPKB'] != '') {
+				$existingPKB = DB::table('fakturpenjualanheader')
+					->where('NoPKB', $jsonData['NoPKB'])
+					->where('Status', '!=', 'D')
+					->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+					->first();
+				
+				if ($existingPKB) {
+					$data['message'] = "Pesanan ini sudah dibayar sebelumnya (No Faktur: " . $existingPKB->NoTransaksi . ")";
+					$errorCount += 1;
+					goto jump;
+				}
+			}
 			
 			$currentDate = Carbon::now('Asia/Jakarta');
 			$Year = $currentDate->format('Y');
@@ -1587,7 +1603,9 @@ $updateData = [
 			$model->TglJatuhTempo = $jsonData['TglJatuhTempo'];
 			$model->NoReff = $jsonData['NoReff'];
 			$model->KodePelanggan = $jsonData['KodePelanggan'];
-			$model->KodeTermin = $jsonData['KodeTermin'];
+			$model->PlatNomor = empty($jsonData['PlatNomor']) ? '' : $jsonData['PlatNomor'];
+			$model->KodeMekanik = empty($jsonData['KodeMekanik']) ? '' : $jsonData['KodeMekanik'];
+			$model->KodeTermin = empty($jsonData['KodeTermin']) ? '1' : $jsonData['KodeTermin'];
 			$model->Termin = $jsonData['Termin'];
 			$model->TotalTransaksi = $jsonData['TotalTransaksi'];
 			$model->Potongan = $jsonData['Potongan'];
@@ -1596,6 +1614,7 @@ $updateData = [
 			$model->TotalRetur = $jsonData['TotalRetur'];
 			$model->TotalPembayaran = $jsonData['TotalPembayaran'];
 			$model->Pembulatan = $jsonData['Pembulatan'];
+			$model->NoPKB = isset($jsonData['NoPKB']) ? $jsonData['NoPKB'] : '';
 			$model->Status = $jsonData['Status'];
 			$model->Keterangan = $jsonData['Keterangan'];
 			$model->MetodeBayar = $jsonData['MetodeBayar'];
@@ -1657,6 +1676,14 @@ $updateData = [
 				$modelDetail->VatPercent = $key['VatPercent'];
 				$modelDetail->HargaPokokPenjualan = $key['HargaPokokPenjualan'];
 				$modelDetail->RecordOwnerID = Auth::user()->RecordOwnerID;
+
+				// Fetch KomisiMekanik from itemmaster
+				$itemInfo = DB::table('itemmaster')
+					->where('KodeItem', $key['KodeItem'])
+					->where('RecordOwnerID', Auth::user()->RecordOwnerID)
+					->first();
+				$komisiMekanik = $itemInfo ? ($itemInfo->KomisiMekanik ?? 0) : 0;
+				$modelDetail->KomisiMekanik = $komisiMekanik * $key['Qty'];
 
 				$save = $modelDetail->save();
 
@@ -2578,7 +2605,7 @@ $updateData = [
 									'TglJatuhTempo' => $jsonData['TglJatuhTempo'],
 									'NoReff' => $jsonData['NoReff'],
 									'KodePelanggan' => $jsonData['KodePelanggan'],
-									'KodeTermin' => $jsonData['KodeTermin'],
+									'KodeTermin' => empty($jsonData['KodeTermin']) ? '1' : $jsonData['KodeTermin'],
 									'Termin' => $jsonData['Termin'],
 									'TotalTransaksi' => $jsonData['TotalTransaksi'],
 									'Potongan' => $jsonData['Potongan'],
@@ -3721,7 +3748,8 @@ $updateData = [
 					->where('DeviceAddress', $oCompany['NamaPosPrinter'])
 					->first();
 	
-	return view("Transaksi.Penjualan.slip.thermal".$oCompany['LebarKertas']."usb",[
+	$lebarKertas = !empty($oCompany['LebarKertas']) ? $oCompany['LebarKertas'] : '48';
+	return view("Transaksi.Penjualan.slip.thermal".$lebarKertas."usb",[
 		'faktur'=> $model,
 		'company' => $oCompany,
 		'printer' => $oPrinter

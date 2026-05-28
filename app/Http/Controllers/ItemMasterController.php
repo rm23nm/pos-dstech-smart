@@ -280,6 +280,7 @@ class ItemMasterController extends Controller
           $model->Gambar = "";
           $model->HargaPokokPenjualan = $jsonData['HargaPokokPenjualan'];
           $model->HargaJual = $jsonData['HargaJual'];
+          $model->KomisiMekanik = empty($jsonData['KomisiMekanik']) ? 0 : $jsonData['KomisiMekanik'];
           $model->HargaBeliTerakhir = $jsonData['HargaBeliTerakhir'];
           $model->Stock = $jsonData['Stock'];
           $model->StockMinimum = $jsonData['StockMinimum'];
@@ -449,6 +450,7 @@ class ItemMasterController extends Controller
                     'Gambar' => "",
                     'HargaPokokPenjualan' => $jsonData['HargaPokokPenjualan'],
                     'HargaJual' => $jsonData['HargaJual'],
+                    'KomisiMekanik' => empty($jsonData['KomisiMekanik']) ? 0 : $jsonData['KomisiMekanik'],
                     'HargaBeliTerakhir' => $jsonData['HargaBeliTerakhir'],
                     'Stock' => $jsonData['Stock'],
                     'StockMinimum' => $jsonData['StockMinimum'],

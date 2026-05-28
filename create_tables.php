@@ -1,41 +1,50 @@
-<?php
-require __DIR__.'/vendor/autoload.php';
-$app = require_once __DIR__.'/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 
-if (!Schema::hasTable('member_packages')) {
-    Schema::create('member_packages', function (Blueprint $table) {
-        $table->increments('id');
-        $table->string('KodePaket', 50);
-        $table->string('KategoriPaket', 50);
-        $table->string('NamaPaket', 255);
-        $table->integer('LimitBulanan')->default(0);
-        $table->string('RecordOwnerID', 50);
-        $table->timestamps();
-        $table->unique(['KodePaket', 'RecordOwnerID']);
-    });
-    echo "Table member_packages created.\n";
+try {
+    DB::statement("
+    CREATE TABLE IF NOT EXISTS kendaraan (
+        KodeKendaraan VARCHAR(50) PRIMARY KEY,
+        KodePelanggan VARCHAR(50),
+        PlatNomor VARCHAR(20),
+        Merek VARCHAR(50),
+        Tipe VARCHAR(50),
+        Tahun INT,
+        Warna VARCHAR(30),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+    ");
+    echo "Table 'kendaraan' created.\n";
+
+    DB::statement("
+    CREATE TABLE IF NOT EXISTS mekanik (
+        KodeMekanik VARCHAR(50) PRIMARY KEY,
+        NamaMekanik VARCHAR(100),
+        NoHP VARCHAR(20),
+        PersentaseKomisi DECIMAL(5,2) DEFAULT 0,
+        RecordOwnerID VARCHAR(50) DEFAULT '',
+        Status INT DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+    ");
+    echo "Table 'mekanik' created.\n";
+
+    try {
+        DB::statement("ALTER TABLE fakturpenjualanheader ADD COLUMN PlatNomor VARCHAR(20) DEFAULT ''");
+        echo "Column PlatNomor added.\n";
+    } catch (\Exception $e) {
+        echo "PlatNomor might already exist.\n";
+    }
+
+    try {
+        DB::statement("ALTER TABLE fakturpenjualanheader ADD COLUMN KodeMekanik VARCHAR(50) DEFAULT ''");
+        echo "Column KodeMekanik added.\n";
+    } catch (\Exception $e) {
+        echo "KodeMekanik might already exist.\n";
+    }
+
+} catch (\Exception $e) {
+    echo 'Error: ' . $e->getMessage() . "\n";
 }
-
-if (!Schema::hasTable('customer_memberships')) {
-    Schema::create('customer_memberships', function (Blueprint $table) {
-        $table->increments('id');
-        $table->string('KodePelanggan', 50);
-        $table->string('KodePaketMember', 50);
-        $table->date('ValidFrom');
-        $table->date('ValidUntil');
-        $table->integer('MaxPlay')->default(0);
-        $table->integer('Played')->default(0);
-        $table->string('RecordOwnerID', 50);
-        $table->timestamps();
-        $table->index('KodePelanggan');
-    });
-    echo "Table customer_memberships created.\n";
-}
-
-echo "Done.\n";

@@ -303,7 +303,7 @@
                 <div class="carousel-overlay"></div>
                 
                 <!-- Background Slides -->
-                <div id="loginCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+                <div id="loginCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000" data-bs-pause="false">
                 @if(isset($loginslides) && count($loginslides) > 0)
                     <div class="carousel-inner">
                         @foreach($loginslides as $index => $slide)
@@ -500,12 +500,41 @@
                     <div class="demo-buttons-container">
                         <div class="demo-title"><i class="bi bi-stars"></i> Coba Akun Demo Sekarang</div>
                         <style>
+                            .demo-carousel-wrapper {
+                                position: relative;
+                                display: flex;
+                                align-items: center;
+                            }
+                            .demo-nav-btn {
+                                position: absolute;
+                                z-index: 5;
+                                background: rgba(255, 255, 255, 0.8);
+                                border: none;
+                                border-radius: 50%;
+                                width: 35px;
+                                height: 35px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                                cursor: pointer;
+                                transition: all 0.3s;
+                                color: #333;
+                            }
+                            .demo-nav-btn:hover {
+                                background: white;
+                                transform: scale(1.1);
+                            }
+                            .demo-nav-btn.left { left: -15px; }
+                            .demo-nav-btn.right { right: -15px; }
+                            
                             .demo-scroll-container {
                                 overflow-x: auto;
                                 scrollbar-width: none;
                                 -ms-overflow-style: none;
                                 scroll-behavior: smooth;
-                                padding-bottom: 10px;
+                                padding: 10px 0;
+                                width: 100%;
                             }
                             .demo-scroll-container::-webkit-scrollbar {
                                 display: none;
@@ -515,7 +544,10 @@
                                 min-width: 120px;
                             }
                         </style>
-                        <div class="demo-scroll-container d-flex gap-3">
+                        <div class="demo-carousel-wrapper">
+                            <button class="demo-nav-btn left" id="demoNavLeft" type="button"><i class="bi bi-chevron-left"></i></button>
+                            <div class="demo-scroll-container d-flex gap-3" id="demoScrollContainer">
+
                             <div class="demo-btn-wrapper">
                                 <button type="button" class="btn btn-demo-auto resto w-100" data-email="demoresto@pos.dstechsmart.com" data-pass="12345678">
                                     <i class="bi bi-cup-hot"></i>
@@ -546,6 +578,14 @@
                                     <span style="font-size: 0.7rem;">Apotek</span>
                                 </button>
                             </div>
+                            <div class="demo-btn-wrapper">
+                                <button type="button" class="btn btn-demo-auto w-100" style="color: #e65100;" data-email="demobengkel@pos.dstechsmart.com" data-pass="12345678">
+                                    <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                                    <span style="font-size: 0.7rem;">Bengkel</span>
+                                </button>
+                            </div>
+                        </div>
+                            <button class="demo-nav-btn right" id="demoNavRight" type="button"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -630,6 +670,54 @@
                     $('form').submit();
                 }, 400);
             });
+
+            // Demo Accounts Carousel Logic
+            const scrollContainer = document.getElementById('demoScrollContainer');
+            if(scrollContainer) {
+                const btnLeft = document.getElementById('demoNavLeft');
+                const btnRight = document.getElementById('demoNavRight');
+                const scrollAmount = 150;
+                let autoScrollInterval;
+
+                // Navigation Buttons
+                btnLeft.addEventListener('click', () => {
+                    scrollContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                    resetAutoScroll();
+                });
+
+                btnRight.addEventListener('click', () => {
+                    scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    resetAutoScroll();
+                });
+
+                // Auto Scroll behavior
+                function startAutoScroll() {
+                    autoScrollInterval = setInterval(() => {
+                        if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10) {
+                            // Reached the end, scroll back to start
+                            scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+                        } else {
+                            scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                        }
+                    }, 3000); // Scroll every 3 seconds
+                }
+
+                function stopAutoScroll() {
+                    clearInterval(autoScrollInterval);
+                }
+
+                function resetAutoScroll() {
+                    stopAutoScroll();
+                    startAutoScroll();
+                }
+
+                // Pause on hover
+                scrollContainer.parentElement.addEventListener('mouseenter', stopAutoScroll);
+                scrollContainer.parentElement.addEventListener('mouseleave', startAutoScroll);
+
+                // Start auto scrolling initially
+                startAutoScroll();
+            }
         });
     </script>
 </body>

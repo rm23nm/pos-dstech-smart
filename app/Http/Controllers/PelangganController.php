@@ -62,7 +62,7 @@ class PelangganController extends Controller
         $company = \App\Models\Company::where('KodePartner', Auth::user()->RecordOwnerID)->first();
 
         
-        $midtransclientkey = $company ? $metodepembayaran->ClientKey : '';
+        $midtransclientkey = ($company && $metodepembayaran) ? $metodepembayaran->ClientKey : '';
         
         return view("master.BussinessPartner.Pelanggan",[
             'pelanggan' => $pelanggan->get(),

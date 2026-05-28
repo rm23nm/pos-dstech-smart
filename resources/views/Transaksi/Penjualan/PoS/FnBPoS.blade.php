@@ -1138,7 +1138,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								<fieldset class="form-group mb-0 d-flex align-items-center gap-1">
 									<div style="flex: 1; min-width: 0;">
 										<select class="js-example-basic-single js-states form-control bg-transparent" id="KodePelanggan" name="KodePelanggan" style="width: 100%;">
-											<option value="">Pilih Pelanggan</option>
+											<option value="">-- Pelanggan Umum --</option>
 											@foreach($pelanggan as $ko)
 												<option value="{{ $ko->KodePelanggan }}">
 													{{ $ko->NamaPelanggan }}
@@ -1508,7 +1508,7 @@ License: You must have a valid license purchased only from themeforest(the above
 												<li class="list-group-item list-group-item-action border-0 d-flex align-items-center justify-content-between py-2" StsPyment={{$ko->Active}} id={{ $ko->id }} CaraVerifikasi={{$ko->MetodeVerifikasi}} TipePembayaran={{$ko->TipePembayaran}}>
 													<div class="list-left d-flex align-items-center">
 														<span class="d-flex align-items-center justify-content-center rounded svg-icon w-45px h-45px bg-light-dark text-white me-2">
-															<img src="{{ $ko->Image }}" class="bi bi-lightning-fill" width="80%">
+															<img src="{{ $ko->Image }}" class="bi bi-lightning-fill" width="80%" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FzaCIgdmlld0JveD0iMCAwIDE2IDE2Ij4gPHBhdGggZD0iTTggMTBhMiAyIDAgMTAwLTQgMiAyIDAgMDAwIDR6Ii8+IDxwYXRoIGQ9Ik0wIDRhMiAyIDAgMDExMiAwaDFhMiAyIDAgMDExMiAwdjFIMHYtMXptMTUtMmEyIDIgMCAwMTAgNGgxYTIgMiAwIDAxMCA0djFoLTE1di0xaDFhMiAyIDAgMDEwLTRIMHYtMWgxNXYxeiIvPiA8L3N2Zz4=';">
 														</span>
 													  <div class="list-content">
 														<span class="list-title text-body">{{ $ko->NamaMetodePembayaran}}</span>
@@ -4392,7 +4392,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			'TglJatuhTempo' : _Tanggal,
 			'NoReff' : 'POS',
 			'KodeSales' : '',
-			'KodePelanggan' : jQuery('#KodePelanggan').val(),
+			'KodePelanggan' : jQuery('#KodePelanggan').val() ? jQuery('#KodePelanggan').val() : 'CASH',
 			'KodeTermin' : _Company[0]['TerminBayarPoS'],
 			'Termin' : 0,
 			'TotalTransaksi' : jQuery('#_SubTotal').attr("originalvalue"),
@@ -4594,7 +4594,7 @@ License: You must have a valid license purchased only from themeforest(the above
 			'TglJatuhTempo' : _Tanggal,
 			'NoReff' : 'POS',
 			'KodeSales' : jQuery('#KodeSales').val(),
-			'KodePelanggan' : jQuery('#KodePelanggan').val(),
+			'KodePelanggan' : jQuery('#KodePelanggan').val() ? jQuery('#KodePelanggan').val() : 'CASH',
 			'KodeTermin' : _Company[0]['TerminBayarPoS'],
 			'Termin' : 0,
 			'TotalTransaksi' : jQuery('#_SubTotal').attr("originalvalue"),
@@ -4859,7 +4859,7 @@ License: You must have a valid license purchased only from themeforest(the above
 		}
 
 		if ($('#KodePelanggan').val() == "") {
-			ErrorCount +=1;
+			// ErrorCount +=1; // Allow CASH / walk-in
 		}
 
     	if (ErrorCount >0) {

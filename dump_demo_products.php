@@ -6,7 +6,7 @@ $kernel->bootstrap();
 
 use Illuminate\Support\Facades\DB;
 
-$owners = ['demoapotek', 'DEMOGATE', 'DEMOTIKET'];
+$owners = ['CL0010', 'CL0013', 'CL0014', 'demoapotek', 'demogate'];
 
 $tables = [
     'company' => 'KodePartner',

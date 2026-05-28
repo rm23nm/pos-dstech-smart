@@ -303,6 +303,13 @@
 					                            		</div>
 
 					                            		<div class="col-md-4">
+					                            			<label  class="text-body">Komisi Mekanik (Rp)</label>
+					                            			<fieldset class="form-group mb-3">
+					                            				<input type="text" class="form-control" id="KomisiMekanik" name="KomisiMekanik" value="{{ count($itemmaster) > 0 ? (isset($itemmaster[0]['KomisiMekanik']) ? $itemmaster[0]['KomisiMekanik'] : '0') : '0' }}">
+					                            			</fieldset>
+					                            		</div>
+
+					                            		<div class="col-md-4">
 					                            			<label  class="text-body">Harga Beli Terakhir</label>
 					                            			<fieldset class="form-group mb-3">
 					                            				<input type="text" class="form-control" id="HargaBeliTerakhir" name="HargaBeliTerakhir" value="{{ count($itemmaster) > 0 ? $itemmaster[0]['HargaBeliTerakhir'] : '0' }}" {{ count($itemmaster) > 0 ? $itemmaster[0]['HargaBeliTerakhir'] > 0 ? "readonly" : "" : "" }}>
@@ -1022,6 +1029,7 @@
 			'Gambar' : jQuery('#Gambar').val(),
 			'HargaPokokPenjualan' : jQuery('#HargaPokokPenjualan').val(),
 			'HargaJual' : jQuery('#HargaJual').val(),
+			'KomisiMekanik' : jQuery('#KomisiMekanik').val(),
 			'HargaBeliTerakhir' : jQuery('#HargaBeliTerakhir').val(),
 			'ExpiredDate' : jQuery('#ExpiredDate').val(),
 			'Stock' : jQuery('#Stock').val(),

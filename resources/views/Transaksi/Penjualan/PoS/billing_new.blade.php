@@ -4971,6 +4971,7 @@
                                 </div>
                                 <div id="jualFnbExistingCustomerRow" style="margin-bottom:8px;">
                                     <select id="jualFnbPelanggan" class="js-select2" style="width:100%;">
+                                        <option value="">-- Pelanggan Umum --</option>
                                         @foreach($pelanggan as $p)
                                             <option value="{{ $p->KodePelanggan }}">{{ $p->NamaPelanggan }}</option>
                                         @endforeach

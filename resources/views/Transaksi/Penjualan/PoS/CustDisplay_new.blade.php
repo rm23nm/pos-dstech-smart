@@ -281,6 +281,17 @@
                 </div>
                 <h2>{{ $company->NamaPartner }}</h2>
             </div>
+            
+            <div class="customer-info-box" style="padding: 15px 30px; background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+                <div class="d-flex flex-column" style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.75rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px;">Pelanggan</span>
+                    <span id="custName" style="font-size: 1.1rem; font-weight: 600; color: #fff;">-</span>
+                </div>
+                <div class="d-flex flex-column text-right" style="display: flex; flex-direction: column; text-align: right;">
+                    <span style="font-size: 0.75rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px;">Kendaraan</span>
+                    <span id="custVehicle" style="font-size: 1.1rem; font-weight: 600; color: #fff;">-</span>
+                </div>
+            </div>
 
             <div class="billing-content" id="cartContainer">
                 <!-- Cart items will be rendered here -->
@@ -428,6 +439,9 @@
             $('#tax').text(formatCurrency(posData.Tax));
             $('#discount').text(formatCurrency(posData.Discount));
             $('#grandTotal').text(formatCurrency(posData.Net));
+            
+            if (posData.Customer) $('#custName').text(posData.Customer);
+            if (posData.Vehicle) $('#custVehicle').text(posData.Vehicle);
         }
 
         function formatCurrency(amount) {

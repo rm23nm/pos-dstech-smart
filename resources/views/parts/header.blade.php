@@ -417,6 +417,12 @@
 											'Icon' => 'fas fa-cogs',
 											'submenu' => [],
 											'ParentType' => 1
+										],
+										'bengkel' => [
+											'PermissionName' => 'Manajemen Bengkel',
+											'Icon' => 'fas fa-tools',
+											'submenu' => [],
+											'ParentType' => 1
 										]
 									];
 
@@ -529,6 +535,8 @@
 														];
 													}
 													continue;
+												} elseif ($l2Name === 'halaman pos kasir') {
+													$targetCat = 'pos';
 												} elseif (in_array($l2Name, ['info kitchen', 'queue antrian fnb', 'monitor counter (recall)', 'antrian fnb dapur', 'queue lapangan', 'customer display pos'])) {
 													$targetCat = 'display';
 												} elseif ($l2Name === 'konsinyasi') {
@@ -545,6 +553,8 @@
 													$targetCat = 'reports_accounting';
 												} elseif (in_array($l2Name, ['autorisasi', 'pengguna'])) {
 													$targetCat = 'system';
+												} elseif ($l2Name === 'data booking bengkel') {
+													$targetCat = 'bengkel';
 												} elseif ($l2Name === 'paket') {
 													if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] === 'TiketGate') {
 														if (!empty($lv2['submenu'])) {
@@ -572,12 +582,71 @@
 										}
 									}
 
+									// Add hardcoded Bengkel Menus if Jenis Usaha is Bengkel/Servis
+									if (isset($cData[0]['JenisUsaha']) && in_array($cData[0]['JenisUsaha'], ['Bengkel', 'Servis'])) {
+										$premiumCategories['crm']['submenu'][] = [
+											'PermissionName' => 'Mekanik',
+											'Link' => 'mekanik',
+											'Icon' => 'fas fa-user-cog',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+										$premiumCategories['inventory']['submenu'][] = [
+											'PermissionName' => 'Permintaan Sparepart Bengkel',
+											'Link' => 'gudang/permintaan-sparepart',
+											'Icon' => 'fas fa-truck-loading',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+										$premiumCategories['bengkel']['submenu'][] = [
+											'PermissionName' => 'Data Booking Bengkel',
+											'Link' => 'admin-booking-bengkel',
+											'Icon' => 'fas fa-calendar-check',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+										$premiumCategories['bengkel']['submenu'][] = [
+											'PermissionName' => 'Service Advisor',
+											'Link' => 'service-advisor',
+											'Icon' => 'fas fa-clipboard-list',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+										$premiumCategories['bengkel']['submenu'][] = [
+											'PermissionName' => 'Master Kendaraan',
+											'Link' => 'kendaraan',
+											'Icon' => 'fas fa-car',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+										$premiumCategories['display']['submenu'][] = [
+											'PermissionName' => 'Dashboard Mekanik',
+											'Link' => 'dashboard-mekanik',
+											'Icon' => 'fas fa-wrench',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+										$premiumCategories['display']['submenu'][] = [
+											'PermissionName' => 'Queue Bengkel',
+											'Link' => 'queue-bengkel',
+											'Icon' => 'fas fa-tv',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+									}
+
 									// Filter out categories that are empty
 									$activePremiumCategories = [];
 									foreach ($premiumCategories as $key => $cat) {
 										if (!empty($cat['submenu'])) {
 											$activePremiumCategories[$key] = $cat;
 										}
+									}
+
+									// Specific filters based on business type
+									if (isset($cData[0]['JenisUsaha']) && in_array($cData[0]['JenisUsaha'], ['Bengkel', 'Servis'])) {
+										unset($activePremiumCategories['resto']);
+										unset($activePremiumCategories['billiard']);
 									}
 
 									$sectionGroups = [
@@ -587,7 +656,7 @@
 										],
 										'back_office' => [
 											'label' => 'MANAJEMEN & INVENTORI (BACK-OFFICE)',
-											'keys' => ['resto', 'inventory', 'consignment', 'purchasing', 'crm']
+											'keys' => ['bengkel', 'resto', 'inventory', 'consignment', 'purchasing', 'crm']
 										],
 										'financial' => [
 											'label' => 'KEUANGAN & LAPORAN',
@@ -771,6 +840,10 @@
 							@if(isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] === 'TiketGate')
 								<a href="{{ url('gate/logs') }}" class="btn btn-info white me-2">Log Gate</a>
 								<a href="{{ url('fpenjualan/pos') }}" class="btn btn-primary white me-2">POS Tiket</a>
+							@elseif(isset($cData[0]['JenisUsaha']) && in_array($cData[0]['JenisUsaha'], ['Bengkel', 'Servis']))
+								<a href="{{ url('fpenjualan/bengkelpos') }}" class="btn btn-primary white me-2">
+									<i class="fas fa-cash-register mr-1"></i> POS Kasir
+								</a>
 							@else
 								<a href="{{ url('fpenjualan/pos') }}" class="btn btn-primary white me-2">
 									<i class="fas fa-cash-register mr-1"></i> POS Kasir

@@ -11,7 +11,9 @@ class Pelanggan extends Authenticatable
     use HasFactory, Notifiable;
     
     protected $table = 'pelanggan';
-    protected $primaryKey = 'PelangganID'; // Ensure this matches your PK
+    protected $primaryKey = 'KodePelanggan';
+    public $incrementing = false;
+    protected $keyType = 'string';
  
     protected $fillable = [
         'KodePelanggan',

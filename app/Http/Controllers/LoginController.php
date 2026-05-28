@@ -486,6 +486,56 @@ class LoginController extends Controller
             			goto jump;
             		}
             	}
+
+				// Insert Default Payment Methods
+				$defaultMethods = [
+					[
+						'NamaMetodePembayaran' => 'Tunai',
+						'AkunPembayaran' => null,
+						'Image' => 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY2FzaCIgdmlld0JveD0iMCAwIDE2IDE2Ij4gPHBhdGggZD0iTTggMTBhMiAyIDAgMTAwLTQgMiAyIDAgMDAwIDR6Ii8+IDxwYXRoIGQ9Ik0wIDRhMiAyIDAgMDExMiAwaDFhMiAyIDAgMDExMiAwdjFIMHYtMXptMTUtMmEyIDIgMCAwMTAgNGgxYTIgMiAwIDAxMCA0djFoLTE1di0xaDFhMiAyIDAgMDEwLTRIMHYtMWgxNXYxeiIvPiA8L3N2Zz4=', // bi-cash
+						'Active' => '1',
+						'MetodeVerifikasi' => 'AUTO',
+						'TipePembayaran' => 'NON',
+						'RecordOwnerID' => $KodePartner,
+						'created_at' => Carbon::now(),
+						'updated_at' => Carbon::now(),
+					],
+					[
+						'NamaMetodePembayaran' => 'Debit/Kartu',
+						'AkunPembayaran' => null,
+						'Image' => 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktY3JlZGl0LWNhcmQiIHZpZXdCb3g9IjAgMCAxNiAxNiI+IDxwYXRoIGQ9Ik0wIDRhMiAyIDAgMDExMiAwaDFhMiAyIDAgMDExMiAwdjFIMHYtMXptMTUtMmEyIDIgMCAwMTAgNGgxYTIgMiAwIDAxMCA0djFoLTE1di0xaDFhMiAyIDAgMDEwLTRIMHYtMWgxNXYxeiIvPiA8L3N2Zz4=', // bi-credit-card
+						'Active' => '1',
+						'MetodeVerifikasi' => 'MANUAL',
+						'TipePembayaran' => 'KARTU',
+						'RecordOwnerID' => $KodePartner,
+						'created_at' => Carbon::now(),
+						'updated_at' => Carbon::now(),
+					],
+					[
+						'NamaMetodePembayaran' => 'Transfer',
+						'AkunPembayaran' => null,
+						'Image' => 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktYmFuayIgdmlld0JveD0iMCAwIDE2IDE2Ij4gPHBhdGggZD0iTTggMS41YTEuNSAxLjUgMCAwMTAgM2g3YTEuNSAxLjUgMCAwMTAgLTMgMS41IDEuNSAwIDAxLTMgMGgtM2ExLjUgMS41IDAgMDEwLTMgMS41IDEuNSAwIDAxMyAwaDN6Ii8+IDwvc3ZnPg==', // bi-bank
+						'Active' => '1',
+						'MetodeVerifikasi' => 'MANUAL',
+						'TipePembayaran' => 'TRANSFER',
+						'RecordOwnerID' => $KodePartner,
+						'created_at' => Carbon::now(),
+						'updated_at' => Carbon::now(),
+					],
+					[
+						'NamaMetodePembayaran' => 'QRIS',
+						'AkunPembayaran' => null,
+						'Image' => 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktcXItY29kZSIgdmlld0JveD0iMCAwIDE2IDE2Ij4gPHBhdGggZD0iTTIgMmgydjJIMnoiLz4gPHBhdGggZD0iTTYgMEgyYTIgMiAwIDAwLTIgMnY0YTIgMiAwIDAwMiAyaDRhMiAyIDAgMDAyLTJWMmEyIDIgMCAwMC0yLTJ6bTAgNkgydjRIMnptOC02aC00YTIgMiAwIDAwLTIgMnY0YTIgMiAwIDAwMiAyaDRhMiAyIDAgMDAyLTJWMmEyIDIgMCAwMC0yLTJ6bTAgNmg0djRIMTR6bS04IDhoLTRhMiAyIDAgMDAtMiAydjRhMiAyIDAgMDAyIDJoNGEyIDIgMCAwMDItenYtNGEyIDIgMCAwMC0yLTJ6bTAgNkgydjRIMnptMTItOGgtMmEyIDIgMCAwMC0yIDJ2MmgydjJoMnYtMmgydi0yaC0ydi0yem0tMiA0aC0ydjJoMnoiLz4gPC9zdmc+', // bi-qr-code
+						'Active' => '1',
+						'MetodeVerifikasi' => 'MANUAL',
+						'TipePembayaran' => 'QRIS',
+						'RecordOwnerID' => $KodePartner,
+						'created_at' => Carbon::now(),
+						'updated_at' => Carbon::now(),
+					]
+				];
+				DB::table('metodepembayaran')->insert($defaultMethods);
+
             }else{
                 // throw new \Exception('Penambahan Data Gagal');
                 $errorCount +=1;
