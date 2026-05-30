@@ -125,8 +125,8 @@
                 </tr>
                 <tr>
                     <td>{{ $detail->Qty }}x</td>
-                    <td style="text-align: right;">{{ number_format($detail->Harga) }}</td>
-                    <td style="text-align: right;">{{ number_format($detail->Qty * $detail->Harga) }}</td>
+                    <td style="text-align: right;">{{ number_format($detail->Harga ?? 0) }}</td>
+                    <td style="text-align: right;">{{ number_format(($detail->Qty ?? 0) * ($detail->Harga ?? 0)) }}</td>
                 </tr>
                 @endforeach
             </table>
@@ -136,31 +136,31 @@
             <table style="width: 100%; font-size: 11px; font-weight: bold; text-align: left; border-collapse: collapse;">
                 <tr>
                     <td>Subtotal:</td>
-                    <td style="text-align: right;">Rp {{ number_format($header->TotalTransaksi) }}</td>
+                    <td style="text-align: right;">Rp {{ number_format($header->TotalTransaksi ?? 0) }}</td>
                 </tr>
                 @if(isset($header->Potongan) && $header->Potongan > 0)
                 <tr>
                     <td>Diskon:</td>
-                    <td style="text-align: right;">- Rp {{ number_format($header->Potongan) }}</td>
+                    <td style="text-align: right;">- Rp {{ number_format($header->Potongan ?? 0) }}</td>
                 </tr>
                 @endif
                 @if(isset($header->Pajak) && $header->Pajak > 0)
                 <tr>
                     <td>Pajak:</td>
-                    <td style="text-align: right;">Rp {{ number_format($header->Pajak) }}</td>
+                    <td style="text-align: right;">Rp {{ number_format($header->Pajak ?? 0) }}</td>
                 </tr>
                 @endif
                 <tr>
                     <td style="padding-top: 5px; font-size: 12px;">Total:</td>
-                    <td style="text-align: right; padding-top: 5px; font-size: 12px;">Rp {{ number_format($header->TotalPembelian) }}</td>
+                    <td style="text-align: right; padding-top: 5px; font-size: 12px;">Rp {{ number_format($header->TotalPembelian ?? 0) }}</td>
                 </tr>
                 <tr>
                     <td>Bayar:</td>
-                    <td style="text-align: right;">Rp {{ number_format($header->TotalPembayaran) }}</td>
+                    <td style="text-align: right;">Rp {{ number_format($header->TotalPembayaran ?? 0) }}</td>
                 </tr>
                 <tr>
                     <td>Kembali:</td>
-                    <td style="text-align: right;">Rp {{ number_format($header->Kembalian) }}</td>
+                    <td style="text-align: right;">Rp {{ number_format($header->Kembalian ?? 0) }}</td>
                 </tr>
             </table>
 
@@ -196,7 +196,7 @@
                     <div class="info">
                         No. Trx : {{ $header->NoTransaksi }}<br>
                         Tgl     : {{ date('d-m-Y H:i', strtotime($header->TglTransaksi)) }}<br>
-                        Harga   : Rp {{ number_format($detail->Harga, 0, ',', '.') }}
+                        Harga   : Rp {{ number_format($detail->Harga ?? 0, 0, ',', '.') }}
                     </div>
 
                     <div class="footer">
