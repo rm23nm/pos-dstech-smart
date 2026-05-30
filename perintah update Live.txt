@@ -1,0 +1,5 @@
+cd /www/wwwroot/pos.dstechsmart.com
+git pull
+php artisan migrate --force
+php artisan optimize:clear
+php artisan view:clear
