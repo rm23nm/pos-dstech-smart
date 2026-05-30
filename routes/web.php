@@ -618,8 +618,8 @@ Route::get('/fpenjualan/countermonitor', function() { return redirect()->route('
 // Display/Monitor Routes (POS Hiburan)
 Route::get('/infokitchen', [FakturPenjualanController::class, 'InfoKitchen'])->name('infokitchen')->middleware(['auth', 'check.session']);
 Route::post('/infokitchen-data', [FakturPenjualanController::class, 'InfoKitchenData'])->name('infokitchen-data')->middleware(['auth', 'check.session']);
-Route::post('/infokitchen-mark-done', [FakturPenjualanController::class, 'InfoKitchenMarkDone'])->name('infokitchen-mark-done')->middleware(['auth', 'check.session']);
-Route::post('/infokitchen-update-status', [FakturPenjualanController::class, 'InfoKitchenUpdateStatus'])->name('infokitchen-update-status')->middleware(['auth', 'check.session']);
+Route::post('/infokitchen-markdone', [FakturPenjualanController::class, 'InfoKitchenMarkDone'])->name('infokitchen-markdone')->middleware(['auth', 'check.session']);
+Route::post('/infokitchen-updatestatus', [FakturPenjualanController::class, 'InfoKitchenUpdateStatus'])->name('infokitchen-updatestatus')->middleware(['auth', 'check.session']);
 Route::get('/customerdisplay', [FakturPenjualanController::class, 'CustomerDisplay'])->name('customerdisplay')->middleware(['auth', 'check.session']);
 Route::post('/customerdisplay-data', [FakturPenjualanController::class, 'CustomerDisplayData'])->name('customerdisplay-data')->middleware(['auth', 'check.session']);
 Route::get('/countermonitor', [FakturPenjualanController::class, 'CounterMonitor'])->name('countermonitor')->middleware(['auth', 'check.session']);
