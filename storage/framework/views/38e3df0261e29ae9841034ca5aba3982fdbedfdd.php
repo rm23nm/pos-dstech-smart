@@ -1,6 +1,5 @@
-@extends('parts.header')
 	
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
     /* Basic styling to prevent CSS conflicts */
     .ck-editor__editable {
@@ -13,7 +12,7 @@
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb bg-white mb-0 px-0 py-2">
 				<li class="breadcrumb-item active" aria-current="page">
-					<a href="{{route('subs')}}"></a>
+					<a href="<?php echo e(route('subs')); ?>"></a>
 				</li>
 				<li class="breadcrumb-item active" aria-current="page">Input Produk Berlangganan</li>
 			</ol>
@@ -34,17 +33,17 @@
 								<div class="card-title mb-0">
 									<h3 class="card-label mb-0 font-weight-bold text-body">
 
-                                        @if (count($subscriptionheader) > 0 && !request()->query('copy'))
+                                        <?php if(count($subscriptionheader) > 0 && !request()->query('copy')): ?>
                                         Edit Produk Berlangganan
                                     		<input type="hidden" name="formtype" id="formtype" value="edit">
-	                                	@else
-                                            @if(request()->query('copy'))
+	                                	<?php else: ?>
+                                            <?php if(request()->query('copy')): ?>
                                             Duplikat Produk Berlangganan
-                                            @else
+                                            <?php else: ?>
                                             Tambah Produk Berlangganan
-                                            @endif
+                                            <?php endif; ?>
 	                                    	<input type="hidden" name="formtype" id="formtype" value="add">
-	                                	@endif
+	                                	<?php endif; ?>
 									</h3>
 								</div>
 							</div>
@@ -63,14 +62,14 @@
                                     <div class="col-md-3">
                                         <label  class="text-body">Kode Produk Berlangganan</label>
                                         <fieldset class="form-group mb-3">
-                                            <input type="text" class="form-control" id="NoTransaksi" name="NoTransaksi" placeholder="Masukan Kode Produk Berlangganan" value="{{ count($subscriptionheader) > 0 && !request()->query('copy') ? $subscriptionheader[0]['NoTransaksi'] : '' }}" {{ count($subscriptionheader) > 0 && !request()->query('copy') ? 'readonly' : '' }}>
+                                            <input type="text" class="form-control" id="NoTransaksi" name="NoTransaksi" placeholder="Masukan Kode Produk Berlangganan" value="<?php echo e(count($subscriptionheader) > 0 && !request()->query('copy') ? $subscriptionheader[0]['NoTransaksi'] : ''); ?>" <?php echo e(count($subscriptionheader) > 0 && !request()->query('copy') ? 'readonly' : ''); ?>>
                                         </fieldset>
                                     </div>
                                     
                                     <div class="col-md-3">
                                         <label  class="text-body">Nama Produk Berlangganan</label>
                                         <fieldset class="form-group mb-3">
-                                            <input type="text" class="form-control" id="NamaSubscription" name="NamaSubscription" placeholder="Masukan Nama Produk Berlangganan" value="{{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['NamaSubscription'] . (request()->query('copy') ? ' (Copy)' : '') : '' }}">
+                                            <input type="text" class="form-control" id="NamaSubscription" name="NamaSubscription" placeholder="Masukan Nama Produk Berlangganan" value="<?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['NamaSubscription'] . (request()->query('copy') ? ' (Copy)' : '') : ''); ?>">
                                         </fieldset>
                                     </div>
                                     <div class="col-md-3">
@@ -78,20 +77,20 @@
                                         <label  class="text-body">Jenis Usaha</label>
                                         <fieldset class="form-group mb-3">
                                             <select required id="JenisUsaha" name="JenisUsaha" class="js-example-basic-single form-control text-dark border-0 p-0 h-20px font-size-h5">
-                                                <option value=""  {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "" ? 'selected' : '' : '' }}>Pilih Jenis Usaha</option>
-                                                <option value="Retail" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Retail" ? 'selected' : '' : '' }} >Retail</option>
-                                                <option value="FnB" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "FnB" ? 'selected' : '' : '' }}>Food and Beverage</option>
-                                                <option value="Hiburan" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Hiburan" ? 'selected' : '' : '' }}>Hiburan</option>
-                                                <option value="Apotek" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Apotek" ? 'selected' : '' : '' }}>Apotek / Klinik</option>
-                                                <option value="TiketGate" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "TiketGate" ? 'selected' : '' : '' }}>Tiket & Smart Gate</option>
-                                                <option value="BengkelDealer" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "BengkelDealer" ? 'selected' : '' : '' }}>Bengkel dan Dealer</option>
+                                                <option value=""  <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "" ? 'selected' : '' : ''); ?>>Pilih Jenis Usaha</option>
+                                                <option value="Retail" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Retail" ? 'selected' : '' : ''); ?> >Retail</option>
+                                                <option value="FnB" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "FnB" ? 'selected' : '' : ''); ?>>Food and Beverage</option>
+                                                <option value="Hiburan" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Hiburan" ? 'selected' : '' : ''); ?>>Hiburan</option>
+                                                <option value="Apotek" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "Apotek" ? 'selected' : '' : ''); ?>>Apotek / Klinik</option>
+                                                <option value="TiketGate" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "TiketGate" ? 'selected' : '' : ''); ?>>Tiket & Smart Gate</option>
+                                                <option value="BengkelDealer" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['JenisUsaha'] == "BengkelDealer" ? 'selected' : '' : ''); ?>>Bengkel dan Dealer</option>
                                             </select>
                                         </fieldset>
                                     </div>
                                     <div class="col-md-3">
                                         <label  class="text-body">Tanggal Berlaku</label>
                                         <fieldset class="form-group mb-3">
-                                            <input type="date" class="form-control" id="Tanggal" name="Tanggal" placeholder="Masukan Kode Produk Berlangganan" value="{{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['Tanggal'] : '' }}">
+                                            <input type="date" class="form-control" id="Tanggal" name="Tanggal" placeholder="Masukan Kode Produk Berlangganan" value="<?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['Tanggal'] : ''); ?>">
                                         </fieldset>
                                     </div>
                                     
@@ -99,7 +98,8 @@
                                         <label  class="text-body">Deskripsi Produk</label>
                                         <fieldset class="form-group mb-3">
                                             <textarea id="DeskripsiSubscription" name="DeskripsiSubscription" class="bg-transparent text-dark">
-                                            {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['DeskripsiSubscription'] : '' }}
+                                            <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['DeskripsiSubscription'] : ''); ?>
+
                                             </textarea>
                                         </fieldset>
                                     </div>
@@ -107,37 +107,37 @@
                                     <div class="col-md-6">
                                         <label  class="text-body">Harga</label>
                                         <fieldset class="form-group mb-3">
-                                            <input type="number" class="form-control" id="Harga" name="Harga" placeholder="Masukan Harga" value="{{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['Harga'] : '' }}">
+                                            <input type="number" class="form-control" id="Harga" name="Harga" placeholder="Masukan Harga" value="<?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['Harga'] : ''); ?>">
                                         </fieldset>
                                     </div>
 
                                     <div class="col-md-6">
                                         <label  class="text-body">Lama Berlangganan (Bulan)</label>
                                         <fieldset class="form-group mb-3">
-                                            <input type="number" class="form-control" id="LamaSubsription" name="LamaSubsription" placeholder="Masukan Lama Berlangganan" value="{{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['LamaSubsription'] : '' }}">
+                                            <input type="number" class="form-control" id="LamaSubsription" name="LamaSubsription" placeholder="Masukan Lama Berlangganan" value="<?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['LamaSubsription'] : ''); ?>">
                                         </fieldset>
                                     </div>
 
                                     <div class="col-md-12">
                                         <fieldset class="form-group mb-3">
-                                            <input type="checkbox" class="checkbox-input" id="AllowAccounting" name="AllowAccounting" placeholder="Masukan Harga" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowAccounting'] == 1 ? 'checked' : '' : '' }}>
+                                            <input type="checkbox" class="checkbox-input" id="AllowAccounting" name="AllowAccounting" placeholder="Masukan Harga" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowAccounting'] == 1 ? 'checked' : '' : ''); ?>>
                                             <label  class="text-body" for="AllowAccounting">Integrasi Akutansi</label>
                                         </fieldset>
 
                                         <fieldset class="form-group mb-3">
-                                            <input type="checkbox" class="checkbox-input" id="AllowPesananMeja" name="AllowPesananMeja" placeholder="Masukan Harga" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowPesananMeja'] == 1 ? 'checked' : '' : '' }}>
+                                            <input type="checkbox" class="checkbox-input" id="AllowPesananMeja" name="AllowPesananMeja" placeholder="Masukan Harga" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowPesananMeja'] == 1 ? 'checked' : '' : ''); ?>>
                                             <label  class="text-body" for="AllowPesananMeja">Integrasi Pesanan Di Meja (Khusus FnB)</label>
                                         </fieldset>
                                         <fieldset class="form-group mb-3">
-                                            <input type="checkbox" class="checkbox-input" id="AllowPaymentGateway" name="AllowPaymentGateway" placeholder="Masukan Harga" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowPaymentGateway'] == 1 ? 'checked' : '' : '' }}>
+                                            <input type="checkbox" class="checkbox-input" id="AllowPaymentGateway" name="AllowPaymentGateway" placeholder="Masukan Harga" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowPaymentGateway'] == 1 ? 'checked' : '' : ''); ?>>
                                             <label  class="text-body" for="AllowPaymentGateway">Integrasi QRIS</label>
                                         </fieldset>
                                         <fieldset class="form-group mb-3">
-                                            <input type="checkbox" class="checkbox-input" id="AllowKatalogOnline" name="AllowKatalogOnline" placeholder="Masukan Harga" {{ count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowKatalogOnline'] == 1 ? 'checked' : '' : '' }}>
+                                            <input type="checkbox" class="checkbox-input" id="AllowKatalogOnline" name="AllowKatalogOnline" placeholder="Masukan Harga" <?php echo e(count($subscriptionheader) > 0 ? $subscriptionheader[0]['AllowKatalogOnline'] == 1 ? 'checked' : '' : ''); ?>>
                                             <label  class="text-body" for="AllowKatalogOnline">Integrasi Katalog Online</label>
                                         </fieldset>
                                         <fieldset class="form-group mb-3">
-                                            <input type="checkbox" class="checkbox-input" id="AllowMonitorAntrean" name="AllowMonitorAntrean" placeholder="Masukan Harga" {{ count($subscriptionheader) > 0 ? (isset($subscriptionheader[0]['AllowMonitorAntrean']) && $subscriptionheader[0]['AllowMonitorAntrean'] == 1) ? 'checked' : '' : '' }}>
+                                            <input type="checkbox" class="checkbox-input" id="AllowMonitorAntrean" name="AllowMonitorAntrean" placeholder="Masukan Harga" <?php echo e(count($subscriptionheader) > 0 ? (isset($subscriptionheader[0]['AllowMonitorAntrean']) && $subscriptionheader[0]['AllowMonitorAntrean'] == 1) ? 'checked' : '' : ''); ?>>
                                             <label  class="text-body" for="AllowMonitorAntrean">Integrasi Monitor Antrean / Kitchen (NEW)</label>
                                         </fieldset>
                                     </div>
@@ -147,7 +147,7 @@
                                     <center><h2>Akses Menu Berlangganan</h2></center>
                                     <p class="text-center text-muted mb-4">Pilih dan centang menu yang ingin dimasukkan ke dalam paket berlangganan ini. Anda bisa menggunakan tombol <strong>"Pilih Semua"</strong> untuk mempermudah pemilihan fitur per jenis usaha!</p>
 
-                                     @php
+                                     <?php
                                         $groupedPermissions = [
                                             'backoffice' => [
                                                 'title' => '📦 KASIR, INVENTORI & BACK-OFFICE',
@@ -278,52 +278,52 @@
                                                 }
                                             }
                                         }
-                                    @endphp
+                                    ?>
 
                                     <div class="row" id="subscription-feature-cards">
-                                        @foreach ($groupedPermissions as $gKey => $group)
-                                            <div class="col-md-6 mb-4 group-card-{{ $gKey }}">
-                                                <div class="card shadow-sm border" style="border-radius: 12px; overflow: hidden; border-top: 4px solid {{ $group['color'] }} !important;">
+                                        <?php $__currentLoopData = $groupedPermissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $gKey => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <div class="col-md-6 mb-4 group-card-<?php echo e($gKey); ?>">
+                                                <div class="card shadow-sm border" style="border-radius: 12px; overflow: hidden; border-top: 4px solid <?php echo e($group['color']); ?> !important;">
                                                     <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 px-4">
-                                                        <h5 class="card-title mb-0 font-weight-bold text-dark" style="font-size: 0.95rem;">{{ $group['title'] }}</h5>
-                                                        <button type="button" class="btn btn-xs btn-outline-secondary btn-select-all font-weight-bold" data-target="group_{{ $gKey }}" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 6px;">Pilih Semua</button>
+                                                        <h5 class="card-title mb-0 font-weight-bold text-dark" style="font-size: 0.95rem;"><?php echo e($group['title']); ?></h5>
+                                                        <button type="button" class="btn btn-xs btn-outline-secondary btn-select-all font-weight-bold" data-target="group_<?php echo e($gKey); ?>" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 6px;">Pilih Semua</button>
                                                     </div>
                                                     <div class="card-body bg-white py-3 px-4" style="max-height: 400px; overflow-y: auto;">
-                                                        <div class="dd group_{{ $gKey }}" id="nestable_{{ $gKey }}">
+                                                        <div class="dd group_<?php echo e($gKey); ?>" id="nestable_<?php echo e($gKey); ?>">
                                                             <ol class="dd-list">
-                                                                @foreach ($group['items'] as $lv2)
-                                                                    <li class="dd-item" data-id="{{ $lv2['MenuID'] }}">
-                                                                        <div class="dd-handle font-weight-bold">{!! $lv2['PermissionName'] !!}</div>
+                                                                <?php $__currentLoopData = $group['items']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lv2): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                    <li class="dd-item" data-id="<?php echo e($lv2['MenuID']); ?>">
+                                                                        <div class="dd-handle font-weight-bold"><?php echo $lv2['PermissionName']; ?></div>
                                                                         <div class="inner-content">
                                                                             <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv2['MenuID']) }}" {{ $lv2['Selected'] != "" ? 'checked' : '' }} value="{{ $lv2['MenuID'] }}">
-                                                                                <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv2['MenuID']) }}"></label>
+                                                                                <input type="checkbox" class="form-check-input group-chk-<?php echo e($gKey); ?>" id="chk<?php echo e(str_replace(' ', '', $lv2['MenuID'])); ?>" <?php echo e($lv2['Selected'] != "" ? 'checked' : ''); ?> value="<?php echo e($lv2['MenuID']); ?>">
+                                                                                <label class="form-check-label me-1" for="chk<?php echo e(str_replace(' ', '', $lv2['MenuID'])); ?>"></label>
                                                                             </div>
                                                                         </div>
 
-                                                                        @if (count($lv2['submenu']) > 0)
+                                                                        <?php if(count($lv2['submenu']) > 0): ?>
                                                                             <ol class="dd-list">
-                                                                                @foreach ($lv2['submenu'] as $lv3)
-                                                                                    <li class="dd-item" data-id="{{ $lv3['MenuID'] }}">
-                                                                                        <div class="dd-handle text-muted" style="font-size: 0.85rem;">{{ $lv3['PermissionName'] }}</div>
+                                                                                <?php $__currentLoopData = $lv2['submenu']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lv3): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                                    <li class="dd-item" data-id="<?php echo e($lv3['MenuID']); ?>">
+                                                                                        <div class="dd-handle text-muted" style="font-size: 0.85rem;"><?php echo e($lv3['PermissionName']); ?></div>
                                                                                         <div class="inner-content">
                                                                                             <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                                <input type="checkbox" class="form-check-input group-chk-{{ $gKey }}" id="chk{{ str_replace(' ', '', $lv3['MenuID']) }}" {{ $lv3['Selected'] != "" ? 'checked' : '' }} value="{{ $lv3['MenuID'] }}">
-                                                                                                <label class="form-check-label me-1" for="chk{{ str_replace(' ', '', $lv3['MenuID']) }}"></label>
+                                                                                                <input type="checkbox" class="form-check-input group-chk-<?php echo e($gKey); ?>" id="chk<?php echo e(str_replace(' ', '', $lv3['MenuID'])); ?>" <?php echo e($lv3['Selected'] != "" ? 'checked' : ''); ?> value="<?php echo e($lv3['MenuID']); ?>">
+                                                                                                <label class="form-check-label me-1" for="chk<?php echo e(str_replace(' ', '', $lv3['MenuID'])); ?>"></label>
                                                                                             </div>
                                                                                         </div>
                                                                                     </li>
-                                                                                @endforeach
+                                                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                                             </ol>
-                                                                        @endif
+                                                                        <?php endif; ?>
                                                                     </li>
-                                                                @endforeach
+                                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                             </ol>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </div>
                                     <div class="col-md-12">
                                         <button id="btSave" name="btSave" type="button" class="btn btn-success text-white font-weight-bold me-1 mb-1">Simpan</button>
@@ -340,10 +340,10 @@
 	
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
-<script src="{{ asset('js/jquery.nestable.js')}}"></script>
+<?php $__env->startPush('scripts'); ?>
+<script src="<?php echo e(asset('js/jquery.nestable.js')); ?>"></script>
 <script type="text/javascript">
 	$(function () {
         let DeskripsiSubscriptionInstance;
@@ -479,11 +479,11 @@
 
             if (formtype == 'add') {
 				$.ajax({
-					url: "{{route('subs-storeJson')}}",
+					url: "<?php echo e(route('subs-storeJson')); ?>",
 					type: 'POST',
 					contentType: 'application/json',
 					headers: {
-		                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include the CSRF token in the headers
+		                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
 		            },
 		            data: JSON.stringify(oData),
 		            success: function(response) {
@@ -497,7 +497,7 @@
 		                        jQuery('#btSave').text('Save');
 		                        jQuery('#btSave').attr('disabled',false);
 		                        // location.reload();
-		                        window.location.href = '{{url("subs")}}';
+		                        window.location.href = '<?php echo e(url("subs")); ?>';
 		                    });
 		            	}
 		            	else{
@@ -514,11 +514,11 @@
 			}
 			else{
 				$.ajax({
-					url: "{{route('subs-editJson')}}",
+					url: "<?php echo e(route('subs-editJson')); ?>",
 					type: 'POST',
 					contentType: 'application/json',
 					headers: {
-		                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include the CSRF token in the headers
+		                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
 		            },
 		            data: JSON.stringify(oData),
 		            success: function(response) {
@@ -532,7 +532,7 @@
 		                        jQuery('#btSave').text('Save');
 		                        jQuery('#btSave').attr('disabled',false);
 		                        // location.reload();
-		                        window.location.href = '{{url("subs")}}';
+		                        window.location.href = '<?php echo e(url("subs")); ?>';
 		                    });
 		            	}
 		            	else{
@@ -550,4 +550,5 @@
         });
 	});
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('parts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/Admin/Subscription-Input.blade.php ENDPATH**/ ?>

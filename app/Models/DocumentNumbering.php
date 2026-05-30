@@ -20,8 +20,13 @@ class DocumentNumbering extends Model
     	$currentDate = Carbon::now();
 		$Year = $currentDate->format('y');
 		$Month = $currentDate->format('m');
+		$Day = $currentDate->format('d');
 
-		$prefix = $Year.$Month;
+		if ($DocType == 'POS') {
+			$prefix = $Year.$Month.$Day;
+		} else {
+			$prefix = $Year.$Month;
+		}
 
 		$Numbering = $this->where('DocumentID',$DocType)
 						->where('RecordOwnerID', Auth::user()->RecordOwnerID)
@@ -51,8 +56,13 @@ class DocumentNumbering extends Model
     	$currentDate = Carbon::now();
 		$Year = $currentDate->format('y');
 		$Month = $currentDate->format('m');
+		$Day = $currentDate->format('d');
 
-		$prefix = $Year.$Month;
+		if ($DocType == 'POS') {
+			$prefix = $Year.$Month.$Day;
+		} else {
+			$prefix = $Year.$Month;
+		}
 
 		$Numbering = $this->where('DocumentID',$DocType)
 						->where('RecordOwnerID', $RecordOwnerID)

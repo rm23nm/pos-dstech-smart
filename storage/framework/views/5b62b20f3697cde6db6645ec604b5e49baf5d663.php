@@ -1,6 +1,5 @@
-@extends('parts.header')
 	
-@section('content')
+<?php $__env->startSection('content'); ?>
 <!--begin::Subheader-->
 <div class="subheader py-2 py-lg-6 subheader-solid">
 	<div class="container-fluid">
@@ -28,7 +27,7 @@
 								</div>
                                 <div class="icons d-flex">
 									<button type="button" class="btn btn-outline-primary rounded-pill font-weight-bold me-1 mb-1" data-bs-toggle="modal" data-bs-target="#ModalBlastMessage">Blast Message</button>
-									<a href="{{ url('penggunaaplikasi/export/') }}" class="btn btn-outline-success rounded-pill font-weight-bold me-1 mb-1">Download Excel</a>
+									<a href="<?php echo e(url('penggunaaplikasi/export/')); ?>" class="btn btn-outline-success rounded-pill font-weight-bold me-1 mb-1">Download Excel</a>
 								</div>
 
 							</div>
@@ -65,54 +64,54 @@
 											</tr>
 										</thead>
 										<tbody>
-											@if (count($oCompany) > 0)
-                                                @foreach ($oCompany as $v)
-                                                    @if ($v['KodePartner'] != "999999")
+											<?php if(count($oCompany) > 0): ?>
+                                                <?php $__currentLoopData = $oCompany; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php if($v['KodePartner'] != "999999"): ?>
                                                         <tr>
                                                             <th class=" no-sort text-end">
-                                                                @if ($v['Subscription'] == "Bill" && $v['StatusSubscription'] == 'Belum Bayar')
-                                                                    <button class="btn btn-outline-primary" onclick="ShowDetail('{{ $v['KodePartner'] }}')"  data-bs-toggle="tooltip" title="Buat Tagihan"><i class="bi bi-receipt"></i></button>
-                                                                @endif
+                                                                <?php if($v['Subscription'] == "Bill" && $v['StatusSubscription'] == 'Belum Bayar'): ?>
+                                                                    <button class="btn btn-outline-primary" onclick="ShowDetail('<?php echo e($v['KodePartner']); ?>')"  data-bs-toggle="tooltip" title="Buat Tagihan"><i class="bi bi-receipt"></i></button>
+                                                                <?php endif; ?>
 
-                                                                @if ($v['isSuspended'] == 0)
-                                                                    <button class="btn btn-outline-danger btn-sm" onclick="Suspend('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Suspend"><i class="bi bi-pause-circle"></i></button>
-                                                                @else
-                                                                    <button class="btn btn-outline-warning btn-sm" onclick="UnSuspend('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Buka Suspend"><i class="bi bi-play-circle"></i></button>
-                                                                @endif
+                                                                <?php if($v['isSuspended'] == 0): ?>
+                                                                    <button class="btn btn-outline-danger btn-sm" onclick="Suspend('<?php echo e($v['KodePartner']); ?>')" data-bs-toggle="tooltip" title="Suspend"><i class="bi bi-pause-circle"></i></button>
+                                                                <?php else: ?>
+                                                                    <button class="btn btn-outline-warning btn-sm" onclick="UnSuspend('<?php echo e($v['KodePartner']); ?>')" data-bs-toggle="tooltip" title="Buka Suspend"><i class="bi bi-play-circle"></i></button>
+                                                                <?php endif; ?>
 
-                                                                <button class="btn btn-outline-success btn-sm" onclick="Aktivasi('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Aktivasi / Perpanjang Manual"><i class="bi bi-check-circle"></i></button>
+                                                                <button class="btn btn-outline-success btn-sm" onclick="Aktivasi('<?php echo e($v['KodePartner']); ?>')" data-bs-toggle="tooltip" title="Aktivasi / Perpanjang Manual"><i class="bi bi-check-circle"></i></button>
 
-                                                                <button class="btn btn-outline-success btn-sm" onclick="RubahPaket('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Rubah Paket"><i class="bi bi-box-seam"></i></button>
-                                                                <button class="btn btn-outline-danger btn-sm" onclick="RemovePartner('{{ $v['KodePartner'] }}')" data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash"></i></button>
+                                                                <button class="btn btn-outline-success btn-sm" onclick="RubahPaket('<?php echo e($v['KodePartner']); ?>')" data-bs-toggle="tooltip" title="Rubah Paket"><i class="bi bi-box-seam"></i></button>
+                                                                <button class="btn btn-outline-danger btn-sm" onclick="RemovePartner('<?php echo e($v['KodePartner']); ?>')" data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash"></i></button>
                                                             </th>
-                                                            <th>{{ $v['KodePartner'] }}</th>
-                                                            <th>{{ $v['NamaPartner'] }}</th>
+                                                            <th><?php echo e($v['KodePartner']); ?></th>
+                                                            <th><?php echo e($v['NamaPartner']); ?></th>
                                                             <th>
-                                                                {{-- <span class="mr-0 text-success">Approved</span> --}}
-                                                                @php
+                                                                
+                                                                <?php
                                                                     $oData = explode('-',$v['StatusSubscription']);
                                                                     // echo $oData[0];
                                                                     echo '<span class="mr-0 text-'.$oData[1].'">
                                                                             '.$oData[0].'
                                                                         </span>'
                                                                     // var_dump($oData);
-                                                                @endphp
+                                                                ?>
                                                             </th>
-                                                            <th>{{ $v['AlamatTagihan'] }}</th>
-                                                            <th>{{ $v['NoTlp'] }}</th>
-                                                            <th>{{ $v['NoHP'] }}</th>
-                                                            <th>{{ $v['email'] }}</th>
-                                                            <th>{{ $v['NamaPIC'] }}</th>
-                                                            <th>{{ $v['StartSubs'] }}</th>
-                                                            <th>{{ $v['EndSubs'] }}</th>
-                                                            <th>{{ $v['ExtraDays'] }}</th>
-                                                            <th>{{ $v['JatuhTempo'] }}</th>
-                                                            <th>{{ $v['JenisUsaha'] }}</th>
-                                                            <th>{{ $v['NamaSubscription'] }}</th>
+                                                            <th><?php echo e($v['AlamatTagihan']); ?></th>
+                                                            <th><?php echo e($v['NoTlp']); ?></th>
+                                                            <th><?php echo e($v['NoHP']); ?></th>
+                                                            <th><?php echo e($v['email']); ?></th>
+                                                            <th><?php echo e($v['NamaPIC']); ?></th>
+                                                            <th><?php echo e($v['StartSubs']); ?></th>
+                                                            <th><?php echo e($v['EndSubs']); ?></th>
+                                                            <th><?php echo e($v['ExtraDays']); ?></th>
+                                                            <th><?php echo e($v['JatuhTempo']); ?></th>
+                                                            <th><?php echo e($v['JenisUsaha']); ?></th>
+                                                            <th><?php echo e($v['NamaSubscription']); ?></th>
                                                         </tr>
-                                                    @endif
-                                                @endforeach
-                                            @endif
+                                                    <?php endif; ?>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            <?php endif; ?>
 										</tbody>
 									</table>
 								</div>
@@ -176,11 +175,12 @@
             			<fieldset class="form-group mb-3">
             				<select name="ModalKodePaketLangganan" id="ModalKodePaketLangganan" class="js-example-basic-single js-states form-control bg-transparent" name="state" required="">
 								<option value="">Pilih Produk Langganan</option>
-								@foreach($subs as $ko)
-									<option value="{{ $ko->NoTransaksi }}">
-                                        {{ $ko->NamaSubscription }}
+								<?php $__currentLoopData = $subs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ko): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+									<option value="<?php echo e($ko->NoTransaksi); ?>">
+                                        <?php echo e($ko->NamaSubscription); ?>
+
                                     </option>
-								@endforeach
+								<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 								
 							</select>
             			</fieldset>
@@ -241,8 +241,8 @@
 		  </div>
 		  <div class="modal-body">
 			<div class="col-md-12">
-                <form action="{{route('penggunaaplikasi-suspend')}}" method="post">
-                    @csrf
+                <form action="<?php echo e(route('penggunaaplikasi-suspend')); ?>" method="post">
+                    <?php echo csrf_field(); ?>
                     <div class="form-group row">
                         <div class="col-md-3">
                             <label  class="text-body">Kode Partner</label>
@@ -292,8 +292,8 @@
 		  </div>
 		  <div class="modal-body">
 			<div class="col-md-12">
-                <form action="{{route('penggunaaplikasi-suspend')}}" method="post">
-                    @csrf
+                <form action="<?php echo e(route('penggunaaplikasi-suspend')); ?>" method="post">
+                    <?php echo csrf_field(); ?>
                     <div class="form-group row">
                         <div class="col-md-3">
                             <label  class="text-body">Kode Partner</label>
@@ -342,8 +342,8 @@
 		  </div>
 		  <div class="modal-body">
 			<div class="col-md-12">
-                <form action="{{route('penggunaaplikasi-suspend')}}" method="post">
-                    @csrf
+                <form action="<?php echo e(route('penggunaaplikasi-suspend')); ?>" method="post">
+                    <?php echo csrf_field(); ?>
                     <div class="form-group row">
                         <div class="col-md-3">
                             <label  class="text-body">Kode Partner</label>
@@ -398,8 +398,8 @@
 		  </div>
 		  <div class="modal-body">
 			<div class="col-md-12">
-                <form action="{{route('penggunaaplikasi-rubahlangganan')}}" method="post">
-                    @csrf
+                <form action="<?php echo e(route('penggunaaplikasi-rubahlangganan')); ?>" method="post">
+                    <?php echo csrf_field(); ?>
                     <div class="form-group row">
                         <div class="col-md-3">
                             <label  class="text-body">Kode Partner</label>
@@ -610,9 +610,9 @@
 </div>
 
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script type="text/javascript">
     var oCompany;
     var oSubs;
@@ -812,11 +812,11 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{route('penggunaaplikasi-remove')}}", // Ganti sesuai endpoint kamu
+                    url: "<?php echo e(route('penggunaaplikasi-remove')); ?>", // Ganti sesuai endpoint kamu
                     type: 'POST',
                     data: { KodePartner: partner },
                     headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Laravel
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Laravel
                     },
                     success: function(response) {
                         if (response.success) {
@@ -879,11 +879,11 @@
 
         // console.log(oData);
         $.ajax({
-            url: "{{route('invpengguna-storeJson')}}",
+            url: "<?php echo e(route('invpengguna-storeJson')); ?>",
             type: 'POST',
             contentType: 'application/json',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Include the CSRF token in the headers
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
             },
             data: JSON.stringify(oData),
             success: function(response) {
@@ -897,7 +897,7 @@
                         jQuery('#btSave').text('Save');
                         jQuery('#btSave').attr('disabled',false);
                         // location.reload();
-                        window.location.href = '{{url("penggunaaplikasi")}}';
+                        window.location.href = '<?php echo e(url("penggunaaplikasi")); ?>';
                     });
                 }
                 else{
@@ -945,8 +945,8 @@
         try {
             const listResponse = await $.ajax({
                 type: 'post',
-                url: "{{route('penggunaaplikasi-getblastlist')}}",
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                url: "<?php echo e(route('penggunaaplikasi-getblastlist')); ?>",
+                headers: { 'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' },
                 dataType: 'json'
             });
 
@@ -968,8 +968,8 @@
                 try {
                     const sendResponse = await $.ajax({
                         type: 'post',
-                        url: "{{route('penggunaaplikasi-sendsingleblast')}}",
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        url: "<?php echo e(route('penggunaaplikasi-sendsingleblast')); ?>",
+                        headers: { 'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' },
                         data: { email, subject, message },
                         dataType: 'json'
                     });
@@ -1009,4 +1009,5 @@
 
 
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('parts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/Admin/Pengguna.blade.php ENDPATH**/ ?>

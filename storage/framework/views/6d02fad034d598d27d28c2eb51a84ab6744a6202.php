@@ -1,6 +1,5 @@
-@extends('parts.header')
 	
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <!--begin::Subheader-->
 <div class="subheader py-2 py-lg-6 subheader-solid">
@@ -28,7 +27,7 @@
 									</h3>
 								</div>
 							    <div class="icons d-flex">
-									<a href="{{ url('subs/form/-') }}" class="btn btn-outline-primary rounded-pill font-weight-bold me-1 mb-1">Tambah Data</a>
+									<a href="<?php echo e(url('subs/form/-')); ?>" class="btn btn-outline-primary rounded-pill font-weight-bold me-1 mb-1">Tambah Data</a>
 								
 								</div>
 							</div>
@@ -60,55 +59,55 @@
 											</tr>
 										</thead>
 										<tbody>
-											@if (count($subscriptionheader) > 0)
-												@foreach($subscriptionheader as $v)
+											<?php if(count($subscriptionheader) > 0): ?>
+												<?php $__currentLoopData = $subscriptionheader; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 												<tr>
-													<td>{{ $v['NoTransaksi'] }}</td>
-													<td>{{ $v['NamaSubscription'] }}</td>
+													<td><?php echo e($v['NoTransaksi']); ?></td>
+													<td><?php echo e($v['NamaSubscription']); ?></td>
 													<td>
-														@php
+														<?php
 															$jenis = $v['JenisUsaha'] ?? '';
 															$badgeClass = 'secondary';
 															$badgeIcon = '🏪';
 															if ($jenis == 'Retail') { $badgeClass = 'primary'; $badgeIcon = '🛒'; }
 															elseif ($jenis == 'FnB') { $badgeClass = 'danger'; $badgeIcon = '🍔'; }
 															elseif ($jenis == 'Hiburan') { $badgeClass = 'success'; $badgeIcon = '🎱'; }
-														@endphp
-														@if($jenis)
-															<span class="badge badge-{{ $badgeClass }}" style="font-size:0.8rem; padding: 5px 10px;">{{ $badgeIcon }} {{ $jenis }}</span>
-														@else
+														?>
+														<?php if($jenis): ?>
+															<span class="badge badge-<?php echo e($badgeClass); ?>" style="font-size:0.8rem; padding: 5px 10px;"><?php echo e($badgeIcon); ?> <?php echo e($jenis); ?></span>
+														<?php else: ?>
 															<span class="text-muted" style="font-size:0.8rem;">—</span>
-														@endif
+														<?php endif; ?>
 													</td>
-													<td>{{ number_format($v['Harga']) }}</td>
-													<td>{{ $v['LamaSubsription'] }}</td>
+													<td><?php echo e(number_format($v['Harga'])); ?></td>
+													<td><?php echo e($v['LamaSubsription']); ?></td>
 													<td>
-														@if ($v['AllowAccounting'] == 1)
+														<?php if($v['AllowAccounting'] == 1): ?>
 															YA
-														@else
+														<?php else: ?>
 															TIDAK
-														@endif
-													</td>
-													<td>
-														@if ($v['AllowPesananMeja'] == 1)
-															YA
-														@else
-															TIDAK
-														@endif
+														<?php endif; ?>
 													</td>
 													<td>
-														@if ($v['AllowPaymentGateway'] == 1)
+														<?php if($v['AllowPesananMeja'] == 1): ?>
 															YA
-														@else
+														<?php else: ?>
 															TIDAK
-														@endif
+														<?php endif; ?>
 													</td>
 													<td>
-														@if ($v['AllowKatalogOnline'] == 1)
+														<?php if($v['AllowPaymentGateway'] == 1): ?>
 															YA
-														@else
+														<?php else: ?>
 															TIDAK
-														@endif
+														<?php endif; ?>
+													</td>
+													<td>
+														<?php if($v['AllowKatalogOnline'] == 1): ?>
+															YA
+														<?php else: ?>
+															TIDAK
+														<?php endif; ?>
 													</td>
 													<td>
 														<div class="card-toolbar text-end">
@@ -120,14 +119,14 @@
 																</span>
 															</button>
 															<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdowneditButton1"  style="position: absolute; transform: translate3d(1001px, 111px, 0px); top: 0px; left: 0px; will-change: transform;">
-																<a class="dropdown-item" href="{{ url('subs/form/' . $v['NoTransaksi']) }}">Edit</a>
-																<a class="dropdown-item" href="{{ url('subs/form/' . $v['NoTransaksi'] . '?copy=true') }}">Copy</a>
+																<a class="dropdown-item" href="<?php echo e(url('subs/form/' . $v['NoTransaksi'])); ?>">Edit</a>
+																<a class="dropdown-item" href="<?php echo e(url('subs/form/' . $v['NoTransaksi'] . '?copy=true')); ?>">Copy</a>
 															</div>
 														</div>
 													</td>
 												</tr>
-												@endforeach
-											@endif
+												<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+											<?php endif; ?>
 										</tbody>
 									</table>
 								</div>
@@ -142,9 +141,9 @@
 	
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script type="text/javascript">
 	jQuery(document).ready(function() {
 		jQuery('#orderTable').DataTable({
@@ -157,4 +156,5 @@
 		});
 	} );
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('parts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/Admin/Subscription.blade.php ENDPATH**/ ?>

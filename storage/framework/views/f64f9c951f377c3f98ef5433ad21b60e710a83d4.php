@@ -1,6 +1,5 @@
-@extends('parts.header')
 	
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <!--begin::Subheader-->
 <div class="subheader py-2 py-lg-6 subheader-solid">
@@ -8,7 +7,7 @@
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb bg-white mb-0 px-0 py-2">
 				<li class="breadcrumb-item active" aria-current="page">
-					<a href="{{route('roles')}}">Kelompok Akses</a>
+					<a href="<?php echo e(route('roles')); ?>">Kelompok Akses</a>
 				</li>
 				<li class="breadcrumb-item active" aria-current="page">Input Kelompok Akses</li>
 			</ol>
@@ -28,13 +27,13 @@
 							<div class="card-header align-items-center  border-bottom-dark px-0">
 								<div class="card-title mb-0">
 									<h3 class="card-label mb-0 font-weight-bold text-body">
-										@if (count($roles) > 0)
+										<?php if(count($roles) > 0): ?>
                                     		Edit Kelompok Akses
                                     		<input type="hidden" name="formtype" id="formtype" value="edit">
-	                                	@else
+	                                	<?php else: ?>
 	                                    	Tambah Kelompok Akses
 	                                    	<input type="hidden" name="formtype" id="formtype" value="add">
-	                                	@endif
+	                                	<?php endif; ?>
 									</h3>
 								</div>
 							</div>
@@ -53,7 +52,7 @@
                             		<div class="col-md-12">
                             			<label  class="text-body" style="display: none;">Kode Grup</label>
                             			<fieldset class="form-group mb-3">
-                            				<input type="hidden" class="form-control" id="id" name="id" placeholder="Masukan Kode Grup" value="{{ count($roles) > 0 ? $roles[0]['id'] : '' }}" >
+                            				<input type="hidden" class="form-control" id="id" name="id" placeholder="Masukan Kode Grup" value="<?php echo e(count($roles) > 0 ? $roles[0]['id'] : ''); ?>" >
                             			</fieldset>
                             			
                             		</div>
@@ -61,7 +60,7 @@
                             		<div class="col-md-12">
                             			<label  class="text-body">Nama Grup</label>
                             			<fieldset class="form-group mb-3">
-                            				<input type="text" class="form-control" id="RoleName" name="RoleName" placeholder="Masukan Nama Kelompok AKses" value="{{ count($roles) > 0 ? $roles[0]['RoleName'] : '' }}" required="" {{ count($roles) > 0 ? $roles[0]['RoleName'] == 'SuperAdmin' ? 'readonly' : '' : '' }}>
+                            				<input type="text" class="form-control" id="RoleName" name="RoleName" placeholder="Masukan Nama Kelompok AKses" value="<?php echo e(count($roles) > 0 ? $roles[0]['RoleName'] : ''); ?>" required="" <?php echo e(count($roles) > 0 ? $roles[0]['RoleName'] == 'SuperAdmin' ? 'readonly' : '' : ''); ?>>
                             			</fieldset>
                             		</div>
                             	</div>
@@ -69,7 +68,7 @@
 						</div>
 					</div>
 
-                    @php
+                    <?php
                         $premiumCategories = [
                             'pos' => ['PermissionName' => 'Operasional POS Kasir', 'Icon' => 'fas fa-cash-register', 'submenu' => [], 'ParentType' => 1],
                             'billiard' => ['PermissionName' => 'Sewa Billing & IoT', 'Icon' => 'fas fa-lightbulb', 'submenu' => [], 'ParentType' => 1],
@@ -206,7 +205,7 @@
                             'financial' => ['label' => 'KEUANGAN & LAPORAN', 'keys' => ['finance', 'accounting', 'reports_sales', 'reports_accounting']],
                             'system' => ['label' => 'PENGATURAN & SISTEM', 'keys' => ['system']]
                         ];
-                    @endphp
+                    ?>
 
 					<div class="col-12  px-4">
 						<div class="card card-custom gutter-b bg-white border-0" >
@@ -218,8 +217,8 @@
 								<div >
 									<div class="dd" id="nestable">
 										<ol class="dd-list">
-                                            @foreach ($sectionGroups as $sKey => $sec)
-                                                @php
+                                            <?php $__currentLoopData = $sectionGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sKey => $sec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <?php
                                                     $hasActiveCats = false;
                                                     foreach ($sec['keys'] as $cKey) {
                                                         if (isset($activePremiumCategories[$cKey])) {
@@ -227,55 +226,56 @@
                                                             break;
                                                         }
                                                     }
-                                                @endphp
-                                                @if ($hasActiveCats)
+                                                ?>
+                                                <?php if($hasActiveCats): ?>
                                                     <li class="dd-item dd-nodrag">
                                                         <div class="dd-handle" style="background:#f8f9fa; color:#8a8a9e; font-weight:bold; letter-spacing:1px; font-size:13px; text-transform:uppercase;">
-                                                            {{ $sec['label'] }}
+                                                            <?php echo e($sec['label']); ?>
+
                                                         </div>
                                                         <ol class="dd-list">
-                                                            @foreach ($sec['keys'] as $cKey)
-                                                                @if (isset($activePremiumCategories[$cKey]))
-                                                                    @php $lv1 = $activePremiumCategories[$cKey]; @endphp
-                                                                    <li class="dd-item" data-id="cat_{{ $cKey }}">
-                                                                        <div class="dd-handle" style="font-size:13px; font-weight:600;"><i class="{{ $lv1['Icon'] }} me-2"></i> {{ $lv1['PermissionName'] }}</div>
+                                                            <?php $__currentLoopData = $sec['keys']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cKey): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                <?php if(isset($activePremiumCategories[$cKey])): ?>
+                                                                    <?php $lv1 = $activePremiumCategories[$cKey]; ?>
+                                                                    <li class="dd-item" data-id="cat_<?php echo e($cKey); ?>">
+                                                                        <div class="dd-handle" style="font-size:13px; font-weight:600;"><i class="<?php echo e($lv1['Icon']); ?> me-2"></i> <?php echo e($lv1['PermissionName']); ?></div>
                                                                         <ol class="dd-list">
-                                                                            @foreach ($lv1['submenu'] as $lv2)
-                                                                                <li class="dd-item" data-id="{{ $lv2['MenuID'] }}">
-                                                                                    <div class="dd-handle" style="font-size:13px;">{{ $lv2['PermissionName'] }}</div>
-                                                                                    @if(strpos($lv2['MenuID'], 'art_') === false)
+                                                                            <?php $__currentLoopData = $lv1['submenu']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lv2): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                                <li class="dd-item" data-id="<?php echo e($lv2['MenuID']); ?>">
+                                                                                    <div class="dd-handle" style="font-size:13px;"><?php echo e($lv2['PermissionName']); ?></div>
+                                                                                    <?php if(strpos($lv2['MenuID'], 'art_') === false): ?>
                                                                                         <div class="inner-content">
                                                                                             <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                                <input type="checkbox" class="form-check-input permission-chk" id="chk{{ str_replace(' ','',$lv2['MenuID']) }}" value="{{ $lv2['MenuID'] }}" data-parent="{{ $lv2['MenuInduk'] }}" {{ (isset($lv2['Selected']) && $lv2['Selected'] != "") ? 'checked' : '' }}>
-                                                                                                <label class="form-check-label me-1" for="chk{{ str_replace(' ','',$lv2['MenuID']) }}"></label>
+                                                                                                <input type="checkbox" class="form-check-input permission-chk" id="chk<?php echo e(str_replace(' ','',$lv2['MenuID'])); ?>" value="<?php echo e($lv2['MenuID']); ?>" data-parent="<?php echo e($lv2['MenuInduk']); ?>" <?php echo e((isset($lv2['Selected']) && $lv2['Selected'] != "") ? 'checked' : ''); ?>>
+                                                                                                <label class="form-check-label me-1" for="chk<?php echo e(str_replace(' ','',$lv2['MenuID'])); ?>"></label>
                                                                                             </div>
                                                                                         </div>
-                                                                                    @endif
-                                                                                    @if (isset($lv2['submenu']) && count($lv2['submenu']) > 0)
+                                                                                    <?php endif; ?>
+                                                                                    <?php if(isset($lv2['submenu']) && count($lv2['submenu']) > 0): ?>
                                                                                         <ol class="dd-list">
-                                                                                            @foreach ($lv2['submenu'] as $lv3)
-                                                                                                <li class="dd-item" data-id="{{ $lv3['MenuID'] }}">
-                                                                                                    <div class="dd-handle" style="font-size:13px;">{{ $lv3['PermissionName'] }}</div>
+                                                                                            <?php $__currentLoopData = $lv2['submenu']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lv3): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                                                <li class="dd-item" data-id="<?php echo e($lv3['MenuID']); ?>">
+                                                                                                    <div class="dd-handle" style="font-size:13px;"><?php echo e($lv3['PermissionName']); ?></div>
                                                                                                     <div class="inner-content">
                                                                                                         <div class="custom-control switch custom-switch-info custom-control-inline form-check form-switch me-0">
-                                                                                                            <input type="checkbox" class="form-check-input permission-chk" id="chk{{ str_replace(' ','',$lv3['MenuID']) }}" value="{{ $lv3['MenuID'] }}" data-parent="{{ $lv3['MenuInduk'] }}" data-grandparent="{{ $lv2['MenuInduk'] ?? '' }}" {{ (isset($lv3['Selected']) && $lv3['Selected'] != "") ? 'checked' : '' }}>
-                                                                                                            <label class="form-check-label me-1" for="chk{{ str_replace(' ','',$lv3['MenuID']) }}"></label>
+                                                                                                            <input type="checkbox" class="form-check-input permission-chk" id="chk<?php echo e(str_replace(' ','',$lv3['MenuID'])); ?>" value="<?php echo e($lv3['MenuID']); ?>" data-parent="<?php echo e($lv3['MenuInduk']); ?>" data-grandparent="<?php echo e($lv2['MenuInduk'] ?? ''); ?>" <?php echo e((isset($lv3['Selected']) && $lv3['Selected'] != "") ? 'checked' : ''); ?>>
+                                                                                                            <label class="form-check-label me-1" for="chk<?php echo e(str_replace(' ','',$lv3['MenuID'])); ?>"></label>
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </li>
-                                                                                            @endforeach
+                                                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                                                         </ol>
-                                                                                    @endif
+                                                                                    <?php endif; ?>
                                                                                 </li>
-                                                                            @endforeach
+                                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                                         </ol>
                                                                     </li>
-                                                                @endif
-                                                            @endforeach
+                                                                <?php endif; ?>
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                         </ol>
                                                     </li>
-                                                @endif
-                                            @endforeach
+                                                <?php endif; ?>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 										</ol>
 									</div>
 								</div>
@@ -294,10 +294,10 @@
 	
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
-<script src="{{ asset('js/jquery.nestable.js')}}"></script>
+<?php $__env->startPush('scripts'); ?>
+<script src="<?php echo e(asset('js/jquery.nestable.js')); ?>"></script>
 <script type="text/javascript">
 	jQuery('#nestable').nestable({
 		collapsedClass:'dd-collapsed',
@@ -331,11 +331,11 @@
 			var formtype = $('#formtype').val();
 			if (formtype == 'add') {
 				$.ajax({
-					url: "{{route('roles-store')}}",
+					url: "<?php echo e(route('roles-store')); ?>",
 					type: 'POST',
 					contentType: 'application/json',
 					headers: {
-		                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+		                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
 		            },
 		            data: JSON.stringify(oData),
 		            success: function(response) {
@@ -345,7 +345,7 @@
 		                        icon: "success",
 		                        title: "Horray...",
 		                    }).then((result)=>{
-		                        window.location.href = '{{url("roles")}}';
+		                        window.location.href = '<?php echo e(url("roles")); ?>';
 		                    });
 		            	} else {
 		            		Swal.fire({
@@ -360,11 +360,11 @@
 				})
 			} else {
 				$.ajax({
-					url: "{{route('roles-edit')}}",
+					url: "<?php echo e(route('roles-edit')); ?>",
 					type: 'POST',
 					contentType: 'application/json',
 					headers: {
-		                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+		                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
 		            },
 		            data: JSON.stringify(oData),
 		            success: function(response) {
@@ -374,7 +374,7 @@
 		                        icon: "success",
 		                        title: "Horray...",
 		                    }).then((result)=>{
-		                        window.location.href = '{{url("roles")}}';
+		                        window.location.href = '<?php echo e(url("roles")); ?>';
 		                    });
 		            	} else {
 		            		Swal.fire({
@@ -391,4 +391,5 @@
 		})
 	});
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('parts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/master/Auth/Roles-Input.blade.php ENDPATH**/ ?>

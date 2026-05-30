@@ -147,7 +147,7 @@ class SubscriptionController extends Controller
             $model->NoTransaksi = $jsonData['NoTransaksi'];
             $model->Tanggal = $jsonData['Tanggal'];
             $model->NamaSubscription = $jsonData['NamaSubscription'];
-            $model->DeskripsiSubscription = $jsonData['DeskripsiSubscription'];
+            $model->DeskripsiSubscription = $jsonData['DeskripsiSubscription'] ?? '';
             $model->Harga = $jsonData['Harga'];
             $model->LamaSubsription = $jsonData['LamaSubsription'];
             $model->AllowAccounting = $jsonData['AllowAccounting'];
@@ -183,6 +183,31 @@ class SubscriptionController extends Controller
                 $NoUrut+=1;
             }
 
+            // --- SYNC SUPERADMIN ROLE ---
+            $companies = DB::table('company')->where('KodePaketLangganan', $jsonData['NoTransaksi'])->pluck('KodePartner');
+            if (count($companies) > 0) {
+                $superAdminRoles = DB::table('roles')->whereIn('RecordOwnerID', $companies)->where('RoleName', 'SuperAdmin')->get();
+                foreach ($superAdminRoles as $role) {
+                    DB::table('permissionrole')->where('roleid', $role->id)->delete();
+                    $newRolePerms = [];
+                    $insertedPerms = [];
+                    foreach ($jsonData['Detail'] as $key) {
+                        if (!in_array($key['PermissionID'], $insertedPerms)) {
+                            $insertedPerms[] = $key['PermissionID'];
+                            $newRolePerms[] = [
+                                'roleid' => $role->id,
+                                'permissionid' => $key['PermissionID'],
+                                'RecordOwnerID' => $role->RecordOwnerID
+                            ];
+                        }
+                    }
+                    if (count($newRolePerms) > 0) {
+                        DB::table('permissionrole')->insert($newRolePerms);
+                    }
+                }
+            }
+            // --- END SYNC SUPERADMIN ROLE ---
+
             jump:
             if ($errorCount > 0) {
 		        DB::rollback();
@@ -215,7 +240,7 @@ class SubscriptionController extends Controller
                                [
                                     'Tanggal' => $jsonData['Tanggal'],
 									'NamaSubscription' => $jsonData['NamaSubscription'],
-									'DeskripsiSubscription' => $jsonData['DeskripsiSubscription'],
+									'DeskripsiSubscription' => $jsonData['DeskripsiSubscription'] ?? '',
 									'Harga' => $jsonData['Harga'],
 									'LamaSubsription' => $jsonData['LamaSubsription'],
 									'AllowAccounting' => $jsonData['AllowAccounting'],
@@ -248,6 +273,31 @@ class SubscriptionController extends Controller
     
                     $NoUrut+=1;
                 }
+                
+                // --- SYNC SUPERADMIN ROLE ---
+                $companies = DB::table('company')->where('KodePaketLangganan', $jsonData['NoTransaksi'])->pluck('KodePartner');
+                if (count($companies) > 0) {
+                    $superAdminRoles = DB::table('roles')->whereIn('RecordOwnerID', $companies)->where('RoleName', 'SuperAdmin')->get();
+                    foreach ($superAdminRoles as $role) {
+                        DB::table('permissionrole')->where('roleid', $role->id)->delete();
+                        $newRolePerms = [];
+                        $insertedPerms = [];
+                        foreach ($jsonData['Detail'] as $key) {
+                            if (!in_array($key['PermissionID'], $insertedPerms)) {
+                                $insertedPerms[] = $key['PermissionID'];
+                                $newRolePerms[] = [
+                                    'roleid' => $role->id,
+                                    'permissionid' => $key['PermissionID'],
+                                    'RecordOwnerID' => $role->RecordOwnerID
+                                ];
+                            }
+                        }
+                        if (count($newRolePerms) > 0) {
+                            DB::table('permissionrole')->insert($newRolePerms);
+                        }
+                    }
+                }
+                // --- END SYNC SUPERADMIN ROLE ---
             }
 
             jump:

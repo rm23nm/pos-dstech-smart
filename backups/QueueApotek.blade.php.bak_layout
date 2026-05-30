@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Antrean Apotek</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=jn7RFIYJ"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background-color: #f4f6f9;
+    }
+    .header-container {
+      background-color: #ffffff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 3px solid #007bff;
+      height: 80px;
+    }
+    .company-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+    }
+    .company-name {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #333;
+    }
+    .running-text-container {
+        background-color: #000;
+        color: #ffeb3b;
+        font-weight: bold;
+        padding: 5px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        font-size: 1.2rem;
+    }
+    .main-container {
+        height: calc(100vh - 120px);
+        display: flex;
+    }
+    .panel-queue {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    .queue-box {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .queue-title {
+        background: #007bff;
+        color: #fff;
+        text-align: center;
+        padding: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    .queue-title.ready {
+        background: #28a745;
+    }
+    .queue-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    .queue-item {
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #333;
+    }
+    .queue-item.ready-item {
+        border-color: #28a745;
+        color: #28a745;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+        70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+    .media-panel {
+        flex: 1.5;
+        background: #000;
+        position: relative;
+    }
+    .media-panel iframe, .media-panel img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .video-banner, .image-banner {
+      display: none;
+      height: 100%;
+    }
+    .video-banner.active, .image-banner.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header-container">
+    @if(!empty($company->icon))
+        <img src="{{ $company->icon }}" alt="Logo" class="company-logo">
+    @else
+        <img src="https://via.placeholder.com/50" alt="Logo" class="company-logo">
+    @endif
+    <div class="company-name">{{ $company->NamaPartner ?? 'Apotek' }}</div>
+    <div class="ms-auto" style="font-size: 1.8rem; font-weight: bold; color: #007bff;" id="clock"></div>
+    <button onclick="toggleFullscreen()" class="btn btn-outline-secondary ms-3" title="Fullscreen">
+        ⛶
+    </button>
+</div>
+
+<div class="running-text-container">  
+    <marquee>{{ $company->RunningTextSelfServices ?? 'Selamat Datang di Apotek Kami' }}</marquee>
+</div>
+
+<div class="main-container">
+    <div class="panel-queue">
+        <div class="queue-box mb-3">
+            <div class="queue-title">SEDANG DIRAMU</div>
+            <div class="queue-list" id="list-diramu">
+                <!-- Data here -->
+            </div>
+        </div>
+        <div class="queue-box">
+            <div class="queue-title ready">SIAP DIAMBIL</div>
+            <div class="queue-list" id="list-siap">
+                <!-- Data here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL FOR MEDIA -->
+    <div class="media-panel" id="media-container">
+      @if (isset($oImageData) && count($oImageData) > 0)
+        @foreach ($oImageData as $image)
+          @if ($image['type'] === 'image')
+            <div class="image-banner{{ $loop->first ? ' active' : '' }}">
+              <img src="{{ $image['url'] }}" alt="Promo Image">
+            </div>
+          @endif
+          @if ($image['type'] === 'video')
+            <div class="video-banner{{ $loop->first ? ' active' : '' }}">
+              <iframe class="youtube-frame"
+                      src="{{ $image['url'] }}"
+                      frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+          @endif
+        @endforeach
+      @else
+        <div class="image-banner active">
+            <div style="display:flex; justify-content:center; align-items:center; height:100%; color:#fff; font-size:2rem;">
+                Tampilan Apotek
+            </div>
+        </div>
+      @endif
+    </div>
+</div>
+
+<audio id="audio-bell" src="{{ asset('assets/audio/airport_bell.mp3') }}" preload="auto"></audio>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+  // === JAM ===
+  setInterval(() => {
+    const d = new Date();
+    document.getElementById('clock').innerText = d.toLocaleTimeString('id-ID');
+  }, 1000);
+
+  // === MEDIA PLAYER ===
+  const banners = document.querySelectorAll('#media-container > div');
+  let index = 0;
+  let autoSlideInterval = null;
+  let ytPlayers = [];
+
+  function activateSlide(i) {
+    if(banners.length === 0) return;
+    banners.forEach((b, j) => b.classList.toggle('active', j === i));
+    const iframe = banners[i].querySelector('iframe');
+    if (iframe && ytPlayers[i]) ytPlayers[i].playVideo();
+  }
+
+  function nextSlide() {
+    if(banners.length === 0) return;
+    index = (index + 1) % banners.length;
+    activateSlide(index);
+  }
+
+  function startAutoSlide() {
+    clearInterval(autoSlideInterval);
+    autoSlideInterval = setInterval(() => {
+      if(banners.length === 0) return;
+      const active = banners[index];
+      if (!active.classList.contains('video-banner')) {
+        nextSlide();
+      }
+    }, 5000);
+  }
+
+  function onYouTubeIframeAPIReady() {
+    document.querySelectorAll('.youtube-frame').forEach((iframe, i) => {
+      ytPlayers[i] = new YT.Player(iframe, {
+        events: {
+          'onReady': () => {
+            if (i === 0) {
+              activateSlide(index);
+              startAutoSlide();
+            }
+          },
+          'onStateChange': (event) => {
+            if (event.data === YT.PlayerState.ENDED) {
+              nextSlide();
+            }
+          }
+        }
+      });
+    });
+  }
+
+  if(banners.length > 0 && !document.querySelector('.youtube-frame')) {
+      startAutoSlide();
+  }
+
+  // === QUEUE LOGIC ===
+  let spokenCache = [];
+
+  function updateTables(data) {
+    let diramuHTML = '';
+    data.sedangDiramu.forEach(row => {
+        let name = (row.NamaPelanggan && row.NamaPelanggan.toUpperCase() !== 'CASH') ? row.NamaPelanggan : row.NoTransaksi.substring(row.NoTransaksi.length - 4);
+        diramuHTML += `<div class="queue-item">${name}</div>`;
+    });
+    document.getElementById('list-diramu').innerHTML = diramuHTML || '<div class="text-center text-muted mt-4">Belum ada data</div>';
+
+    let siapHTML = '';
+    let newlyReady = [];
+    
+    data.siapDiambil.forEach(row => {
+        let name = (row.NamaPelanggan && row.NamaPelanggan.toUpperCase() !== 'CASH') ? row.NamaPelanggan : row.NoTransaksi.substring(row.NoTransaksi.length - 4);
+        siapHTML += `<div class="queue-item ready-item">${name}</div>`;
+        
+        if (!spokenCache.includes(row.NoTransaksi)) {
+            newlyReady.push(name);
+            spokenCache.push(row.NoTransaksi);
+        }
+    });
+    document.getElementById('list-siap').innerHTML = siapHTML || '<div class="text-center text-muted mt-4">Belum ada data</div>';
+
+    if (newlyReady.length > 0) {
+        let text = "Panggilan untuk antrean atas nama " + newlyReady.join(", dan ") + ". Obat anda telah siap untuk diambil. Terima kasih.";
+        
+        let bell = document.getElementById('audio-bell');
+        if(bell) {
+            bell.play().catch(e => console.log('Audio error:', e));
+        }
+        setTimeout(() => {
+            responsiveVoice.speak(text, "Indonesian Female", {rate: 0.85});
+        }, 1500);
+    }
+  }
+
+  function fetchQueueData() {
+    const RecordOwnerID = "<?php echo $idE ?>";
+    $.ajax({
+      url: "{{ route('queue-apotek-getData') }}",
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+      data: { RecordOwnerID },
+      success: updateTables,
+      error: function(xhr) {
+        console.error("Gagal ambil data antrian apotek:", xhr);
+      }
+    });
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  // Auto Refresh
+  setInterval(fetchQueueData, 5000);
+  fetchQueueData();
+</script>
+</body>
+</html>

@@ -300,8 +300,13 @@ class BookingOnlineController extends Controller
         }
         $RecordOwnerID = Auth::user()->RecordOwnerID;
         $company = Company::where('KodePartner', '=', $RecordOwnerID)->first();
-        $titikLampu = TitikLampu::where('BisaDipesan', 1)
-            ->where('RecordOwnerID', $RecordOwnerID)
+        $titikLampu = TitikLampu::selectRaw("titiklampu.*, tkelompoklampu.NamaKelompok")
+            ->leftjoin('tkelompoklampu', function ($value)  {
+                $value->on('titiklampu.KelompokLampu','=','tkelompoklampu.KodeKelompok')
+                ->on('titiklampu.RecordOwnerID','=','tkelompoklampu.RecordOwnerID');
+            })
+            ->where('titiklampu.BisaDipesan', 1)
+            ->where('titiklampu.RecordOwnerID', $RecordOwnerID)
             ->get();
         $gallery = Company::select('ImageGallery1', 'ImageGallery2', 'ImageGallery3', 'ImageGallery4', 'ImageGallery5', 'ImageGallery6', 'ImageGallery7', 'ImageGallery8', 'ImageGallery9', 'ImageGallery10', 'ImageGallery11', 'ImageGallery12')
             ->where('KodePartner', $RecordOwnerID)
@@ -316,8 +321,14 @@ class BookingOnlineController extends Controller
             $midtransclientkey = $midtransdata->ServerKey;
         }
         $today = date('Y-m-d');
+        $groupedLampu = $titikLampu->groupBy('NamaKelompok');
+        $userdata = Auth::user();
+        $Tahun = \Carbon\Carbon::now()->year;
+        $fnbCategories = \Illuminate\Support\Facades\DB::table('jenisitem')
+                            ->where('RecordOwnerID', $RecordOwnerID)
+                            ->get();
 
-        return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu', 'gallery', 'paketTransaksi', 'user', 'midtransclientkey', 'today'));
+        return view('Transaksi.Penjualan.PoS.BookingOnline', compact('company', 'titikLampu', 'gallery', 'paketTransaksi', 'user', 'midtransclientkey', 'today', 'groupedLampu', 'userdata', 'Tahun', 'fnbCategories'));
     }
 
 public function createMidTransTransaction(Request $request)

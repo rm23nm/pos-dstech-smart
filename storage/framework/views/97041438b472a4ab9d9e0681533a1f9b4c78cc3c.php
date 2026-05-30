@@ -412,6 +412,12 @@
 											'submenu' => [],
 											'ParentType' => 1
 										],
+										'bengkel' => [
+											'PermissionName' => 'Manajemen Bengkel & Dealer',
+											'Icon' => 'fas fa-wrench',
+											'submenu' => [],
+											'ParentType' => 1
+										],
 										'system' => [
 											'PermissionName' => 'Sistem & Pengaturan',
 											'Icon' => 'fas fa-cogs',
@@ -558,7 +564,7 @@
 													continue;
 												} elseif ($l2Name === 'halaman pos kasir') {
 													$targetCat = 'pos';
-												} elseif (in_array($l2Name, ['info kitchen', 'queue antrian fnb', 'monitor counter (recall)', 'antrian fnb dapur', 'queue lapangan', 'customer display pos'])) {
+												} elseif (strpos($l2Name, 'apotek') !== false || strpos($l2Name, 'peracikan') !== false || strpos($l2Name, 'pengambilan') !== false || in_array($l2Name, ['info kitchen', 'queue antrian fnb', 'monitor counter (recall)', 'antrian fnb dapur', 'queue lapangan', 'customer display pos'])) {
 													$targetCat = 'display';
 												} elseif ($l2Name === 'konsinyasi') {
 													$targetCat = 'consignment';
@@ -566,16 +572,16 @@
 													$targetCat = 'inventory';
 												} elseif ($l2Name === 'jurnal entry') {
 													$targetCat = 'accounting';
-												} elseif (in_array($l2Name, ['transaksi biaya', 'kas masuk', 'kas keluar', 'transfer kas', 'transaksi bank', 'opening balance'])) {
+												} elseif (in_array($l2Name, ['transaksi biaya', 'kas masuk', 'kas keluar', 'transfer kas', 'transaksi bank', 'opening balance', 'closing kasir', 'closing bulanan'])) {
 													$targetCat = 'finance';
 												} elseif (in_array($l2Name, ['lap penjualan', 'lap pembelian', 'laporan inventory'])) {
 													$targetCat = 'reports_sales';
 												} elseif ($l2Name === 'lap akutansi') {
 													$targetCat = 'reports_accounting';
+												} elseif (in_array($l2Name, ['antrian bengkel', 'riwayat servis', 'pendaftaran servis', 'mekanik progres', 'data booking bengkel'])) {
+													$targetCat = 'bengkel';
 												} elseif (in_array($l2Name, ['autorisasi', 'pengguna'])) {
 													$targetCat = 'system';
-												} elseif ($l2Name === 'data booking bengkel') {
-													$targetCat = 'bengkel';
 												} elseif ($l2Name === 'paket') {
 													if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] === 'TiketGate') {
 														if (!empty($lv2['submenu'])) {
@@ -590,9 +596,9 @@
 													$targetCat = 'billiard';
 												} elseif ($l2Name === 'paket member') {
 													$targetCat = 'billiard';
-												} elseif ($l2Name === 'master resto') {
+												} elseif (in_array($l2Name, ['master resto', 'transaksi resto'])) {
 													$targetCat = 'resto';
-												} elseif (in_array($l2Name, ['produk', 'term and conditon', 'app setting', 'slide login', 'pengguna', 'invoice pengguna', 'article', 'serial number generator', 'voucher'])) {
+												} elseif (in_array($l2Name, ['produk', 'term and conditon', 'app setting', 'slide login', 'pengguna', 'invoice pengguna', 'article', 'serial number generator', 'voucher', 'integrasi multi-app'])) {
 													$targetCat = 'system';
 												}
 
@@ -656,6 +662,50 @@
 										];
 									}
 
+									// ---> REORGANIZE DISPLAY MENU <---
+									$displayItems = $premiumCategories['display']['submenu'];
+									$apotekItems = [];
+									$fnbItems = [];
+									$otherDisplayItems = [];
+									$userJenisUsaha = DB::table('company')->where('KodePartner', Auth::user()->RecordOwnerID)->value('JenisUsaha') ?? 'Retail';
+									$jenisUsaha = isset($cData[0]['JenisUsaha']) ? $cData[0]['JenisUsaha'] : '';
+
+									foreach ($displayItems as $item) {
+										$name = strtolower(trim($item['PermissionName']));
+										// Identifikasi item-item F&B / KDS
+										if (strpos($name, 'fnb') !== false || strpos($name, 'kitchen') !== false || strpos($name, 'dapur') !== false) {
+                                            $fnbItems[] = $item;
+										} elseif (strpos($name, 'apotek') !== false || strpos($name, 'peracikan') !== false || strpos($name, 'pengambilan') !== false) {
+											$apotekItems[] = $item;
+										} else {
+											$otherDisplayItems[] = $item;
+										}
+									}
+
+									$newDisplaySubmenu = [];
+									
+									// Masukkan item F&B
+									if (count($fnbItems) > 0 && $jenisUsaha != 'Apotek' && $jenisUsaha != 'Klinik') {
+										foreach ($fnbItems as $fnb) {
+											$newDisplaySubmenu[] = $fnb;
+										}
+									}
+									
+									// Masukkan item Apotek
+									if (count($apotekItems) > 0 && ($jenisUsaha == 'Apotek' || $jenisUsaha == 'Klinik')) {
+										foreach ($apotekItems as $apt) {
+											$newDisplaySubmenu[] = $apt;
+										}
+									}
+									
+									// Masukkan sisa menu display (misal Customer Display POS, Bengkel, dll)
+									foreach ($otherDisplayItems as $item) {
+										$newDisplaySubmenu[] = $item;
+									}
+
+									$premiumCategories['display']['submenu'] = $newDisplaySubmenu;
+									// ---> END REORGANIZE <---
+
 									// Filter out categories that are empty
 									$activePremiumCategories = [];
 									foreach ($premiumCategories as $key => $cat) {
@@ -665,13 +715,47 @@
 									}
 
 									// Specific filters based on business type
-									if (isset($cData[0]['JenisUsaha']) && in_array($cData[0]['JenisUsaha'], ['Bengkel', 'Servis'])) {
-										unset($activePremiumCategories['resto']);
-										unset($activePremiumCategories['billiard']);
+									if (isset($cData[0]['JenisUsaha'])) {
+										$jenisUsahaHeader = $cData[0]['JenisUsaha'];
+										
+										// Sembunyikan Resto & Billiard untuk Bengkel
+										if (in_array($jenisUsahaHeader, ['Bengkel', 'Servis', 'BengkelDealer'])) {
+											unset($activePremiumCategories['resto']);
+											unset($activePremiumCategories['billiard']);
+										} else {
+											// Sembunyikan Bengkel & Dealer untuk selain Bengkel
+											unset($activePremiumCategories['bengkel']);
+											unset($activePremiumCategories['dealer']);
+										}
 									}
 									// Untuk usaha Parkir: sembunyikan semua menu yang tidak relevan
 									if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] == 'Parkir') {
 										$keysToRemove = ['pos', 'billiard', 'booking', 'display', 'resto', 'inventory', 'consignment', 'purchasing', 'crm', 'finance', 'accounting', 'reports_sales', 'reports_accounting', 'bengkel', 'dealer'];
+										foreach ($keysToRemove as $removeKey) {
+											unset($activePremiumCategories[$removeKey]);
+										}
+									}
+									// Untuk usaha TiketGate: sembunyikan semua menu yang tidak relevan
+									if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] == 'TiketGate') {
+										$keysToRemove = ['booking', 'display', 'resto', 'inventory', 'consignment', 'purchasing', 'crm', 'bengkel', 'dealer'];
+										foreach ($keysToRemove as $removeKey) {
+											unset($activePremiumCategories[$removeKey]);
+										}
+									}
+									// Untuk usaha Retail / Apotek: sembunyikan semua menu yang tidak relevan
+									if (isset($cData[0]['JenisUsaha']) && in_array($cData[0]['JenisUsaha'], ['Retail', 'Apotek', 'Klinik'])) {
+										$keysToRemove = ['billiard', 'booking', 'resto', 'bengkel', 'dealer'];
+										// Khusus Retail biasa, sembunyikan display. Tapi Apotek/Klinik butuh display.
+										if ($cData[0]['JenisUsaha'] == 'Retail') {
+											$keysToRemove[] = 'display';
+										}
+										foreach ($keysToRemove as $removeKey) {
+											unset($activePremiumCategories[$removeKey]);
+										}
+									}
+									// Untuk usaha FnB: sembunyikan semua menu yang tidak relevan
+									if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] == 'FnB') {
+										$keysToRemove = ['bengkel', 'dealer'];
 										foreach ($keysToRemove as $removeKey) {
 											unset($activePremiumCategories[$removeKey]);
 										}

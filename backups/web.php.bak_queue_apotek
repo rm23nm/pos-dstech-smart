@@ -1531,26 +1531,3 @@ Route::get('/test-db', function() {
 Route::get('/check_demo_users', function() { require_once 'check_demo_users.php'; return 'Done'; });
 
 Route::get('/check_demo_users_2', function() { $res = ''; foreach(['demotiket@pos.dstechsmart.com','demoapotek@pos.dstechsmart.com','demoresto@pos.dstechsmart.com','demogate@pos.dstechsmart.com','demolaundry@pos.dstechsmart.com'] as $email) { $user = App\Models\User::where('email', $email)->first(); $res .= $email . ' | '; if ($user) { $res .= 'USER EXISTS (RO: ' . $user->RecordOwnerID . ') | '; $company = App\Models\Company::where('KodePartner', $user->RecordOwnerID)->first(); if ($company) { $res .= 'COMPANY EXISTS (' . $company->NamaPartner . ' - Active: ' . $company->isActive . ')<br>'; } else { $res .= 'COMPANY MISSING<br>'; } } else { $res .= 'USER MISSING<br>'; } } return $res; });
-
-use App\Http\Controllers\InfoPeracikanController;
-use App\Http\Controllers\QueueApotekController;
-
-/*
-|--------------------------------------------------------------------------
-| Antrean & Monitor Apotek
-|--------------------------------------------------------------------------
-|
-*/
-Route::get('/infoperacikan', [InfoPeracikanController::class, 'InfoPeracikan'])->name('infoperacikan')->middleware(['auth', 'check.session']);
-Route::post('/infoperacikan/data', [InfoPeracikanController::class, 'InfoPeracikanData'])->name('infoperacikan-data')->middleware(['auth', 'check.session']);
-Route::post('/infoperacikan/markdone', [InfoPeracikanController::class, 'InfoPeracikanMarkDone'])->name('infoperacikan-markdone')->middleware(['auth', 'check.session']);
-Route::post('/infoperacikan/updatestatus', [InfoPeracikanController::class, 'InfoPeracikanUpdateStatus'])->name('infoperacikan-updatestatus')->middleware(['auth', 'check.session']);
-Route::get('/infokitchen-print', [App\Http\Controllers\FakturPenjualanController::class, 'InfoKitchenPrint'])->name('infokitchen-print')->middleware(['auth', 'check.session']);
-Route::post('/recall-order', [App\Http\Controllers\FakturPenjualanController::class, 'RecallOrder'])->name('recall-order')->middleware(['auth', 'check.session']);
-
-Route::get('/queue-apotek', [QueueApotekController::class, 'index'])->name('queue-apotek')->middleware(['auth', 'check.session']);
-Route::get('/queue-apotek/{id}', [QueueApotekController::class, 'index'])->name('queue-apotek-id');
-Route::post('/queue-apotek/getData', [QueueApotekController::class, 'handleQueue'])->name('queue-apotek-getData');
-Route::post('/queue-apotek/handleQueue', [QueueApotekController::class, 'handleQueue'])->name('queue-apotek-handleQueue');
-Route::post('/queue-apotek/recall', [QueueApotekController::class, 'recallApotek'])->name('queue-apotek-recall');
-Route::get('/countermonitor-apotek', [QueueApotekController::class, 'CounterMonitorApotek'])->name('countermonitor-apotek')->middleware(['auth', 'check.session']);

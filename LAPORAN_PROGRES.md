@@ -27,6 +27,8 @@
 | Sesi Sekarang | **Penyalinan Ulang Metode Pembayaran untuk Seluruh Demo** | **Selesai** | Mengeksekusi script `copy_payment_methods.php` pada database Lokal dan Live. Mengembalikan dan mengisi ulang metode pembayaran (Cash, Qris, Transfer, EDC) yang sempat kosong pada akun-akun demo agar modal kasir/pembayaran berfungsi normal. |
 | Sesi Sekarang | **Perbaikan Error KodeTermin Null (Simpan Transaksi)** | **Selesai** | Membuat default termin COD untuk semua akun demo (`demoapotek`, `CL0010`, `CL0013`, `CL0014`) dan menyetel `TerminBayarPoS` pada seting perusahaan melalui script `fix_all_companies_settings.php`. |
 | Sesi Sekarang | **Perbaikan Pilihan Metode Pembayaran Tidak Bisa Diklik** | **Selesai** | Mengubah selektor jQuery dari `$('#'+item.id)` menjadi `$(item)` pada file views `ApotekPoS.blade.php`, `FnBPoS.blade.php`, `NormalPoS.blade.php`, dan `NormalPoS_Premium.blade.php` agar kompatibel dengan ID numerik. |
+| Sesi Sekarang | **Penyederhanaan Menu Sidebar untuk Tiket Gate, Retail & FnB** | **Selesai** | Memodifikasi `header.blade.php` untuk otomatis menyembunyikan kategori menu yang tidak relevan. Pada `TiketGate` menyembunyikan (Booking, Resto, Inventory, dll), sedangkan pada `Retail` & `FnB` menyesuaikan fitur yang relevan dengan tipe usaha. |
+| Sesi Sekarang | **Perbaikan Tampilan Pembuatan Paket Langganan di Super Admin** | **Selesai** | Memodifikasi `Subscription-Input.blade.php`. Mengganti pengelompokan "Retail" menjadi "Kasir & Back-office" dan "Hiburan" menjadi "Booking & IoT". Menyesuaikan script JS agar paket FnB dapat melihat dan memilih menu Kasir, Inventori, Booking, dan IoT. |
 
 
 ---
@@ -99,3 +101,92 @@
 ## 3. Antrean Pekerjaan Kedepan (Queue)
 *(Saat ini belum ada antrean pekerjaan baru. Menunggu instruksi selanjutnya dari User)*
 
+---
+
+## 4. Rincian Pekerjaan Sesi Sekarang (Perbaikan Error Monitor POS Apotek)
+
+### Langkah 1: Analisis Missing Routes
+*   **Deskripsi**: Mengecek `routes/web.php` untuk memastikan apakah route `/infoperacikan` dan `/queue-apotek` ada. Jika tidak ada, maka penyebab error 404 NOT FOUND adalah route yang belum didaftarkan.
+*   **Status**: **Selesai**
+
+### Langkah 2: Pendaftaran Route Info Peracikan & Queue Apotek
+*   **Deskripsi**: Menambahkan `InfoPeracikanController` dan `QueueApotekController` ke dalam `routes/web.php` agar dapat diakses dari browser, termasuk route untuk API handling datanya.
+*   **Status**: **Selesai**
+
+### Langkah 3: Pengujian Route
+*   **Deskripsi**: Menginstruksikan pengguna untuk menguji kembali Monitor Info Peracikan dan Antrean Apotek pada browser.
+*   **Status**: **Selesai (Ditemukan error lanjutan: RouteNotFoundException)**
+
+### Langkah 4: Perbaikan Missing Routes (Dependencies)
+*   **Deskripsi**: Memperbaiki error `RouteNotFoundException` untuk route `infokitchen-print`, `recall-order` pada halaman Info Peracikan, dan menambahkan pendaftaran route `queue-apotek-getData` pada halaman Queue Apotek.
+*   **Status**: **Selesai**
+
+### Langkah 5: Mengubah Layout Monitor Antrean Apotek
+*   **Deskripsi**: Mengubah layout halaman Monitor Antrean Apotek (`QueueApotek.blade.php`) menjadi format 3 kolom (Antrean Masuk, Sedang Diramu, Siap Diambil) dengan *dark theme* (tema gelap yang ramping) seperti pada Antrean Pesanan F&B. Menambahkan array kembalian `antreanMasuk` pada Controller `QueueApotekController`.
+*   **Status**: **Selesai**
+
+### Langkah 6: Perbaikan TypeError (items.forEach) pada Info Peracikan
+*   **Deskripsi**: Memperbaiki `TypeError: items.forEach is not a function` pada `InfoPeracikan.blade.php`. Mengubah respons kembalian dari `InfoPeracikanController@InfoPeracikanData` menjadi *flat array* sehingga fungsi javascript *front-end* dapat mengurai dan mengelompokkan datanya dengan benar tanpa menganggapnya sebagai *Object*.
+*   **Status**: **Selesai**
+
+### Langkah 7: Perbaikan Error SQLSTATE (Invalid datetime format / NoUrut undefined)
+*   **Deskripsi**: Memperbaiki bug di mana menekan tombol centang (Done) pada baris item obat memunculkan pesan error `NoUrut = undefined`. Hal ini dikarenakan javascript mencoba mengambil parameter `item.LineNumber` dari database, padahal nama kolom aslinya di tabel `fakturpenjualandetail` adalah `NoUrut`.
+*   **Status**: **Selesai**
+
+### Langkah 8: Penambahan Monitor Counter Apotek
+*   **Deskripsi**: Menambahkan halaman Monitor Counter Apotek yang berfungsi khusus untuk memanggil ulang (PANGGIL LAGI) pesanan obat yang siap diambil dan menyelesaikannya (SELESAI) agar hilang dari antrean.
+*   **Status**: **Selesai** (Dapat diakses di url `/countermonitor-apotek`)
+
+### Langkah 9: Perbaikan Alur Status Antrean Apotek
+*   **Deskripsi**: Memperbaiki masalah pesanan baru yang langsung masuk ke tahap "Sedang Diramu" (Layar 2) dan melewati tahap "Antrean Masuk" (Layar 1). Hal ini dikarenakan *default* status peracikan saat pesanan pertama kali dibuat adalah `1`. Telah diubah menjadi `0` sehingga masuk ke Antrean Masuk terlebih dahulu.
+*   **Status**: **Selesai**
+
+### Langkah 10: Penambahan Menu "Monitor Counter Apotek" di Sidebar
+*   **Deskripsi**: Menambahkan rute dan menu "Monitor Counter Apotek" ke dalam menu sidebar (di bawah grup "Layar Antrean & KDS") khusus untuk jenis usaha Apotek/Klinik. Memodifikasi file `header.blade.php`.
+*   **Status**: **Selesai**
+
+### Langkah 11: Perbaikan Fungsi Panggilan Audio Antrean Apotek
+*   **Deskripsi**: Memperbaiki fungsi tombol "PANGGIL LAGI" pada *Counter Monitor Apotek* yang sebelumnya tidak membunyikan suara pada layar Antrean. Masalah ini disebabkan oleh alur pemanggilan (recall) yang masih menggunakan rute bawaan F&B (`/recall-order` - mengubah tabel `tableorderheader`). Telah diperbaiki dengan membuat rute baru khusus Apotek (`/queue-apotek/recall`) yang memperbarui tabel `fakturpenjualanheader` sehingga *Layar Antrean Apotek* dapat merespons perubahan tersebut.
+*   **Status**: **Selesai** (Kolom `call_trigger` telah berhasil ditambahkan ke database lokal).
+
+---
+
+## Antrean Pekerjaan Selanjutnya (Belum Dikerjakan):
+*(Tidak ada antrean pekerjaan saat ini)*
+
+---
+
+### Langkah 12: Perbaikan Format Nomor Faktur POS
+*   **Deskripsi**: Mengembalikan format penomoran faktur menjadi `POS[tahun][bulan][tanggal][nomor 3 digit]` yang sebelumnya tidak menambahkan unsur tanggal. Modifikasi dilakukan pada fungsi `GetNewDoc` dan `GetNewDocMobile` di file `DocumentNumbering.php` agar khusus untuk `DocType == 'POS'` secara otomatis menyisipkan format hari/tanggal (`d`) ke dalam *prefix* nomor transaksi.
+*   **Status**: **Selesai**
+
+### Langkah 13: Pemisahan Menu Akses Apotek dan F&B pada Paket Subscription
+*   **Deskripsi**: Memisahkan menu *display* antara Apotek dan F&B pada halaman Pengaturan Paket Subscription. Sebelumnya menu *Info Kitchen*, *Queue Antrian*, dan *Monitor Counter* digabungkan dan hanya berganti nama di sisi *frontend* (Header) sehingga merepotkan saat menyetel akses.
+    *   Telah ditambahkan 3 hak akses baru di tabel `permission` khusus untuk Apotek: "Monitor Peracikan Obat (Apotek)", "Antrean Pengambilan Obat (Apotek)", dan "Monitor Counter Apotek".
+    *   Mengubah nama hak akses lama menjadi khusus F&B: "Info Kitchen (FnB)", "Queue Antrian (FnB)", dan "Monitor Counter (FnB)".
+    *   Pemisahan kategori khusus (Apotek vs FnB) pada tampilan *Subscription-Input.blade.php* agar lebih rapi.
+*   **Status**: **Selesai**
+
+### Langkah 14: Perbaikan Pilihan Jenis Usaha di Modal Rubah Paket Pengguna
+*   **Deskripsi**: Menambahkan opsi "Apotek / Klinik", "Tiket & Smart Gate", dan "Bengkel dan Dealer" yang sebelumnya hilang/belum ditambahkan pada *dropdown* pilihan "Jenis Usaha" di jendela *modal* Rubah Paket Berlangganan (halaman Daftar Pengguna Aplikasi). File yang diedit adalah `Pengguna.blade.php`.
+*   **Status**: **Selesai**
+
+### Langkah 15: Perbaikan Error Tambah/Edit Produk Berlangganan (Deskripsi Null)
+*   **Deskripsi**: Memperbaiki masalah `Integrity constraint violation: 1048 Column 'DeskripsiSubscription' cannot be null` yang muncul saat menambah atau mengedit paket berlangganan dengan kolom deskripsi kosong. File `SubscriptionController.php` (fungsi `storeJson` dan `editJson`) telah disesuaikan agar otomatis mengisi *string* kosong (`''`) apabila parameter deskripsi tidak dikirim oleh *frontend*.
+*   **Status**: **Selesai**
+
+### Langkah 16: Penambahan Fitur Duplikasi (Copy) Paket Berlangganan
+*   **Deskripsi**: Menambahkan tombol "Copy" di sebelah tombol "Edit" pada tabel Daftar Paket Berlangganan (halaman `Subscription.blade.php`). Saat diklik, pengguna akan diarahkan ke form pengisian yang sama seperti Edit, namun dengan status form diubah menjadi "Tambah Data" (melalui modifikasi `Subscription-Input.blade.php`). Kolom *Kode Produk* akan dikosongkan agar pengguna dapat memasukkan ID yang baru, dan *Nama Produk* otomatis disisipkan teks "(Copy)". Hal ini akan sangat mempercepat proses pembuatan variasi paket baru berdasarkan paket yang sudah ada.
+*   **Status**: **Selesai**
+
+### Langkah 17: Perbaikan Error "Unknown column 'KodeCompany' / 'RecordOwnerID'" di Tampilan Header
+*   **Deskripsi**: Memperbaiki masalah `SQLSTATE[42S22]: Column not found: 1054 Unknown column` yang terjadi saat sistem memuat daftar menu sidebar (`header.blade.php`). Error ini muncul akibat upaya pencarian nilai `JenisUsaha` pengguna melalui tabel `company`. Sebelumnya tertulis salah nama kolom pencariannya (`KodeCompany` lalu `RecordOwnerID`). Telah diganti dengan *primary key* yang tepat di tabel perusahaan tersebut, yaitu `KodePartner`.
+*   **Status**: **Selesai**
+
+### Langkah 18: Penyesuaian Kategori Tampilan Hak Akses & Sidebar Menu
+*   **Deskripsi**: Memperbaiki masalah di mana menu-menu spesifik (seperti Apotek, Bengkel, Closing Kasir, dll.) sudah bisa dicentang di pengaturan Kelompok Akses (`Roles-Input.blade.php`), tetapi tidak kunjung muncul di *Sidebar Menu* utama. Hal ini disebabkan karena logika kategorisasi (*rendering*) di `header.blade.php` masih menggunakan format lama dan mengabaikan menu-menu tersebut. Saya telah menyinkronkan seluruh logika pengelompokan menu dari `Roles-Input.blade.php` ke dalam `header.blade.php` agar setiap menu yang dicentang dipastikan tampil di letak kategori sidebar yang seharusnya.
+*   **Status**: **Selesai**
+
+### Langkah 19: Sinkronisasi Otomatis Hak Akses SuperAdmin dengan Paket (Subscription)
+*   **Deskripsi**: Menambahkan fitur sinkronisasi otomatis agar setiap kali pengguna (Admin Utama) membuat atau mengubah hak akses pada halaman **Produk Subscription** (`SubscriptionController.php`), sistem akan secara otomatis mendeteksi perusahaan-perusahaan yang memakai paket tersebut dan langsung mengatur (menyetarakan) fitur-fitur di dalam peran **SuperAdmin** perusahaan-perusahaan itu agar sama persis secara *default* dengan apa yang dicentang di paket berlangganan. Ini menghilangkan langkah manual untuk masuk ke menu Hak Akses (`roles/form`) untuk setiap pembaruan paket.
+*   **Status**: **Selesai**
