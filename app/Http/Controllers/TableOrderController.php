@@ -3809,12 +3809,13 @@ public function getTableStatuses()
 
 
             // F. Data Consistency Repair (Checkout Status):
-            // Force status -1 (Checkout/Yellow) if tableorderheader status is -1
+            // Force status -1 (Checkout/Yellow) if tableorderheader status is -1 AND it is an active order
             $shouldBeYellow = DB::table('tableorderheader')
                 ->join('titiklampu', 'tableorderheader.tableid', '=', 'titiklampu.id')
                 ->where('tableorderheader.RecordOwnerID', $roid)
                 ->where('titiklampu.RecordOwnerID', $roid)
                 ->where('tableorderheader.Status', -1)
+                ->where('tableorderheader.DocumentStatus', 'O') // ONLY active orders
                 ->where('titiklampu.Status', '!=', -1)
                 ->select('titiklampu.id')
                 ->get();
