@@ -35,7 +35,7 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            \Log::error('Exception caught in Handler: ' . get_class($e) . ' - ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Exception caught in Handler: ' . get_class($e) . ' - ' . $e->getMessage());
         });
     }
 }
