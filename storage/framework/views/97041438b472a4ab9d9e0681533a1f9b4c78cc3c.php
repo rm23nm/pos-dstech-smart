@@ -737,7 +737,7 @@
 									}
 									// Untuk usaha TiketGate: sembunyikan semua menu yang tidak relevan
 									if (isset($cData[0]['JenisUsaha']) && $cData[0]['JenisUsaha'] == 'TiketGate') {
-										$keysToRemove = ['booking', 'display', 'resto', 'inventory', 'consignment', 'purchasing', 'crm', 'bengkel', 'dealer'];
+										$keysToRemove = ['booking', 'resto', 'inventory', 'consignment', 'purchasing', 'crm', 'bengkel', 'dealer'];
 										foreach ($keysToRemove as $removeKey) {
 											unset($activePremiumCategories[$removeKey]);
 										}

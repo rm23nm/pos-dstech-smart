@@ -644,7 +644,7 @@ class TableOrderController extends Controller
             $model = new TableOrderHeader;
             $model->NoTransaksi = $NoTransaksi;
             $model->DocumentStatus = 'O'; // Default to Open
-            $model->QueueNumber = intval(substr($NoTransaksi, -3));
+            $model->NoAntrian = intval(substr($NoTransaksi, -3));
             $tglTransaksi = $request->input('TglTransaksi') ? Carbon::parse($request->input('TglTransaksi'), 'Asia/Jakarta') : $now;
             $model->TglTransaksi = $tglTransaksi->toDateString();
             $model->TglPencatatan = $now;
@@ -3028,12 +3028,12 @@ class TableOrderController extends Controller
                 return response()->json(['success' => false, 'message' => 'Meja tidak ditemukan.']);
             }
 
-            // MIGRATION: Ensure QueueNumber column exists (Safer check)
-            if (!Schema::hasColumn('tableorderheader', 'QueueNumber')) {
+            // MIGRATION: Ensure NoAntrian column exists (Safer check)
+            if (!Schema::hasColumn('tableorderheader', 'NoAntrian')) {
                 try {
-                    DB::statement("ALTER TABLE tableorderheader ADD COLUMN QueueNumber INT DEFAULT 0");
+                    DB::statement("ALTER TABLE tableorderheader ADD COLUMN NoAntrian INT DEFAULT 0");
                 } catch (\Exception $e) {
-                    Log::error("Failed to add QueueNumber column: " . $e->getMessage());
+                    Log::error("Failed to add NoAntrian column: " . $e->getMessage());
                 }
             }
 
@@ -3048,7 +3048,7 @@ class TableOrderController extends Controller
             $NoTransaksi = $prefixTrx . str_pad($lastNoTRXCount + 1, 4, '0', STR_PAD_LEFT);
             $model = new TableOrderHeader;
             $model->NoTransaksi = $NoTransaksi;
-            $model->QueueNumber = intval(substr($NoTransaksi, -3));
+            $model->NoAntrian = intval(substr($NoTransaksi, -3));
             $tglTransaksi = $request->input('TglTransaksi');
             // Fallback: If time is missing (length <= 10), add current time
             if (strlen($tglTransaksi) <= 10) {

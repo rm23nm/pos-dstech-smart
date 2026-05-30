@@ -22,9 +22,9 @@ class InfoPeracikanController extends Controller
         
         $tables = DB::table('fakturpenjualanheader')
             ->where('RecordOwnerID', $RecordOwnerID)
-            ->whereNotNull('QueueNumber')
-            ->where('QueueNumber', '!=', '')
-            ->select('QueueNumber as id', 'QueueNumber')
+            ->whereNotNull('NoAntrian')
+            ->where('NoAntrian', '!=', '')
+            ->select('NoAntrian as id', 'NoAntrian')
             ->distinct()
             ->get();
 
@@ -53,7 +53,7 @@ class InfoPeracikanController extends Controller
                 'fakturpenjualanheader.Status',
                 'fakturpenjualanheader.NamaPasien',
                 'fakturpenjualanheader.NoResep',
-                'fakturpenjualanheader.QueueNumber',
+                'fakturpenjualanheader.NoAntrian',
                 'fakturpenjualanheader.peracikan_status'
             )
             ->where('fakturpenjualandetail.RecordOwnerID', $RecordOwnerID)
