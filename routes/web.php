@@ -1216,6 +1216,10 @@ Route::get('/monitorantrean', function() {
     return redirect('/queue/' . base64_encode(auth()->user()->RecordOwnerID));
 })->middleware(['auth', 'check.session']);
 
+Route::get('/queue', function() {
+    return redirect('/queue/' . base64_encode(auth()->user()->RecordOwnerID));
+})->middleware(['auth', 'check.session']);
+
 Route::get('/monitorcounter', function() {
     return redirect()->route('countermonitor');
 })->middleware(['auth', 'check.session']);
@@ -1412,6 +1416,10 @@ Route::post('/queue-bengkel/updateStatus', [QueueBengkelController::class, 'upda
 
 // Redirect routes for Display/Monitor compatibility
 Route::get('/monitorantrean', function() {
+    return redirect('/queue/' . base64_encode(auth()->user()->RecordOwnerID));
+})->middleware(['auth', 'check.session']);
+
+Route::get('/queue', function() {
     return redirect('/queue/' . base64_encode(auth()->user()->RecordOwnerID));
 })->middleware(['auth', 'check.session']);
 
