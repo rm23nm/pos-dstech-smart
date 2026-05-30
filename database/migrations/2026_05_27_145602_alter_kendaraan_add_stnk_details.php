@@ -14,9 +14,15 @@ class AlterKendaraanAddStnkDetails extends Migration
     public function up()
     {
         Schema::table('kendaraan', function (Blueprint $table) {
-            $table->string('NoMesin')->nullable();
-            $table->string('NoRangka')->nullable();
-            $table->string('NamaSTNK')->nullable();
+            if (!Schema::hasColumn('kendaraan', 'NoMesin')) {
+                $table->string('NoMesin')->nullable();
+            }
+            if (!Schema::hasColumn('kendaraan', 'NoRangka')) {
+                $table->string('NoRangka')->nullable();
+            }
+            if (!Schema::hasColumn('kendaraan', 'NamaSTNK')) {
+                $table->string('NamaSTNK')->nullable();
+            }
         });
     }
 
