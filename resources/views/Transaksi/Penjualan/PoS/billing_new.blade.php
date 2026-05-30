@@ -668,7 +668,7 @@
             background-color: #3949ab;
             transform: scale(1.1);
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
+}
         .btn-reprint i {
             pointer-events: none;
         }
@@ -682,13 +682,12 @@
                 margin: 0;
                 padding: 0;
                 background: #fff;
+                visibility: hidden; /* Hide all by default */
             }
-            /* Hide everything that is not the receipt */
-            .pos-header, .pos-main, .receipt-actions, .pp-close, .modal-close, .swal2-container, .swal-overlay, .modal-pos {
-                display: none !important;
+            /* Show only the receipt */
+            #modalReceiptPreview, #modalReceiptPreview * {
+                visibility: visible !important;
             }
-            
-            /* Show the modal overlay as a simple block */
             #modalReceiptPreview {
                 display: block !important;
                 position: absolute !important;
@@ -696,7 +695,6 @@
                 top: 0 !important;
                 width: 80mm !important;
                 background: white !important;
-                z-index: 9999 !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
@@ -723,6 +721,8 @@
                 background: transparent !important;
                 font-family: 'Courier New', Courier, monospace !important;
             }
+            
+            .receipt-actions { display: none !important; }
         }
 
         /* FnB Selection Styling for Main POS */
