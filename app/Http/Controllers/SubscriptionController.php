@@ -188,7 +188,18 @@ class SubscriptionController extends Controller
             if (count($companies) > 0) {
                 $superAdminRoles = DB::table('roles')->whereIn('RecordOwnerID', $companies)->where('RoleName', 'SuperAdmin')->get();
                 foreach ($superAdminRoles as $role) {
-                    DB::table('permissionrole')->where('roleid', $role->id)->delete();
+                    // Hanya hapus permission yang merupakan bagian dari modul langganan (bukan hak paten SuperAdmin)
+                    $subPermissionIds = DB::table('permission')
+                        ->where(function($q) {
+                            $q->whereNull('isSuperAdmin')
+                              ->orWhere('isSuperAdmin', 0);
+                        })->pluck('id');
+
+                    DB::table('permissionrole')
+                        ->where('roleid', $role->id)
+                        ->whereIn('permissionid', $subPermissionIds)
+                        ->delete();
+
                     $newRolePerms = [];
                     $insertedPerms = [];
                     foreach ($jsonData['Detail'] as $key) {
@@ -279,7 +290,18 @@ class SubscriptionController extends Controller
                 if (count($companies) > 0) {
                     $superAdminRoles = DB::table('roles')->whereIn('RecordOwnerID', $companies)->where('RoleName', 'SuperAdmin')->get();
                     foreach ($superAdminRoles as $role) {
-                        DB::table('permissionrole')->where('roleid', $role->id)->delete();
+                        // Hanya hapus permission yang merupakan bagian dari modul langganan (bukan hak paten SuperAdmin)
+                        $subPermissionIds = DB::table('permission')
+                            ->where(function($q) {
+                                $q->whereNull('isSuperAdmin')
+                                  ->orWhere('isSuperAdmin', 0);
+                            })->pluck('id');
+    
+                        DB::table('permissionrole')
+                            ->where('roleid', $role->id)
+                            ->whereIn('permissionid', $subPermissionIds)
+                            ->delete();
+                            
                         $newRolePerms = [];
                         $insertedPerms = [];
                         foreach ($jsonData['Detail'] as $key) {
