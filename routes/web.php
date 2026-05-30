@@ -1100,6 +1100,7 @@ Route::post('/billing/store-fnb-order', [TableOrderController::class, 'storeFnBO
 Route::post('/billing/store-tambah-durasi', [TableOrderController::class, 'storeTambahDurasi'])->name('billing-store-tambah-durasi')->middleware(['auth', 'check.session']);
 Route::get('/billing/get-table-statuses', [TableOrderController::class, 'getTableStatuses'])->name('billing-get-table-statuses')->middleware(['auth', 'check.session']);
 Route::post('/billing/jual-fnb-standalone', [TableOrderController::class, 'jualFnBStandalone'])->name('billing-jual-fnb-standalone')->middleware(['auth', 'check.session']);
+Route::post('/billing/send-receipt-email', [TableOrderController::class, 'sendReceiptEmail'])->name('billing-send-receipt-email')->middleware(['auth', 'check.session']);
 // GetMaximalPaketMenit
 /*
 |--------------------------------------------------------------------------

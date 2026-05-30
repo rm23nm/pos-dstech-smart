@@ -1,0 +1,33 @@
+<script type="text/javascript">
+	function BindLookupServices(TagName,KeyExpress,data,ColumnData, selection = "single") {
+		var dataGridInstance = jQuery("#"+TagName).dxDataGrid({
+			allowColumnResizing: true,
+			dataSource: data,
+			keyExpr: KeyExpress,
+			showBorders: true,
+            allowColumnResizing: true,
+            columnAutoWidth: true,
+            showBorders: true,
+            paging: {
+                enabled: true,
+                pageSize: 30
+            },
+            editing: {
+                mode: "row",
+                texts: {
+                    confirmDeleteMessage: ''  
+                }
+            },
+            selection: {
+                mode: selection // Enable single selection mode
+            },
+            searchPanel: {
+	            visible: true,
+	            width: 240,
+	            placeholder: "Search..."
+	        },
+	        columns: ColumnData
+
+		});
+	}
+</script><?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/parts/generaljs.blade.php ENDPATH**/ ?>

@@ -324,6 +324,7 @@ class TableOrderController extends Controller
                                      WHERE t2.tableid = titiklampu.id 
                                      AND t2.RecordOwnerID = titiklampu.RecordOwnerID 
                                      AND t2.DocumentStatus IN ('O', 'D')
+                                     AND DATE(t2.TglTransaksi) >= DATE_SUB(CURDATE(), INTERVAL 2 DAY)
                                      ORDER BY CASE WHEN t2.DocumentStatus = 'O' THEN 0 ELSE 1 END ASC, id DESC
                                      LIMIT 1
                                  )");

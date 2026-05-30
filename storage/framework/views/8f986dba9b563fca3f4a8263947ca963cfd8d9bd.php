@@ -1,0 +1,661 @@
+	
+<?php $__env->startSection('content'); ?>
+<style type="text/css">
+    .disabled-link {
+        pointer-events: none; /* Disables click events */
+        color: gray; /* Changes the color to indicate the link is disabled */
+        text-decoration: none; /* Optional: Remove underline */
+        cursor: default; /* Changes the cursor to indicate it's not clickable */
+    }
+</style>
+<div class="subheader py-2 py-lg-6 subheader-solid">
+	<div class="container-fluid">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb bg-white mb-0 px-0 py-2">
+				<li class="breadcrumb-item active" aria-current="page">Faktur Penjualan</li>
+			</ol>
+		</nav>
+	</div>
+</div>
+<div class="d-flex flex-column-fluid">
+	<!--begin::Container-->
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12 px-4">
+				<div class="row">
+					<div class="col-lg-12 col-xl-12 px-4">
+						<div class="card card-custom gutter-b bg-transparent shadow-none border-0" >
+							<div class="card-header align-items-center  border-bottom-dark px-0">
+								<div class="card-title mb-0">
+									<h3 class="card-label mb-0 font-weight-bold text-body">Faktur Penjualan 
+									</h3>
+								</div>
+							    <div class="icons d-flex">
+									<a href="<?php echo e(url('fpenjualan/form/-')); ?>" class="btn btn-outline-primary rounded-pill font-weight-bold me-1 mb-1">Tambah Data</a>
+								
+								</div>
+							</div>
+						
+						</div>
+
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12  px-4">
+						<div class="card card-custom gutter-b bg-white border-0" >
+							<div class="card-header" >
+								Filter Data
+							</div>
+							<div class="card-body" >
+								<div class="row">
+									<div class="col-md-3">
+										<label  class="text-body">Tanggal Awal</label>
+										<input type="date" name="TglAwal" id="TglAwal" class="form-control">
+									</div>
+									<div class="col-md-3">
+										<label  class="text-body">Tanggal Akhir</label>
+										<input type="date" name="TglAkhir" id="TglAkhir" class="form-control">
+									</div>
+									<div class="col-md-3">
+										<!-- <?php echo json_encode($pelanggan); ?> -->
+										<label  class="text-body">Pelanggan</label>
+										<select name="KodePelanggan" id="KodePelanggan" class="js-example-basic-single js-states form-control bg-transparent" >
+											<option value="">Pilih Pelanggan</option>
+											<?php $__currentLoopData = $pelanggan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ko): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+												<option value="<?php echo e($ko->KodePelanggan); ?>" >
+		                                            <?php echo e($ko->NamaPelanggan); ?>
+
+		                                        </option>
+											<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+											
+										</select>
+									</div>
+									<div class="col-md-3">
+										<br>
+										<button class="btn btn-outline-primary rounded-pill font-weight-bold me-1 mb-1" id="btSearch">Cari Data</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-12  px-4">
+						<div class="card card-custom gutter-b bg-white border-0" >
+							<div class="card-body" >
+								<div class="dx-viewport demo-container">
+				                	<div id="data-grid-demo">
+				                  		<div id="gridContainerHeader"></div>
+				                	</div>
+				              	</div>
+							</div>
+
+							<div class="card-body" >
+								<div class="dx-viewport demo-container">
+				                	<div id="data-grid-demo">
+				                  		<div id="gridContainerDetail"></div>
+				                	</div>
+				              	</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+</div>
+
+
+<div class="modal fade" id="webViewModal" tabindex="-1" aria-labelledby="webViewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="webViewModalLabel">Web View</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="height: 500px;">
+        <input type="hidden" id="NoTransaksiModal" name="NoTransaksiModal"/>
+        <iframe src="" width="100%" height="100%" frameborder="0"></iframe>
+      </div>
+        <div class="modal-footer">
+            <div class="col-4  px-4">
+                <label  class="text-body">Format Slip</label>
+                <fieldset class="form-group mb-3">
+                    <select name="DefaultSlip" id="DefaultSlip" class="js-states form-control bg-transparent">
+                        <option value="slip1">Slip 1</option>
+                        <option value="slip2">Slip 2</option>
+                        <option value="slip3">Slip 3</option>
+                        <option value="slip4">Slip 4</option>
+                        <option value="slip5">Slip 5</option>
+                    </select>
+                </fieldset>
+            </div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id='btnPrint' >Cetak</button>
+            <button type="button" class="btn btn-success" id='btnEmail'>Kirim Email</button>
+            <button type="button" class="btn btn-warning" id='btnWhatsApp'>Kirim Pesan WhatsApp</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+<script type="text/javascript">
+    const documentBaseUrl = "<?php echo e(route('document')); ?>";
+
+	jQuery(document).ready(function() {
+		var now = new Date();
+    	var day = ("0" + now.getDate()).slice(-2);
+    	var month = ("0" + (now.getMonth() + 1)).slice(-2);
+    	var firstDay = now.getFullYear()+"-"+month+"-01";
+    	var NowDay = now.getFullYear()+"-"+month+"-"+day;
+
+    	jQuery('#TglAwal').val(firstDay);
+    	jQuery('#TglAkhir').val(NowDay);
+
+		// bindGridHeader([]);
+        GetHeader();
+		bindGridDetail([]);
+	});
+    jQuery('#btSearch').click(function () {
+        GetHeader();
+    });
+
+    jQuery('#btnPrint').on('click', function () {
+        const iframeSrc = $('#webViewModal iframe').attr('src');
+        if (iframeSrc) {
+            window.open(iframeSrc, '_blank');
+        }
+    });
+
+    jQuery('#btnEmail').on('click', function () {
+        const btn = $(this);
+        const originalHtml = btn.html(); // Simpan isi tombol awal
+        btn.html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Sedang proses...');
+        btn.prop('disabled', true); // Nonaktifkan tombol sementara
+
+        const iframeSrc = $('#webViewModal iframe').attr('src');
+        const url = new URL(iframeSrc, window.location.origin);
+        const nomor = url.searchParams.get('NomorTransaksi');
+        const tipe = url.searchParams.get('TipeTransaksi');
+
+        if (!nomor || !tipe) {
+            alert("Data transaksi tidak lengkap.");
+            btn.html(originalHtml);
+            btn.prop('disabled', false);
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: "<?php echo e(route('sendemail')); ?>",
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
+            },
+            data: {
+                NomorTransaksi: nomor,
+                TipeTransaksi: tipe
+            },
+            success: function(response) {
+                // alert("Email berhasil dikirim.");
+                Swal.fire({
+                    html: "Email berhasil dikirim!",
+                    icon: "success",
+                    title: "Horray...",
+                    // text: "Data berhasil disimpan! <br> " + response.Kembalian,
+                }).then((result)=>{
+                    btn.html(originalHtml);
+                    btn.prop('disabled', false); // Aktifkan kembali tombol
+                });
+            },
+            error: function(xhr, status, error) {
+                // alert("Gagal mengirim email.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Opps...",
+                    text: response.message,
+                }).then((result)=>{
+                    btn.html(originalHtml);
+                    btn.prop('disabled', false); // Aktifkan kembali tombol
+                });
+            }
+        });
+
+    });
+
+    jQuery('#btnWhatsApp').on('click', function () {
+        const btn = $(this);
+        const originalHtml = btn.html(); // Simpan isi tombol awal
+        btn.html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Sedang proses...');
+        btn.prop('disabled', true); // Nonaktifkan tombol sementara
+
+        const iframeSrc = $('#webViewModal iframe').attr('src');
+        const url = new URL(iframeSrc, window.location.origin);
+        const nomor = url.searchParams.get('NomorTransaksi');
+        const tipe = url.searchParams.get('TipeTransaksi');
+
+        if (!nomor || !tipe) {
+            alert("Data transaksi tidak lengkap.");
+            btn.html(originalHtml);
+            btn.prop('disabled', false);
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: "<?php echo e(route('sendwa')); ?>",
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
+            },
+            data: {
+                NomorTransaksi: nomor,
+                TipeTransaksi: tipe
+            },
+            success: function(response) {
+                if (response.whatsappurl != "") {
+                    window.open(response.whatsappurl, '_blank');
+                } else {
+                    // alert("Gagal mengirim pesan WhatsApp.");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Opps...",
+                        text: "Gagal mengirim pesan WhatsApp.",
+                    })
+                }
+                btn.html(originalHtml);
+                btn.prop('disabled', false); // Aktifkan kembali tombol
+            },
+            error: function(xhr, status, error) {
+                // alert("Gagal mengirim WA.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Opps...",
+                    text: "Gagal mengirim pesan WhatsApp. " + error,
+                })
+                btn.html(originalHtml);
+                btn.prop('disabled', false); // Aktifkan kembali tombol
+            }
+        });
+
+    });
+
+    jQuery('#DefaultSlip').change(function () {
+        var NoTransaksi = jQuery('#NoTransaksiModal').val();
+        var format = jQuery('#DefaultSlip').val();
+        var url = documentBaseUrl + "?NomorTransaksi=" + encodeURIComponent(NoTransaksi) + "&TipeTransaksi=fakturpenjualan&format="+format;
+        jQuery('#webViewModal iframe').attr('src', url);
+
+        // Update Slip
+
+        $.ajax({
+            async:false,
+            type: 'post',
+            url: "<?php echo e(route('companysetting-updateSlip')); ?>",
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
+            },
+            data: {
+                'FieldName' : 'FakturSlip',
+                'FieldValue' : format,
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response)
+            }
+        })
+    });
+
+    function GetHeader() {
+        $.ajax({
+            async:false,
+            type: 'post',
+            url: "<?php echo e(route('fpenjualan-readheader')); ?>",
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
+            },
+            data: {
+                'TglAwal' : jQuery('#TglAwal').val(),
+                'TglAkhir' : jQuery('#TglAkhir').val(),
+                'KodePelanggan' :jQuery('#KodePelanggan').val()
+            },
+            dataType: 'json',
+            success: function(response) {
+                bindGridHeader(response.data)
+            }
+        })
+    }
+
+    function GetDetail(NoTransaksi) {
+        $.ajax({
+            async:false,
+            type: 'post',
+            url: "<?php echo e(route('fpenjualan-readdetail')); ?>",
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
+            },
+            data: {
+                'NoTransaksi' : NoTransaksi
+            },
+            dataType: 'json',
+            success: function(response) {
+                bindGridDetail(response.data)
+            }
+        })
+    }
+
+    function showCetakModal(noTransaksi) {
+        jQuery('#NoTransaksiModal').val(noTransaksi);
+
+        var url = documentBaseUrl + "?NomorTransaksi=" + encodeURIComponent(noTransaksi) + "&TipeTransaksi=fakturpenjualan";
+        jQuery('#webViewModal iframe').attr('src', url);
+        jQuery('#webViewModal').modal({backdrop: 'static', keyboard: false})
+        jQuery('#webViewModal').modal('show');
+
+        $.ajax({
+            async:false,
+            type: 'post',
+            url: "<?php echo e(route('companysetting-getcompanydetail')); ?>",
+            headers: {
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
+            },
+            data: {
+                'FieldName' : 'FakturSlip',
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response.data)
+                console.log(response.data['FakturSlip'])
+
+                if (response.data['FakturSlip'] === null || response.data['FakturSlip'] === '') {
+                    console.log('FakturSlip kosong atau null');
+                } else {
+                    console.log('FakturSlip berisi:', response.data['FakturSlip']);
+                    jQuery('#DefaultSlip').val(response.data['FakturSlip']).change();
+                }
+            }
+        });
+    }
+    
+
+    function voidTransaksi(NoTransaksi) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data ini akan dihapus secara permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    async:false,
+                    type: 'post',
+                    url: "<?php echo e(route('fpenjualan-void')); ?>",
+                    headers: {
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' // Include the CSRF token in the headers
+                    },
+                    data: {
+                        'NoTransaksi' : NoTransaksi
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log(response.message)
+                        if(response.success == true){
+                            Swal.fire({
+                                icon: "success",
+                                title: "Sukses",
+                                text: "Data Berhasil dibatalkan",
+                            }).then((value)=>{
+                                location.reload();
+                            });
+                        }
+                        else{
+                            Swal.fire({
+                                icon: "error",
+                                title: "Opps...",
+                                text: "Gagal Membatalkan Transaksi " + response.message,
+                            })
+                        }
+                    }
+                })
+            }
+        });
+    }
+
+	function bindGridHeader(data) {
+		var dataGridInstance = jQuery("#gridContainerHeader").dxDataGrid({
+			allowColumnResizing: true,
+			dataSource: data,
+			keyExpr: "NoTransaksi",
+			showBorders: true,
+            allowColumnReordering: true,
+            allowColumnResizing: true,
+            columnAutoWidth: true,
+            showBorders: true,
+            paging: {
+                enabled: true,
+                pageSize: 30
+            },
+            editing: {
+                mode: "row",
+                // allowAdding:true,
+                // allowUpdating: true,
+                // allowDeleting: true,
+                texts: {
+                    confirmDeleteMessage: ''  
+                }
+            },
+            searchPanel: {
+	            visible: true,
+	            width: 240,
+	            placeholder: "Search..."
+	        },
+            selection: {
+                mode: "single" // Enable single selection mode
+            },
+            columns: [
+                {
+                    dataField: "NoTransaksi",
+                    caption: "Nomor",
+                    allowEditing:false
+                },
+                {
+                    dataField: "Transaksi",
+                    caption: "TRX",
+                    allowEditing:false,
+                },
+                {
+                    dataField: "StatusDocument",
+                    caption: "Status",
+                    allowEditing:false
+                },
+                {
+                    dataField: "TglTransaksi",
+                    caption: "Tanggal",
+                    allowEditing:false
+                },
+                {
+                    dataField: "TglJatuhTempo",
+                    caption: "Jatuh Tempo",
+                    allowEditing:false
+                },
+                {
+                    dataField: "NamaPelanggan",
+                    caption: "Pelanggan",
+                    allowEditing:false
+                },
+                {
+                    dataField: "NoResep",
+                    caption: "No. Resep",
+                    allowEditing:false,
+                    visible: <?php echo e(isset($company) && in_array($company->JenisUsaha, ['APOTEK', 'KLINIK']) ? 'true' : 'false'); ?>
+
+                },
+                {
+                    dataField: "NamaDokter",
+                    caption: "Dokter",
+                    allowEditing:false,
+                    visible: <?php echo e(isset($company) && in_array($company->JenisUsaha, ['APOTEK', 'KLINIK']) ? 'true' : 'false'); ?>
+
+                },
+                {
+                    dataField: "NamaPasien",
+                    caption: "Pasien",
+                    allowEditing:false,
+                    visible: <?php echo e(isset($company) && in_array($company->JenisUsaha, ['APOTEK', 'KLINIK']) ? 'true' : 'false'); ?>
+
+                },
+                {
+                    dataField: "NamaTermin",
+                    caption: "Termin",
+                    allowEditing:false
+                },
+                {
+                    dataField: "TotalPembelian",
+                    caption: "Total",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    dataField: "TotalPembayaran",
+                    caption: "diBayar",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    dataField: "TotalRetur",
+                    caption: "Retur",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    dataField: "TotalHutang",
+                    caption: "Piutang",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    caption: "Action",
+                    fixed: true,
+                    cellTemplate: function(cellElement, cellInfo) {
+                        var link = "fpenjualan/printthermal/"+cellInfo.data.NoTransaksi;
+                        var linkPrint = "fpenjualan/print/"+cellInfo.data.NoTransaksi;
+
+                        var LinkAccess = "";
+                        if (cellInfo.data.Transaksi == 'POS') {
+                            // LinkAccess = "<a href = "+link+" class='btn btn-outline-primary font-weight-bold me-1 mb-1 disabled-link' id = 'btEdit' disabled>Edit</a>";
+                            LinkAccess += "<a href = "+link+" class='btn btn-outline-danger font-weight-bold me-1 mb-1' target='_blank'><i class='fas fa-print'></i></a>";
+                        }else{
+                            // LinkAccess = "<a href = "+link+" class='btn btn-outline-primary font-weight-bold me-1 mb-1' id = 'btEdit'><i class='fas fa-edit'></i></a>";
+                            LinkAccess += "<button class='btn btn-outline-success font-weight-bold me-1 mb-1' onclick=\"showCetakModal('" + cellInfo.data.NoTransaksi + "')\"><i class='fas fa-print'></i></button>";
+                        }
+
+                        if (cellInfo.data.Status != "D") {
+                            LinkAccess += "<button class='btn btn-outline-danger font-weight-bold me-1 mb-1' onclick=\"voidTransaksi('" + cellInfo.data.NoTransaksi + "')\"><i class='fas fa-trash-alt'></i></button>";
+                        }
+
+                        // LinkAccess += "<a href = '#' class='btn btn-outline-danger font-weight-bold me-1 mb-1' id = 'btBayar' >Bayar</a>";
+
+                        cellElement.append(LinkAccess);
+                    }
+                },
+            ],
+            onRowClick: function(e) {
+                const rowElement = e.component.getRowElement(e.rowIndex);
+                rowElement.addClass('row-highlight');
+                // console.log('Row entered:', e.data);
+                GetDetail(e.data.NoTransaksi)
+            }
+		}).dxDataGrid('instance');
+
+
+	}
+
+	function bindGridDetail(data) {
+		var dataGridInstance = jQuery("#gridContainerDetail").dxDataGrid({
+			allowColumnResizing: true,
+			dataSource: data,
+			keyExpr: "NoUrut",
+			showBorders: true,
+            allowColumnReordering: true,
+            allowColumnResizing: true,
+            columnAutoWidth: true,
+            showBorders: true,
+            paging: {
+                enabled: true,
+                pageSize: 30
+            },
+            editing: {
+                mode: "row",
+                texts: {
+                    confirmDeleteMessage: ''  
+                }
+            },
+            columns: [
+                {
+                    dataField: "NoUrut",
+                    caption: "#",
+                    allowEditing:false,
+                    visible: false
+                },
+                {
+                    caption: "#",
+                    allowEditing:false,
+                    cellTemplate: function(container, options) {
+                        var index = options.rowIndex + 1; // Menghitung nomor urut (dimulai dari 1)
+                        $("<div>").text(index).appendTo(container);
+                    }
+                },
+                {
+                    dataField: "KodeItem",
+                    caption: "Item",
+                    allowEditing:false
+                },
+                {
+                    dataField: "NamaItem",
+                    caption: "Nama Item",
+                    allowEditing:false
+                },
+                {
+                    dataField: "Qty",
+                    caption: "Qty",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    dataField: "QtyRetur",
+                    caption: "Retur",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    dataField: "Harga",
+                    caption: "Harga",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    dataField: "Discount",
+                    caption: "Discount",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+                {
+                    dataField: "HargaNet",
+                    caption: "Harga Net",
+                    allowEditing:false,
+                    format: { type: 'fixedPoint', precision: 2 }
+                },
+            ]
+		});
+	}
+</script>
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('parts.header', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\OneDrive\My Project Aplikasi\pos.dstechsmart.com\resources\views/Transaksi/Penjualan/FakturPenjualan.blade.php ENDPATH**/ ?>
