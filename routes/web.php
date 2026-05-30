@@ -610,12 +610,18 @@ Route::post('/fpenjualan/hiburanPoS', [FakturPenjualanController::class, 'storeP
 Route::post('/fpenjualan/void', [FakturPenjualanController::class, 'void'])->name('fpenjualan-void')->middleware(['auth', 'check.session']);
 Route::post('/fpenjualan/getTimeSlots', [TableOrderController::class, 'getAvailableTimeSlots'])->name('fpenjualan-getTimeSlots')->middleware(['auth', 'check.session']);
 Route::post('/billing/store-fnb', [TableOrderController::class, 'storeFnBOrder'])->name('billing-store-fnb')->middleware(['auth', 'check.session']);
-// Route::post('/billing/store-tambah-durasi', [TableOrderController::class, 'storeTambahDurasi'])->name('billing-store-tambah-durasi')->middleware(['auth', 'check.session']);
 Route::post('/billing/get-faktur-detail', [TableOrderController::class, 'getFakturDetail'])->name('billing-get-faktur-detail')->middleware(['auth', 'check.session']);
 // Compatibility Redirects (Old to New)
 Route::get('/fpenjualan/infokitchen', function() { return redirect()->route('infokitchen'); });
 Route::get('/fpenjualan/customerdisplay', function() { return redirect()->route('customerdisplay'); });
 Route::get('/fpenjualan/countermonitor', function() { return redirect()->route('countermonitor'); });
+// Display/Monitor Routes (POS Hiburan)
+Route::get('/infokitchen', [FakturPenjualanController::class, 'InfoKitchen'])->name('infokitchen')->middleware(['auth', 'check.session']);
+Route::post('/infokitchen-data', [FakturPenjualanController::class, 'InfoKitchenData'])->name('infokitchen-data')->middleware(['auth', 'check.session']);
+Route::get('/customerdisplay', [FakturPenjualanController::class, 'CustomerDisplay'])->name('customerdisplay')->middleware(['auth', 'check.session']);
+Route::post('/customerdisplay-data', [FakturPenjualanController::class, 'CustomerDisplayData'])->name('customerdisplay-data')->middleware(['auth', 'check.session']);
+Route::get('/countermonitor', [FakturPenjualanController::class, 'CounterMonitor'])->name('countermonitor')->middleware(['auth', 'check.session']);
+Route::post('/countermonitor-data', [FakturPenjualanController::class, 'CounterMonitorData'])->name('countermonitor-data')->middleware(['auth', 'check.session']);
 
 /*
 |--------------------------------------------------------------------------
