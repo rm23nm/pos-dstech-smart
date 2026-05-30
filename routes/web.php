@@ -1101,6 +1101,8 @@ Route::post('/billing/store-tambah-durasi', [TableOrderController::class, 'store
 Route::get('/billing/get-table-statuses', [TableOrderController::class, 'getTableStatuses'])->name('billing-get-table-statuses')->middleware(['auth', 'check.session']);
 Route::post('/billing/jual-fnb-standalone', [TableOrderController::class, 'jualFnBStandalone'])->name('billing-jual-fnb-standalone')->middleware(['auth', 'check.session']);
 Route::post('/billing/send-receipt-email', [TableOrderController::class, 'sendReceiptEmail'])->name('billing-send-receipt-email')->middleware(['auth', 'check.session']);
+Route::get('/daftartableorder', [TableOrderController::class, 'DaftarTableOrder'])->name('daftartableorder')->middleware(['auth', 'check.session']);
+Route::post('/daftartableorder/reset', [TableOrderController::class, 'ResetController'])->name('daftartableorder-reset')->middleware(['auth', 'check.session']);
 // GetMaximalPaketMenit
 /*
 |--------------------------------------------------------------------------
