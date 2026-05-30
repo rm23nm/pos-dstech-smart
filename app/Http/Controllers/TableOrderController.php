@@ -3060,6 +3060,42 @@ class TableOrderController extends Controller
             $model->paketid = $request->input('paketid');
             if ($model->JenisPaket === 'PAKETMEMBER') {
                 $model->paketid = -1;
+
+                $pelangganId = $request->input('KodePelanggan');
+                
+                $activeMemberships = DB::table('customer_memberships')
+                    ->join('member_packages', function($join) {
+                        $join->on('customer_memberships.KodePaketMember', '=', 'member_packages.KodePaket')
+                             ->on('customer_memberships.RecordOwnerID', '=', 'member_packages.RecordOwnerID');
+                    })
+                    ->where('customer_memberships.KodePelanggan', $pelangganId)
+                    ->where('customer_memberships.RecordOwnerID', Auth::user()->RecordOwnerID)
+                    ->where('customer_memberships.ValidUntil', '>=', Carbon::now('Asia/Jakarta'))
+                    ->whereRaw('(customer_memberships.MaxPlay = 0 OR customer_memberships.Played < customer_memberships.MaxPlay)')
+                    ->select('customer_memberships.*', 'member_packages.KategoriPaket', 'member_packages.KelompokLampu')
+                    ->get();
+                    
+                $validMembership = null;
+                foreach ($activeMemberships as $am) {
+                    if ($am->KategoriPaket !== 'HIBURAN') continue;
+                    
+                    if (empty($am->KelompokLampu) || $am->KelompokLampu == ($table->KelompokLampu ?? '')) {
+                        $validMembership = $am;
+                        break;
+                    }
+                }
+
+                if (!$validMembership) {
+                    DB::rollBack();
+                    return response()->json(['success' => false, 'message' => 'Member tidak memiliki paket aktif yang tersedia atau kuota sudah habis untuk kategori ini.']);
+                }
+
+                // Deduct Play Quota
+                DB::table('customer_memberships')
+                    ->where('id', $validMembership->id)
+                    ->update([
+                        'Played' => DB::raw('Played + 1')
+                    ]);
             }
             $model->tableid = $request->input('tableid');
             $model->KodeSales = $request->input('KodeSales');
