@@ -49,9 +49,22 @@
                                             <label  class="text-body">Jenis Paket</label>
                                             <fieldset class="form-group mb-3">
                                                 <select name="JenisPaket" id="JenisPaket" class="js-example-basic-single js-states form-control bg-transparent" >
+                                                    <option value="">Semua Jenis Paket</option>
                                                     <option value="MENIT" {{ $oldJenisPaket =='MENIT' ? 'selected' : '' }}>Paket Menit</option>
                                                     <option value="JAM" {{ $oldJenisPaket =='JAM' ? 'selected' : '' }}>Paket Jam</option>
-                                                    <option value="PAKET" {{ $oldJenisPaket == 'PAKET' ? 'selected' :''  }}>Paket Berlangganan</option>
+                                                    
+                                                    @if(isset($jenisLangganan) && count($jenisLangganan) > 0)
+                                                        @foreach($jenisLangganan as $item)
+                                                            @php
+                                                                $value = is_array($item) ? $item['Kode'] : $item;
+                                                                $label = is_array($item) ? $item['Nama'] : $item;
+                                                                $selected = ($oldJenisPaket == $value) ? 'selected' : '';
+                                                            @endphp
+                                                            <option value="{{ $value }}" {{ $selected }}>{{ $label }}</option>
+                                                        @endforeach
+                                                    @else
+                                                        <option value="PAKET" {{ $oldJenisPaket == 'PAKET' ? 'selected' :''  }}>Paket Berlangganan</option>
+                                                    @endif
                                                 </select>
                                             </fieldset>
                                         </div>

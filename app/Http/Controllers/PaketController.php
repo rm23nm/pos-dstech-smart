@@ -23,17 +23,29 @@ class PaketController extends Controller
                     for ($i = 0; $i < count($field); $i++){
                         $query->orwhere($field[$i], 'like',  '%' . $keyword .'%');
                     }      
-                })->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
-                // ->where('JenisPaket', '=', $JenisPaket)->get();
+                })->where('RecordOwnerID','=',Auth::user()->RecordOwnerID);
+                
+        if (!empty($JenisPaket)) {
+            $paket = $paket->where('JenisPaket', '=', $JenisPaket);
+        }
+
+        $paket = $paket->get();
 
         // $bank = $bank->paginate(4);
 
         $title = 'Delete Paket Transaksi !';
         $text = "Are you sure you want to delete ?";
         confirmDelete($title, $text);
+        $company = \App\Models\Company::where('KodePartner', Auth::user()->RecordOwnerID)->first();
+        $jenisLangganan = [];
+        if ($company && $company->JenisLangganan) {
+            $jenisLangganan = json_decode($company->JenisLangganan, true);
+        }
+
         return view("master.Sewa.Paket",[
             'paket' => $paket, 
-            'oldJenisPaket' => $JenisPaket
+            'oldJenisPaket' => $JenisPaket,
+            'jenisLangganan' => $jenisLangganan
         ]);
     }
 
