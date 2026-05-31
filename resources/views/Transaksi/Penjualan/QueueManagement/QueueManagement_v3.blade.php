@@ -522,17 +522,23 @@
                  const sisa = row.JamSelesai ? getSisaWaktu(row.JamSelesai) : '';
                  let content = '';
                  
+                 const formatDateTimeCell = (jam, rawJam) => {
+                     if (!jam) return '-';
+                     if (!rawJam) return jam;
+                     return `<div style="font-size:0.75rem; color:var(--text-muted); line-height:1.2; margin-bottom:2px;">${formatDate(rawJam)}</div><div>${jam}</div>`;
+                 };
+                 
                  if(type === 'active') {
                      content = `<td><span class="text-highlight">${row.NamaTitikLampu}</span></td>
                                 <td>${row.NamaPelanggan || '-'}</td>
-                                <td>${row.JamSelesai}</td>
+                                <td>${formatDateTimeCell(row.JamSelesai, row.RawJamSelesai)}</td>
                                 <td><span class="time-badge">${sisa}</span></td>`;
                  } else if(type === 'warn') {
                      const icon = (spokenStages[row.NamaTitikLampu] && (spokenStages[row.NamaTitikLampu]['10m'] || spokenStages[row.NamaTitikLampu]['5m'] || spokenStages[row.NamaTitikLampu]['0m'])) ? ` <span class="spoken-indicator">🔊</span>` : '';
                      content = `<td><span class="text-highlight">${row.NamaTitikLampu}</span></td>
                                 <td>${row.NamaPelanggan || '-'}</td>
-                                <td>${row.JamMulai}</td>
-                                <td>${row.JamSelesai}</td>
+                                <td>${formatDateTimeCell(row.JamMulai, row.RawJamMulai)}</td>
+                                <td>${formatDateTimeCell(row.JamSelesai, row.RawJamSelesai)}</td>
                                 <td><span class="time-badge text-warning">${sisa}${icon}</span></td>`;
                  } else if(type === 'avail') {
                      content = `<td colspan="2" class="text-center"><span class="text-highlight" style="font-size:1.1rem">${row.NamaTitikLampu}</span></td>`;
@@ -546,8 +552,8 @@
                      content = `<td>${formatDate(row.TglTransaksi)}</td>
                                 <td>${row.NamaPelanggan}</td>
                                 <td>${row.NamaTitikLampu}</td>
-                                <td>${row.JamMulai}</td>
-                                <td>${row.JamSelesai}</td>`;
+                                <td>${formatDateTimeCell(row.JamMulai, row.RawJamMulai)}</td>
+                                <td>${formatDateTimeCell(row.JamSelesai, row.RawJamSelesai)}</td>`;
                  }
                  
                  return `<tr class="fade-in">${content}</tr>`;
