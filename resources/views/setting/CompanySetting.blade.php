@@ -185,6 +185,12 @@
 													<li class="nav-item" >
 														<a class="nav-link" id="custdisplay-antrean-tab" data-bs-toggle="pill" href="#custdisplay-antrean" role="tab" aria-controls="custdisplay-antrean" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-presentation me-2"></i> Customer Display</a>
 													</li>
+													<li class="nav-item" >
+														<a class="nav-link" id="custdisplay-klinik-tab" data-bs-toggle="pill" href="#custdisplay-klinik" role="tab" aria-controls="custdisplay-klinik" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-presentation me-2 text-primary"></i> Layar TV Poli Klinik</a>
+													</li>
+													<li class="nav-item" >
+														<a class="nav-link" id="custdisplay-kiosk-tab" data-bs-toggle="pill" href="#custdisplay-kiosk" role="tab" aria-controls="custdisplay-kiosk" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-presentation me-2 text-warning"></i> Layar TV Kiosk Pendaftaran</a>
+													</li>
 													@if ($company[0]['JenisUsaha'] == "Hiburan" || $company[0]['JenisUsaha'] == "FnB")
 													<li class="nav-item" >
 														<a class="nav-link" id="custdisplay-ecatalog-tab" data-bs-toggle="pill" href="#custdisplay-ecatalog" role="tab" aria-controls="custdisplay-ecatalog" aria-selected="false" style="padding-left: 25px;"><i class="flaticon-internet me-2"></i> E-Catalog & Booking Hiburan</a>
@@ -809,11 +815,75 @@
 																			@endfor
 																		</div>
 																	</div>
+
+																	</div>
 																</div>
 															</div>
 														</div>
 													</div>
 												</div>
+
+												<div class="tab-pane fade" id="custdisplay-klinik" role="tabpanel" aria-labelledby="custdisplay-klinik-tab">
+													<div class="row">
+														<!-- CARD: CUSTOMER DISPLAY KLINIK -->
+														<div class="card card-custom gutter-b border border-light-primary bg-white shadow-sm rounded w-100">
+															<div class="card-header h-auto py-3 bg-light-primary border-0 rounded-top">
+																<div class="card-title m-0">
+																	<h3 class="card-label text-primary font-weight-bolder m-0" style="font-size: 1.25rem;">
+																		<i class="flaticon-presentation me-2 text-primary"></i> Layar TV Antrean Poli Klinik
+																	</h3>
+																</div>
+															</div>
+															<div class="card-body py-4">
+																<div class="row">
+																	<div class="col-md-12 mb-3">
+																		<label class="text-body fw-bold">Video TV Poli Klinik (Youtube URL / mp4 bebas iklan)</label>
+																		<p class="text-muted text-sm">Jika menggunakan URL video berakhiran .mp4, video akan otomatis diputar berulang tanpa iklan.</p>
+																		<div class="row">
+																			@for ($v = 1; $v <= 5; $v++)
+																			<div class="col-md-6 mb-3">
+																				<fieldset class="form-group mb-2">
+																					<label class="font-size-sm text-muted">Video Klinik {{$v}} (Tampil di Semua Poli)</label>
+																					<input type="text" class="form-control" id="VideoKlinikDisplay{{ $v > 1 ? $v : '' }}" name="VideoKlinikDisplay{{ $v > 1 ? $v : '' }}" placeholder="Contoh: https://www.youtube.com/embed/... atau link .mp4" value="{{ count($company) > 0 ? $company[0]['VideoKlinikDisplay' . ($v > 1 ? $v : '')] : '' }}" >
+																				</fieldset>
+																			</div>
+																			@endfor
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+                                            <div class="tab-pane fade" id="custdisplay-kiosk" role="tabpanel" aria-labelledby="custdisplay-kiosk-tab">
+										<div class="row">
+											<div class="col-md-12">
+												<h4 class="mb-4"><i class="flaticon-presentation me-2 text-warning"></i> Layar TV Kiosk Pendaftaran</h4>
+												
+												<label class="text-body fw-bold">Background Kiosk Antrean Pendaftaran</label>
+												<fieldset class="form-group mb-5">
+													<textarea id="KioskBackgroundBase64" name="KioskBackgroundBase64" style="display: none;">{{ count($company) > 0 ? $company[0]['KioskBackground'] : '' }}</textarea>
+													<input type="file" id="fileKioskBackground" name="fileKioskBackground" accept=".jpg, .png" class="btn btn-warning" style="display: none;"/>
+													<div class="xContainer">
+														<div id="KioskBackgroundPreview" class="image_result_sample" style="cursor:pointer;" title="Klik untuk mengubah gambar">
+															@if (count($company) > 0 && $company[0]['KioskBackground'] != '')
+																<img src="{{$company[0]['KioskBackground']}}" style="max-height: 200px;">
+															@else
+																<img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg" style="max-height: 200px;">
+															@endif
+														</div>
+													</div>
+													<small class="text-muted mt-2 d-block">Klik gambar di atas untuk mengunggah background baru.</small>
+												</fieldset>
+
+												<label class="text-body fw-bold">Manajemen Loket Fisik</label>
+												<fieldset class="form-group mb-5">
+													<a href="{{ route('klinik-loket.index') }}" class="btn btn-outline-primary"><i class="fas fa-list"></i> Atur Daftar Loket Fisik Kiosk</a>
+													<p class="text-muted mt-2">Gunakan tombol di atas untuk menambah, mengubah, atau menghapus Loket (misal: LOKET UMUM, LOKET 1). Loket ini akan ditampilkan di kotak bagian bawah layar TV Kiosk.</p>
+												</fieldset>
+											</div>
+										</div>
+									</div>
 
 												@if ($company[0]['JenisUsaha'] == "Hiburan" || $company[0]['JenisUsaha'] == "FnB")
 												<div class="tab-pane fade" id="custdisplay-ecatalog" role="tabpanel" aria-labelledby="custdisplay-ecatalog-tab">
@@ -1288,6 +1358,8 @@
 																	value="{{ $QueueURLString }}" readonly>
 															</fieldset>
 														</div>
+
+
 
 														<div class="col-md-12">
 															<label class="text-body">Running Text Self Services</label>
@@ -2630,5 +2702,18 @@ document.addEventListener("change", function (event) {
 });
 
 
+jQuery('#KioskBackgroundPreview').click(function(){
+    $('#fileKioskBackground').click();
+});
+
+jQuery("#fileKioskBackground").change(function(){
+    var file = $(this)[0].files[0];
+    if(file){
+        var img = new Image();
+        img.src = _URL.createObjectURL(file);
+        readURL(this, "KioskBackgroundPreview");
+        encodeImagetoBase64(this, "KioskBackgroundBase64");
+    }
+});
 </script>
 @endpush

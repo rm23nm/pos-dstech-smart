@@ -585,6 +585,12 @@
                                 </button>
                             </div>
                             <div class="demo-btn-wrapper">
+                                <button type="button" class="btn btn-demo-auto w-100" style="color: #20c997;" data-email="demoklinik@pos.dstechsmart.com" data-pass="12345678">
+                                    <i class="bi bi-hospital"></i>
+                                    <span style="font-size: 0.7rem;">Klinik</span>
+                                </button>
+                            </div>
+                            <div class="demo-btn-wrapper">
                                 <button type="button" class="btn btn-demo-auto w-100" style="color: #e65100;" data-email="demobengkel@pos.dstechsmart.com" data-pass="12345678">
                                     <i class="bi bi-wrench-adjustable-circle-fill"></i>
                                     <span style="font-size: 0.7rem;">Bengkel</span>

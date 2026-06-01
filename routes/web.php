@@ -1,6 +1,77 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+Route::get('/setup-klinik', function () {
+    require base_path('setup_klinik.php');
+    return 'Setup Klinik Completed.';
+});
+
+// Klinik Routes
+Route::namespace('App\Http\Controllers\Klinik')->middleware(['auth', 'check.session'])->group(function () {
+    Route::get('/klinik-dashboard', 'KlinikController@dashboard')->name('klinik-dashboard');
+    
+    // Kiosk Antrean
+    Route::get('/klinik-kiosk', 'KioskController@index')->name('klinik-kiosk');
+    Route::post('/klinik-kiosk/ambil', 'KioskController@ambilAntrean')->name('klinik-kiosk.ambil');
+    Route::get('/klinik-display', 'KioskController@display')->name('klinik-display');
+    Route::get('/klinik-display/data', 'KioskController@getDisplayData')->name('klinik-display.data');
+    Route::post('/klinik-kiosk/panggil', 'KioskController@panggil')->name('klinik-kiosk.panggil');
+    Route::post('/klinik-kiosk/ulangi', 'KioskController@ulangiPanggil')->name('klinik-kiosk.ulangi');
+    Route::post('/klinik-kiosk/update-status/{id}', 'KioskController@updateStatus')->name('klinik-kiosk.updateStatus');
+
+    Route::get('/klinik-patients', 'PatientController@index')->name('klinik-patients');
+    Route::post('/klinik-patients/store', 'PatientController@store')->name('klinik-patients.store');
+    Route::post('/klinik-patients/update/{id}', 'PatientController@update')->name('klinik-patients.update');
+    Route::get('/klinik-patients/destroy/{id}', 'PatientController@destroy')->name('klinik-patients.destroy');
+    
+    Route::get('/klinik-doctors', 'DoctorController@index')->name('klinik-doctors');
+    Route::post('/klinik-doctors/store', 'DoctorController@store')->name('klinik-doctors.store');
+    Route::post('/klinik-doctors/update/{id}', 'DoctorController@update')->name('klinik-doctors.update');
+    Route::get('/klinik-doctors/destroy/{id}', 'DoctorController@destroy')->name('klinik-doctors.destroy');
+    Route::get('/klinik-emr', 'MedicalRecordController@index')->name('klinik-emr');
+    Route::get('/klinik-emr/create/{appointmentId}', 'MedicalRecordController@create')->name('klinik-emr.create');
+    Route::post('/klinik-emr/store/{appointmentId}', 'MedicalRecordController@store')->name('klinik-emr.store');
+    Route::get('/klinik-appointments', 'AppointmentController@index')->name('klinik-appointments');
+    Route::post('/klinik-appointments/store', 'AppointmentController@store')->name('klinik-appointments.store');
+    Route::post('/klinik-appointments/update/{id}', 'AppointmentController@update')->name('klinik-appointments.update');
+    Route::get('/klinik-appointments/destroy/{id}', 'AppointmentController@destroy')->name('klinik-appointments.destroy');
+    Route::get('/klinik-appointments/doctors/{poliId}', 'AppointmentController@getDoctorsByPoli')->name('klinik-appointments.doctors');
+    Route::get('/klinik-appointments/get-patient-bpjs/{patientId}', 'AppointmentController@getPatientBpjs')->name('klinik-appointments.get-patient-bpjs');
+    Route::post('/klinik-appointments/panggil', 'AppointmentController@panggilPoli')->name('klinik-appointments.panggil');
+    Route::post('/klinik-appointments/ulangi', 'AppointmentController@ulangiPanggilPoli')->name('klinik-appointments.ulangi');
+    
+    // Display Antrean Poli
+    Route::get('/klinik-display-poli/{poli_id}', 'AppointmentController@displayPoli')->name('klinik-display-poli');
+    Route::get('/klinik-display-poli/data/{poli_id}', 'AppointmentController@getDisplayPoliData')->name('klinik-display-poli.data');
+
+    // Klinik Loket Management
+    Route::get('/klinik-loket', 'KioskController@loketIndex')->name('klinik-loket.index')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-loket/store', 'KioskController@loketStore')->name('klinik-loket.store')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-loket/update', 'KioskController@loketUpdate')->name('klinik-loket.update')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-loket/delete', 'KioskController@loketDestroy')->name('klinik-loket.delete')->middleware(['auth', 'check.session']);
+
+    // Asuransi Master Routes
+    Route::get('/klinik-asuransi', 'KlinikAsuransiController@index')->name('klinik-asuransi.index')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-asuransi/store', 'KlinikAsuransiController@store')->name('klinik-asuransi.store')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-asuransi/update', 'KlinikAsuransiController@update')->name('klinik-asuransi.update')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-asuransi/delete', 'KlinikAsuransiController@destroy')->name('klinik-asuransi.delete')->middleware(['auth', 'check.session']);
+
+    // BPJS Integration Routes
+    Route::get('/klinik-bpjs', 'KlinikBpjsController@setting')->name('klinik-bpjs.setting')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-bpjs/store', 'KlinikBpjsController@storeSetting')->name('klinik-bpjs.store')->middleware(['auth', 'check.session']);
+    Route::post('/klinik-bpjs/cek', 'PatientController@cekBpjs')->name('klinik-bpjs.cek')->middleware(['auth', 'check.session']);
+
+    Route::get('/klinik-jasa', 'JasaMedisController@index')->name('klinik-jasa');
+    Route::post('/klinik-jasa/store', 'JasaMedisController@store')->name('klinik-jasa.store');
+    Route::post('/klinik-jasa/update/{id}', 'JasaMedisController@update')->name('klinik-jasa.update');
+    Route::get('/klinik-jasa/destroy/{id}', 'JasaMedisController@destroy')->name('klinik-jasa.destroy');
+    Route::get('/klinik-poli', 'PoliController@index')->name('klinik-poli');
+    Route::post('/klinik-poli/store', 'PoliController@store')->name('klinik-poli.store');
+    Route::post('/klinik-poli/update/{id}', 'PoliController@update')->name('klinik-poli.update');
+    Route::get('/klinik-poli/destroy/{id}', 'PoliController@destroy')->name('klinik-poli.destroy');
+});
+
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LoginSlideController;

@@ -418,6 +418,12 @@
 											'submenu' => [],
 											'ParentType' => 1
 										],
+										'klinik' => [
+											'PermissionName' => 'Management Klinik',
+											'Icon' => 'fas fa-hospital',
+											'submenu' => [],
+											'ParentType' => 1
+										],
 										'system' => [
 											'PermissionName' => 'Sistem & Pengaturan',
 											'Icon' => 'fas fa-cogs',
@@ -692,14 +698,91 @@
 									}
 									
 									// Masukkan item Apotek
-									if (count($apotekItems) > 0 && ($jenisUsaha == 'Apotek' || $jenisUsaha == 'Klinik')) {
-										foreach ($apotekItems as $apt) {
-											$newDisplaySubmenu[] = $apt;
+									if (count($apotekItems) > 0) {
+										if ($jenisUsaha == 'Klinik') {
+											// Do NOT put apotek displays into klinik menu, put them into display menu
+											foreach ($apotekItems as $apt) {
+												$newDisplaySubmenu[] = $apt;
+											}
+											// Tambahkan submenu khusus klinik di sini sebagai placeholder
+											$premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Siklus Klinik',
+												'Link' => 'klinik-dashboard',
+												'Icon' => 'fas fa-project-diagram',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+											$premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Kunjungan / Antrean',
+												'Link' => 'klinik-appointments',
+												'Icon' => 'fas fa-calendar-check',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+											$premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Master Pasien',
+												'Link' => 'klinik-patients',
+												'Icon' => 'fas fa-users',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+											$premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Jadwal Dokter',
+												'Link' => 'klinik-doctors',
+												'Icon' => 'fas fa-user-md',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+											$premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Rekam Medis (EMR)',
+												'Link' => 'klinik-emr',
+												'Icon' => 'fas fa-notes-medical',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+                                            $premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Jasa Medis',
+												'Link' => 'klinik-jasa',
+												'Icon' => 'fas fa-stethoscope',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+                                            $premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Master Poli',
+												'Link' => 'klinik-poli',
+												'Icon' => 'fas fa-clinic-medical',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+                                            $premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Master Asuransi',
+												'Link' => 'klinik-asuransi',
+												'Icon' => 'fas fa-shield-alt',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+                                            $premiumCategories['klinik']['submenu'][] = [
+												'PermissionName' => 'Pengaturan BPJS',
+												'Link' => 'klinik-bpjs',
+												'Icon' => 'fas fa-heartbeat',
+												'submenu' => [],
+												'ParentType' => 0
+											];
+										} elseif ($jenisUsaha == 'Apotek') {
+											foreach ($apotekItems as $apt) {
+												$newDisplaySubmenu[] = $apt;
+											}
 										}
 									}
 									
 									// Masukkan sisa menu display (misal Customer Display POS, Bengkel, dll)
 									foreach ($otherDisplayItems as $item) {
+										// Hide Queue Lapangan if not Billiard/Lapangan/Booking etc
+										if (strtolower(trim($item['PermissionName'])) == 'queue lapangan') {
+											if (in_array($jenisUsaha, ['Apotek', 'Klinik', 'Retail', 'Bengkel', 'Resto'])) {
+												continue; // Skip Queue Lapangan for these business types
+											}
+										}
 										$newDisplaySubmenu[] = $item;
 									}
 
@@ -768,7 +851,7 @@
 										],
 										'back_office' => [
 											'label' => 'MANAJEMEN & INVENTORI (BACK-OFFICE)',
-											'keys' => ['bengkel', 'resto', 'inventory', 'consignment', 'purchasing', 'crm']
+											'keys' => ['bengkel', 'klinik', 'resto', 'inventory', 'consignment', 'purchasing', 'crm']
 										],
 										'financial' => [
 											'label' => 'KEUANGAN & LAPORAN',
@@ -1225,9 +1308,11 @@
 	<script src="{{asset('api/quill/quill.min.js')}}"></script>
 	<script src="{{asset('api/editor/classic.ckeditor.js')}}"></script>
 
+	<script>var tempDefine = window.define; window.define = undefined;</script>
 	<script src="{{asset('api/datatable/jquery.dataTables.min.js')}}"></script>
 	<script src="{{asset('api/select2/select2.min.js')}}"></script>
 	<script src="{{asset('api/multiple-select/multiple-select.min.js')}}"></script>
+	<script>window.define = tempDefine;</script>
 	<script src="{{asset('js/script.bundle.js')}}"></script>
 	<script src="{{asset('js/script-slick.js')}}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
