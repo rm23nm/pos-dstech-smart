@@ -4,8 +4,8 @@
 // ========== KONFIGURASI JARINGAN (LAN) ==========
 // Tentukan MAC Address untuk modul LAN (harus unik di jaringan Anda)
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-// Pin CS (Chip Select) untuk modul Ethernet W5500 (Gunakan pin 14 pada ESP32-S3)
-const int ETH_CS_PIN = 14;
+// Pin CS (Chip Select) untuk modul Ethernet W5500 (umumnya pin 5 di ESP32)
+const int ETH_CS_PIN = 5;
 
 // ========== KONFIGURASI BACKEND ==========
 // Ganti localhost/127.0.0.1 dengan IP Server/Komputer yang menjalankan Laravel
@@ -23,8 +23,8 @@ const int RELAY_ON = HIGH;
 const int RELAY_OFF = LOW;
 
 // Pin Wiegand (Scanner/RFID)
-const int PIN_D0 = 21;
-const int PIN_D1 = 38;
+const int PIN_D0 = 22;
+const int PIN_D1 = 23;
 
 // ========== VARIABEL WIEGAND ==========
 volatile unsigned long wiegandValue = 0;
@@ -59,8 +59,6 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(PIN_D1), pinD1Interrupt, FALLING);
 
   // Hubungkan ke LAN (DHCP)
-  // Konfigurasi khusus SPI pin untuk ESP32-S3 (SCK=12, MISO=13, MOSI=11, CS=14)
-  SPI.begin(12, 13, 11, ETH_CS_PIN);
   Ethernet.init(ETH_CS_PIN);
   Serial.println("Mendapatkan IP dari DHCP...");
   

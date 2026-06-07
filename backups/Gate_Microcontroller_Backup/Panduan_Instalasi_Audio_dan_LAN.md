@@ -29,8 +29,8 @@ Hubungkan pin dari W5500 ke pin kuning (Header) di ESP32-S3 Shield menggunakan k
 
 ### C. Scanner Wiegand
 *   **12V & GND:** Hubungkan ke sumber daya (Terminal blok).
-*   **D0 (Hijau):** Hubungkan ke terminal baut biru **21**.
-*   **D1 (Putih):** Hubungkan ke terminal baut biru **38**.
+*   **D0 (Hijau):** Hubungkan ke pin **22**.
+*   **D1 (Putih):** Hubungkan ke pin **23**.
 
 ### D. Tombol Keluar (Exit Button)
 *   Kaki 1: Hubungkan ke pin **15**.

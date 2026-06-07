@@ -21,8 +21,8 @@ Pastikan semua perangkat dalam keadaan mati (tidak tercolok listrik) sebelum mel
 Scanner Wiegand umumnya memiliki 4 kabel utama (Merah, Hitam, Hijau, Putih).
 *   **Kabel Merah (12V):** Hubungkan ke **Terminal VCC 12V** (Atau ambil arus paralel dari soket DC 12V input).
 *   **Kabel Hitam (GND):** Hubungkan ke deretan pin **GND (Hitam)** pada shield.
-*   **Kabel Hijau (Data 0 / D0):** Hubungkan ke terminal baut biru **21** pada shield.
-*   **Kabel Putih (Data 1 / D1):** Hubungkan ke terminal baut biru **38** pada shield.
+*   **Kabel Hijau (Data 0 / D0):** Hubungkan ke pin kuning **22** pada shield.
+*   **Kabel Putih (Data 1 / D1):** Hubungkan ke pin kuning **23** pada shield.
 *(Jika Anda memilih menggunakan komunikasi RS485 dari scanner, hubungkan kabel RS485 A dan B ke terminal blok biru RS485 di shield, namun pastikan script Arduino diubah ke mode serial).*
 
 ### B. Sambungan Relay (Built-in Shield) ke Tripod Gate
@@ -34,10 +34,10 @@ Papan shield Anda sudah memiliki Relay. Anda akan menggunakan **Relay 1** (yang 
 Jika Anda menggunakan modul W5500 eksternal (menggunakan komunikasi SPI):
 *   **VCC:** Hubungkan ke **3V3** ESP32.
 *   **GND:** Hubungkan ke **GND** ESP32.
-*   **CS (SCS):** Hubungkan ke **GPIO 14** ESP32.
-*   **SCK (SCLK):** Hubungkan ke **GPIO 12** ESP32.
-*   **MISO:** Hubungkan ke **GPIO 13** ESP32.
-*   **MOSI:** Hubungkan ke **GPIO 11** ESP32.
+*   **CS (SCS):** Hubungkan ke **GPIO 5** ESP32.
+*   **SCK (SCLK):** Hubungkan ke **GPIO 18** ESP32.
+*   **MISO:** Hubungkan ke **GPIO 19** ESP32.
+*   **MOSI:** Hubungkan ke **GPIO 23** ESP32 *(Catatan: Karena GPIO 23 dipakai oleh D1 Wiegand pada skrip default, jika Anda memakai W5500, pindahkan kabel Putih (D1) Wiegand ke pin **GPIO 21** dan ubah konfigurasi `PIN_D1` di dalam script `.ino` menjadi `21`)*.
 
 *(Catatan: Penggunaan WT32-ETH01 jauh lebih praktis karena tidak perlu menyambung pin SPI ini).*
 

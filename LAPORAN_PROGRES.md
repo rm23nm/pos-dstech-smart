@@ -190,3 +190,8 @@
 ### Langkah 19: Sinkronisasi Otomatis Hak Akses SuperAdmin dengan Paket (Subscription)
 *   **Deskripsi**: Menambahkan fitur sinkronisasi otomatis agar setiap kali pengguna (Admin Utama) membuat atau mengubah hak akses pada halaman **Produk Subscription** (`SubscriptionController.php`), sistem akan secara otomatis mendeteksi perusahaan-perusahaan yang memakai paket tersebut dan langsung mengatur (menyetarakan) fitur-fitur di dalam peran **SuperAdmin** perusahaan-perusahaan itu agar sama persis secara *default* dengan apa yang dicentang di paket berlangganan. Ini menghilangkan langkah manual untuk masuk ke menu Hak Akses (`roles/form`) untuk setiap pembaruan paket.
 *   **Status**: **Selesai**
+
+### Langkah 20: Penyesuaian Pin Modul Smart Gate ESP32-S3
+*   **Deskripsi**: Mengubah rancangan dan skrip firmware (.ino) Smart Gate untuk modul ESP32-S3 Expansion Shield STD TBLOCK. Pin Wiegand D0 dan D1 yang sebelumnya di-set pada pin 22 dan 23 (tidak tersedia di ESP32-S3) diubah menjadi pin 21 dan 38 yang berada langsung pada deretan Terminal Baut Biru agar mempermudah teknisi lapangan. Selain itu, penyesuaian pin SPI untuk modul LAN W5500 diubah dari (18, 19, 23) ke (12, 13, 11, 14) menyesuaikan ketersediaan pin pada modul S3.
+*   **Status**: **Selesai** (Semua file .ino dan panduan markdown telah disesuaikan: D0?GPIO 21, D1?GPIO 38, SPI W5500: SCK=12, MISO=13, MOSI=11, CS=14)
+

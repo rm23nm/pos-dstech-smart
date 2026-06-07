@@ -18,8 +18,8 @@ const int RELAY_PIN = 48; // Relay 1
 const int RELAY_ON = HIGH; 
 const int RELAY_OFF = LOW;
 
-const int PIN_D0 = 21;
-const int PIN_D1 = 38;
+const int PIN_D0 = 22;
+const int PIN_D1 = 23;
 
 const int EXIT_BTN_PIN = 15;
 

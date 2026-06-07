@@ -1,29 +1,33 @@
-#include <SPI.h>
-#include <Ethernet.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 #include "HardwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
 
-// ========== KONFIGURASI JARINGAN (LAN W5500) ==========
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-// Pin CS (Chip Select) untuk modul W5500 (Gunakan pin 14 pada ESP32-S3)
-const int ETH_CS_PIN = 14;
+// ========== KONFIGURASI WIFI ==========
+const char* ssid = "NAMA_WIFI_ANDA";
+const char* password = "PASSWORD_WIFI";
 
 // ========== KONFIGURASI BACKEND ==========
-const char* serverIpString = "192.168.1.100";
-const int serverPort = 8000;
+const char* serverUrl = "http://192.168.1.100:8000/api/gate/check"; 
 const String recordOwnerId = "PT001"; 
 
 // ========== KONFIGURASI PIN ESP32-S3 SHIELD ==========
+// Pin Relay
 const int RELAY_PIN = 48; // Relay 1
 const int RELAY_ON = HIGH; 
 const int RELAY_OFF = LOW;
 
-const int PIN_D0 = 21;
-const int PIN_D1 = 38;
+// Pin Wiegand (Scanner/RFID)
+const int PIN_D0 = 22;
+const int PIN_D1 = 23;
 
+// Pin Push Button Exit (Untuk memutar suara "Selamat Tinggal")
+// Hubungkan kabel tombol Exit ke Pin 15 dan GND.
 const int EXIT_BTN_PIN = 15;
 
-// Konfigurasi DFPlayer (Serial1 di ESP32-S3: RX=16, TX=17)
+// Konfigurasi DFPlayer Mini (Menggunakan Serial1 ESP32-S3)
+// Hubungkan TX DFPlayer ke RX ESP32 (Pin 16)
+// Hubungkan RX DFPlayer ke TX ESP32 (Pin 17)
 HardwareSerial mySoftwareSerial(1);
 DFRobotDFPlayerMini myDFPlayer;
 
@@ -50,7 +54,7 @@ void IRAM_ATTR pinD1Interrupt() {
 void setup() {
   Serial.begin(115200);
   
-  // Setup Relay & Tombol
+  // Setup Relay & Tombol Exit
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, RELAY_OFF);
   pinMode(EXIT_BTN_PIN, INPUT_PULLUP);
@@ -61,34 +65,31 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(PIN_D0), pinD0Interrupt, FALLING);
   attachInterrupt(digitalPinToInterrupt(PIN_D1), pinD1Interrupt, FALLING);
 
-  // Setup DFPlayer
+  // Setup DFPlayer (Serial1 di ESP32-S3: RX=16, TX=17)
   mySoftwareSerial.begin(9600, SERIAL_8N1, 16, 17);
   Serial.println("Inisialisasi DFPlayer Mini...");
+  
   if (!myDFPlayer.begin(mySoftwareSerial)) {
-    Serial.println("DFPlayer Gagal!");
+    Serial.println("Gagal mendeteksi DFPlayer: Cek koneksi kabel TX/RX atau MicroSD!");
   } else {
-    Serial.println("DFPlayer OK!");
-    myDFPlayer.volume(20);
+    Serial.println("DFPlayer Terhubung!");
+    myDFPlayer.volume(20); // Atur volume (0-30)
+    // myDFPlayer.play(3); // Putar suara startup opsional (003.mp3)
   }
 
-  // Setup Koneksi LAN W5500 
-  // Konfigurasi khusus SPI pin untuk ESP32-S3 (SCK=12, MISO=13, MOSI=11, CS=14)
-  SPI.begin(12, 13, 11, ETH_CS_PIN);
-  Ethernet.init(ETH_CS_PIN);
-  
-  Serial.println("Mendapatkan IP dari DHCP...");
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Gagal terhubung via LAN. Cek kabel!");
-  } else {
-    Serial.print("LAN Terhubung! IP Address: ");
-    Serial.println(Ethernet.localIP());
+  // Hubungkan WiFi
+  WiFi.begin(ssid, password);
+  Serial.print("Menghubungkan ke WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
   }
-  
-  Serial.println("Gate Controller Komplit (LAN+Audio) Siap!");
+  Serial.println("\nWiFi Terhubung! IP: " + WiFi.localIP().toString());
+  Serial.println("Gate Controller Siap!");
 }
 
 void loop() {
-  // 1. Cek Wiegand
+  // 1. Cek Wiegand (Seseorang Tap Kartu/Barcode)
   if (bitCount > 0 && (millis() - lastWiegandTime > 50)) {
     String identifier = String(wiegandValue);
     bitCount = 0;
@@ -99,14 +100,15 @@ void loop() {
   }
 
   // 2. Cek Tombol Keluar
+  // Jika tombol ditekkan (LOW) dan ada jeda anti-bouncing
   if (digitalRead(EXIT_BTN_PIN) == LOW) {
     if (!isExitBtnPressed && (millis() - lastExitPressTime > 1000)) {
       isExitBtnPressed = true;
       lastExitPressTime = millis();
       
       Serial.println("Tombol Keluar Ditekan!");
-      myDFPlayer.play(2); // "Selamat Tinggal"
-      openGate();         
+      myDFPlayer.play(2); // Putar file 002.mp3 ("Selamat Tinggal")
+      openGate();         // Buka Gate untuk keluar
     }
   } else {
     isExitBtnPressed = false;
@@ -114,46 +116,33 @@ void loop() {
 }
 
 void checkAccessBackend(String identifier) {
-  if (Ethernet.linkStatus() == LinkON) {
-    Serial.println("Memvalidasi...");
-    IPAddress serverIP(192, 168, 1, 100); 
-    
-    EthernetClient client;
-    if (client.connect(serverIP, serverPort)) {
-      String payload = "{\"identifier\": \"" + identifier + "\", \"record_owner_id\": \"" + recordOwnerId + "\"}";
-      
-      client.println("POST /api/gate/check HTTP/1.1");
-      client.print("Host: ");
-      client.println(serverIpString);
-      client.println("Content-Type: application/json");
-      client.println("X-Gate-Secret: DSTECH-SECURE-KEY-2026");
-      client.print("Content-Length: ");
-      client.println(payload.length());
-      client.println();
-      client.println(payload);
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(serverUrl);
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("X-Gate-Secret", "DSTECH-SECURE-KEY-2026");
 
-      String responseBody = "";
-      while (client.connected() || client.available()) {
-        if (client.available()) {
-          char c = client.read();
-          responseBody += c;
-        }
-      }
-      client.stop();
-      
+    String payload = "{\"identifier\": \"" + identifier + "\", \"record_owner_id\": \"" + recordOwnerId + "\"}";
+    int httpResponseCode = http.POST(payload);
+
+    if (httpResponseCode > 0) {
+      String responseBody = http.getString();
+      Serial.println("Response: " + responseBody);
+
       if (responseBody.indexOf("\"access\":true") > 0 || responseBody.indexOf("\"access\": true") > 0) {
         Serial.println("Akses Diizinkan!");
-        myDFPlayer.play(1); // "Silakan Masuk"
+        myDFPlayer.play(1); // Putar file 001.mp3 ("Silakan Masuk")
         openGate();
       } else {
         Serial.println("Akses Ditolak!");
-        myDFPlayer.play(4); // "Ditolak"
+        myDFPlayer.play(4); // Putar file 004.mp3 ("Akses Ditolak") opsional
       }
     } else {
-      Serial.println("Koneksi gagal!");
+      Serial.println("Error HTTP.");
     }
+    http.end();
   } else {
-    Serial.println("Kabel LAN putus!");
+    Serial.println("WiFi terputus!");
   }
 }
 

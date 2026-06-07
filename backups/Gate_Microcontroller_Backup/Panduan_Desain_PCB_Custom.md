@@ -4,23 +4,6 @@ Jika Anda berniat untuk mendesain dan mencetak papan PCB (Printed Circuit Board)
 
 Membuat PCB sendiri sangat berguna jika Anda ingin membuat produk ini secara massal (produksi banyak) untuk klien-klien *Smart Gate* Anda dengan label merk nama perusahaan Anda sendiri.
 
-Link Pembelian Wigen dan RFID Reader: 
-https://shopee.co.id/Reader-QR-Code-13.56Mhz-USB-Wiegand-TCP-IP-RS485-QRCode-Scanner-RFID-MF-USB-WG26-TCP-IP-RS485-i.270286562.27765533744?extraParams=%7B%22display_model_id%22%3A118491518845%2C%22model_selection_logic%22%3A3%7D&sp_atk=c1a4d40e-ba7e-4d87-a839-aeeb69fa8397&xptdk=c1a4d40e-ba7e-4d87-a839-aeeb69fa8397
-
-Link ESP 32 :
-https://shopee.co.id/ESP32-S3-DevKitC-N16R8-Development-Board-WiFi-Bluetooth-PSRAM-ESP32S3-i.39683264.25004188241?extraParams=%7B%22display_model_id%22%3A240110703388%2C%22model_selection_logic%22%3A3%7D&sp_atk=ddd85f55-6fa3-4174-bd57-9832a1dd73f2&xptdk=ddd85f55-6fa3-4174-bd57-9832a1dd73f2
-
-Link Shild Board ESP 32 : 
-https://shopee.co.id/Shield-Expansion-Gpio-For-Esp32-S3-Devkitc-1-1U-N16R8-N8R8-Breakout-Board-i.1771903422.46057093863?extraParams=%7B%22display_model_id%22%3A395632052522%2C%22model_selection_logic%22%3A3%7D&sp_atk=c0d38fc1-1b32-4060-9ab5-0e7a3219155e&xptdk=c0d38fc1-1b32-4060-9ab5-0e7a3219155e
-
-Modul Lan :
-https://shopee.co.id/KYWARE-W5500-Ethernet-Shield-Module-LAN-for-Arduino-Uno-Mega-Development-Board-TCP-IP-Network-i.70136393.45156329944?extraParams=%7B%22display_model_id%22%3A267414228347%2C%22model_selection_logic%22%3A3%7D&sp_atk=c7713a89-f49c-4f26-8c5d-67232f02967c&xptdk=c7713a89-f49c-4f26-8c5d-67232f02967c
-
-Modul DFP Player Suara:
-https://shopee.co.id/DFPlayer-Mini-MP3-Player-Module-MP3-TF-16P-%E2%80%93-Modul-Pemutar-MP3-untuk-Arduino-dan-Proyek-Elektronik-i.62956347.6909690947?extraParams=%7B%22display_model_id%22%3A61163232776%2C%22model_selection_logic%22%3A3%7D&sp_atk=341d9172-4ce0-4283-999b-e55228507294&xptdk=341d9172-4ce0-4283-999b-e55228507294
-
-
-
 ---
 
 ## BAGIAN 1: Skema Jalur (Routing Schematic)
@@ -75,8 +58,7 @@ Gunakan *Screw Terminal Block* 2-Pin.
 Jika Anda ingin PCB yang terlihat profesional, disablon warna hijau/hitam, dan anti karat (bukan PCB bolong-bolong yang disolder kawat manual), ikuti langkah modern ini:
 
 ### 1. Gunakan Software Desain (Contoh: EasyEDA)
-** 
-** adalah aplikasi perancang PCB berbasis web yang paling populer untuk pemula dan profesional (gratis).
+**EasyEDA** adalah aplikasi perancang PCB berbasis web yang paling populer untuk pemula dan profesional (gratis).
 1. Buka situs `easyeda.com` dan buat *Project* baru.
 2. **Buat Schematic (.sch):** Masukkan komponen (*ESP32-S3, DFPlayer, W5500, Terminal Block, LM2596*) dari *Library* yang tersedia. Hubungkan kaki-kaki komponen menggunakan garis *Wire* sesuai panduan *Routing* di BAGIAN 1.
 3. **Ubah ke PCB (.pcb):** Klik tombol *Convert to PCB*.

@@ -17,9 +17,8 @@ const int RELAY_PIN = 48; // Relay 1
 const int RELAY_ON = HIGH; 
 const int RELAY_OFF = LOW;
 
-// Pin Wiegand (Scanner/RFID)
-const int PIN_D0 = 22;
-const int PIN_D1 = 23;
+const int PIN_D0 = 21;
+const int PIN_D1 = 38;
 
 // Pin Push Button Exit (Untuk memutar suara "Selamat Tinggal")
 // Hubungkan kabel tombol Exit ke Pin 15 dan GND.

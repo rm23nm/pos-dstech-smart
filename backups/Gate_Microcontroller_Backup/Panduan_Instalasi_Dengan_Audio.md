@@ -42,8 +42,8 @@ Pastikan Adaptor tidak dicolokkan ke listrik saat merangkai!
 ### B. Sambungan Scanner Wiegand ke Shield ESP32-S3
 *   **Kabel Merah (12V):** Hubungkan ke **Terminal VCC 12V**.
 *   **Kabel Hitam (GND):** Hubungkan ke pin **GND**.
-*   **Kabel Hijau (D0):** Hubungkan ke terminal baut biru **21** pada shield.
-*   **Kabel Putih (D1):** Hubungkan ke terminal baut biru **38** pada shield.
+*   **Kabel Hijau (D0):** Hubungkan ke pin **22** pada shield.
+*   **Kabel Putih (D1):** Hubungkan ke pin **23** pada shield.
 
 ### C. Sambungan Relay ke Tripod Gate
 *   Hubungkan terminal **COM** pada **Relay 1** (Relay di papan Shield) ke terminal **COM/GND** pada Mainboard Tripod Gate.
