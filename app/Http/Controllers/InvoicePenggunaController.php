@@ -278,6 +278,34 @@ class InvoicePenggunaController extends Controller
 		$TotalPembelian = $jsonData['TotalPembelian'];
 		$oCompany = Company::where('KodePartner','=',Auth::user()->RecordOwnerID)->first();
 		
+        $provider = env('GLOBAL_PAYMENT_PROVIDER', 'Midtrans');
+
+        if ($provider === 'Xendit') {
+            try {
+                $secret_key = env('XENDIT_SECRET_KEY');
+                $order_id = $jsonData['NoTransaksi'] ?? uniqid();
+                
+                $response = \Illuminate\Support\Facades\Http::withBasicAuth($secret_key, '')
+                    ->post('https://api.xendit.co/v2/invoices', [
+                        'external_id' => $order_id,
+                        'amount' => floatval($TotalPembelian),
+                        'payer_email' => Auth::user()->email,
+                        'description' => 'Pembayaran Tagihan SaaS ' . $oCompany->NamaPartner,
+                        'success_redirect_url' => url('/tagihanpengguna'),
+                        'failure_redirect_url' => url('/tagihanpengguna')
+                    ]);
+
+                if ($response->successful()) {
+                    $body = $response->json();
+                    return response()->json(['invoice_url' => $body['invoice_url'], 'provider' => 'xendit']);
+                } else {
+                    return response()->json(['error' => 'Xendit Error: ' . $response->body()]);
+                }
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()]);
+            }
+        }
+
 		Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');

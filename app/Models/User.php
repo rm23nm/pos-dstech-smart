@@ -23,6 +23,16 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function payroll()
+    {
+        return $this->hasOne(KaryawanPayroll::class, 'user_id', 'id');
+    }
+
+    public function komponenGaji()
+    {
+        return $this->hasMany(KaryawanKomponenGaji::class, 'user_id', 'id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

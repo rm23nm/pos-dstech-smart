@@ -398,10 +398,12 @@ class PembayaranPenjualanController extends Controller
 		$oCompany = Company::where('KodePartner','=',Auth::user()->RecordOwnerID)->first();
 		
 		if(count($GetSetting) > 0){
-			Config::$serverKey = $GetSetting[0]['ServerKey'];
-			Config::$isProduction = config('midtrans.is_production');
-			Config::$isSanitized = config('midtrans.is_sanitized');
-			Config::$is3ds = config('midtrans.is_3ds');
+			if (($GetSetting[0]['Provider'] ?? 'Midtrans') == 'Midtrans') {
+				Config::$serverKey = $GetSetting[0]['ServerKey'];
+				Config::$isProduction = config('midtrans.is_production');
+				Config::$isSanitized = config('midtrans.is_sanitized');
+				Config::$is3ds = config('midtrans.is_3ds');
+			}
 
 			// Get Customer
 
@@ -539,30 +541,58 @@ class PembayaranPenjualanController extends Controller
 
 			skipvalidasi:
 
-			// Data transaksi yang akan dikirimkan ke Midtrans
-			$transaction_details = [
-				'order_id' => uniqid(),
-				'gross_amount' => floatval($TotalPembelian), // Jumlah total transaksi
-			];
+			$provider = $GetSetting[0]['Provider'] ?? 'Midtrans';
 
-			$customer_details = [
-				'first_name' => $Pelanggan[0]['NamaPelanggan'],
-			];
+			if ($provider == 'Xendit') {
+				try {
+					$secret_key = $GetSetting[0]['ServerKey'];
+					$order_id = uniqid();
+					$response = \Illuminate\Support\Facades\Http::withBasicAuth($secret_key, '')
+								->withHeaders([
+									'api-version' => '2022-07-31'
+								])
+								->post('https://api.xendit.co/qr_codes', [
+									'external_id' => $order_id,
+									'type' => 'DYNAMIC',
+									'callback_url' => url('/api/payment/xendit/notify'),
+									'amount' => floatval($TotalPembelian)
+								]);
 
-			$transaction = [
-				'transaction_details' => $transaction_details,
-            	'customer_details' => $customer_details,
-				'payment_type' => 'qris',
-            	'qris' => []
-			];
+					if ($response->successful()) {
+						$body = $response->json();
+						return response()->json(['qr_string' => $body['qr_string'], 'provider' => 'xendit', 'order_id' => $order_id]);
+					} else {
+						return response()->json(['error' => 'Xendit Error: ' . $response->body()]);
+					}
+				} catch (\Exception $e) {
+					return response()->json(['error' => $e->getMessage()]);
+				}
+			} else {
+				// Data transaksi yang akan dikirimkan ke Midtrans
+				$transaction_details = [
+					'order_id' => uniqid(),
+					'gross_amount' => floatval($TotalPembelian), // Jumlah total transaksi
+				];
 
-			// dd($transaction);
+				$customer_details = [
+					'first_name' => $Pelanggan[0]['NamaPelanggan'],
+				];
 
-			try {
-				$snapToken = Snap::getSnapToken($transaction);
-				return response()->json(['snap_token' => $snapToken]);
-			} catch (\Exception $e) {
-				return response()->json(['error' => $e->getMessage()]);
+				$transaction = [
+					'transaction_details' => $transaction_details,
+	            	'customer_details' => $customer_details,
+					'payment_type' => 'qris',
+	            	'qris' => []
+				];
+
+				// dd($transaction);
+
+				try {
+					$snapToken = Snap::getSnapToken($transaction);
+					return response()->json(['snap_token' => $snapToken, 'provider' => 'midtrans']);
+				} catch (\Exception $e) {
+					return response()->json(['error' => $e->getMessage()]);
+				}
 			}
 		}
 		else{

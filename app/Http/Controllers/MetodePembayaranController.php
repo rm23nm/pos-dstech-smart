@@ -71,6 +71,8 @@ class MetodePembayaranController extends Controller
             $model->Active = $request->input('Active');
             $model->MetodeVerifikasi = $request->input('MetodeVerifikasi');
             $model->TipePembayaran = $request->input('TipePembayaran');
+            $model->Provider = $request->input('Provider') ?? 'Midtrans';
+            $model->WebhookToken = $request->input('WebhookToken');
             $model->ClientKey = $request->input('ClientKey');
             $model->ServerKey = $request->input('ServerKey');
             $model->MerchantID = $request->input('MerchantID');
@@ -116,6 +118,8 @@ class MetodePembayaranController extends Controller
                     'Active' => $request->input('Active'),
                     'MetodeVerifikasi' => $request->input('MetodeVerifikasi'),
                     'TipePembayaran' => $request->input('TipePembayaran'),
+                    'Provider' => $request->input('Provider') ?? 'Midtrans',
+                    'WebhookToken' => $request->input('WebhookToken'),
                     'ClientKey' => $request->input('ClientKey'),
                     'ServerKey' => $request->input('ServerKey'),
                     'MerchantID' => $request->input('MerchantID'),
@@ -180,6 +184,8 @@ class MetodePembayaranController extends Controller
                     'Active' => $request->input('Active'),
                     'MetodeVerifikasi' => $request->input('MetodeVerifikasi'),
                     'TipePembayaran' => $request->input('TipePembayaran'),
+                    'Provider' => $request->input('Provider') ?? 'Midtrans',
+                    'WebhookToken' => $request->input('WebhookToken'),
                     'ClientKey' => $request->input('ClientKey'),
                     'ServerKey' => $request->input('ServerKey'),
                     'MerchantID' => $request->input('MerchantID'),

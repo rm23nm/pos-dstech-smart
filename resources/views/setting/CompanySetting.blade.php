@@ -2514,6 +2514,10 @@ var oCompany;
 			})
 			.then(response => response.json())
 			.then(data => {
+                if (data.provider === 'xendit' && data.invoice_url) {
+                    window.location.href = data.invoice_url;
+                    return;
+                }
 				if (data.snap_token) {
 					snap.pay(data.snap_token, {
 						onSuccess: function(result){

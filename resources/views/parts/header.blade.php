@@ -388,6 +388,12 @@
 											'submenu' => [],
 											'ParentType' => 1
 										],
+										'hrd' => [
+											'PermissionName' => 'HRD & Absensi',
+											'Icon' => 'fas fa-user-clock',
+											'submenu' => [],
+											'ParentType' => 1
+										],
 										'finance' => [
 											'PermissionName' => 'Kas, Bank & Biaya',
 											'Icon' => 'fas fa-wallet',
@@ -574,6 +580,8 @@
 													$targetCat = 'display';
 												} elseif ($l2Name === 'konsinyasi') {
 													$targetCat = 'consignment';
+												} elseif ($l2Name === 'management attendance' || str_contains($l2Name, 'absensi') || in_array($l2Name, ['pengajuan izin', 'approval izin', 'master gaji', 'proses penggajian', 'pengaturan libur'])) {
+													$targetCat = 'hrd';
 												} elseif ($l2Name === 'inventory') {
 													$targetCat = 'inventory';
 												} elseif ($l2Name === 'jurnal entry') {
@@ -851,7 +859,7 @@
 										],
 										'back_office' => [
 											'label' => 'MANAJEMEN & INVENTORI (BACK-OFFICE)',
-											'keys' => ['bengkel', 'klinik', 'resto', 'inventory', 'consignment', 'purchasing', 'crm']
+											'keys' => ['bengkel', 'klinik', 'resto', 'inventory', 'consignment', 'purchasing', 'crm', 'hrd']
 										],
 										'financial' => [
 											'label' => 'KEUANGAN & LAPORAN',
@@ -905,7 +913,7 @@
 														<ul class="nav flex-column">
 															@if (count($lv1['submenu']) > 0)
 																@foreach ($lv1['submenu'] as $lv2)
-																	@if ($lv2['ParentType'] == 1)
+																	@if (isset($lv2['ParentType']) && $lv2['ParentType'] == 1)
 																		@php 
 																			$lv2ExactActive = is_nav_exact_active($lv2);
 																			$lv2ChildActive = is_nav_child_active($lv2);

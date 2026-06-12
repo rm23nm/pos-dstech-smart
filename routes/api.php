@@ -37,6 +37,13 @@ Route::post('test',[PrintingRecieptController::class,'GetData']);
 Route::post('printerlist',[PrinterController::class,'Read']);
 Route::post('printerstore',[PrinterController::class,'store']);
 Route::post('printeredit',[PrinterController::class,'edit']);
+Route::post('/payment/midtrans/notify', [WebhookController::class, 'handleNotification']);
+Route::post('/payment/xendit/notify', [WebhookController::class, 'handleXenditNotification']);
+
+// Xendit SaaS Payment Webhook
+Route::post('/saas/payment/xendit/notify', [\App\Http\Controllers\XenditSaaSWebhookController::class, 'handle']);
+
+
 Route::post('printerdelete',[PrinterController::class,'delete']);
 Route::post('testnotif',[PrinterController::class,'TestNotif']);
 

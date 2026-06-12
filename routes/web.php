@@ -1644,3 +1644,42 @@ Route::post('/queue-apotek/getData', [QueueApotekController::class, 'handleQueue
 Route::post('/queue-apotek/handleQueue', [QueueApotekController::class, 'handleQueue'])->name('queue-apotek-handleQueue');
 Route::post('/queue-apotek/recall', [QueueApotekController::class, 'recallApotek'])->name('queue-apotek-recall');
 Route::get('/countermonitor-apotek', [QueueApotekController::class, 'CounterMonitorApotek'])->name('countermonitor-apotek')->middleware(['auth', 'check.session']);
+
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\PengajuanAbsenController;
+
+/*
+|--------------------------------------------------------------------------
+| Absensi Karyawan & Pengajuan Izin
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/dashboard-absensi', [AbsensiController::class, 'dashboardAbsensi'])->name('dashboard-absensi')->middleware(['auth', 'check.session']);
+
+Route::get('/absensi-saya', [AbsensiController::class, 'absensiSaya'])->name('absensi-saya')->middleware(['auth', 'check.session']);
+Route::post('/absensi-saya/masuk', [AbsensiController::class, 'absenMasuk'])->name('absensi-masuk')->middleware(['auth', 'check.session']);
+Route::post('/absensi-saya/pulang', [AbsensiController::class, 'absenPulang'])->name('absensi-pulang')->middleware(['auth', 'check.session']);
+Route::get('/laporan-absensi', [AbsensiController::class, 'laporanAbsensi'])->name('laporan-absensi')->middleware(['auth', 'check.session']);
+
+Route::get('/pengajuan-izin', [PengajuanAbsenController::class, 'pengajuanSaya'])->name('pengajuan-izin')->middleware(['auth', 'check.session']);
+Route::post('/pengajuan-izin/store', [PengajuanAbsenController::class, 'storePengajuan'])->name('pengajuan-izin-store')->middleware(['auth', 'check.session']);
+
+Route::get('/approval-izin', [PengajuanAbsenController::class, 'approvalIzin'])->name('approval-izin')->middleware(['auth', 'check.session']);
+Route::post('/approval-izin/proses', [PengajuanAbsenController::class, 'prosesApproval'])->name('approval-izin-proses')->middleware(['auth', 'check.session']);
+
+use App\Http\Controllers\PenggajianController;
+use App\Http\Controllers\HariLiburController;
+
+// Pengaturan Libur
+Route::get('/hari-libur', [HariLiburController::class, 'index'])->name('hari-libur')->middleware(['auth', 'check.session']);
+Route::post('/hari-libur/store', [HariLiburController::class, 'store'])->name('hari-libur-store')->middleware(['auth', 'check.session']);
+Route::post('/hari-libur/destroy', [HariLiburController::class, 'destroy'])->name('hari-libur-destroy')->middleware(['auth', 'check.session']);
+Route::get('/master-gaji', [PenggajianController::class, 'masterGaji'])->name('master-gaji')->middleware(['auth', 'check.session']);
+Route::post('/master-gaji/store', [PenggajianController::class, 'storeMasterGaji'])->name('master-gaji-store')->middleware(['auth', 'check.session']);
+Route::get('/master-gaji/komponen/{id}', [PenggajianController::class, 'getKomponenGaji'])->name('master-gaji-komponen-get')->middleware(['auth', 'check.session']);
+Route::post('/master-gaji/komponen/store', [PenggajianController::class, 'storeKomponenGaji'])->name('master-gaji-komponen-store')->middleware(['auth', 'check.session']);
+
+// 2. PROSES PENGGAJIAN
+
+Route::get('/proses-penggajian', [PenggajianController::class, 'prosesPenggajian'])->name('proses-penggajian')->middleware(['auth', 'check.session']);
+Route::post('/proses-penggajian/posting', [PenggajianController::class, 'postingKasKeluar'])->name('posting-kas-keluar')->middleware(['auth', 'check.session']);

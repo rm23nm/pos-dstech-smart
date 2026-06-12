@@ -80,6 +80,7 @@
                             'consignment' => ['PermissionName' => 'Barang Konsinyasi', 'Icon' => 'fas fa-handshake', 'submenu' => [], 'ParentType' => 1],
                             'purchasing' => ['PermissionName' => 'Pembelian & Supplier', 'Icon' => 'fas fa-shopping-cart', 'submenu' => [], 'ParentType' => 1],
                             'crm' => ['PermissionName' => 'Mitra Bisnis & CRM', 'Icon' => 'fas fa-users', 'submenu' => [], 'ParentType' => 1],
+                            'hrd' => ['PermissionName' => 'HRD & Absensi', 'Icon' => 'fas fa-user-clock', 'submenu' => [], 'ParentType' => 1],
                             'finance' => ['PermissionName' => 'Kas, Bank & Biaya', 'Icon' => 'fas fa-wallet', 'submenu' => [], 'ParentType' => 1],
                             'accounting' => ['PermissionName' => 'Akuntansi & COA', 'Icon' => 'fas fa-book', 'submenu' => [], 'ParentType' => 1],
                             'reports_sales' => ['PermissionName' => 'Laporan Bisnis & Stok', 'Icon' => 'fas fa-chart-bar', 'submenu' => [], 'ParentType' => 1],
@@ -160,6 +161,8 @@
                                         $targetCat = 'display';
                                     } elseif ($l2Name === 'konsinyasi') {
                                         $targetCat = 'consignment';
+                                    } elseif ($l2Name === 'management attendance' || str_contains($l2Name, 'absensi') || in_array($l2Name, ['pengajuan izin', 'approval izin', 'master gaji', 'proses penggajian', 'pengaturan libur'])) {
+                                        $targetCat = 'hrd';
                                     } elseif ($l2Name === 'inventory') {
                                         $targetCat = 'inventory';
                                     } elseif ($l2Name === 'jurnal entry') {
@@ -202,7 +205,7 @@
 
                         $sectionGroups = [
                             'front_office' => ['label' => 'OPERASIONAL (FRONT-OFFICE)', 'keys' => ['pos', 'billiard', 'booking', 'display']],
-                            'back_office' => ['label' => 'MANAJEMEN & INVENTORI (BACK-OFFICE)', 'keys' => ['resto', 'bengkel', 'inventory', 'consignment', 'purchasing', 'crm']],
+                            'back_office' => ['label' => 'MANAJEMEN & INVENTORI (BACK-OFFICE)', 'keys' => ['resto', 'bengkel', 'inventory', 'consignment', 'purchasing', 'crm', 'hrd']],
                             'financial' => ['label' => 'KEUANGAN & LAPORAN', 'keys' => ['finance', 'accounting', 'reports_sales', 'reports_accounting']],
                             'system' => ['label' => 'PENGATURAN & SISTEM', 'keys' => ['system']]
                         ];

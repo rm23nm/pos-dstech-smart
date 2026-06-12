@@ -125,7 +125,7 @@
 	                            			</fieldset>
 	                            		</div>
 
-	                            		<div class="col-md-6">
+	                            		<div class="col-md-4">
 	                            			<label  class="text-body">Metode Verifikasi</label>
 	                            			<fieldset class="form-group mb-3">
 	                            				<select name="MetodeVerifikasi" id="MetodeVerifikasi" class="js-example-basic-single js-states form-control bg-transparent" name="state" >
@@ -135,7 +135,7 @@
 	                            			</fieldset>
 	                            			
 	                            		</div>
-	                            		<div class="col-md-6">
+	                            		<div class="col-md-4">
 	                            			<label  class="text-body">Tipe Pembayaran</label>
 	                            			<fieldset class="form-group mb-3">
 	                            				<select name="TipePembayaran" id="TipePembayaran" class="js-example-basic-single js-states form-control bg-transparent" name="state" >
@@ -144,6 +144,16 @@
 												</select>
 	                            			</fieldset>
 	                            			
+	                            		</div>
+
+										<div class="col-md-4" id="divProvider" style="display: none;">
+	                            			<label  class="text-body">Gateway Provider</label>
+	                            			<fieldset class="form-group mb-3">
+	                            				<select name="Provider" id="Provider" class="js-example-basic-single js-states form-control bg-transparent">
+													<option value="Midtrans" {{ count($metodepembayaran) > 0 ? $metodepembayaran[0]['Provider'] == 'Midtrans' ? "selected" : '' :""}}>Midtrans</option>
+													<option value="Xendit" {{ count($metodepembayaran) > 0 ? $metodepembayaran[0]['Provider'] == 'Xendit' ? "selected" : '' :""}}>Xendit</option>
+												</select>
+	                            			</fieldset>
 	                            		</div>
 
 	                            		<div class="col-md-6">
@@ -171,20 +181,20 @@
 											</fieldset>
 										</div>
 
-										<div id="divMidtrans" style="display: none">
-											<hr>
+										<div id="divMidtrans" style="display: none; width: 100%; display: flex; flex-wrap: wrap;">
 											<div class="col-md-12">
-												<center>Midtrans Secret Information</center>
+												<hr>
+												<center id="titleSecretInfo">Gateway Secret Information</center>
 											</div>
 
-											<div class="col-md-4">
+											<div class="col-md-4 midtrans-field">
 												<label  class="text-body">Merchant ID</label>
 												<fieldset class="form-group mb-3">
 													<input type="text" class="form-control" id="MerchantID" name="MerchantID" placeholder="Masukan Nama MerchantID" value="{{ count($metodepembayaran) > 0 ? $metodepembayaran[0]['MerchantID'] : '' }}" >
 												</fieldset>
 											</div>
 
-											<div class="col-md-4">
+											<div class="col-md-4 midtrans-field">
 												<label  class="text-body">Client Key</label>
 												<fieldset class="form-group mb-3">
 													<input type="text" class="form-control" id="ClientKey" name="ClientKey" placeholder="Masukan Nama ClientKey" value="{{ count($metodepembayaran) > 0 ? $metodepembayaran[0]['ClientKey'] : '' }}" >
@@ -192,9 +202,16 @@
 											</div>
 
 											<div class="col-md-4">
-												<label  class="text-body">Server Key</label>
+												<label  class="text-body" id="lblServerKey">Server Key</label>
 												<fieldset class="form-group mb-3">
-													<input type="text" class="form-control" id="ServerKey" name="ServerKey" placeholder="Masukan Nama ServerKey" value="{{ count($metodepembayaran) > 0 ? $metodepembayaran[0]['ServerKey'] : '' }}" >
+													<input type="password" class="form-control" id="ServerKey" name="ServerKey" placeholder="Masukan Secret/Server Key" value="{{ count($metodepembayaran) > 0 ? $metodepembayaran[0]['ServerKey'] : '' }}" >
+												</fieldset>
+											</div>
+
+											<div class="col-md-4 xendit-field" style="display: none;">
+												<label  class="text-body">Webhook Token (Opsional)</label>
+												<fieldset class="form-group mb-3">
+													<input type="password" class="form-control" id="WebhookToken" name="WebhookToken" placeholder="Masukan Xendit Webhook Token" value="{{ count($metodepembayaran) > 0 ? $metodepembayaran[0]['WebhookToken'] : '' }}" >
 												</fieldset>
 											</div>
 										</div>
@@ -239,19 +256,41 @@
 	});
 
 	jQuery('#MetodeVerifikasi').change(function () {
-		// MetodeVerifikasi
-		// alert('asdasd');
 		if(jQuery('#MetodeVerifikasi').val() == "AUTO"){
-			jQuery('#divMidtrans').css({
-				"display" : "contents"
-			})
+			jQuery('#divProvider').css({"display" : "block"});
+			jQuery('#divMidtrans').css({"display" : "flex"});
+			toggleProviderFields();
 		}
 		else{
-			jQuery('#divMidtrans').css({
-				"display" : "none"
-			})
+			jQuery('#divProvider').css({"display" : "none"});
+			jQuery('#divMidtrans').css({"display" : "none"});
 		}
 	});
+
+	jQuery('#Provider').change(function() {
+		toggleProviderFields();
+	});
+
+	function toggleProviderFields() {
+		if(jQuery('#Provider').val() == "Xendit") {
+			jQuery('.midtrans-field').hide();
+			jQuery('.xendit-field').show();
+			jQuery('#lblServerKey').text('Xendit Secret API Key');
+			jQuery('#titleSecretInfo').text('Xendit Secret Information');
+		} else {
+			jQuery('.midtrans-field').show();
+			jQuery('.xendit-field').hide();
+			jQuery('#lblServerKey').text('Midtrans Server Key');
+			jQuery('#titleSecretInfo').text('Midtrans Secret Information');
+		}
+	}
+
+	// Trigger on load
+	if(jQuery('#MetodeVerifikasi').val() == "AUTO") {
+		jQuery('#divProvider').css({"display" : "block"});
+		jQuery('#divMidtrans').css({"display" : "flex"});
+		toggleProviderFields();
+	}
 
 	jQuery('#image_result').click(function(){
         $('#Attachment').click();

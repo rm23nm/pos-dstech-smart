@@ -107,35 +107,61 @@
                                             </fieldset>
                                         </div>
 
-                                        <div class="col-md-6">
-                                            <label  class="text-body">MidTrans Server Key</label>
-                                            <fieldset class="form-group mb-3">
-                                                <input type="text" class="form-control" id="MIDTRANS_SERVER_KEY" name="MIDTRANS_SERVER_KEY" placeholder="Masukan MidTrans Server Key" value="{{ $envArray['MIDTRANS_SERVER_KEY'] }}">
-                                            </fieldset>
+                                        <div class="col-md-12 mt-4">
+                                            <h4 class="text-primary font-weight-bold">Pengaturan Payment Gateway (Global SaaS)</h4>
+                                            <hr>
                                         </div>
 
-                                        <div class="col-md-6">
-                                            <label  class="text-body">MidTrans Client Key</label>
+                                        <div class="col-md-12">
+                                            <label class="text-body">Global Payment Provider</label>
                                             <fieldset class="form-group mb-3">
-                                                <input type="text" class="form-control" id="MIDTRANS_CLIENT_KEY" name="MIDTRANS_CLIENT_KEY" placeholder="Masukan MidTrans Client Key" value="{{ $envArray['MIDTRANS_CLIENT_KEY'] }}">
-                                            </fieldset>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label  class="text-body">MidTrans Mercant ID</label>
-                                            <fieldset class="form-group mb-3">
-                                                <input type="text" class="form-control" id="MIDTRANS_MERCHAT_ID" name="MIDTRANS_MERCHAT_ID" placeholder="Masukan MidTrans Mercant ID" value="{{ $envArray['MIDTRANS_MERCHAT_ID'] }}">
-                                            </fieldset>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label  class="text-body">IS Production</label>
-                                            <fieldset class="form-group mb-3">
-                                                <select required id="MIDTRANS_IS_PRODUCTION" name="MIDTRANS_IS_PRODUCTION" class="js-example-basic-single form-control text-dark border-0 p-0 h-20px font-size-h5">
-                                                    <option value="true"  {{ $envArray['MIDTRANS_MERCHAT_ID'] ? 'selected':'' }}>True</option>
-                                                    <option value="false" {{ $envArray['MIDTRANS_MERCHAT_ID'] ? 'selected':'' }}>False</option>
+                                                <select id="GLOBAL_PAYMENT_PROVIDER" name="GLOBAL_PAYMENT_PROVIDER" class="js-example-basic-single form-control text-dark border-0 p-0 h-20px font-size-h5" onchange="toggleProvider()">
+                                                    <option value="Midtrans" {{ (isset($envArray['GLOBAL_PAYMENT_PROVIDER']) ? $envArray['GLOBAL_PAYMENT_PROVIDER'] : 'Midtrans') == 'Midtrans' ? 'selected' : '' }}>Midtrans</option>
+                                                    <option value="Xendit" {{ (isset($envArray['GLOBAL_PAYMENT_PROVIDER']) ? $envArray['GLOBAL_PAYMENT_PROVIDER'] : '') == 'Xendit' ? 'selected' : '' }}>Xendit</option>
                                                 </select>
                                             </fieldset>
+                                        </div>
+
+                                        <div class="col-md-12 p-0 m-0" id="midtrans_fields" style="display: {{ (isset($envArray['GLOBAL_PAYMENT_PROVIDER']) ? $envArray['GLOBAL_PAYMENT_PROVIDER'] : 'Midtrans') == 'Midtrans' ? 'flex' : 'none' }}; flex-wrap: wrap;">
+                                            <div class="col-md-6">
+                                                <label class="text-body">MidTrans Server Key</label>
+                                                <fieldset class="form-group mb-3">
+                                                    <input type="text" class="form-control" id="MIDTRANS_SERVER_KEY" name="MIDTRANS_SERVER_KEY" placeholder="Masukan MidTrans Server Key" value="{{ $envArray['MIDTRANS_SERVER_KEY'] ?? '' }}">
+                                                </fieldset>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="text-body">MidTrans Client Key</label>
+                                                <fieldset class="form-group mb-3">
+                                                    <input type="text" class="form-control" id="MIDTRANS_CLIENT_KEY" name="MIDTRANS_CLIENT_KEY" placeholder="Masukan MidTrans Client Key" value="{{ $envArray['MIDTRANS_CLIENT_KEY'] ?? '' }}">
+                                                </fieldset>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="text-body">MidTrans Mercant ID</label>
+                                                <fieldset class="form-group mb-3">
+                                                    <input type="text" class="form-control" id="MIDTRANS_MERCHAT_ID" name="MIDTRANS_MERCHAT_ID" placeholder="Masukan MidTrans Mercant ID" value="{{ $envArray['MIDTRANS_MERCHAT_ID'] ?? '' }}">
+                                                </fieldset>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="text-body">IS Production</label>
+                                                <fieldset class="form-group mb-3">
+                                                    <select required id="MIDTRANS_IS_PRODUCTION" name="MIDTRANS_IS_PRODUCTION" class="js-example-basic-single form-control text-dark border-0 p-0 h-20px font-size-h5">
+                                                        <option value="true"  {{ isset($envArray['MIDTRANS_IS_PRODUCTION']) && $envArray['MIDTRANS_IS_PRODUCTION'] == 'true' ? 'selected':'' }}>True</option>
+                                                        <option value="false" {{ isset($envArray['MIDTRANS_IS_PRODUCTION']) && $envArray['MIDTRANS_IS_PRODUCTION'] == 'false' ? 'selected':'' }}>False</option>
+                                                    </select>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 p-0 m-0" id="xendit_fields" style="display: {{ (isset($envArray['GLOBAL_PAYMENT_PROVIDER']) ? $envArray['GLOBAL_PAYMENT_PROVIDER'] : '') == 'Xendit' ? 'flex' : 'none' }}; flex-wrap: wrap;">
+                                            <div class="col-md-12">
+                                                <label class="text-body">Xendit Secret API Key</label>
+                                                <fieldset class="form-group mb-3">
+                                                    <input type="password" class="form-control" id="XENDIT_SECRET_KEY" name="XENDIT_SECRET_KEY" placeholder="Masukan Xendit Secret Key (e.g. xnd_...)" value="{{ $envArray['XENDIT_SECRET_KEY'] ?? '' }}">
+                                                </fieldset>
+                                            </div>
                                         </div>
 
                                         <div class="col-md-12 mt-4">
@@ -181,6 +207,15 @@
 @push('scripts')
 <script src="{{ asset('js/jquery.nestable.js')}}"></script>
 <script type="text/javascript">
-	
+    function toggleProvider() {
+        var provider = document.getElementById("GLOBAL_PAYMENT_PROVIDER").value;
+        if (provider === 'Xendit') {
+            document.getElementById("midtrans_fields").style.display = "none";
+            document.getElementById("xendit_fields").style.display = "flex";
+        } else {
+            document.getElementById("midtrans_fields").style.display = "flex";
+            document.getElementById("xendit_fields").style.display = "none";
+        }
+    }
 </script>
 @endpush

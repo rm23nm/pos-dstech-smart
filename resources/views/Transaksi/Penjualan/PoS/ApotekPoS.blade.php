@@ -3912,8 +3912,24 @@ License: You must have a valid license purchased only from themeforest(the above
 		})
 		.then(response => response.json())
 		.then(data => {
-			if (data.snap_token) {
-				snap.pay(data.snap_token, {
+			if (data.provider == 'xendit' && data.qr_string) {
+                Swal.fire({
+                    title: 'Scan QRIS',
+                    html: '<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(data.qr_string) + '" /><br><br><p>Tunggu hingga Pelanggan berhasil membayar.</p>',
+                    showCancelButton: true,
+                    confirmButtonText: 'Selesai & Tutup Transaksi',
+                    cancelButtonText: 'Batal',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#NomorRefrensiPembayaran').val(data.order_id);
+                        SaveData(Status, ButonObject, ButtonDefaultText);
+                    } else {
+                        Swal.fire('Dibatalkan', 'Transaksi dibatalkan', 'error');
+                    }
+                });
+            } else if (data.snap_token) {
+                snap.pay(data.snap_token, {
 					onSuccess: function(result){
 						// console.log(result);
 						if(result.transaction_status == "cancel"){
