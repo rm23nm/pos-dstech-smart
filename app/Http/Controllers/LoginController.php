@@ -43,7 +43,7 @@ class LoginController extends Controller
             return app(\App\Http\Controllers\FnBStoreController::class)->indexCustomDomain($request);
         }
         
-        $subscriptionheader = SubscriptionHeader::all();
+        $subscriptionheader = SubscriptionHeader::with('permissions')->get();
         return view("welcome",[
             'subscriptionheader' => $subscriptionheader
         ]);
@@ -56,7 +56,7 @@ class LoginController extends Controller
             return app(\App\Http\Controllers\FnBStoreController::class)->showLoginCustom();
         }
 
-        $subscriptionheader = SubscriptionHeader::all();
+        $subscriptionheader = SubscriptionHeader::with('permissions')->get();
         $loginslides = LoginSlide::where('is_active', 1)->orderBy('order_num', 'asc')->get();
         return view("auth.login",[
             'subscriptionheader' => $subscriptionheader,
@@ -66,7 +66,7 @@ class LoginController extends Controller
 
     public function Register() {
         // dd("Masuk");
-        $subscriptionheader = SubscriptionHeader::all();
+        $subscriptionheader = SubscriptionHeader::with('permissions')->get();
         $provinsi = Provinsi::all();
         $kota = Kota::all();
         $kelurahan = Kelurahan::all();

@@ -221,7 +221,7 @@
            
 			<div class="posicon d-flex">
 				<a href="{{ url('gate/logs') }}" class="btn btn-info d-flex align-items-center justify-content-center white me-2">Log Gate</a>
-				<a href="{{ url('fnb-pos') }}" class="btn btn-danger d-flex align-items-center justify-content-center white me-2">POS</a>
+				<a href="{{ url('fpenjualan/pos') }}" class="btn btn-danger d-flex align-items-center justify-content-center white me-2">POS</a>
 			</div>
 			<button class="btn p-0" id="tc_aside_mobile_toggle">
 				<svg width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-justify-right" fill="currentColor"

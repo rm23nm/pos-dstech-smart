@@ -348,6 +348,14 @@
 
 ---
 
+## 5. Rincian Pekerjaan Sesi Sekarang (Penambahan Link Download Mobile)
+
+### Langkah 1: Penambahan Link Download Aplikasi Mobile di Landing Page
+*   **Deskripsi**: Menambahkan tombol link download aplikasi mobile di bagian CTA (Call to Action) halaman utama (`welcome.blade.php`).
+*   **Status**: **Selesai (100%)**
+
+---
+
 ### Langkah 12: Perbaikan Format Nomor Faktur POS
 *   **Deskripsi**: Mengembalikan format penomoran faktur menjadi `POS[tahun][bulan][tanggal][nomor 3 digit]` yang sebelumnya tidak menambahkan unsur tanggal. Modifikasi dilakukan pada fungsi `GetNewDoc` dan `GetNewDocMobile` di file `DocumentNumbering.php` agar khusus untuk `DocType == 'POS'` secara otomatis menyisipkan format hari/tanggal (`d`) ke dalam *prefix* nomor transaksi.
 *   **Status**: **Selesai**
