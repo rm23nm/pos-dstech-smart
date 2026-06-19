@@ -225,6 +225,27 @@
 				<a href="#" id="btn-update-notification" class="btn btn-warning btn-update-notification d-flex align-items-center justify-content-center white me-2 pulse-update" style="display: none !important; font-weight: bold; background-color: #ffc107; color: #000;">
 					<i class="fas fa-exclamation-circle text-dark me-2"></i> Update Tersedia
 				</a>
+                <?php
+                    $licenseWarnMobile = false;
+                    $licenseDaysLeftMobile = 0;
+                    $licensePathMobile = storage_path('app/offline_license.json');
+                    if (file_exists($licensePathMobile)) {
+                        $lDataMobile = json_decode(file_get_contents($licensePathMobile), true);
+                        if (isset($lDataMobile['valid_until'])) {
+                            $diffMobile = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($lDataMobile['valid_until']), false);
+                            if ($diffMobile <= 7 && $diffMobile >= 0) {
+                                $licenseWarnMobile = true;
+                                $licenseDaysLeftMobile = (int)$diffMobile;
+                            }
+                        }
+                    }
+                ?>
+                <?php if($licenseWarnMobile): ?>
+                <a href="#" class="btn btn-danger d-flex align-items-center justify-content-center white me-2" title="Segera hubungi Admin Pusat untuk perpanjangan." style="font-weight: bold;">
+                    <i class="fas fa-clock text-white me-2"></i> H-<?php echo e($licenseDaysLeftMobile); ?>
+
+                </a>
+                <?php endif; ?>
 			</div>
 			<button class="btn p-0" id="tc_aside_mobile_toggle">
 				<svg width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-justify-right" fill="currentColor"
@@ -632,6 +653,13 @@
 											'PermissionName' => 'Panduan Offline POS',
 											'Link' => 'panduan-offline-pos',
 											'Icon' => 'fas fa-book',
+											'submenu' => [],
+											'ParentType' => 0
+										];
+										$premiumCategories['system']['submenu'][] = [
+											'PermissionName' => 'Offline License (POS)',
+											'Link' => 'admin.offline-licenses',
+											'Icon' => 'fas fa-key',
 											'submenu' => [],
 											'ParentType' => 0
 										];
@@ -1070,6 +1098,29 @@
 							<a href="#" class="btn btn-warning btn-update-notification d-flex align-items-center justify-content-center white me-2 pulse-update" style="display: none !important; font-weight: bold; background-color: #ffc107; color: #000;">
 								<i class="fas fa-exclamation-circle text-dark me-2"></i> Update Tersedia
 							</a>
+
+                            <?php
+                                $licenseWarn = false;
+                                $licenseDaysLeft = 0;
+                                $licensePath = storage_path('app/offline_license.json');
+                                if (file_exists($licensePath)) {
+                                    $lData = json_decode(file_get_contents($licensePath), true);
+                                    if (isset($lData['valid_until'])) {
+                                        $diff = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($lData['valid_until']), false);
+                                        if ($diff <= 7 && $diff >= 0) {
+                                            $licenseWarn = true;
+                                            $licenseDaysLeft = (int)$diff;
+                                        }
+                                    }
+                                }
+                            ?>
+
+                            <?php if($licenseWarn): ?>
+							<a href="#" class="btn btn-danger d-flex align-items-center justify-content-center white me-2" title="Segera hubungi Admin Pusat untuk perpanjangan." style="font-weight: bold;">
+								<i class="fas fa-clock text-white me-2"></i> Lisensi Habis <?php echo e($licenseDaysLeft == 0 ? 'Hari Ini' : "H-{$licenseDaysLeft}"); ?>
+
+							</a>
+                            <?php endif; ?>
 						</div>
 
 						<!--begin::Quick Actions-->

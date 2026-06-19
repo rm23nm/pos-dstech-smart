@@ -14,6 +14,9 @@ class AddBpjsColumnsToKlinikPatientsTable extends Migration
     public function up()
     {
         Schema::table('klinik_patients', function (Blueprint $table) {
+            if (!Schema::hasColumn('klinik_patients', 'NoKartuBPJS')) {
+                $table->string('NoKartuBPJS')->nullable()->after('RiwayatAlergi');
+            }
             if (!Schema::hasColumn('klinik_patients', 'KelasRawatBPJS')) {
                 $table->string('KelasRawatBPJS')->nullable()->after('NoKartuBPJS');
             }

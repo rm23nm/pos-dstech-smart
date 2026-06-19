@@ -31,7 +31,7 @@
                     <p>Untuk mengaktifkan sinkronisasi otomatis, ikuti langkah-langkah di bawah ini pada komputer kasir:</p>
                     <ol>
                         <li><strong>Pengaturan Database Live:</strong> Buka file <code>.env</code> di dalam folder POS lokal, dan tambahkan parameter berikut di baris paling bawah:
-                            <pre class="bg-dark p-2 rounded mt-2">
+                            <pre class="bg-dark text-white p-2 rounded mt-2">
 # LIVE DB CONFIGURATION (FOR OFFLINE POS SYNC)
 DB_LIVE_HOST=157.66.34.199
 DB_LIVE_PORT=3306
@@ -41,7 +41,7 @@ DB_LIVE_PASSWORD=password_live_anda</pre>
                             <em>Pastikan IP komputer lokal diizinkan (Remote MySQL) di cPanel/VPS server Live.</em>
                         </li>
                         <li class="mt-2"><strong>Update Struktur Database Lokal:</strong> Buka <em>Command Prompt (CMD)</em>, masuk ke folder aplikasi POS, dan jalankan perintah migrasi berikut untuk menambahkan penanda sinkronisasi:
-                            <pre class="bg-dark p-2 rounded mt-2">C:\xampp\php\php.exe artisan migrate</pre>
+                            <pre class="bg-dark text-white p-2 rounded mt-2">C:\xampp\php\php.exe artisan migrate</pre>
                         </li>
                         <li class="mt-2"><strong>Aktivasi Sinkronisasi Otomatis:</strong> Di dalam folder POS, cari file bernama <code>install_sync_scheduler.bat</code>. <strong>Klik Kanan &gt; Run as Administrator</strong>. Script ini akan otomatis memasang <em>Windows Task Scheduler</em> agar proses sinkronisasi berjalan senyap setiap menit di latar belakang.</li>
                     </ol>
