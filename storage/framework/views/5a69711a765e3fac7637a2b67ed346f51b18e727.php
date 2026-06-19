@@ -784,23 +784,53 @@
         <div class="feature-grid">
             <div class="feature-card reveal">
                 <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-                <h3>Transaksi Kilat</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Proses pembayaran kurang dari 3 detik dengan berbagai metode: QRIS, Tunai, & Kartu.</p>
+                <h3>Transaksi Kilat & Multi-Payment</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Proses pembayaran kurang dari 3 detik dengan berbagai metode: QRIS, Tunai, Kartu, & Split Bill.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon"><i class="fas fa-sync-alt"></i></div>
+                <h3>Native Offline Sync</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Kasir tetap bisa jalan lancar meski internet terputus. Data otomatis sinkron ke server saat online kembali.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon"><i class="fas fa-store"></i></div>
+                <h3>Multi-Cabang & Franchise</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Kelola puluhan cabang, atur harga berbeda tiap lokasi, dan pantau omzet dari satu dashboard terpusat.</p>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon"><i class="fas fa-boxes-stacked"></i></div>
-                <h3>Manajemen Stok</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Notifikasi otomatis saat stok menipis dan integrasi supplier yang sangat mudah.</p>
+                <h3>Manajemen Stok Akurat</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Notifikasi otomatis saat stok menipis, transfer stok antar cabang, dan laporan opname yang presisi.</p>
             </div>
             <div class="feature-card reveal">
-                <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                <h3>Laporan Real-Time</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Pantau omzet, laba rugi, dan produk terlaris langsung dari smartphone Anda kapan saja.</p>
+                <div class="feature-icon"><i class="fas fa-tv"></i></div>
+                <h3>Kitchen Display & Antrian</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Dilengkapi sistem layar dapur (KDS) terintegrasi dan layar antrian pelanggan (Customer Display).</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                <h3>Sistem Akuntansi Otomatis</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Pencatatan jurnal, buku besar, hingga laporan Laba Rugi dan Neraca tersusun otomatis tanpa repot.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon"><i class="fas fa-calendar-check"></i></div>
+                <h3>Booking & Reservasi Online</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Pelanggan dapat melakukan reservasi meja, lapangan olahraga, atau klinik secara mandiri via link khusus.</p>
             </div>
             <div class="feature-card reveal">
                 <div class="feature-icon"><i class="fas fa-users"></i></div>
-                <h3>Loyalty Program</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Kelola data pelanggan dan buat program promo khusus untuk meningkatkan repeat order.</p>
+                <h3>CRM & Loyalty Program</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Kumpulkan data pelanggan, kelola poin reward, diskon member, dan bagi-bagi voucher promo.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon"><i class="fas fa-microchip"></i></div>
+                <h3>Integrasi IoT Cerdas</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Koneksikan POS dengan berbagai perangkat IoT, seperti saklar lampu biliar otomatis atau mesin cuci mobil pintar.</p>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon"><i class="fas fa-parking"></i></div>
+                <h3>Sistem Gate & Parkir</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1rem;">Mendukung integrasi palang pintu otomatis (barrier gate) untuk manajemen tiket wisata, wahana, maupun area parkir.</p>
             </div>
         </div>
     </section>

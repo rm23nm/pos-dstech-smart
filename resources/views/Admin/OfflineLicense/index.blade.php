@@ -116,7 +116,14 @@
           <div class="modal-body">
             <div class="mb-3">
               <label for="client_name" class="form-label">Nama Client / Toko / Cabang</label>
-              <input type="text" class="form-control" id="client_name" name="client_name" required placeholder="Contoh: Toko Sejahtera">
+              <select class="form-control mb-2" id="client_name_select" onchange="toggleCustomClient()">
+                  <option value="">-- Pilih Client dari Database --</option>
+                  @foreach($companies as $company)
+                      <option value="{{ $company->NamaPartner }}">{{ $company->KodePartner }} - {{ $company->NamaPartner }}</option>
+                  @endforeach
+                  <option value="custom">++ Ketik Manual / Client Baru ++</option>
+              </select>
+              <input type="text" class="form-control" id="client_name" name="client_name" required placeholder="Ketik nama client manual..." style="display: none;">
             </div>
             <div class="mb-3">
               <label for="jumlah_lisensi" class="form-label">Jumlah Lisensi yang Dibuat</label>
@@ -154,7 +161,8 @@
 	});
 
     function openAddModal() {
-        $('#client_name').val('');
+        $('#client_name_select').val('');
+        $('#client_name').val('').hide();
         $('#jumlah_lisensi').val('1');
         $('#max_devices').val('1');
         $('#valid_until').val('{{ date('Y-m-d', strtotime('+1 year')) }}');
@@ -163,6 +171,15 @@
             new bootstrap.Modal(document.getElementById('addModal')).show();
         } else {
             $('#addModal').modal('show');
+        }
+    }
+
+    function toggleCustomClient() {
+        var sel = $('#client_name_select').val();
+        if(sel === 'custom') {
+            $('#client_name').val('').show().focus();
+        } else {
+            $('#client_name').val(sel).hide();
         }
     }
 </script>

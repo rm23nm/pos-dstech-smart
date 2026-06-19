@@ -11,7 +11,8 @@ class OfflineLicenseAdminController extends Controller
     public function index()
     {
         $licenses = OfflineLicense::orderBy('created_at', 'desc')->get();
-        return view('Admin.OfflineLicense.index', compact('licenses'));
+        $companies = \App\Models\Company::select('KodePartner', 'NamaPartner')->orderBy('NamaPartner', 'asc')->get();
+        return view('Admin.OfflineLicense.index', compact('licenses', 'companies'));
     }
 
     public function generate()

@@ -658,7 +658,7 @@
 										];
 										$premiumCategories['system']['submenu'][] = [
 											'PermissionName' => 'Offline License (POS)',
-											'Link' => 'admin.offline-licenses',
+											'Link' => 'admin/offline-licenses',
 											'Icon' => 'fas fa-key',
 											'submenu' => [],
 											'ParentType' => 0
