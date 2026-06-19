@@ -221,7 +221,7 @@
 | Sesi Sekarang | **Perbaikan Pilihan Metode Pembayaran Tidak Bisa Diklik** | **Selesai** | Mengubah selektor jQuery dari `$('#'+item.id)` menjadi `$(item)` pada file views `ApotekPoS.blade.php`, `FnBPoS.blade.php`, `NormalPoS.blade.php`, dan `NormalPoS_Premium.blade.php` agar kompatibel dengan ID numerik. |
 | Sesi Sekarang | **Penyederhanaan Menu Sidebar untuk Tiket Gate, Retail & FnB** | **Selesai** | Memodifikasi `header.blade.php` untuk otomatis menyembunyikan kategori menu yang tidak relevan. Pada `TiketGate` menyembunyikan (Booking, Resto, Inventory, dll), sedangkan pada `Retail` & `FnB` menyesuaikan fitur yang relevan dengan tipe usaha. |
 | Sesi Sekarang | **Perbaikan Tampilan Pembuatan Paket Langganan di Super Admin** | **Selesai** | Memodifikasi `Subscription-Input.blade.php`. Mengganti pengelompokan "Retail" menjadi "Kasir & Back-office" dan "Hiburan" menjadi "Booking & IoT". Menyesuaikan script JS agar paket FnB dapat melihat dan memilih menu Kasir, Inventori, Booking, dan IoT. |
-
+| Sesi Sekarang | **Sistem Lisensi Offline & POS Desktop (1-Klik)** | **Selesai** | Membuat sistem `OfflineLicense` & `OfflineLicenseDevice` (tanpa prefix sesuai rule), verifikasi Hardware ID, bypass deadlock localhost di `OfflineClientController`, dan bundling script VBS/BAT untuk menjalankan POS 1-klik tanpa tampilan XAMPP (Desktop-like). Batal menggunakan Obfuscator karena diblokir Antivirus. |
 
 ---
 
@@ -491,3 +491,12 @@
     4. Merombak *Controller* (`PenggajianController.php`) agar sistem mengenali dan mengalikan `JamLembur` dengan tarif lembur per karyawan. Total Tunjangan (Uang Makan x Hari Hadir, dll) serta Total Potongan Lainnya (BPJS, dll) juga dihitung secara otomatis untuk memformulasikan hasil *Take Home Pay*.
     5. Menambahkan 2 kolom tabel baru yaitu **Total Tunjangan** dan **Potongan Lainnya** (beserta rincian detailnya) pada tampilan *Proses Penggajian*.
 *   **Status**: **Selesai**
+
+### Langkah X: Implementasi Sinkronisasi Offline POS (Native MySQL)
+*   **Deskripsi**: Mengubah arsitektur Offline POS dari SQLite/Node.js menjadi menggunakan Native MySQL (Database lokal xpos). Menambahkan script migration kolom is_synced, command Artisan pos:sync, serta membuat file install_sync_scheduler.bat untuk otomatisasi background task.
+*   **Status**: **Selesai (100%)**
+
+### Langkah 12: Pembuatan Desktop App Mode Launcher
+*   **Deskripsi**: Membuat simulasi aplikasi Desktop mandiri tanpa address bar (menggunakan mode --app Chrome) serta VBScript untuk background service server lokal dan auto-sync database.
+*   **Status**: Selesai.
+

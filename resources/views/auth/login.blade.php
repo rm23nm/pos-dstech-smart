@@ -648,7 +648,22 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-login">MASUK <i class="bi bi-box-arrow-in-right ms-1"></i></button>
-                            <a href="{{ route('daftar') }}" class="btn btn-register">DAFTAR AKUN BARU</a>
+                            <a href="{{ route('daftar') }}" class="btn btn-register mb-3">DAFTAR AKUN BARU</a>
+                        </div>
+                        
+                        <div class="row g-2 mt-2">
+                            <div class="col-6">
+                                <a href="{{ url('downloads/Setup_DSMS_POS.exe') }}" class="btn btn-outline-primary w-100" style="font-size: 0.8rem; padding: 10px; border-radius: 8px;">
+                                    <i class="bi bi-windows mb-1 d-block" style="font-size: 1.5rem;"></i>
+                                    Aplikasi Desktop
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="#" class="btn btn-outline-success w-100" style="font-size: 0.8rem; padding: 10px; border-radius: 8px;">
+                                    <i class="bi bi-android2 mb-1 d-block" style="font-size: 1.5rem;"></i>
+                                    Aplikasi Mobile
+                                </a>
+                            </div>
                         </div>
                     </form>
 

@@ -76,3 +76,6 @@ Route::post('/gate/scan', [\App\Http\Controllers\GateApiController::class, 'scan
 
 // API untuk Gate ESP32
 Route::post('/gate/check', [App\Http\Controllers\GateController::class, 'checkAccess']);
+
+// API untuk Pengecekan Lisensi Offline dari Aplikasi Desktop/Mobile
+Route::post('/check-license', [App\Http\Controllers\LicenseController::class, 'checkLicense']);

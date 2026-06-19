@@ -25,6 +25,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('expired:send-alert')->dailyAt('08:00');
         // Kirim reminder servis bengkel 3 bulan setelah servis terakhir
         $schedule->command('bengkel:send-reminders')->dailyAt('09:00');
+        // Sinkronisasi POS Offline ke Live DB
+        $schedule->command('pos:sync')->everyFiveMinutes();
     }
 
     /**

@@ -233,6 +233,19 @@ Route::post('/gate-serialnumber/generate', [GateSerialNumberController::class, '
 Route::post('/gate-serialnumber/block', [GateSerialNumberController::class, 'block'])->name('gate-serialnumber-block')->middleware(['auth', 'check.session']);
 Route::post('/gate-serialnumber/unblock', [GateSerialNumberController::class, 'unblock'])->name('gate-serialnumber-unblock')->middleware(['auth', 'check.session']);
 
+// Admin Offline License
+use App\Http\Controllers\OfflineLicenseAdminController;
+Route::get('/admin/offline-licenses', [OfflineLicenseAdminController::class, 'index'])->name('admin.offline-licenses')->middleware(['auth', 'check.session']);
+Route::post('/admin/offline-licenses/generate', [OfflineLicenseAdminController::class, 'generate'])->name('admin.offline-licenses.generate')->middleware(['auth', 'check.session']);
+Route::post('/admin/offline-licenses/store', [OfflineLicenseAdminController::class, 'store'])->name('admin.offline-licenses.store')->middleware(['auth', 'check.session']);
+Route::post('/admin/offline-licenses/toggle/{id}', [OfflineLicenseAdminController::class, 'toggleStatus'])->name('admin.offline-licenses.toggle')->middleware(['auth', 'check.session']);
+Route::delete('/admin/offline-licenses/delete/{id}', [OfflineLicenseAdminController::class, 'destroy'])->name('admin.offline-licenses.delete')->middleware(['auth', 'check.session']);
+
+// Offline Client Activation
+use App\Http\Controllers\OfflineClientController;
+Route::get('/offline/activation', [OfflineClientController::class, 'showActivationForm'])->name('offline.activation');
+Route::post('/offline/activate', [OfflineClientController::class, 'activate'])->name('offline.activate');
+
 /*
 |--------------------------------------------------------------------------
 | Pelanggan
@@ -912,6 +925,10 @@ Route::post('/subs/editJson', [SubscriptionController::class, 'editJson'])->name
 |--------------------------------------------------------------------------
 |
 */
+Route::get('/panduan-offline-pos', function() {
+    return view('Admin.PanduanOfflinePos');
+})->name('panduan-offline-pos')->middleware(['auth', 'check.session']);
+
 Route::get('/penggunaaplikasi', [CompanyController::class,'AdminPelanggan'])->name('penggunaaplikasi')->middleware(['auth', 'check.session']);
 Route::post('/penggunaaplikasi/suspend', [CompanyController::class, 'UpdateSuspend'])->name('penggunaaplikasi-suspend')->middleware(['auth', 'check.session']);
 Route::post('/penggunaaplikasi/rubahlangganan', [CompanyController::class, 'UpdatePaket'])->name('penggunaaplikasi-rubahlangganan')->middleware(['auth', 'check.session']);

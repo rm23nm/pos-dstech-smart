@@ -183,6 +183,15 @@
                                                     <span class="nav-text">Invoice Pengguna</span>
                                                 </a>
                                             </li>
+
+                                            <li class="nav-item">
+                                                <a href="{{ route('panduan-offline-pos') }}" class="nav-link sub-nav-link">
+                                                    <span class="svg-icon nav-icon d-flex justify-content-center">
+                                                        <i class="fas fa-book font-size-h6"></i>
+                                                    </span>
+                                                    <span class="nav-text">Panduan Offline POS</span>
+                                                </a>
+                                            </li>
                                             
                                         </ul>
                                     </div>

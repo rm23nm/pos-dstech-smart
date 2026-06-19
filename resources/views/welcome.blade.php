@@ -723,6 +723,7 @@
                 @endauth
                 <a href="https://wa.me/6282258493130" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Demo Gratis</a>
                 <a href="{{ asset('downloads/dsms-pos.apk') }}" download class="btn-outline"><i class="fab fa-android"></i> Download App Mobile</a>
+                <a href="{{ asset('downloads/Setup_DSMS_POS.exe') }}" download class="btn-outline"><i class="fab fa-windows"></i> Download App Desktop</a>
             </div>
         </div>
         <div class="hero-image" style="position: relative;">

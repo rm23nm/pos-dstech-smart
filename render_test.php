@@ -1,1 +1,0 @@
-echo view('Transaksi.Penjualan.PoS.BengkelPoS', ['pelanggan'=>[], 'itemmaster'=>[], 'itemServices'=>[], 'diskon'=>[], 'metodepembayaran'=>[], 'company'=>[], 'sales'=>[], 'mekanik'=>[], 'gruppelanggan'=>[], 'provinsi'=>[], 'printer'=>[]])->render();

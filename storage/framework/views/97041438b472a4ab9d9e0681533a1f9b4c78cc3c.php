@@ -221,7 +221,10 @@
            
 			<div class="posicon d-flex">
 				<a href="<?php echo e(url('gate/logs')); ?>" class="btn btn-info d-flex align-items-center justify-content-center white me-2">Log Gate</a>
-				<a href="<?php echo e(url('fnb-pos')); ?>" class="btn btn-danger d-flex align-items-center justify-content-center white me-2">POS</a>
+				<a href="<?php echo e(url('fpenjualan/pos')); ?>" class="btn btn-danger d-flex align-items-center justify-content-center white me-2">POS</a>
+				<a href="#" id="btn-update-notification" class="btn btn-warning btn-update-notification d-flex align-items-center justify-content-center white me-2 pulse-update" style="display: none !important; font-weight: bold; background-color: #ffc107; color: #000;">
+					<i class="fas fa-exclamation-circle text-dark me-2"></i> Update Tersedia
+				</a>
 			</div>
 			<button class="btn p-0" id="tc_aside_mobile_toggle">
 				<svg width="20px" height="20px" viewBox="0 0 16 16" class="bi bi-justify-right" fill="currentColor"
@@ -621,6 +624,17 @@
 												}
 											}
 										}
+									}
+
+									// Tambahkan Menu Panduan Offline POS Khusus SuperAdmin (Pemilik Aplikasi)
+									if (Auth::user()->RecordOwnerID == '999999') {
+										$premiumCategories['system']['submenu'][] = [
+											'PermissionName' => 'Panduan Offline POS',
+											'Link' => 'panduan-offline-pos',
+											'Icon' => 'fas fa-book',
+											'submenu' => [],
+											'ParentType' => 0
+										];
 									}
 
 									// Add hardcoded Bengkel Menus if Jenis Usaha is Bengkel/Servis
@@ -1053,6 +1067,9 @@
 									<i class="fas fa-cash-register mr-1"></i> POS Kasir
 								</a>
 							<?php endif; ?>
+							<a href="#" class="btn btn-warning btn-update-notification d-flex align-items-center justify-content-center white me-2 pulse-update" style="display: none !important; font-weight: bold; background-color: #ffc107; color: #000;">
+								<i class="fas fa-exclamation-circle text-dark me-2"></i> Update Tersedia
+							</a>
 						</div>
 
 						<!--begin::Quick Actions-->
@@ -1567,6 +1584,64 @@
         }
     </script>
     <?php endif; ?>
+    <!-- Auto Update Checker Script -->
+    <style>
+        @keyframes  pulseUpdate {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+        .pulse-update {
+            animation: pulseUpdate 2s infinite;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Versi aplikasi lokal saat ini
+            const CURRENT_APP_VERSION = '1.0.0'; 
+            
+            // URL Pusat untuk mengecek versi (Fallback ke local jika gagal untuk keperluan testing)
+            const MASTER_SERVER_URL = 'https://pos.dstechsmart.com/downloads/update_info.json';
+            const LOCAL_TEST_URL = '/downloads/update_info.json';
+
+            function checkUpdate() {
+                // Gunakan LOCAL_TEST_URL untuk percobaan sekarang
+                fetch(LOCAL_TEST_URL, { cache: "no-store" })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.latest_version) {
+                            if (compareVersions(data.latest_version, CURRENT_APP_VERSION) > 0) {
+                                // Versi baru tersedia! Munculkan tombol
+                                const updateBtns = document.querySelectorAll('.btn-update-notification');
+                                updateBtns.forEach(btn => {
+                                    btn.style.setProperty('display', 'flex', 'important');
+                                    btn.setAttribute('href', data.download_url);
+                                    btn.setAttribute('title', data.release_notes);
+                                    btn.innerHTML = '<i class="fas fa-exclamation-circle text-dark me-2"></i> Update v' + data.latest_version;
+                                });
+                            }
+                        }
+                    })
+                    .catch(err => console.log('Update checker failed:', err));
+            }
+
+            // Fungsi sederhana untuk membandingkan versi (1.1.0 vs 1.0.0)
+            function compareVersions(v1, v2) {
+                const parts1 = v1.split('.').map(Number);
+                const parts2 = v2.split('.').map(Number);
+                for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+                    const num1 = parts1[i] || 0;
+                    const num2 = parts2[i] || 0;
+                    if (num1 > num2) return 1;
+                    if (num1 < num2) return -1;
+                }
+                return 0;
+            }
+
+            // Jalankan pengecekan setelah jeda 3 detik agar tidak mengganggu loading awal
+            setTimeout(checkUpdate, 3000);
+        });
+    </script>
 </body>
 <!--end::Body-->
 
